@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/instill-ai/internal-protogen-go/pipeline"
+	"github.com/instill-ai/protogen-go/pipeline"
 	"github.com/instill-ai/visual-data-pipeline/configs"
 	"github.com/instill-ai/visual-data-pipeline/internal/cache"
 	"github.com/instill-ai/visual-data-pipeline/pkg/models"

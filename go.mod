@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/instill-ai/internal-protogen-go v0.0.0-20220119163648-c0bb48052ff0
+	github.com/instill-ai/protogen-go v0.0.0-20220121071429-f56fdeee9a34
 	github.com/jinzhu/configor v1.2.1
 	go.temporal.io/api v1.7.0
 	go.temporal.io/sdk v1.12.0
