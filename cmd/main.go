@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bochengyang/zapadapter"
 	"github.com/instill-ai/visual-data-pipeline/configs"
 	"github.com/instill-ai/visual-data-pipeline/internal/cache"
 	"github.com/instill-ai/visual-data-pipeline/internal/health"
-	"github.com/instill-ai/visual-data-pipeline/internal/zapadapter"
 	"github.com/instill-ai/visual-data-pipeline/pkg/temporal"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"

@@ -3,6 +3,7 @@ module github.com/instill-ai/visual-data-pipeline
 go 1.17
 
 require (
+	github.com/bochengyang/zapadapter v0.0.0-20220121085749-17c3d7fe2323
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/instill-ai/protogen-go v0.0.0-20220121071429-f56fdeee9a34
 	github.com/jinzhu/configor v1.2.1
