@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: git://github.com/dnephin/pre-commit-golang
+    rev: v0.4.0
+    hooks:
+      - id: golangci-lint
+      - id: go-mod-tidy
+  - repo: https://github.com/pinglin/conventional-pre-commit
+    rev: v1.1.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]

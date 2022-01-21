@@ -1,0 +1,15 @@
+temporal:
+  namespaceoptions:
+    retentionhour: 168
+  clientoptions:
+    namespace: pipeline
+    hostport: temporal:7233
+vdo:
+  scheme: https
+  host: inference-server
+  port: 8443
+  path: inference/models/%s/versions/%s/outputs
+cache:
+  redis:
+    redisoptions:
+      addr: localhost:6379
