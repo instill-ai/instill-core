@@ -2,11 +2,15 @@ package configs
 
 import (
 	"flag"
-	"log"
 	"os"
+	"strings"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/configor"
+	"github.com/instill-ai/visual-data-pipeline/internal/logger"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
 	"go.temporal.io/sdk/client"
 )
 
@@ -42,19 +46,27 @@ type CacheConfig struct {
 	}
 }
 
-// assign global config to decoded config struct
+// Init - Assign global config to decoded config struct
 func Init() error {
+	logger, _ := logger.GetZapLogger()
+
+	k := koanf.New(".")
+	parser := yaml.Parser()
+
 	fs := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fileRelativePath := fs.String("file", "configs/config.yaml", "configuration file")
 	flag.Parse()
-	// Remove special `CONFIGOR` prefix for extracting variables from os environment purpose
-	os.Setenv("CONFIGOR_ENV_PREFIX", "-")
-	// For some reason, you can pass env to switch to different configurations
-	env, _ := os.LookupEnv("ENV")
-	// Load from default path, or you can use `-file=xxx` to another file
-	if err := configor.New(&configor.Config{Environment: env}).Load(&Config, *fileRelativePath); err != nil {
-		log.Fatal(err)
+
+	if err := k.Load(file.Provider(*fileRelativePath), parser); err != nil {
+		logger.Fatal(err.Error())
 	}
+
+	k.Load(env.Provider("CFG_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "CFG_")), "_", ".", -1)
+	}), nil)
+
+	k.Unmarshal("", &Config)
 
 	return ValidateConfig(&Config)
 }

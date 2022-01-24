@@ -3,21 +3,21 @@ module github.com/instill-ai/visual-data-pipeline
 go 1.17
 
 require (
-	github.com/bochengyang/zapadapter v0.0.0-20220121085749-17c3d7fe2323
+	github.com/bochengyang/zapadapter v0.0.0-20220121170652-8b0c7573d884
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/instill-ai/protogen-go v0.0.0-20220121071429-f56fdeee9a34
-	github.com/jinzhu/configor v1.2.1
+	github.com/knadh/koanf v1.4.0
 	go.temporal.io/api v1.7.0
 	go.temporal.io/sdk v1.12.0
 	go.uber.org/zap v1.20.0
 )
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gogo/status v1.1.0 // indirect
@@ -26,6 +26,9 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.2 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
