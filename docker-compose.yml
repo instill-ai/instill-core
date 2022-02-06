@@ -1,0 +1,121 @@
+version: "3.9"
+
+networks:
+  default:
+    name: visual-data-pipeline
+    external: false
+
+services:
+  pipeline_backend_migrate:
+    container_name: pipeline-backend-migrate
+    image: europe-west2-docker.pkg.dev/prj-c-devops-artifacts-a306/pipeline/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    restart: on-failure
+    volumes:
+      - ./backends/pipeline-backend/config:/pipeline-backend/configs
+    environment:
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    entrypoint: ./pipeline-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  pipeline_backend:
+    container_name: pipeline-backend
+    image: europe-west2-docker.pkg.dev/prj-c-devops-artifacts-a306/pipeline/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ./backends/pipeline-backend/config:/pipeline-backend/configs
+    environment:
+      CFG_SERVER_PORT: "${PIPELINE_BACKEND_PORT}"
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    ports:
+      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
+    depends_on:
+      - pipeline_backend_migrate
+      - temporal
+      - redis
+
+  visual_data_pipeline:
+    container_name: visual-data-pipeline
+    build: ./
+    restart: unless-stopped
+    volumes:
+      - ./configs:/visual-data-pipeline/configs
+    depends_on:
+      - temporal
+
+  pg_sql:
+    container_name: pg-sql
+    image: bitnami/postgresql:14.1.0
+    restart: unless-stopped
+    ports:
+      - ${PG_SQL_PORT}:${PG_SQL_PORT}
+    environment:
+      POSTGRES_PASSWORD: "${PG_SQL_PASSWORD}"
+    volumes:
+      - ${PG_SQL_DATADIR}:/var/lib/postgresql/data
+      - ${PG_SQL_SCRIPTS}:/scripts
+    healthcheck:
+      test: ["CMD", "/scripts/pg_healthcheck.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  cassandra:
+    container_name: cassandra
+    image: cassandra:3.11.11
+    restart: unless-stopped
+    ports:
+      - 9042:9042
+
+  temporal:
+    container_name: temporal
+    depends_on:
+      - cassandra
+    environment:
+      - CASSANDRA_SEEDS=cassandra
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+    image: temporalio/auto-setup:1.14.2
+    restart: unless-stopped
+    ports:
+      - 7233:7233
+    volumes:
+      - ./backends/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+
+  temporal_admin_tools:
+    container_name: temporal-admin-tools
+    restart: unless-stopped
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:1.14.2
+    stdin_open: true
+    tty: true
+
+  temporal_web:
+    container_name: temporal-web
+    restart: unless-stopped
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+    image: temporalio/web:1.13.0
+    ports:
+      - 8088:8088
+
+  redis:
+    container_name: redis
+    restart: unless-stopped
+    image: bitnami/redis:6.2.6-debian-10-r34
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379

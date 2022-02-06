@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bochengyang/zapadapter"
@@ -36,8 +37,7 @@ func namespaceChecking() {
 	createNamespace := false
 
 	if err != nil {
-		expErrStr := fmt.Sprintf("Namespace %s does not exist.", configs.Config.Temporal.ClientOptions.Namespace)
-		if expErrStr == err.Error() {
+		if strings.Contains(err.Error(), "not found") {
 			createNamespace = true
 		} else {
 			panic(err)

@@ -1,0 +1,36 @@
+server:
+  port: 8443
+  https:
+    enabled: false
+  corsorigins:
+    - http://localhost
+    - https://instill-inc.tech
+    - https://instill.tech
+database:
+  username: postgres
+  password: password
+  host: pg_sql
+  port: 5432
+  databasename: pipeline
+  timezone: Etc/UTC
+  pool:
+    idleconnections: 5
+    maxconnections: 10
+    connlifetime: 30 # In minutes
+cache:
+  redis:
+    redisoptions:
+      addr: redis:6379
+temporal:
+  clientoptions:
+    namespace: pipeline
+    hostport: temporal:7233
+vdo:
+  scheme: https
+  host: inference_backend
+  port: 8443
+  path: inference/models/%s/versions/%s/outputs
+modelbackend:
+  scheme: https
+  host: model_backend
+  port: 8445
