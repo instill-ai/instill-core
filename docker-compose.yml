@@ -169,3 +169,67 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - 6379:6379
+
+  database:
+      image: postgres:14.1-alpine
+      container_name: pg_sql
+      ports:
+          - 5432:5432
+      environment:
+          POSTGRES_PASSWORD: password
+      healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U postgres"]
+          timeout: 20s
+          retries: 10
+  model-migrate:
+      image: instill/model:0.1.0
+      container_name: model-backend-migrate
+      depends_on:
+          pg_sql:
+              condition: service_healthy
+      restart: on-failure
+      environment:
+          CFG_DATABASE_HOST: pg_sql
+          CFG_HTTP_PORT: 8080
+          CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+          CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+          CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+          CFG_DATABASE_VERSION: 1
+      entrypoint: ./migrate
+
+  model-backend:
+      image: instill/model:0.1.0
+      container_name: model-backend
+      depends_on:
+          triton-server:
+              condition: service_healthy
+      environment:
+          CFG_DATABASE_HOST: pg_sql
+          CFG_HTTP_PORT: 8080
+          CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+          CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+          CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+          CFG_DATABASE_VERSION: 1
+          CFG_TRITONSERVER_GRPCURI: triton-server:8001
+          CFG_TRITONSERVER_MODELSTORE: /models
+      restart: on-failure
+      ports:
+          - 8080:8080
+      volumes:
+          - models:/models
+
+  triton-server:
+      image: nvcr.io/nvidia/tritonserver:21.09-py3
+      command: tritonserver --model-store=/models --model-control-mode=explicit --allow-http=true --strict-model-config=false
+      volumes:
+          - models:/models
+          - ./conda-pack:/conda-pack
+      ports:
+          - 8001:8001
+      healthcheck:
+          test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
+          timeout: 20s
+          retries: 10
+volumes:
+    dbdata:
+    models:
