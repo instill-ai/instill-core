@@ -8,7 +8,7 @@ networks:
 services:
   pipeline_backend_migrate:
     container_name: pipeline-backend-migrate
-    image: europe-west2-docker.pkg.dev/prj-c-devops-artifacts-a306/pipeline/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
     restart: on-failure
     volumes:
       - ./backends/pipeline-backend/config:/pipeline-backend/configs
@@ -24,7 +24,7 @@ services:
 
   pipeline_backend:
     container_name: pipeline-backend
-    image: europe-west2-docker.pkg.dev/prj-c-devops-artifacts-a306/pipeline/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     volumes:
       - ./backends/pipeline-backend/config:/pipeline-backend/configs
