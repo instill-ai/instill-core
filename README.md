@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/visual-data-pipeline.png" alt="Instill AI - Where Visual Data Preparation Made for All" />
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/visual-data-preparation.png" alt="Instill AI - Where Visual Data Preparation Made for All" />
 </p>
 
 <h2 align="center">
-    <p>Visual Data Pipeline</p>
+    <p>Visual Data Preparation</p>
 </h2>
 
 <h4 align="center">
