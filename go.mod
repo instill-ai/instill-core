@@ -1,4 +1,4 @@
-module github.com/instill-ai/visual-data-pipeline
+module github.com/instill-ai/visual-data-preparation
 
 go 1.17
 

@@ -2,12 +2,48 @@ version: "3.9"
 
 networks:
   default:
-    name: visual-data-pipeline
+    name: visual-data-preparation
     external: false
 
 services:
+  model_backend_migrate:
+    container_name: ${MODEL_BACKEND_HOST}-migrate
+    image: instill/model:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+    environment:
+      CFG_DATABASE_VERSION: 1
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    entrypoint: ./migrate
+
+  model_backend:
+    container_name: ${MODEL_BACKEND_HOST}
+    image: instill/model:${MODEL_BACKEND_VERSION}
+    depends_on:
+      triton-server:
+        condition: service_healthy
+    environment:
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+      CFG_SERVER_PORT: "${MODEL_BACKEND_PORT}"
+      CFG_DATABASE_VERSION: 1
+      CFG_TRITONSERVER_GRPCURI: ${TRITON_HOST}:8001
+      CFG_TRITONSERVER_MODELSTORE: /models
+    restart: on-failure
+    ports:
+      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
+    volumes:
+      - ${MODEL_BACKEND_DATADIR}:/models
+
   pipeline_backend_migrate:
-    container_name: pipeline-backend-migrate
+    container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
     restart: on-failure
     volumes:
@@ -23,7 +59,7 @@ services:
         condition: service_healthy
 
   pipeline_backend:
-    container_name: pipeline-backend
+    container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     volumes:
@@ -41,14 +77,28 @@ services:
       - temporal
       - redis
 
-  visual_data_pipeline:
-    container_name: visual-data-pipeline
+  visual_data_preparation:
+    container_name: visual-data-preparation
     build: ./
     restart: unless-stopped
     volumes:
-      - ./configs:/visual-data-pipeline/configs
+      - ./configs:/visual-data-preparation/configs
     depends_on:
       - temporal
+
+  triton_server:
+    image: nvcr.io/nvidia/tritonserver:21.09-py3
+    container_name: triton-server
+    command: tritonserver --model-store=/models --model-control-mode=explicit --allow-http=true --strict-model-config=false
+    volumes:
+      - ${MODEL_BACKEND_DATADIR}:/models
+      - ./conda-pack:/conda-pack
+    ports:
+      - 8081:8001
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
+      timeout: 20s
+      retries: 10
 
   pg_sql:
     container_name: pg-sql

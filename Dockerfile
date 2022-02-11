@@ -5,13 +5,13 @@ COPY . /go/src
 
 RUN go get -d -v ./...
 
-RUN --mount=type=cache,target=/root/.cache/go-build go build -o /visual-data-pipeline ./cmd/
+RUN --mount=type=cache,target=/root/.cache/go-build go build -o /visual-data-preparation ./cmd/
 
 FROM gcr.io/distroless/base AS runtime
 
-WORKDIR /visual-data-pipeline
+WORKDIR /visual-data-preparation
 
-COPY --from=builder /visual-data-pipeline ./
+COPY --from=builder /visual-data-preparation ./
 COPY --from=builder /go/src/configs ./configs
 
-ENTRYPOINT ["./visual-data-pipeline"]
+ENTRYPOINT ["./visual-data-preparation"]
