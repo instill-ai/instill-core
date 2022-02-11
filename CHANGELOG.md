@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0-alpha](https://github.com/instill-ai/visual-data-preparation/compare/v0.1.0-alpha...v0.2.0-alpha) (2022-02-11)
+
+
+### Features
+
+* test release please action ([06b50c6](https://github.com/instill-ai/visual-data-preparation/commit/06b50c66f841a0ac3da721843a1113416cd43544))
+
+
+### Bug Fixes
+
+* test release please action ([6851a75](https://github.com/instill-ai/visual-data-preparation/commit/6851a755abcab9403b5135c476d6654df5aa3228))
+
 ## [0.1.0-alpha](https://github.com/instill-ai/visual-data-preparation/compare/v0.0.0-alpha...v0.1.0-alpha) (2022-02-11)
 
 
