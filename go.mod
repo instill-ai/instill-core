@@ -1,4 +1,4 @@
-module github.com/instill-ai/visual-data-preparation
+module github.com/instill-ai/vdp
 
 go 1.17
 

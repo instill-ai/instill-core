@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/instill-ai/visual-data-preparation/internal/logger"
+	"github.com/instill-ai/vdp/internal/logger"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"

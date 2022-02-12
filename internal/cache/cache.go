@@ -2,7 +2,7 @@ package cache
 
 import (
 	"github.com/go-redis/redis/v8"
-	"github.com/instill-ai/visual-data-preparation/configs"
+	"github.com/instill-ai/vdp/configs"
 )
 
 var Redis *redis.Client
