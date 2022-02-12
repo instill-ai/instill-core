@@ -1,6 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := model_backend_migrate model_backend pipeline_backend_migrate pipeline_backend visual_data_preparation
+INSTILL_SERVICES := model_backend_migrate model_backend pipeline_backend_migrate pipeline_backend vdp
 3RD_PARTY_SERVICES := triton_server pg_sql cassandra temporal temporal_admin_tools temporal_web redis
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 

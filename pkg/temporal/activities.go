@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/instill-ai/protogen-go/pipeline"
-	"github.com/instill-ai/visual-data-preparation/configs"
-	"github.com/instill-ai/visual-data-preparation/internal/cache"
-	"github.com/instill-ai/visual-data-preparation/pkg/models"
+	"github.com/instill-ai/vdp/configs"
+	"github.com/instill-ai/vdp/internal/cache"
+	"github.com/instill-ai/vdp/pkg/models"
 	"go.temporal.io/sdk/activity"
 )
 

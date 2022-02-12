@@ -2,7 +2,7 @@ version: "3.9"
 
 networks:
   default:
-    name: visual-data-preparation
+    name: vdp
     external: false
 
 services:
@@ -77,12 +77,12 @@ services:
       - temporal
       - redis
 
-  visual_data_preparation:
-    container_name: visual-data-preparation
+  vdp:
+    container_name: vdp
     build: ./
     restart: unless-stopped
     volumes:
-      - ./configs:/visual-data-preparation/configs
+      - ./configs:/vdp/configs
     depends_on:
       - temporal
 
