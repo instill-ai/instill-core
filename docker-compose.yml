@@ -230,6 +230,11 @@ services:
           test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
           timeout: 20s
           retries: 10
+      shm_size: 2gb
+      ulimits:
+          memlock: -1
+          stack: 67108864
+          
 volumes:
     dbdata:
     models:
