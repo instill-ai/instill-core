@@ -85,9 +85,10 @@ func main() {
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
 		Model: &modelPB.UpdateModelInfo{
+			Name:   "ensemble",
 			Status: modelPB.UpdateModelInfo_ONLINE,
 		},
-		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"status"}},
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
 	if err != nil {
 		log.Fatal("can not make model online: %v", err)
