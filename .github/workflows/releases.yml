@@ -22,6 +22,11 @@ jobs:
           config-file: release-please/config.json
           manifest-file: release-please/manifest.json
       - uses: actions/checkout@v2
+      - uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.botGPGPrivateKey }}
+          git_user_signingkey: true
+          git_tag_gpgsign: true
       - name: tag major and minor versions
         if: ${{ steps.release.outputs.release_created }}
         run: |
