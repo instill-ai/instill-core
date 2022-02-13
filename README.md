@@ -79,6 +79,11 @@ For general help using VDP, you can use one of these channels:
 
 ### Build docker
 
+You can build a development Docker image using:
+```bash
+make docker
+```
+
 ## License
 
 See the [LICENSE](https://github.com/instill-ai/vdp/blob/main/LICENSE) file for licensing information.
