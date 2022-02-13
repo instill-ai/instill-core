@@ -52,7 +52,7 @@ func main() {
 		}
 		if firstChunk {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
-				Name:    "ensemble",
+				Name:    "yolov4",
 				Version: 1,
 				Type:    1,
 				Content: buf[:n],

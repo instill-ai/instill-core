@@ -76,7 +76,7 @@ func main() {
 	for {
 		time.Sleep(1000)
 		model, err := c.GetModel(ctx, &modelPB.GetModelRequest{
-			Name: "ensemble",
+			Name: "yolov4",
 		})
 		if err == nil && model.Name != "" {
 			break
@@ -85,7 +85,7 @@ func main() {
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
 		Model: &modelPB.UpdateModelInfo{
-			Name:   "ensemble",
+			Name:   "yolov4",
 			Status: modelPB.UpdateModelInfo_ONLINE,
 		},
 		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
