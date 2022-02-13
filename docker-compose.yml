@@ -25,7 +25,7 @@ services:
     container_name: ${MODEL_BACKEND_HOST}
     image: instill/model:${MODEL_BACKEND_VERSION}
     depends_on:
-      triton-server:
+      triton_server:
         condition: service_healthy
     environment:
       CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
@@ -36,7 +36,7 @@ services:
       CFG_DATABASE_VERSION: 1
       CFG_TRITONSERVER_GRPCURI: ${TRITON_HOST}:8001
       CFG_TRITONSERVER_MODELSTORE: /models
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
     volumes:
@@ -109,7 +109,7 @@ services:
     environment:
       POSTGRES_PASSWORD: "${PG_SQL_PASSWORD}"
     volumes:
-      - ${PG_SQL_DATADIR}:/var/lib/postgresql/data
+      - ${PG_SQL_DATADIR}:/bitnami/postgresql
       - ${PG_SQL_SCRIPTS}:/scripts
     healthcheck:
       test: ["CMD", "/scripts/pg_healthcheck.sh"]
