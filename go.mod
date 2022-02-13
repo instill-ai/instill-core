@@ -5,11 +5,14 @@ go 1.17
 require (
 	github.com/bochengyang/zapadapter v0.0.0-20220121170652-8b0c7573d884
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/instill-ai/protogen-go v0.0.0-20220121071429-f56fdeee9a34
+	github.com/instill-ai/protogen-go v0.0.0-20220213004242-22035920e455
 	github.com/knadh/koanf v1.4.0
+	github.com/pkg/errors v0.9.1
 	go.temporal.io/api v1.7.0
-	go.temporal.io/sdk v1.12.0
-	go.uber.org/zap v1.20.0
+	go.temporal.io/sdk v1.13.0
+	go.uber.org/zap v1.21.0
+	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
@@ -41,8 +44,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	google.golang.org/genproto v0.0.0-20220107163113-42d7afdf6368 // indirect
-	google.golang.org/grpc v1.43.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

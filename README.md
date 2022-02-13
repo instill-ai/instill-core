@@ -56,13 +56,36 @@ We will continue adding new connectors to VDP. If you want to make a request, fe
 
 Execute the following commands to start pre-built images with all the dependencies
 ```bash
+curl -o python-3-8.tar.gz https://storage.googleapis.com/public-europe-west2-c-artifacts/visual-data-preparation/conda-pack/python-3-8.tar.gz
+mkdir conda-pack
+mv python-3-8.tar.gz conda-pack
+
 git clone https://github.com/instill-ai/vdp.git
 docker-compose up
 ```
 
 ### Run the samples to trigger an object detection pipeline
-We provide sample code on how to build and trigger an object detection pipeline. Run it with the local VDP.
+We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP.
 
+```bash
+# Download Instill's sample model
+curl -o examples-go/yolov4-onnx-cpu.zip https://artifacts.instill.tech/visual-data-preparation/sample-models/yolov4-onnx-cpu.zip
+
+# Download test image
+curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
+
+# Deploy same model
+go run examples-go/deploy-model/main.go --model-path examples-go/yolov4-onnx-cpu.zip
+
+# Test model
+go run examples-go/test-model/main.go --test-image examples-go/dog.jpg
+
+# Create pipeline based on our sample model
+go run examples-go/create-pipeline/main.go
+
+# Trigger pipeline by using same test image
+go run examples-go/trigger-pipeline/main.go --test-image examples-go/dog.jpg
+```
 
 ### Create a pipeline with your own model
 
