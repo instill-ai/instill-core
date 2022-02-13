@@ -54,7 +54,7 @@ func main() {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
 				Name:    "ensemble",
 				Version: 1,
-				Type:    0,
+				Type:    1,
 				Content: buf[:n],
 			})
 			firstChunk = false
