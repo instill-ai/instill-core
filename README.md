@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/visual-data-preparation.png" alt="Instill AI - Visual Data Preparation Made for All" />
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.png" alt="Instill AI - Visual Data Preparation Made for All" />
 </h1>
 
 <h4 align="center">
@@ -56,9 +56,8 @@ We will continue adding new connectors to VDP. If you want to make a request, fe
 
 Execute the following commands to start pre-built images with all the dependencies
 ```bash
-curl -o python-3-8.tar.gz https://storage.googleapis.com/public-europe-west2-c-artifacts/visual-data-preparation/conda-pack/python-3-8.tar.gz
 mkdir conda-pack
-mv python-3-8.tar.gz conda-pack
+curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
 
 git clone https://github.com/instill-ai/vdp.git
 docker-compose up
@@ -68,23 +67,25 @@ docker-compose up
 We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP.
 
 ```bash
-# Download Instill's sample model
-curl -o examples-go/yolov4-onnx-cpu.zip https://artifacts.instill.tech/visual-data-preparation/sample-models/yolov4-onnx-cpu.zip
+cd examples-go
 
-# Download test image
+# Download a YOLOv4 ONNX model for object detection task (GPU not required)
+curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
+
+# [optional] Download a test image or use your own images
 curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
-# Deploy same model
-go run examples-go/deploy-model/main.go --model-path examples-go/yolov4-onnx-cpu.zip
+# Deploy the model
+go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip
 
-# Test model
-go run examples-go/test-model/main.go --test-image examples-go/dog.jpg
+# Test the model
+go run test-model/main.go --test-image dog.jpg
 
-# Create pipeline based on our sample model
-go run examples-go/create-pipeline/main.go
+# Create an object detection pipeline
+go run create-pipeline/main.go
 
-# Trigger pipeline by using same test image
-go run examples-go/trigger-pipeline/main.go --test-image examples-go/dog.jpg
+# Trigger the pipeline by using same test image
+go run trigger-pipeline/main.go --test-image dog.jpg
 ```
 
 ### Create a pipeline with your own model
