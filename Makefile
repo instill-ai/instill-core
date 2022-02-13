@@ -52,3 +52,7 @@ prune:			## Remove all containers and delete volume
 	@make stop && make rm
 	@docker volume prune -f
 .PHONY: prune
+
+docker:			## Build local docker image
+	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:latest .
+.PHONY: docker
