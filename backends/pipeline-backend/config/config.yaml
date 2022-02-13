@@ -2,10 +2,14 @@ server:
   port: 8443
   https:
     enabled: false
+    cert: /ssl/tls.crt
+    key: /ssl/tls.key
   corsorigins:
     - http://localhost
     - https://instill-inc.tech
     - https://instill.tech
+  paginate:
+    salt: 3PTkdu4FRvmSezf2
 database:
   username: postgres
   password: password
@@ -25,12 +29,7 @@ temporal:
   clientoptions:
     namespace: pipeline
     hostport: temporal:7233
-vdo:
-  scheme: https
-  host: inference_backend
-  port: 8443
-  path: inference/models/%s/versions/%s/outputs
-modelbackend:
-  scheme: https
-  host: model_backend
+modelservice:
+  tls: false
+  host: localhost
   port: 8445

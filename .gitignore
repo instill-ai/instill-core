@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# PostgreSQL's volume
+pg-sql
+
+# model-backend's volume
+model-backend-data
