@@ -76,7 +76,7 @@ func main() {
 	for {
 		time.Sleep(1000)
 		model, err := c.GetModel(ctx, &modelPB.GetModelRequest{
-			Name: "ensemble",
+			Name: "yolov4",
 		})
 		if err == nil && model.Name != "" {
 			break
@@ -85,9 +85,10 @@ func main() {
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
 		Model: &modelPB.UpdateModelInfo{
+			Name:   "yolov4",
 			Status: modelPB.UpdateModelInfo_ONLINE,
 		},
-		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"status"}},
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
 	if err != nil {
 		log.Fatal("can not make model online: %v", err)
