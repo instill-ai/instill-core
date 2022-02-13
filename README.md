@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/visual-data-preparation.png" alt="Instill AI - Visual Data Preparation Made for All" />
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.png" alt="Instill AI - Visual Data Preparation Made for All" />
 </h1>
 
 <h4 align="center">
