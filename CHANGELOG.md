@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0-alpha](https://github.com/instill-ai/vdp/compare/v0.1.1-alpha...v0.2.0-alpha) (2022-02-13)
+
+
+### Features
+
+* **doc:** add documentation and related files in the quick start section ([#35](https://github.com/instill-ai/vdp/issues/35)) ([ccadb10](https://github.com/instill-ai/vdp/commit/ccadb10dc46b2d01273cd60c777027521797379d))
+
 ### [0.1.1-alpha](https://github.com/instill-ai/vdp/compare/v0.1.0-alpha...v0.1.1-alpha) (2022-02-13)
 
 
