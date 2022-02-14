@@ -31,5 +31,5 @@ temporal:
     hostport: temporal:7233
 modelservice:
   tls: false
-  host: localhost
+  host: model-backend
   port: 8445

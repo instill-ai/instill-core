@@ -17,9 +17,13 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8446", "the server address")
-	pipelineName := flag.String("pipeline-name", "hello-pipeline", "the name of the pipeline you've created")
-	testIamgePath := flag.String("test-image", "/Users/BochengYang/Downloads/drive-download-20220121T191023Z-001/eth_1.jpg", "the test image that are going to be sent")
+	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline you've created")
+	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
 	flag.Parse()
+
+	if *pipelineName == "" {
+		log.Fatal("you must specify the name of pipeline")
+	}
 
 	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -87,5 +91,5 @@ func main() {
 		log.Fatalf("can not parse the predict output: %v", err)
 	}
 
-	log.Printf("Receive the inference result: %+v", obj)
+	log.Printf("Receive the inference result: %+v", string(obj))
 }

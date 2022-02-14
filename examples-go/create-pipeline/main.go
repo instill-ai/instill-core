@@ -13,7 +13,17 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8446", "the server address")
+	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline")
+	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	flag.Parse()
+
+	if *pipelineName == "" {
+		log.Fatal("you must specify the name of pipeline")
+	}
+
+	if *modelName == "" {
+		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
+	}
 
 	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -27,14 +37,14 @@ func main() {
 	defer cancel()
 
 	createPipelineReq := &pb.CreatePipelineRequest{
-		Name:        "hello-pipeline",
+		Name:        *pipelineName,
 		Description: "Hello! My first pipeline",
 		Active:      true,
 		Recipe: &pb.Recipe{
 			Source: &pb.Source{Type: "HTTP"},
 			Model: []*pb.Model{
 				{
-					Name:    "yolov4",
+					Name:    *modelName,
 					Version: 1,
 				},
 			},
@@ -45,6 +55,6 @@ func main() {
 	if res, err := client.CreatePipeline(ctx, createPipelineReq); err != nil {
 		log.Fatalf("error when create pipeline: %v", err)
 	} else {
-		log.Printf("the pipeline created successfully: %v\n", res)
+		log.Printf("the pipeline is created successfully: %v\n", res)
 	}
 }

@@ -18,8 +18,13 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
-	testIamgePath := flag.String("test-image", "/Users/BochengYang/Downloads/drive-download-20220121T191023Z-001/eth_1.jpg", "the test image that are going to be sent")
+	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
+	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	flag.Parse()
+
+	if *modelName == "" {
+		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
+	}
 
 	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -52,7 +57,7 @@ func main() {
 		}
 		if firstChunk {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
-				Name:    "yolov4",
+				Name:    *modelName,
 				Version: 1,
 				Type:    1,
 				Content: buf[:n],
@@ -75,5 +80,5 @@ func main() {
 		log.Fatalf("can not parse the predict output: %v", err)
 	}
 
-	log.Printf("Receive the inference result: %+v", predictResult)
+	log.Printf("Receive the inference result: %+v", string(predictResult))
 }

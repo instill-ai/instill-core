@@ -18,7 +18,12 @@ import (
 func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
 	modelPath := flag.String("model-path", "./examples-go/yolov4-onnx-cpu.zip", "the path of the zip compressed file for model")
+	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	flag.Parse()
+
+	if *modelName == "" {
+		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
+	}
 
 	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -76,7 +81,7 @@ func main() {
 	for {
 		time.Sleep(1000)
 		model, err := c.GetModel(ctx, &modelPB.GetModelRequest{
-			Name: "yolov4",
+			Name: *modelName,
 		})
 		if err == nil && model.Name != "" {
 			break
@@ -85,8 +90,8 @@ func main() {
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
 		Model: &modelPB.UpdateModelInfo{
-			Name:   "yolov4",
-			Status: modelPB.UpdateModelInfo_ONLINE,
+			Name:   *modelName,
+			Status: modelPB.ModelStatus_ONLINE,
 		},
 		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
