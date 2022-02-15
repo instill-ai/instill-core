@@ -43,7 +43,7 @@ services:
       CFG_DATABASE_PORT: "${PG_SQL_PORT}"
       CFG_SERVER_PORT: "${MODEL_BACKEND_PORT}"
       CFG_DATABASE_VERSION: 1
-      CFG_TRITONSERVER_GRPCURI: ${TRITON_HOST}:8001
+      CFG_TRITONSERVER_GRPCURI: triton-server:8001
       CFG_TRITONSERVER_MODELSTORE: /models
     ports:
       - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
@@ -93,11 +93,11 @@ services:
     image: nvcr.io/nvidia/tritonserver:21.09-py3
     restart: unless-stopped
     command: tritonserver --model-store=/models --model-control-mode=explicit --allow-http=true --strict-model-config=false
+    ports:
+      - 8001:8001
     volumes:
       - ${MODEL_BACKEND_DATADIR}:/models
       - ./conda-pack:/conda-pack
-    ports:
-      - 8081:8001
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
       timeout: 20s
