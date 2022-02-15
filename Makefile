@@ -1,6 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := model_backend_migrate model_backend pipeline_backend_migrate pipeline_backend vdp
+INSTILL_SERVICES := vdp pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend
 3RD_PARTY_SERVICES := triton_server pg_sql cassandra temporal temporal_admin_tools temporal_web redis
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
@@ -12,8 +12,8 @@ export
 
 #============================================================================
 
-all:		    	## Start all components including application, monitoring and logging stacks.
-	@docker-compose up -d --build
+all:			## Build and launch all services
+	@docker-compose up -d
 .PHONY: all
 
 logs:			## Tail all logs with -n 10.
@@ -44,15 +44,20 @@ images:			## List all images of components.
 	@docker-compose images ${ALL_SERVICES}
 .PHONY: images
 
-ps:			## List all component containers.
+ps:				## List all component containers.
 	@docker-compose ps ${ALL_SERVICES}
 .PHONY: ps
 
 prune:			## Remove all containers and delete volume
-	@make stop && make rm
+	@make down
 	@docker volume prune -f
+	@rm -rf model-backend-data && rm -rf pg-sql
 .PHONY: prune
 
-docker:			## Build local docker image
+build:			## Build local docker image
 	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:latest .
 .PHONY: docker
+
+help:       	## Show this help.
+	@echo "\nMake Application using Docker-Compose files."
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
