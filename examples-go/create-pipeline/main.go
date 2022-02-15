@@ -25,16 +25,16 @@ func main() {
 		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
 	}
 
-	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, *serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
 	client := pb.NewPipelineClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 
 	createPipelineReq := &pb.CreatePipelineRequest{
 		Name:        *pipelineName,
@@ -55,6 +55,6 @@ func main() {
 	if res, err := client.CreatePipeline(ctx, createPipelineReq); err != nil {
 		log.Fatalf("error when create pipeline: %v", err)
 	} else {
-		log.Printf("the pipeline is created successfully: %v\n", res)
+		log.Printf("the pipeline has been created successfully: %v\n", res)
 	}
 }

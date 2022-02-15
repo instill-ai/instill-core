@@ -25,17 +25,21 @@ func main() {
 		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
 	}
 
-	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, *serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
 	c := modelPB.NewModelClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
-	defer cancel()
 
 	uploadStream, err := c.CreateModelByUpload(ctx)
+	if err != nil {
+		log.Fatalf("can not create model: %v", err)
+	}
 	defer uploadStream.CloseSend()
 
 	buf := make([]byte, 64*1024)
@@ -53,7 +57,7 @@ func main() {
 				err = nil
 				break
 			}
-			log.Fatal("there is an error while copying from file to buf: %v", err)
+			log.Fatalf("there is an error while copying from file to buf: %v", err)
 		}
 		if firstChunk {
 			err = uploadStream.Send(&modelPB.CreateModelRequest{
@@ -64,17 +68,23 @@ func main() {
 				Visibility:  "public",
 				Content:     buf[:n],
 			})
+			if err != nil {
+				log.Fatalf("failed to send data via stream: %v", err)
+			}
 			firstChunk = false
 		} else {
 			err = uploadStream.Send(&modelPB.CreateModelRequest{
 				Content: buf[:n],
 			})
+			if err != nil {
+				log.Fatalf("failed to send data via stream: %v", err)
+			}
 		}
 	}
 
 	uploadResp, err := uploadStream.CloseAndRecv()
 	if err != nil {
-		log.Fatal("errored while copying from file to buf: %v", err)
+		log.Fatalf("errored while copying from file to buf: %v", err)
 	}
 	log.Printf("model has been created, the response is: %+v", uploadResp)
 
@@ -96,6 +106,6 @@ func main() {
 		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
 	if err != nil {
-		log.Fatal("can not make model online: %v", err)
+		log.Fatalf("can not make model online: %v", err)
 	}
 }

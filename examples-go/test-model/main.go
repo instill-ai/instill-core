@@ -11,7 +11,6 @@ import (
 	"time"
 
 	modelPB "github.com/instill-ai/protogen-go/model"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -26,22 +25,29 @@ func main() {
 		log.Fatal("the model name is missing, you need to specify the model name for creating pipeline")
 	}
 
-	conn, err := grpc.Dial(*serverAddress, grpc.WithTimeout(120*time.Second), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, *serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
 	c := modelPB.NewModelClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
 
 	predictStream, err := c.PredictModelByUpload(ctx)
+	if err != nil {
+		log.Fatalf("can not test model via predict endpoint: %v", err)
+	}
 	defer predictStream.CloseSend()
 
 	buf := make([]byte, 64*1024)
 	firstChunk := true
 	file, err := os.Open(*testIamgePath)
+	if err != nil {
+		log.Fatalf("can not open the file: %v", err)
+	}
 
 	for {
 		n, errRead := file.Read(buf)
@@ -51,9 +57,7 @@ func main() {
 				break
 			}
 
-			errRead = errors.Wrapf(errRead,
-				"errored while copying from file to buf")
-			return
+			log.Fatalf("errored while copying from file to buf: %s", errRead.Error())
 		}
 		if firstChunk {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
@@ -62,11 +66,17 @@ func main() {
 				Type:    1,
 				Content: buf[:n],
 			})
+			if err != nil {
+				log.Fatalf("cfailed to send data via streame: %v", err)
+			}
 			firstChunk = false
 		} else {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
 				Content: buf[:n],
 			})
+			if err != nil {
+				log.Fatalf("cfailed to send data via streame: %v", err)
+			}
 		}
 	}
 
@@ -80,5 +90,5 @@ func main() {
 		log.Fatalf("can not parse the predict output: %v", err)
 	}
 
-	log.Printf("Receive the inference result: %+v", string(predictResult))
+	log.Printf("Receive the inference result: %v", string(predictResult))
 }
