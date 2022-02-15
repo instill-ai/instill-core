@@ -79,7 +79,9 @@ services:
 
   vdp:
     container_name: vdp
-    build: ./
+    build:
+      context: .
+    image: instill/vdp:latest
     restart: unless-stopped
     volumes:
       - ./configs:/vdp/configs
@@ -103,7 +105,7 @@ services:
     ulimits:
         memlock: -1
         stack: 67108864
-        
+
   pg_sql:
     container_name: pg-sql
     image: bitnami/postgresql:14.1.0
