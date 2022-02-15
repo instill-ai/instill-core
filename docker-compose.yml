@@ -6,77 +6,6 @@ networks:
     external: false
 
 services:
-  model_backend_migrate:
-    container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/model:${MODEL_BACKEND_VERSION}
-    restart: on-failure
-    depends_on:
-      pg_sql:
-        condition: service_healthy
-    environment:
-      CFG_DATABASE_VERSION: 1
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
-    entrypoint: ./migrate
-
-  model_backend:
-    container_name: ${MODEL_BACKEND_HOST}
-    image: instill/model:${MODEL_BACKEND_VERSION}
-    depends_on:
-      triton_server:
-        condition: service_healthy
-    environment:
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
-      CFG_SERVER_PORT: "${MODEL_BACKEND_PORT}"
-      CFG_DATABASE_VERSION: 1
-      CFG_TRITONSERVER_GRPCURI: ${TRITON_HOST}:8001
-      CFG_TRITONSERVER_MODELSTORE: /models
-    restart: unless-stopped
-    ports:
-      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
-    volumes:
-      - ${MODEL_BACKEND_DATADIR}:/models
-
-  pipeline_backend_migrate:
-    container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
-    restart: on-failure
-    volumes:
-      - ./backends/pipeline-backend/config:/pipeline-backend/configs
-    environment:
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
-    entrypoint: ./pipeline-backend-migrate
-    depends_on:
-      pg_sql:
-        condition: service_healthy
-
-  pipeline_backend:
-    container_name: ${PIPELINE_BACKEND_HOST}
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
-    restart: unless-stopped
-    volumes:
-      - ./backends/pipeline-backend/config:/pipeline-backend/configs
-    environment:
-      CFG_SERVER_PORT: "${PIPELINE_BACKEND_PORT}"
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
-    ports:
-      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
-    depends_on:
-      - pipeline_backend_migrate
-      - temporal
-      - redis
-
   vdp:
     container_name: vdp
     build:
@@ -88,9 +17,81 @@ services:
     depends_on:
       - temporal
 
+  model_backend_migrate:
+    container_name: ${MODEL_BACKEND_HOST}-migrate
+    image: instill/model:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_VERSION: 1
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    entrypoint: ./migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  model_backend:
+    container_name: ${MODEL_BACKEND_HOST}
+    image: instill/model:${MODEL_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+      CFG_SERVER_PORT: "${MODEL_BACKEND_PORT}"
+      CFG_DATABASE_VERSION: 1
+      CFG_TRITONSERVER_GRPCURI: ${TRITON_HOST}:8001
+      CFG_TRITONSERVER_MODELSTORE: /models
+    ports:
+      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
+    volumes:
+      - ${MODEL_BACKEND_DATADIR}:/models
+    depends_on:
+      triton_server:
+        condition: service_healthy
+
+  pipeline_backend_migrate:
+    container_name: ${PIPELINE_BACKEND_HOST}-migrate
+    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    volumes:
+      - ./backends/pipeline-backend/config:/pipeline-backend/configs
+    entrypoint: ./pipeline-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  pipeline_backend:
+    container_name: ${PIPELINE_BACKEND_HOST}
+    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PORT: "${PIPELINE_BACKEND_PORT}"
+      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
+      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
+      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
+      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+    ports:
+      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
+    volumes:
+      - ./backends/pipeline-backend/config:/pipeline-backend/configs
+    depends_on:
+      - pipeline_backend_migrate
+      - temporal
+      - redis
+
   triton_server:
-    image: nvcr.io/nvidia/tritonserver:21.09-py3
     container_name: triton-server
+    image: nvcr.io/nvidia/tritonserver:21.09-py3
+    restart: unless-stopped
     command: tritonserver --model-store=/models --model-control-mode=explicit --allow-http=true --strict-model-config=false
     volumes:
       - ${MODEL_BACKEND_DATADIR}:/models
@@ -110,10 +111,10 @@ services:
     container_name: pg-sql
     image: bitnami/postgresql:14.1.0
     restart: unless-stopped
-    ports:
-      - ${PG_SQL_PORT}:${PG_SQL_PORT}
     environment:
       POSTGRES_PASSWORD: "${PG_SQL_PASSWORD}"
+    ports:
+      - ${PG_SQL_PORT}:${PG_SQL_PORT}
     volumes:
       - ${PG_SQL_DATADIR}:/bitnami/postgresql
       - ${PG_SQL_SCRIPTS}:/scripts
@@ -132,45 +133,45 @@ services:
 
   temporal:
     container_name: temporal
-    depends_on:
-      - cassandra
+    image: temporalio/auto-setup:1.14.2
+    restart: unless-stopped
     environment:
       - CASSANDRA_SEEDS=cassandra
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
-    image: temporalio/auto-setup:1.14.2
-    restart: unless-stopped
     ports:
       - 7233:7233
     volumes:
       - ./backends/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+    depends_on:
+      - cassandra
 
   temporal_admin_tools:
     container_name: temporal-admin-tools
+    image: temporalio/admin-tools:1.14.2
     restart: unless-stopped
-    depends_on:
-      - temporal
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/admin-tools:1.14.2
     stdin_open: true
     tty: true
+    depends_on:
+      - temporal
 
   temporal_web:
     container_name: temporal-web
+    image: temporalio/web:1.13.0
     restart: unless-stopped
-    depends_on:
-      - temporal
     environment:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
       - TEMPORAL_PERMIT_WRITE_API=true
-    image: temporalio/web:1.13.0
     ports:
       - 8088:8088
+    depends_on:
+      - temporal
 
   redis:
     container_name: redis
-    restart: unless-stopped
     image: bitnami/redis:6.2.6-debian-10-r34
+    restart: unless-stopped
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
