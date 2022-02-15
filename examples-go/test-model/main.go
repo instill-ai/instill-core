@@ -63,7 +63,6 @@ func main() {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
 				Name:    *modelName,
 				Version: 1,
-				Type:    1,
 				Content: buf[:n],
 			})
 			if err != nil {
