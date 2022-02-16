@@ -175,3 +175,12 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - 6379:6379
+
+  redoc:
+    container_name: instill-doc
+    image: volbrene/redoc:1.2.0
+    environment:
+      - 'URLS=[{url: ''https://raw.githubusercontent.com/instill-ai/pipeline-backend/main/openapis/pipeline.swagger.json'', name: ''Pipeline''},{url: ''https://raw.githubusercontent.com/instill-ai/model-backend/main/openapis/model.swagger.json'', name: ''Model''}]'
+      - PAGE_TITLE=Instill Doc
+    ports:
+      - 3000:80
