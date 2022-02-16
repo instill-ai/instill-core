@@ -20,6 +20,10 @@ logs:			## Tail all logs with -n 10.
 	@docker-compose logs --follow --tail=10
 .PHONY: logs
 
+pull:			## Pull all necessary images
+	@docker-compose pull
+.PHONY: pull
+
 stop:			## Stop all components.
 	@docker-compose stop ${ALL_SERVICES}
 .PHONY: stop
@@ -61,3 +65,14 @@ build:			## Build local docker image
 help:       	## Show this help.
 	@echo "\nMake Application using Docker-Compose files."
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+test:
+	@go version
+	@go install go.k6.io/xk6/cmd/xk6@latest
+	@xk6 build --with github.com/szkiba/xk6-jose@latest
+	# @TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/mgmt-backend.js --no-usage-report
+	# @TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/pipeline-backend.js --no-usage-report
+	@TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/pipeline-backend-grpc.js --no-usage-report
+	# @TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/model-backend.js --no-usage-report
+	@rm k6
+.PHONY: test

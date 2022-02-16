@@ -47,7 +47,7 @@ Based on the trigger mechanism of the data source, when you trigger a pipeline, 
 
 We also use _data connector_ as a general term to represent data source or data destination. Here is a list of data connectors that VDP supports.
 
-We will continue adding new connectors to VDP. If you want to make a request, feel free to create a issue and describe your use case.
+We will continue adding new connectors to VDP. If you want to make a request, feel free to create an issue and describe your use case.
 
 
 ## Quick start
@@ -55,12 +55,13 @@ We will continue adding new connectors to VDP. If you want to make a request, fe
 ### Download and run VDP locally
 
 Execute the following commands to start pre-built images with all the dependencies
+
 ```bash
 mkdir conda-pack
 curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
 
 git clone https://github.com/instill-ai/vdp.git
-docker-compose up
+make
 ```
 
 ### Run the samples to trigger an object detection pipeline
@@ -76,16 +77,16 @@ curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yol
 curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
 # Deploy the model
-go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip
+go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
 
 # Test the model
-go run test-model/main.go --test-image dog.jpg
+go run test-model/main.go --model-name yolov4 --test-image dog.jpg
 
 # Create an object detection pipeline
-go run create-pipeline/main.go
+go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
 
-# Trigger the pipeline by using same test image
-go run trigger-pipeline/main.go --test-image dog.jpg
+# Trigger the pipeline by using the same test image
+go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
 ```
 
 ### Create a pipeline with your own model
