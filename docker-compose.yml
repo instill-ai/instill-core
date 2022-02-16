@@ -23,50 +23,50 @@ services:
       - temporal
 
   model_backend_migrate:
-    container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/model:${MODEL_BACKEND_VERSION}
+    container_name: model-backend-migrate
+    image: instill/model:0.1.0
     restart: on-failure
     environment:
       CFG_DATABASE_VERSION: 1
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
     entrypoint: ./migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
   model_backend:
-    container_name: ${MODEL_BACKEND_HOST}
-    image: instill/model:${MODEL_BACKEND_VERSION}
+    container_name: model-backend
+    image: instill/model:0.1.0
     restart: unless-stopped
     environment:
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
-      CFG_SERVER_PORT: "${MODEL_BACKEND_PORT}"
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_SERVER_PORT: 8445
       CFG_DATABASE_VERSION: 1
       CFG_TRITONSERVER_GRPCURI: triton-server:8001
-      CFG_TRITONSERVER_MODELSTORE: /models
+      CFG_TRITONSERVER_MODELSTORE: /model-repository
     ports:
-      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
+      - 8445:8445
     volumes:
-      - ${MODEL_BACKEND_DATADIR}:/models
+      - model_repository:/model-repository
     depends_on:
       triton_server:
         condition: service_healthy
 
   pipeline_backend_migrate:
-    container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    container_name: pipeline-backend-migrate
+    image: instill/pipeline-backend:latest
     restart: on-failure
     environment:
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
     volumes:
       - ./backends/pipeline-backend/config:/pipeline-backend/configs
     entrypoint: ./pipeline-backend-migrate
@@ -75,17 +75,17 @@ services:
         condition: service_healthy
 
   pipeline_backend:
-    container_name: ${PIPELINE_BACKEND_HOST}
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    container_name: pipeline-backend
+    image: instill/pipeline-backend:latest
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: "${PIPELINE_BACKEND_PORT}"
-      CFG_DATABASE_USERNAME: "${PG_SQL_USERNAME}"
-      CFG_DATABASE_PASSWORD: "${PG_SQL_PASSWORD}"
-      CFG_DATABASE_HOST: "${PG_SQL_HOST}"
-      CFG_DATABASE_PORT: "${PG_SQL_PORT}"
+      CFG_SERVER_PORT: 8446
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
     ports:
-      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
+      - 8446:8446
     volumes:
       - ./backends/pipeline-backend/config:/pipeline-backend/configs
     depends_on:
@@ -117,11 +117,11 @@ services:
     image: bitnami/postgresql:14.1.0
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: "${PG_SQL_PASSWORD}"
+      POSTGRES_PASSWORD: password
     ports:
-      - ${PG_SQL_PORT}:${PG_SQL_PORT}
+      - 5432:5432
     volumes:
-      - ${PG_SQL_DATADIR}:/bitnami/postgresql
+      - pg_sql:/bitnami/postgresql
       - ${PG_SQL_SCRIPTS}:/scripts
     healthcheck:
       test: ["CMD", "/scripts/pg_healthcheck.sh"]
