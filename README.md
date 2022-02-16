@@ -106,7 +106,7 @@ For general help using VDP, you can use one of these channels:
 
 You can build a development Docker image using:
 ```bash
-make docker
+make build
 ```
 
 ## License
