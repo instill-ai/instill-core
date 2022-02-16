@@ -5,9 +5,8 @@ go 1.17
 require (
 	github.com/bochengyang/zapadapter v0.0.0-20220121170652-8b0c7573d884
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/instill-ai/protogen-go v0.0.0-20220214084110-9a2713d704b2
+	github.com/instill-ai/protogen-go v0.0.0-20220215054940-36f2370961ef
 	github.com/knadh/koanf v1.4.0
-	github.com/pkg/errors v0.9.1
 	go.temporal.io/api v1.7.0
 	go.temporal.io/sdk v1.13.0
 	go.uber.org/zap v1.21.0
@@ -33,6 +32,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
