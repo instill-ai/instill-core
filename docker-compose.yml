@@ -2,8 +2,13 @@ version: "3.9"
 
 networks:
   default:
-    name: vdp
-    external: false
+    name: instill-network
+
+volumes:
+  model_repository:
+    name: model-repository
+  pg_sql:
+    name: pg-sql
 
 services:
   vdp:
@@ -92,11 +97,11 @@ services:
     container_name: triton-server
     image: nvcr.io/nvidia/tritonserver:21.09-py3
     restart: unless-stopped
-    command: tritonserver --model-store=/models --model-control-mode=explicit --allow-http=true --strict-model-config=false
+    command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     ports:
       - 8001:8001
     volumes:
-      - ${MODEL_BACKEND_DATADIR}:/models
+      - model_repository:/model-repository
       - ./conda-pack:/conda-pack
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
