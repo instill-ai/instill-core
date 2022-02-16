@@ -125,7 +125,7 @@ services:
       - ./scripts/postgresql_healthcheck.sh:/scripts/postgresql_healthcheck.sh
     healthcheck:
       test: ["CMD", "/scripts/postgresql_healthcheck.sh"]
-      interval: 15s/
+      interval: 15s
       timeout: 5s
       retries: 6
 
