@@ -122,10 +122,10 @@ services:
       - 5432:5432
     volumes:
       - pg_sql:/bitnami/postgresql
-      - ${PG_SQL_SCRIPTS}:/scripts
+      - ./scripts/postgresql_healthcheck.sh:/scripts/postgresql_healthcheck.sh
     healthcheck:
-      test: ["CMD", "/scripts/pg_healthcheck.sh"]
-      interval: 15s
+      test: ["CMD", "/scripts/postgresql_healthcheck.sh"]
+      interval: 15s/
       timeout: 5s
       retries: 6
 
