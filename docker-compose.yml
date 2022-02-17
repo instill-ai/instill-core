@@ -129,19 +129,16 @@ services:
       timeout: 5s
       retries: 6
 
-  cassandra:
-    container_name: cassandra
-    image: cassandra:3.11.11
-    restart: unless-stopped
-    ports:
-      - 9042:9042
-
   temporal:
     container_name: temporal
-    image: temporalio/auto-setup:1.14.2
+    image: temporalio/auto-setup:1.15.0
     restart: unless-stopped
     environment:
-      - CASSANDRA_SEEDS=cassandra
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PWD=password
+      - POSTGRES_SEEDS=pg_sql
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     ports:
       - 7233:7233
@@ -152,7 +149,7 @@ services:
 
   temporal_admin_tools:
     container_name: temporal-admin-tools
-    image: temporalio/admin-tools:1.14.2
+    image: temporalio/admin-tools:1.15.0
     restart: unless-stopped
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
