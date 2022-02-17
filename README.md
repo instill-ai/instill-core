@@ -45,10 +45,19 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
+There are two kinds of triggering mechanisms. One is `SYNC` the other is `ASYNC`. The difference between these two mechanisms is the way of response. The response will send once the data reach to data destination if the trigger is `SYNC`. On the other hand, you will first receive an acknowledged response and no need to wait for the response to reach the data destination. Here is the diagram shows how differences between the `SYNC` and `ASYNC`.
+
+### SYNC
+
+<img src="./docs/pipeline/trigger_sync.svg">
+
+### ASYNC
+
+<img src="./docs/pipeline/trigger_async.svg">
+
 We also use _data connector_ as a general term to represent data source or data destination. Here is a list of data connectors that VDP supports.
 
 We will continue adding new connectors to VDP. If you want to make a request, feel free to create an issue and describe your use case.
-
 
 ## Quick start
 
