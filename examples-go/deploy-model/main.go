@@ -61,14 +61,14 @@ func main() {
 		}
 		if firstChunk {
 			err = uploadStream.Send(&modelPB.CreateModelRequest{
+				Name:        *modelName,
 				Description: "YoloV4 for object detection",
-				Type:        "tensorrt",
-				Framework:   "pytorch",
-				Optimized:   false,
-				Visibility:  "public",
-				Content:     buf[:n],
 				CvTask:      modelPB.CVTask_DETECTION,
+				Content:     buf[:n],
 				Version:     1,
+				Type:        "onnx",
+				Framework:   "pytorch",
+				Visibility:  "public",
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
