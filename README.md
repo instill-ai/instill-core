@@ -73,7 +73,7 @@ sequenceDiagram
   Users->>PostgreSQL: Query result
 ```
 
-We also use _data connector_ as a general term to represent data source or data destination. Here is a [list of data connectors](docs/integrations/) that VDP supports.
+We also use _data connector_ as a general term to represent data source or data destination. Here is a [list of data connectors](docs/connectors/) that VDP supports.
 
 We will continue adding new connectors to VDP. If you want to make a request, feel free to create an issue and describe your use case.
 
