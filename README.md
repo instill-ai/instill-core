@@ -79,13 +79,13 @@ curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yol
 curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
 # Deploy the model
-go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
+go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4 --model-version 1
 
 # Test the model
 go run test-model/main.go --model-name yolov4 --model-version 1 --test-image dog.jpg
 
 # Create an object detection pipeline
-go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
+go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4 --model-version 1
 
 # Trigger the pipeline by using the same test image
 go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
