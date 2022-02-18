@@ -70,6 +70,6 @@ test:
 	@go version
 	@go install go.k6.io/xk6/cmd/xk6@latest
 	@xk6 build --with github.com/szkiba/xk6-jose@latest
-	@TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/pipeline-backend-grpc.js --no-usage-report
+	@TEST_FOLDER_ABS_PATH=${PWD}/tests/e2e-tests ./k6 run tests/e2e-tests/pipeline-backend-rest.js --no-usage-report
 	@rm k6
 .PHONY: test
