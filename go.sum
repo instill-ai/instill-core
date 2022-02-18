@@ -203,6 +203,10 @@ github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpO
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/instill-ai/protogen-go v0.0.0-20220216035831-2d9577e0f42b h1:47xsn68li0+CuT38qQR/f2hEeLxxoipkDCnAtJKXLUc=
 github.com/instill-ai/protogen-go v0.0.0-20220216035831-2d9577e0f42b/go.mod h1:q2Pq4P0AY/59RGibT4nSDnOsA4wD4XhLueFRoGYNBjk=
+github.com/instill-ai/protogen-go v0.0.0-20220217181519-50f173dd2ca4 h1:QCIW6nwZ2pQKeNJVcyX1GAJdmcfAQOiiArkZ4LFCaY4=
+github.com/instill-ai/protogen-go v0.0.0-20220217181519-50f173dd2ca4/go.mod h1:q2Pq4P0AY/59RGibT4nSDnOsA4wD4XhLueFRoGYNBjk=
+github.com/instill-ai/protogen-go v0.0.0-20220218052108-74a473c326b7 h1:G0gFscf9E6lWlJmMsIkaqEM1uGWee/49GWN9O4i0pCo=
+github.com/instill-ai/protogen-go v0.0.0-20220218052108-74a473c326b7/go.mod h1:q2Pq4P0AY/59RGibT4nSDnOsA4wD4XhLueFRoGYNBjk=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
