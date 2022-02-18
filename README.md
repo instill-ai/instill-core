@@ -26,6 +26,8 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 
 ### Table of contents <!-- omit in toc -->
 - [How VDP works](#how-vdp-works)
+  - [SYNC](#sync)
+  - [ASYNC](#async)
 - [Quick start](#quick-start)
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
@@ -39,43 +41,27 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 ## How VDP works
 
 The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates end-to-end visual data processing. Each pipeline consists of three ordered components:
-1. _data source_: where the pipeline starts. It connects the source of image and video data to be processed and has a trigger mechanism for initiating the pipeline execution.
-2. _model_: a deployed Vision AI model to process the ingested visual data and generate structured outputs
-3. _data destination_: where to send the structured outputs
+1. **data source**: where the pipeline starts. It connects the source of image and video data to be processed and has a trigger mechanism for initiating the pipeline execution.
+2. **model**: a deployed Vision AI model to process the ingested visual data and generate structured outputs
+3. **data destination**: where to send the structured outputs
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
-There are two kinds of triggering mechanisms: `SYNC` and `ASYNC`. We use the diagrams below to show the difference. For the `SYNC` trigger, the result is sent back to the user once the data is processed. For the `ASYNC` trigger, the user only receives an acknowledged response. Once the data is processed, the result is sent to the data destination.
+There are two kinds of triggering mechanisms: synchronous (`SYNC`) and asynchronous (`ASYNC`). We use the diagrams below to show the difference. For the `SYNC` trigger, the result is sent back to the user once the data is processed. For the `ASYNC` trigger, the user only receives an acknowledged response. Once the data is processed, the result is sent to the data destination.
 
 ### SYNC
-
-```mermaid
-sequenceDiagram
-  actor Users
-  Note right of Users: Triggering<br>Pipeline
-  Users->>+Pipeline: HTTP/gRPC
-  Pipeline-->>+Model: Predict<br>Request
-  Model-->>-Pipeline: Result
-  Pipeline->>-Users: HTTP/gRPC
-```
+<p align="center">
+<img src="docs/mermaid/sync.svg" alt="Synchronous triggering mechanism" />
+</p>
 
 ### ASYNC
+<p align="center">
+<img src="docs/mermaid/async.svg" alt="Asynchronous triggering mechanism" />
+</p>
 
-```mermaid
-sequenceDiagram
-  actor Users
-  Note right of Users: Triggering<br>Pipeline
-  Users->>+Pipeline: HTTP/gRPC
-  Pipeline->>-Users: HTTP/gRPC (Ack)
-  Pipeline-->>+Model: Predict<br>Request
-  Model-->>-Pipeline: Result
-  Pipeline-->>PostgreSQL: Insert/Update result
-  Users->>PostgreSQL: Query result
-```
+We use **data connector** as a general term to represent data source and data destination. A list of current supported data connectors can be found [here](docs/connectors/).
 
-We also use _data connector_ as a general term to represent data source or data destination. Here is a [list of data connectors](docs/connectors/) that VDP supports.
-
-We will continue adding new connectors to VDP. If you want to make a request, feel free to create an issue and describe your use case.
+We will continue adding new connectors to VDP. If you want to make a request, please feel free to open an issue and describe your use case in details.
 
 ## Quick start
 
