@@ -19,6 +19,7 @@ func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
 	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
+	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *modelName == "" {
@@ -62,7 +63,7 @@ func main() {
 		if firstChunk {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
 				Name:    *modelName,
-				Version: 1,
+				Version: int32(*modelVersion),
 				Content: buf[:n],
 			})
 			if err != nil {

@@ -19,6 +19,7 @@ func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
 	modelPath := flag.String("model-path", "./examples-go/yolov4-onnx-cpu.zip", "the path of the zip compressed file for model")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
+	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *modelName == "" {
@@ -65,10 +66,7 @@ func main() {
 				Description: "YoloV4 for object detection",
 				CvTask:      modelPB.CVTask_DETECTION,
 				Content:     buf[:n],
-				Version:     1,
-				Type:        "onnx",
-				Framework:   "pytorch",
-				Visibility:  "public",
+				Version:     int32(*modelVersion),
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
