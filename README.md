@@ -45,15 +45,33 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
-There are two kinds of triggering mechanisms. One is `SYNC` the other is `ASYNC`. The difference between these two mechanisms is the way of response. The response will send once the data reach to data destination if the trigger is `SYNC`. On the other hand, you will first receive an acknowledged response and no need to wait for the response to reach the data destination. The diagram shows how differences between the `SYNC` and `ASYNC`.
+There are two kinds of triggering mechanisms: `SYNC` and `ASYNC`. We use the diagrams below to show the difference. For the `SYNC` trigger, the result is sent back to the user once the data is processed. For the `ASYNC` trigger, the user only receives an acknowledged response. Once the data is processed, the result is sent to the data destination.
 
 ### SYNC
 
-<img src="docs/pipeline/trigger_sync.svg">
+```mermaid
+sequenceDiagram
+  actor Users
+  Note right of Users: Triggering<br>Pipeline
+  Users->>+Pipeline: HTTP/gRPC
+  Pipeline-->>+Model: Predict<br>Request
+  Model-->>-Pipeline: Result
+  Pipeline->>-Users: HTTP/gRPC
+```
 
 ### ASYNC
 
-<img src="docs/pipeline/trigger_async.svg">
+```mermaid
+sequenceDiagram
+  actor Users
+  Note right of Users: Triggering<br>Pipeline
+  Users->>+Pipeline: HTTP/gRPC
+  Pipeline->>-Users: HTTP/gRPC (Ack)
+  Pipeline-->>+Model: Predict<br>Request
+  Model-->>-Pipeline: Result
+  Pipeline-->>PostgreSQL: Insert/Update result
+  Users->>PostgreSQL: Query result
+```
 
 We also use _data connector_ as a general term to represent data source or data destination. Here is a [list of data connectors](docs/integrations/) that VDP supports.
 
