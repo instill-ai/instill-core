@@ -47,18 +47,6 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
-There are two kinds of triggering mechanisms: synchronous (`SYNC`) and asynchronous (`ASYNC`). We use the diagrams below to show the difference. For the `SYNC` trigger, the result is sent back to the user once the data is processed. For the `ASYNC` trigger, the user only receives an acknowledged response. Once the data is processed, the result is sent to the data destination.
-
-### SYNC
-<p align="center">
-<img src="docs/mermaid/sync.svg" alt="Synchronous triggering mechanism" />
-</p>
-
-### ASYNC
-<p align="center">
-<img src="docs/mermaid/async.svg" alt="Asynchronous triggering mechanism" />
-</p>
-
 We use **data connector** as a general term to represent data source and data destination. A list of current supported data connectors can be found [here](docs/connectors/).
 
 We will continue adding new connectors to VDP. If you want to make a request, please feel free to open an issue and describe your use case in details.
