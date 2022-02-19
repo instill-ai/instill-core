@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8080", "the server address")
+	serverAddress := flag.String("address", "localhost:8446", "the server address")
 	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
