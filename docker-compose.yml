@@ -24,7 +24,7 @@ services:
 
   model_backend_migrate:
     container_name: model-backend-migrate
-    image: instill/model-backend:0.1.0
+    image: instill/model-backend:latest
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -38,7 +38,7 @@ services:
 
   model_backend:
     container_name: model-backend
-    image: instill/model-backend:0.1.0
+    image: instill/model-backend:latest
     restart: unless-stopped
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -93,7 +93,7 @@ services:
 
   triton_server:
     container_name: triton-server
-    image: nvcr.io/nvidia/tritonserver:21.09-py3
+    image: nvcr.io/nvidia/tritonserver:22.01-py3
     restart: unless-stopped
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     ports:
