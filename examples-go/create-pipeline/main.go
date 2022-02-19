@@ -42,14 +42,14 @@ func main() {
 		Description: "Hello! My first pipeline",
 		Active:      true,
 		Recipe: &pb.Recipe{
-			Source: &pb.Source{Type: "HTTP"},
+			Source: &pb.Source{Type: "Direct"},
 			Model: []*pb.Model{
 				{
 					Name:    *modelName,
 					Version: int32(*modelVersion),
 				},
 			},
-			Destination: &pb.Destination{Type: "HTTP"},
+			Destination: &pb.Destination{Type: "Direct"},
 		},
 	}
 

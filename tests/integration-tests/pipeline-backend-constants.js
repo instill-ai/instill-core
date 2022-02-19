@@ -6,11 +6,11 @@ export const yoloDetectionModel = {
 export const detectionRecipe = {
   recipe: {
     source: {
-      type: "http",
+      type: "Direct",
     },
     model: [yoloDetectionModel],
     destination: {
-      type: "http",
+      type: "Direct",
     },
   },
 };
