@@ -66,7 +66,6 @@ func main() {
 				Description: "YoloV4 for object detection",
 				CvTask:      modelPB.CVTask_DETECTION,
 				Content:     buf[:n],
-				Version:     int32(*modelVersion),
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
@@ -100,8 +99,9 @@ func main() {
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
 		Model: &modelPB.UpdateModelInfo{
-			Name:   *modelName,
-			Status: modelPB.ModelStatus_ONLINE,
+			Name:    *modelName,
+			Status:  modelPB.ModelStatus_ONLINE,
+			Version: int32(*modelVersion),
 		},
 		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})

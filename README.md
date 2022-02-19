@@ -61,7 +61,7 @@ mkdir conda-pack
 curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
 
 git clone https://github.com/instill-ai/vdp.git
-make
+make all
 ```
 
 ### Run the samples to trigger an object detection pipeline
@@ -80,7 +80,7 @@ curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
 
 # Test the model
-go run test-model/main.go --model-name yolov4 --test-image dog.jpg
+go run test-model/main.go --model-name yolov4 --model-version 1 --test-image dog.jpg
 
 # Create an object detection pipeline
 go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
