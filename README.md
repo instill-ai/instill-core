@@ -26,6 +26,8 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 
 ### Table of contents <!-- omit in toc -->
 - [How VDP works](#how-vdp-works)
+  - [SYNC](#sync)
+  - [ASYNC](#async)
 - [Quick start](#quick-start)
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
@@ -39,16 +41,15 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 ## How VDP works
 
 The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates end-to-end visual data processing. Each pipeline consists of three ordered components:
-1. _data source_: where the pipeline starts. It connects the source of image and video data to be processed and has a trigger mechanism for initiating the pipeline execution.
-2. _model_: a deployed Vision AI model to process the ingested visual data and generate structured outputs
-3. _data destination_: where to send the structured outputs
+1. **data source**: where the pipeline starts. It connects the source of image and video data to be processed and has a trigger mechanism for initiating the pipeline execution.
+2. **model**: a deployed Vision AI model to process the ingested visual data and generate structured outputs
+3. **data destination**: where to send the structured outputs
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
-We also use _data connector_ as a general term to represent data source or data destination. Here is a list of data connectors that VDP supports.
+We use **data connector** as a general term to represent data source and data destination. A list of current supported data connectors can be found [here](docs/connectors/).
 
-We will continue adding new connectors to VDP. If you want to make a request, feel free to create an issue and describe your use case.
-
+We will continue adding new connectors to VDP. If you want to make a request, please feel free to open an issue and describe your use case in details.
 
 ## Quick start
 
@@ -57,10 +58,11 @@ We will continue adding new connectors to VDP. If you want to make a request, fe
 Execute the following commands to start pre-built images with all the dependencies
 
 ```bash
+git clone https://github.com/instill-ai/vdp.git
+
 mkdir conda-pack
 curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
 
-git clone https://github.com/instill-ai/vdp.git
 make all
 ```
 
