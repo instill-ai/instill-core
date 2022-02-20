@@ -3,10 +3,12 @@ name: Add PR to project
 on:
   pull_request:
     types:
+      - opened
       - ready_for_review
 jobs:
   track_pr:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Get project data
         env:
