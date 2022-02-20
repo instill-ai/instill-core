@@ -1,7 +1,7 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := vdp pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend
-3RD_PARTY_SERVICES := triton_server pg_sql cassandra temporal temporal_admin_tools temporal_web redis redoc_openapi
+INSTILL_SERVICES := vdp pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend triton_conda_env
+3RD_PARTY_SERVICES := triton_server pg_sql temporal temporal_admin_tools temporal_web redis redoc_openapi
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 #============================================================================
@@ -13,15 +13,15 @@ export
 #============================================================================
 
 all:			## Build and launch all services
-	@docker-compose up -d
+	@docker-compose up -d ${ALL_SERVICES}
 .PHONY: all
 
 logs:			## Tail all logs with -n 10
-	@docker-compose logs --follow --tail=10
+	@docker-compose logs --follow --tail=10 ${ALL_SERVICES}
 .PHONY: logs
 
 pull:			## Pull all images
-	@docker-compose pull
+	@docker-compose pull ${ALL_SERVICES}
 .PHONY: pull
 
 stop:			## Stop all components
@@ -41,7 +41,7 @@ rm:				## Remove all stopped service containers
 .PHONY: rm
 
 down:			## Stop all services and remove all service containers
-	@docker-compose down
+	@docker-compose down ${ALL_SERVICES}
 .PHONY: down
 
 images:			## List all container images
