@@ -29,10 +29,10 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 - [Quick start](#quick-start)
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
-  - [Create a pipeline with your own model](#create-a-pipeline-with-your-own-model)
+  - [Create a pipeline with your own models](#create-a-pipeline-with-your-own-models)
   - [Clean up](#clean-up)
 - [Documentation](#documentation)
-- [Development](#development)
+- [Local development](#local-development)
 - [Community support](#community-support)
 - [License](#license)
 
@@ -53,7 +53,7 @@ We use **data connector** as a general term to represent data source and data de
 
 ### Download and run VDP locally
 
-Execute the following commands to start pre-built images with all the dependencies
+Execute the following commands to start pre-built images with all the dependencies:
 
 ```bash
 git clone https://github.com/instill-ai/vdp.git
@@ -63,7 +63,7 @@ make all
 Note that this may take a while due to the big size of the Triton server image.
 
 ### Run the samples to trigger an object detection pipeline
-We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP.
+We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
 
 ```bash
 cd examples-go
