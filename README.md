@@ -91,7 +91,7 @@ go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.
 Please follow the guideline on [How to prepare your own model to deploy on VDP](docs/model.md#prepare-your-own-model-to-deploy-on-vdp). Then, use the sample codes above to deploy the prepared model and create your own pipeline.
 
 ### Clean up
-Execute the following command to clean up all running services
+To clean up all running services:
 ```
 make prune
 ```
