@@ -87,7 +87,7 @@ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov
 go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
 ```
 
-### Create a pipeline with your own model
+### Create a pipeline with your own models
 Please follow the guideline "[Prepare your own model to deploy on VDP
 ](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)." Based on the above sample codes, you can deploy a prepared model and create your own pipeline.
 
