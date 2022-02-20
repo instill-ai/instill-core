@@ -29,12 +29,14 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 - [Quick start](#quick-start)
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
-  - [Create a pipeline with your own model](#create-a-pipeline-with-your-own-model)
-- [Community support](#community-support)
+  - [Create a pipeline with your own models](#create-a-pipeline-with-your-own-models)
+  - [Clean up](#clean-up)
 - [Documentation](#documentation)
-  - [API reference](#api-reference)
-  - [Build docker](#build-docker)
+- [Local development](#local-development)
+- [Community support](#community-support)
 - [License](#license)
+
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 ## How VDP works
 
@@ -51,19 +53,17 @@ We use **data connector** as a general term to represent data source and data de
 
 ### Download and run VDP locally
 
-Execute the following commands to start pre-built images with all the dependencies
+Execute the following commands to start pre-built images with all the dependencies:
 
 ```bash
 git clone https://github.com/instill-ai/vdp.git
 
-mkdir conda-pack
-curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
-
 make all
 ```
+Note that this may take a while due to the big size of the Triton server image.
 
 ### Run the samples to trigger an object detection pipeline
-We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP.
+We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
 
 ```bash
 cd examples-go
@@ -87,8 +87,30 @@ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov
 go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
 ```
 
-### Create a pipeline with your own model
-Please follow the guideline on [How to prepare your own model to deploy on VDP](docs/model.md#prepare-your-own-model-to-deploy-on-vdp). Then, use the sample codes above to deploy the prepared model and create your own pipeline.
+### Create a pipeline with your own models
+Please follow the guideline "[Prepare your own model to deploy on VDP
+](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)." Based on the above sample codes, you can deploy a prepared model and create your own pipeline.
+
+### Clean up
+To clean up all running services:
+```
+make prune
+```
+
+## Documentation
+
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec, run
+```bash
+make doc
+```
+, and now visit http://localhost:3000.
+
+## Local development
+
+You can build a development Docker image using:
+```bash
+make build
+```
 
 ## Community support
 
@@ -96,17 +118,6 @@ For general help using VDP, you can use one of these channels:
 
 - [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
 - [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and the Instill AI Team)
-
-## Documentation
-
-### API reference
-
-### Build docker
-
-You can build a development Docker image using:
-```bash
-make build
-```
 
 ## License
 
