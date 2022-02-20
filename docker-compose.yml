@@ -5,6 +5,8 @@ networks:
     name: instill-network
 
 volumes:
+  conda_pack:
+    name: conda-pack
   model_repository:
     name: model-repository
   pg_sql:
@@ -91,6 +93,12 @@ services:
       - temporal
       - redis
 
+  triton_conda_env:
+    container_name: triton-conda-env
+    image: instill/triton-conda-env:v0.1.0-alpha-cpu
+    volumes:
+      - conda_pack:/conda-pack
+
   triton_server:
     container_name: triton-server
     image: nvcr.io/nvidia/tritonserver:22.01-py3
@@ -100,7 +108,7 @@ services:
       - 8001:8001
     volumes:
       - model_repository:/model-repository
-      - ./conda-pack:/conda-pack
+      - conda_pack:/conda-pack
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
       timeout: 20s
@@ -109,6 +117,8 @@ services:
     ulimits:
         memlock: -1
         stack: 67108864
+    depends_on:
+      - triton_conda_env
 
   pg_sql:
     container_name: pg-sql
