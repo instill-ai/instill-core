@@ -30,10 +30,10 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
   - [Create a pipeline with your own model](#create-a-pipeline-with-your-own-model)
-- [Community support](#community-support)
+  - [Clean up](#clean-up)
 - [Documentation](#documentation)
-  - [API reference](#api-reference)
-  - [Build docker](#build-docker)
+- [Development](#development)
+- [Community support](#community-support)
 - [License](#license)
 
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable version, please use [latest release](https://github.com/instill-ai/vdp/releases).
@@ -90,16 +90,13 @@ go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.
 ### Create a pipeline with your own model
 Please follow the guideline on [How to prepare your own model to deploy on VDP](docs/model.md#prepare-your-own-model-to-deploy-on-vdp). Then, use the sample codes above to deploy the prepared model and create your own pipeline.
 
-## Community support
-
-For general help using VDP, you can use one of these channels:
-
-- [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
-- [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and the Instill AI Team)
+### Clean up
+Execute the following command to clean up all running services
+```
+make prune
+```
 
 ## Documentation
-
-### API reference
 
 The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec:
 ```bash
@@ -108,12 +105,19 @@ make all
 Now visit http://localhost:3000
 
 
-### Build docker
+## Development
 
 You can build a development Docker image using:
 ```bash
 make build
 ```
+
+## Community support
+
+For general help using VDP, you can use one of these channels:
+
+- [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
+- [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and the Instill AI Team)
 
 ## License
 
