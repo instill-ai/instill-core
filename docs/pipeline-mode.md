@@ -4,7 +4,7 @@ Depending on the requirements of your use case, you can create a pipeline with a
 The mode of a pipeline is determined by the combination of data source and data destination. We use the diagrams below to show the difference.
 
 ### SYNC
-A pipeline with the `SYNC` mode responds to requests synchronously. The result is sent back to the user once the data is processed. This mode is a good fit for use cases with real-time requirements.
+A pipeline with the `SYNC` mode responds to requests synchronously. The result is sent back to the user once the data is processed. This mode is a good fit for use cases with real-time inference requirements.
 <p align="center">
 <img src="mermaid/sync.svg" alt="Synchronous pipeline mode" />
 </p>
