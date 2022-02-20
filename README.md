@@ -105,7 +105,7 @@ make all
 Now visit http://localhost:3000
 
 
-## Development
+## Local development
 
 You can build a development Docker image using:
 ```bash
