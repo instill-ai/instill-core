@@ -101,6 +101,13 @@ For general help using VDP, you can use one of these channels:
 
 ### API reference
 
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec:
+```bash
+make all
+```
+Now visit http://localhost:3000
+
+
 ### Build docker
 
 You can build a development Docker image using:
