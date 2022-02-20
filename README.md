@@ -60,7 +60,7 @@ git clone https://github.com/instill-ai/vdp.git
 
 make all
 ```
-Note that it may take a long time due to the size of the Triton server image.
+Note that this may take a while due to the big size of the Triton server image.
 
 ### Run the samples to trigger an object detection pipeline
 We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP.
