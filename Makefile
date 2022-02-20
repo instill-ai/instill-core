@@ -17,7 +17,7 @@ all:			## Build and launch all services
 .PHONY: all
 
 logs:			## Tail all logs with -n 10
-	@docker-compose logs --follow --tail=10 ${ALL_SERVICES}
+	@docker-compose logs --follow --tail=10
 .PHONY: logs
 
 pull:			## Pull all images
@@ -41,7 +41,7 @@ rm:				## Remove all stopped service containers
 .PHONY: rm
 
 down:			## Stop all services and remove all service containers
-	@docker-compose down ${ALL_SERVICES}
+	@docker-compose down
 .PHONY: down
 
 images:			## List all container images
@@ -51,6 +51,10 @@ images:			## List all container images
 ps:				## List all service containers
 	@docker-compose ps ${ALL_SERVICES}
 .PHONY: ps
+
+top:			## Display all running service processes
+	@docker-compose top ${ALL_SERVICES}
+.PHONY: top
 
 prune:			## Remove all services containers and system prune everything
 	@make down
