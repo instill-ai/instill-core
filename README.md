@@ -99,12 +99,11 @@ make prune
 
 ## Documentation
 
-The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec:
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec, run
 ```bash
-make all
+make doc
 ```
-Now visit http://localhost:3000
-
+, and now visit http://localhost:3000.
 
 ## Local development
 
