@@ -36,6 +36,8 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
   - [Build docker](#build-docker)
 - [License](#license)
 
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+
 ## How VDP works
 
 The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates end-to-end visual data processing. Each pipeline consists of three ordered components:
