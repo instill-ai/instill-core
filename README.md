@@ -58,9 +58,6 @@ Execute the following commands to start pre-built images with all the dependenci
 ```bash
 git clone https://github.com/instill-ai/vdp.git
 
-mkdir conda-pack
-curl -o conda-pack/python-3-8.tar.gz https://artifacts.instill.tech/vdp/conda-pack/python-3-8.tar.gz
-
 make all
 ```
 
