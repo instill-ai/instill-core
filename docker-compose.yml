@@ -178,8 +178,8 @@ services:
     ports:
       - 6379:6379
 
-  redoc:
-    container_name: openapi
+  redoc_openapi:
+    container_name: redoc-openapi
     image: volbrene/redoc:1.2.0
     environment:
       - 'URLS=[{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/pipeline/pipeline.swagger.json'', name: ''Pipeline''},{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/model/model.swagger.json'', name: ''Model''}]'
