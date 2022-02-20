@@ -66,10 +66,24 @@ help:       	## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 .PHONY: help
 
-test:
+test: prepare-test integration-test cleanup-test			## Run integration test
+.PHONY: test
+
+prepare-test:
+	@curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
+	@curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 	@go version
 	@go install go.k6.io/xk6/cmd/xk6@latest
 	@xk6 build --with github.com/szkiba/xk6-jose@latest
-	@TEST_FOLDER_ABS_PATH=${PWD}/tests ./k6 run tests/pipeline-backend-grpc.js --no-usage-report
+.PHONY: prepare-test
+
+cleanup-test:
+	@rm yolov4-onnx-cpu.zip
+	@rm dog.jpg
 	@rm k6
-.PHONY: test
+.PHONY: cleanup-test
+
+integration-test:
+	@TEST_FOLDER_ABS_PATH=${PWD} ./k6 run tests/integration-tests/model-backend-rest.js --no-usage-report
+	@TEST_FOLDER_ABS_PATH=${PWD} ./k6 run tests/integration-tests/pipeline-backend-rest.js --no-usage-report
+.PHONE: integration-test

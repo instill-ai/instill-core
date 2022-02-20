@@ -143,7 +143,9 @@ services:
     volumes:
       - ./backends/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
     depends_on:
-      - pg_sql
+      pg_sql:
+        condition: service_healthy
+
   temporal_admin_tools:
     container_name: temporal-admin-tools
     image: temporalio/admin-tools:1.15.0

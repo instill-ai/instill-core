@@ -15,6 +15,7 @@ func main() {
 	serverAddress := flag.String("address", "localhost:8446", "the server address")
 	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
+	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *pipelineName == "" {
@@ -41,14 +42,14 @@ func main() {
 		Description: "Hello! My first pipeline",
 		Active:      true,
 		Recipe: &pb.Recipe{
-			Source: &pb.Source{Type: "HTTP"},
+			Source: &pb.Source{Type: "Direct"},
 			Model: []*pb.Model{
 				{
 					Name:    *modelName,
-					Version: 1,
+					Version: int32(*modelVersion),
 				},
 			},
-			Destination: &pb.Destination{Type: "HTTP"},
+			Destination: &pb.Destination{Type: "Direct"},
 		},
 	}
 
