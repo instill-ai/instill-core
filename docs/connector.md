@@ -4,12 +4,12 @@ There are two kinds of triggering mechanisms: synchronous (`SYNC`) and asynchron
 
 ### SYNC
 <p align="center">
-<img src="../mermaid/sync.svg" alt="Synchronous triggering mechanism" />
+<img src="mermaid/sync.svg" alt="Synchronous triggering mechanism" />
 </p>
 
 ### ASYNC
 <p align="center">
-<img src="../mermaid/async.svg" alt="Asynchronous triggering mechanism" />
+<img src="mermaid/async.svg" alt="Asynchronous triggering mechanism" />
 </p>
 
 ## Stage of Connectors

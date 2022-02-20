@@ -47,7 +47,7 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on the trigger mechanism of the data source, when you trigger a pipeline, it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
 
-We use **data connector** as a general term to represent data source and data destination. A list of current supported data connectors can be found [here](docs/connectors/).
+We use **data connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
 
 We will continue adding new connectors to VDP. If you want to make a request, please feel free to open an issue and describe your use case in details.
 
