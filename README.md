@@ -26,12 +26,12 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 
 ### Table of contents <!-- omit in toc -->
 - [How VDP works](#how-vdp-works)
-  - [SYNC](#sync)
-  - [ASYNC](#async)
 - [Quick start](#quick-start)
   - [Download and run VDP locally](#download-and-run-vdp-locally)
   - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
   - [Create a pipeline with your own model](#create-a-pipeline-with-your-own-model)
+    - [Prepare your own model to run on Triton Inference server](#prepare-your-own-model-to-run-on-triton-inference-server)
+    - [Model standardization format output](#model-standardization-format-output)
 - [Community support](#community-support)
 - [Documentation](#documentation)
   - [API reference](#api-reference)
@@ -79,13 +79,13 @@ curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yol
 curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
 # Deploy the model
-go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4 --model-version 1
+go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
 
 # Test the model
-go run test-model/main.go --model-name yolov4 --model-version 1 --test-image dog.jpg
+go run test-model/main.go --model-name yolov4 --test-image dog.jpg
 
 # Create an object detection pipeline
-go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4 --model-version 1
+go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
 
 # Trigger the pipeline by using the same test image
 go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
@@ -170,9 +170,9 @@ class TritonPythonModel:
         the model to perform any necessary clean ups before exit.
         """
         print('Cleaning up...')
-```          
+```
 Triton Python Backend supports `conda-pack` to deploy Python models with dependencies. We provide a custom Conda environment that contains Numpy and Scikit-Learn. If your model is not compatible with Python 3.8 or if it requires additional dependencies, you could [create your own Conda environment](https://github.com/triton-inference-server/python_backend#2-packaging-the-conda-environment).
-To deploy your DL model with Python code for pre-processing and post-processing and used in a pipeline: 
+To deploy your DL model with Python code for pre-processing and post-processing and used in a pipeline:
 - Convert your Python code into a pre-processing model and a post-processing model that are compatible with the Python Backend following the guideline above
 - Set up an [Ensemble model](https://github.com/triton-inference-server/server/blob/main/docs/architecture.md#ensemble-models) to encapsulate a "pre-processing model -> DL model -> post-processing model" procedure.
 - compress all model files into a `.zip` file
@@ -214,7 +214,7 @@ For the `DETECTION` task, here is an output example
     ]
 }
 ```
-Note: 
+Note:
 
 To output with a standardised format, the post-processing PyThon model for the `CLASSIFICATION` task should output string withh format:
 ```
