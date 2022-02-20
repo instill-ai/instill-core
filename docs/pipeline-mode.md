@@ -13,7 +13,7 @@ To create a pipeline with the `SYNC` mode, please use `Direct` for both data sou
 
 ### ASYNC (coming soon)
 
-A pipeline with the `ASYNC` mode responds to asynchronous workload. The user triggers the pipeline with an asynchronous request and only receives an acknowledged response. Once the data is processed, the result is sent to the data destination to be retrieved later. This mode is a good fit for use cases that do not need results immediately.
+A pipeline with the `ASYNC` mode responds to asynchronous workload. The user triggers the pipeline with an asynchronous request and only receives an acknowledged response. Once the data is processed, the result is sent to the data destination to be retrieved later. This mode is a good fit for use cases that do not need inference results immediately.
 <p align="center">
 <img src="mermaid/async.svg" alt="Asynchronous pipeline mode" />
 </p>
