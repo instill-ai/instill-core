@@ -1,5 +1,15 @@
 # Changelog
 
+### [0.1.2-alpha](https://github.com/instill-ai/vdp/compare/v0.1.1-alpha...v0.1.2-alpha) (2022-02-21)
+
+
+### Bug Fixes
+
+* add name in update model api ([#41](https://github.com/instill-ai/vdp/issues/41)) ([35b7e31](https://github.com/instill-ai/vdp/commit/35b7e31f8771eccf16bcd7cc36785138540c869d))
+* **docker-compose:** change correct dependency for temporal ([#60](https://github.com/instill-ai/vdp/issues/60)) ([eb98049](https://github.com/instill-ai/vdp/commit/eb98049b21fe6d6e4c037234dbc6cde9cf32b325))
+* update model backend without specify version when creating model ([#63](https://github.com/instill-ai/vdp/issues/63)) ([f4cf161](https://github.com/instill-ai/vdp/commit/f4cf161fa789573985b47e465fc9a30c6da9ec6c))
+* wrong type in sample model prediction ([#39](https://github.com/instill-ai/vdp/issues/39)) ([523d5f8](https://github.com/instill-ai/vdp/commit/523d5f8ea1d8b00799ceb5aef183ae727069726c))
+
 ### [0.1.1-alpha](https://github.com/instill-ai/vdp/compare/v0.1.0-alpha...v0.1.1-alpha) (2022-02-13)
 
 
