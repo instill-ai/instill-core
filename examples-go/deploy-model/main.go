@@ -83,7 +83,7 @@ func main() {
 
 	uploadResp, err := uploadStream.CloseAndRecv()
 	if err != nil {
-		log.Fatalf("errored while copying from file to buf: %v", err)
+		log.Fatalf("there is an error while creating model: %v", err)
 	}
 	log.Printf("model has been created, the response is: %+v", uploadResp)
 
