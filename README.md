@@ -20,9 +20,9 @@
 
 1. Ingest unstructured visual data from data sources such as data lakes or IoT devices;
 2. Transform visual data to meaningful structured data representations by Vision AI models;
-3. Load the structured data into warehouses, applications or other destinations.
+3. Load the structured data into warehouses, applications, or other destinations.
 
-The goal of VDP is to seamlessly bring Vision AI into modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
+The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
 
 ### Table of contents <!-- omit in toc -->
 - [How VDP works](#how-vdp-works)
@@ -36,7 +36,7 @@ The goal of VDP is to seamlessly bring Vision AI into modern data stack with a s
 - [Community support](#community-support)
 - [License](#license)
 
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 ## How VDP works
 
@@ -89,7 +89,7 @@ go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.
 
 ### Create a pipeline with your own models
 Please follow the guideline "[Prepare your own model to deploy on VDP
-](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)." Based on the above sample codes, you can deploy a prepared model and create your own pipeline.
+](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)". Based on the above sample codes, you can deploy a prepared model and create your own pipeline.
 
 ### Clean up
 To clean up all running services:
