@@ -17,7 +17,7 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
-	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
+	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent for prediction")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
@@ -58,7 +58,7 @@ func main() {
 				break
 			}
 
-			log.Fatalf("errored while copying from file to buf: %s", errRead.Error())
+			log.Fatalf("there is an error while copying from file to buf: %s", errRead.Error())
 		}
 		if firstChunk {
 			err = predictStream.Send(&modelPB.PredictModelRequest{
@@ -67,7 +67,7 @@ func main() {
 				Content: buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("cfailed to send data via streame: %v", err)
+				log.Fatalf("failed to send data via streame: %v", err)
 			}
 			firstChunk = false
 		} else {
@@ -75,14 +75,14 @@ func main() {
 				Content: buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("cfailed to send data via streame: %v", err)
+				log.Fatalf("failed to send data via streame: %v", err)
 			}
 		}
 	}
 
 	predictRes, err := predictStream.CloseAndRecv()
 	if err != nil {
-		log.Fatalf("error when triggering predict: %v", err)
+		log.Fatalf("there is an error when triggering predict: %v", err)
 	}
 
 	predictResult, err := json.Marshal(predictRes)
