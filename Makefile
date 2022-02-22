@@ -64,7 +64,7 @@ prune:			## Remove all services containers and system prune everything
 .PHONY: prune
 
 build:			## Build local docker image
-	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:latest .
+	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:dev .
 .PHONY: build
 
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3000
