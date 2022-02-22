@@ -58,9 +58,10 @@ Execute the following commands to start pre-built images with all the dependenci
 ```bash
 git clone https://github.com/instill-ai/vdp.git
 
+# Note that this may take a while due to the enormous size of the Triton server image,
+# and this image pulling process is a one-time effort.
 make all
 ```
-Note that this may take a while due to the big size of the Triton server image.
 
 ### Run the samples to trigger an object detection pipeline
 We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
