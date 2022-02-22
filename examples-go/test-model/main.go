@@ -17,7 +17,7 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
-	testIamgePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent for prediction")
+	testImagePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent for prediction")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
@@ -45,7 +45,7 @@ func main() {
 
 	buf := make([]byte, 64*1024)
 	firstChunk := true
-	file, err := os.Open(*testIamgePath)
+	file, err := os.Open(*testImagePath)
 	if err != nil {
 		log.Fatalf("can not open the file: %v", err)
 	}
@@ -67,7 +67,7 @@ func main() {
 				Content: buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("failed to send data via streame: %v", err)
+				log.Fatalf("failed to send data via stream: %v", err)
 			}
 			firstChunk = false
 		} else {
@@ -75,7 +75,7 @@ func main() {
 				Content: buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("failed to send data via streame: %v", err)
+				log.Fatalf("failed to send data via stream: %v", err)
 			}
 		}
 	}
