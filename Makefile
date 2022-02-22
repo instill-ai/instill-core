@@ -13,7 +13,7 @@ export
 #============================================================================
 
 all:			## Build and launch all services
-	@printf "\033[1;33mWARNING:\033[0m You may take a while due to the enormous size of the Triton server image, and this image pulling process is a one-time effort.\n"
+	@printf "\033[1;33mWARNING:\033[0m It may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n"
 	@read -n 1 -s -r -p "Press any key to continue"
 	@docker-compose up -d ${ALL_SERVICES}
 .PHONY: all
