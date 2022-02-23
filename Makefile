@@ -13,6 +13,7 @@ export
 #============================================================================
 
 all:			## Build and launch all services
+	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose up -d ${ALL_SERVICES}
 .PHONY: all
 
@@ -21,6 +22,7 @@ logs:			## Tail all logs with -n 10
 .PHONY: logs
 
 pull:			## Pull all images
+	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose pull ${ALL_SERVICES}
 .PHONY: pull
 
@@ -62,7 +64,7 @@ prune:			## Remove all services containers and system prune everything
 .PHONY: prune
 
 build:			## Build local docker image
-	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:latest .
+	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:dev .
 .PHONY: build
 
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3000
