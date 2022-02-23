@@ -1,4 +1,4 @@
-name: Add PR to project
+name: Add PR to Project
 
 on:
   pull_request:
