@@ -12,6 +12,9 @@ import * as pipelineConstants from "./pipeline-backend-constants.js";
 
 const apiHost = "http://127.0.0.1:8446";
 
+const model_name = "yolov4"
+const det_model = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dummy-det-model.zip`, "b");
+
 export let options = {
   insecureSkipTLSVerify: true,
   thresholds: {
@@ -20,6 +23,52 @@ export let options = {
 };
 
 export function setup() {
+  // Model Backend API: make inference
+  {
+    group("Model Backend API: Predict Model with detection model", function () {
+      let fd = new FormData();
+      console.log("Create model ", model_name)
+      fd.append("name", model_name);
+      fd.append("description", randomString(20));
+      fd.append("cvtask", "det");
+      fd.append("content", http.file(det_model, "dummy-det-model.zip"));
+      check(http.request("POST", `http://127.0.0.1:8445/models/upload`, fd.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
+      }), {
+        "POST /models/upload (multipart) det response Status": (r) =>
+          r.status === 200, 
+          "POST /models/upload (multipart) cvtask det response Name": (r) =>
+          r.json().Name !== undefined,      
+          "POST /models/upload (multipart) cvtask det response FullName": (r) =>
+          r.json().FullName !== undefined,   
+          "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
+          r.json().CVTask === "DETECTION",   
+          "POST /models/upload (multipart) cvtask det response Versions": (r) =>
+          r.json().Versions.length > 0,                                        
+      });
+
+      let payload = JSON.stringify({
+        "model": {"status": 1},
+        "update_mask": "status"
+      });
+      check(http.patch(`http://127.0.0.1:8445/models/${model_name}/versions/1`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Status`]: (r) =>
+          r.status === 200, 
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Name`]: (r) =>
+          r.json().name !== undefined,      
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response FullName`]: (r) =>
+          r.json().full_Name !== undefined,   
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response CVTask`]: (r) =>
+          r.json().cv_task === "DETECTION",   
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Versions`]: (r) =>
+          r.json().versions.length > 0,       
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Version 1 Status`]: (r) =>
+          r.json().versions[0].status === "ONLINE",  
+      });  
+    });
+  } 
 }
 
 const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/dog.jpg`, "b");
@@ -238,6 +287,13 @@ export function teardown(data) {
             r.status === 204,
         }
       );
+
+      check(http.request("DELETE", `http://127.0.0.1:8445/models/${model_name}`, null, {
+        headers: genHeader(`application/json`),
+      }), {
+        "DELETE clean up response Status": (r) =>
+          r.status === 200 // TODO: update status to 201
+      });   
     }
   });
 }
