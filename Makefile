@@ -80,16 +80,12 @@ test: prepare-test integration-test cleanup-test			## Run integration test
 .PHONY: test
 
 prepare-test:
-	@curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
-	@curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 	@go version
 	@go install go.k6.io/xk6/cmd/xk6@latest
 	@xk6 build --with github.com/szkiba/xk6-jose@latest
 .PHONY: prepare-test
 
 cleanup-test:
-	@rm yolov4-onnx-cpu.zip
-	@rm dog.jpg
 	@rm k6
 .PHONY: cleanup-test
 
