@@ -47,7 +47,7 @@ func main() {
 		log.Fatal("cannot upload image: ", err)
 	}
 
-	req := &pb.TriggerPipelineRequest{
+	req := &pb.TriggerPipelineImageRequest{
 		Name: *pipelineName,
 	}
 
@@ -68,10 +68,10 @@ func main() {
 			log.Fatal("cannot read chunk to buffer: ", err)
 		}
 
-		contents := []*pb.TriggerPipelineContent{}
-		contents = append(contents, &pb.TriggerPipelineContent{Chunk: buffer[:n]})
+		contents := []*pb.TriggerPipelineImageContent{}
+		contents = append(contents, &pb.TriggerPipelineImageContent{Chunk: buffer[:n]})
 
-		req := &pb.TriggerPipelineRequest{
+		req := &pb.TriggerPipelineImageRequest{
 			Contents: contents,
 		}
 

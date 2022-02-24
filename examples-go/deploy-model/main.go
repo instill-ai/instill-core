@@ -98,10 +98,10 @@ func main() {
 	}
 
 	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
+		Name:    *modelName,
+		Version: int32(*modelVersion),
 		Model: &modelPB.UpdateModelInfo{
-			Name:    *modelName,
-			Status:  modelPB.ModelStatus_ONLINE,
-			Version: int32(*modelVersion),
+			Status: modelPB.ModelStatus_ONLINE,
 		},
 		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
