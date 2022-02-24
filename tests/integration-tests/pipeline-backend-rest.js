@@ -12,7 +12,7 @@ import * as pipelineConstants from "./pipeline-backend-constants.js";
 
 const apiHost = "http://127.0.0.1:8446";
 
-const model_name = "yolov4"
+const model_name = pipelineConstants.detectionModel.name;
 const det_model = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dummy-det-model.zip`, "b");
 
 export let options = {
@@ -240,7 +240,7 @@ export default function (data) {
       );
     });
 
-    group("Pipelines API: Trigger a pipeline with classification model", () => {
+    group("Pipelines API: Trigger a pipeline", () => {
       // multipart data
       const fd = new FormData();
       fd.append("contents", http.file(dogImg));
@@ -292,7 +292,7 @@ export function teardown(data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       });   
     }
   });

@@ -1,5 +1,5 @@
-export const yoloDetectionModel = {
-  name: "yolov4",
+export const detectionModel = {
+  name: "dummy-det",
   version: 1,
 };
 
@@ -8,7 +8,7 @@ export const detectionRecipe = {
     source: {
       type: "Direct",
     },
-    model: [yoloDetectionModel],
+    model: [detectionModel],
     destination: {
       type: "Direct",
     },

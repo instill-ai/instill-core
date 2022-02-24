@@ -49,7 +49,7 @@ export default function (data) {
       let model_name1 = randomString(10)
       fd_cls.append("name", model_name1);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "cls");
+      fd_cls.append("cvtask", "CLASSIFICATION");
       fd_cls.append("content", http.file(cls_model, "dummy-cls-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -70,7 +70,7 @@ export default function (data) {
       let model_name2 = randomString(10)
       fd_det.append("name", model_name2);
       fd_det.append("description", randomString(20));
-      fd_det.append("cvtask", "det");
+      fd_det.append("cvtask", "DETECTION");
       fd_det.append("content", http.file(cls_model, "dummy-det-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_det.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_det.boundary}`),
@@ -111,19 +111,19 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       }); 
       check(http.request("DELETE", `${apiHost}/models/${model_name2}`, null, {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       }); 
       check(http.request("DELETE", `${apiHost}/models/${model_name3}`, null, {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       }); 
     });
   }
@@ -135,7 +135,7 @@ export default function (data) {
       let model_name = randomString(10)
       fd_cls.append("name", model_name);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "cls");
+      fd_cls.append("cvtask", "CLASSIFICATION");
       fd_cls.append("content", http.file(cls_model, "dummy-cls-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -155,7 +155,7 @@ export default function (data) {
       let fd_det = new FormData();
       fd_det.append("name", model_name);
       fd_det.append("description", randomString(20));
-      fd_det.append("cvtask", "det");
+      fd_det.append("cvtask", "DETECTION");
       fd_det.append("content", http.file(cls_model, "dummy-det-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_det.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_det.boundary}`),
@@ -195,7 +195,7 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       }); 
     });
   }
@@ -208,7 +208,7 @@ export default function (data) {
       console.log("Create model ", model_name)
       fd_cls.append("name", model_name);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "cls");
+      fd_cls.append("cvtask", "CLASSIFICATION");
       fd_cls.append("content", http.file(cls_model, "dummy-cls-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -241,8 +241,7 @@ export default function (data) {
       });      
 
       let payload = JSON.stringify({
-        "model": {"status": 1},
-        "update_mask": "status"
+        "status": 1
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
@@ -264,8 +263,7 @@ export default function (data) {
       });  
 
       payload = JSON.stringify({
-        "model": {"status": 1},
-        "update_mask": "status"
+        "status": 1
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
         headers: genHeader(`application/json`),
@@ -287,8 +285,7 @@ export default function (data) {
       });    
       
       payload = JSON.stringify({
-        "model": {"status": 0},
-        "update_mask": "status"
+        "status": 0
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
@@ -310,8 +307,7 @@ export default function (data) {
       });  
 
       payload = JSON.stringify({
-        "model": {"status": 0},
-        "update_mask": "status"
+        "status": 0
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
         headers: genHeader(`application/json`),
@@ -337,7 +333,7 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       });   
     });
   }  
@@ -350,7 +346,7 @@ export default function (data) {
       console.log("Create model ", model_name)
       fd_cls.append("name", model_name);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "cls");
+      fd_cls.append("cvtask", "CLASSIFICATION");
       fd_cls.append("content", http.file(cls_model, "dummy-cls-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -368,8 +364,7 @@ export default function (data) {
       });
 
       let payload = JSON.stringify({
-        "model": {"status": 1},
-        "update_mask": "status"
+        "status": 1
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
@@ -443,7 +438,7 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       });   
     });
   }  
@@ -456,7 +451,7 @@ export default function (data) {
       console.log("Create model ", model_name)
       fd_cls.append("name", model_name);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "det");
+      fd_cls.append("cvtask", "DETECTION");
       fd_cls.append("content", http.file(det_model, "dummy-det-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -474,8 +469,7 @@ export default function (data) {
       });
 
       let payload = JSON.stringify({
-        "model": {"status": 1},
-        "update_mask": "status"
+        "status": 1
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
@@ -561,10 +555,120 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       });   
     });
   }   
+
+  // Model Backend API: make inference
+  {
+    group("Model Backend API: Predict Model with undefined cvtask model", function () {
+      let fd = new FormData();
+      let model_name = randomString(10)
+      console.log("Create model ", model_name)
+      fd.append("name", model_name);
+      fd.append("description", randomString(20));
+      fd.append("content", http.file(cls_model, "dummy-cls-model.zip"));
+      check(http.request("POST", `${apiHost}/models/upload`, fd.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
+      }), {
+        "POST /models (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "POST /models (multipart) cvtask cls response Name": (r) =>
+          r.json().Name !== undefined,      
+          "POST /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().FullName !== undefined,   
+          "POST /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().CVTask === "UNDEFINED",   
+          "POST /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().Versions.length === 1,                                        
+      });
+
+      let payload = JSON.stringify({
+        "status": 1
+      });
+      check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        "PATCH /models/ (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          r.json().name !== undefined,      
+          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().full_Name !== undefined,   
+          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().cv_task === "UNDEFINED",   
+          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().versions.length === 1,       
+          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          r.json().versions[0].status === "ONLINE",  
+      });  
+
+      // Predict with url
+      payload = JSON.stringify({
+        "contents": [{"url": "https://artifacts.instill.tech/dog.jpg"}]
+      });
+      check(http.post(`${apiHost}/models/${model_name}/versions/1/outputs`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        [`POST ${apiHost}/models/${model_name}/versions/1/outputs url undefined response Status`]: (r) =>
+          r.status === 200, 
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs url undefined outputs`]: (r) =>
+          r.json().outputs.length === 1,  
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs url undefined parameters`]: (r) =>
+          r.json().parameters !== undefined,            
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs url undefined raw_output_contents`]: (r) =>
+          r.json().raw_output_contents.length === 1,   
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs url undefined raw_output_contents content`]: (r) =>
+          r.json().raw_output_contents[0] !== undefined,          
+      });  
+
+      // Predict with base64
+      payload = JSON.stringify({
+        "contents": [{"base64": base64_image,}]
+      });
+      check(http.post(`${apiHost}/models/${model_name}/versions/1/outputs`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 undefined response Status`]: (r) =>
+          r.status === 200, 
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 undefined outputs`]: (r) =>
+          r.json().outputs.length === 1,  
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 undefined parameters`]: (r) =>
+          r.json().parameters !== undefined,            
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 undefined raw_output_contents`]: (r) =>
+          r.json().raw_output_contents.length === 1,   
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 undefined raw_output_contents content`]: (r) =>
+          r.json().raw_output_contents[0] !== undefined,             
+      });  
+
+      // Predict with multiple-part
+      fd = new FormData();
+      fd.append("contents", http.file(dog_img));
+      check(http.post(`${apiHost}/models/${model_name}/versions/1/upload/outputs`, fd.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
+      }), {
+        [`POST ${apiHost}/models/${model_name}/versions/1/outputs multipart undefined response Status`]: (r) =>
+          r.status === 200, 
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs multipart undefined outputs`]: (r) =>
+          r.json().outputs.length === 1,  
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs multipart undefined parameters`]: (r) =>
+          r.json().parameters !== undefined,            
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs multipart undefined raw_output_contents`]: (r) =>
+          r.json().raw_output_contents.length === 1,   
+          [`POST ${apiHost}/models/${model_name}/versions/1/outputs multipart undefined raw_output_contents content`]: (r) =>
+          r.json().raw_output_contents[0] !== undefined,            
+      });      
+      
+      // clean up
+      check(http.request("DELETE", `${apiHost}/models/${model_name}`, null, {
+        headers: genHeader(`application/json`),
+      }), {
+        "DELETE clean up response Status": (r) =>
+          r.status === 200 // TODO: update status to 204
+      });   
+    });
+  }  
   
   // Model Backend API: Get model info
   {
@@ -574,7 +678,7 @@ export default function (data) {
       console.log("Create model ", model_name)
       fd_cls.append("name", model_name);
       fd_cls.append("description", randomString(20));
-      fd_cls.append("cvtask", "det");
+      fd_cls.append("cvtask", "DETECTION");
       fd_cls.append("content", http.file(det_model, "dummy-det-model.zip"));
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
@@ -617,68 +721,171 @@ export default function (data) {
         headers: genHeader(`application/json`),
       }), {
         "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 201
+          r.status === 200 // TODO: update status to 204
       });   
     });
   }   
 
  // Model Backend API: Get model list
- {
-  group("Model Backend API: Get model list", function () {
-    let fd_cls = new FormData();
-    let model_name = randomString(10)
-    console.log("Create model ", model_name)
-    fd_cls.append("name", model_name);
-    fd_cls.append("description", randomString(20));
-    fd_cls.append("cvtask", "det");
-    fd_cls.append("content", http.file(det_model, "dummy-det-model.zip"));
-    check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
-      headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
-    }), {
-      "POST /models/upload (multipart) det response Status": (r) =>
-        r.status === 200, 
-        "POST /models/upload (multipart) cvtask det response Name": (r) =>
-        r.json().Name !== undefined,      
-        "POST /models/upload (multipart) cvtask det response FullName": (r) =>
-        r.json().FullName !== undefined,   
-        "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
-        r.json().CVTask === "DETECTION",   
-        "POST /models/upload (multipart) cvtask det response Versions": (r) =>
-        r.json().Versions.length === 1,                                        
+  {
+    group("Model Backend API: Get model list", function () {
+      let fd_cls = new FormData();
+      let model_name = randomString(10)
+      console.log("Create model ", model_name)
+      fd_cls.append("name", model_name);
+      fd_cls.append("description", randomString(20));
+      fd_cls.append("cvtask", "DETECTION");
+      fd_cls.append("content", http.file(det_model, "dummy-det-model.zip"));
+      check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
+      }), {
+        "POST /models/upload (multipart) det response Status": (r) =>
+          r.status === 200, 
+          "POST /models/upload (multipart) cvtask det response Name": (r) =>
+          r.json().Name !== undefined,      
+          "POST /models/upload (multipart) cvtask det response FullName": (r) =>
+          r.json().FullName !== undefined,   
+          "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
+          r.json().CVTask === "DETECTION",   
+          "POST /models/upload (multipart) cvtask det response Versions": (r) =>
+          r.json().Versions.length === 1,                                        
+      });
+
+      let res = http.get(`${apiHost}/models`, {
+        headers: genHeader(`application/json`),
+      })
+      check(res, {
+        [`GET ${apiHost}/models response Status`]: (r) =>
+          r.status === 200, 
+          [`GET ${apiHost}/models cv_task`]: (r) =>
+          r.json().models[0].cv_task !== undefined,  
+          [`GET ${apiHost}/models versions`]: (r) =>
+          r.json().models[0].versions.length > 0,  
+          [`GET ${apiHost}/models version created_at`]: (r) =>
+          r.json().models[0].versions[0].created_at !== undefined,                      
+          [`GET ${apiHost}/models version updated_at`]: (r) =>
+          r.json().models[0].versions[0].updated_at !== undefined,   
+          [`GET ${apiHost}/models version status`]: (r) =>
+          r.json().models[0].versions[0].status !== undefined,            
+          [`GET ${apiHost}/models id`]: (r) =>
+          r.json().models[0].id !== undefined,   
+          [`GET ${apiHost}/models full_Name`]: (r) =>
+          r.json().models[0].full_Name !== undefined,                                
+      });      
+      
+      // clean up
+      check(http.request("DELETE", `${apiHost}/models/${model_name}`, null, {
+        headers: genHeader(`application/json`),
+      }), {
+        "DELETE clean up response Status": (r) =>
+          r.status === 200 // TODO: update status to 204
+      });   
     });
+  }   
 
-    let res = http.get(`${apiHost}/models`, {
-      headers: genHeader(`application/json`),
-    })
-    check(res, {
-      [`GET ${apiHost}/models response Status`]: (r) =>
-        r.status === 200, 
-        [`GET ${apiHost}/models cv_task`]: (r) =>
-        r.json().models[0].cv_task !== undefined,  
-        [`GET ${apiHost}/models versions`]: (r) =>
-        r.json().models[0].versions.length > 0,  
-        [`GET ${apiHost}/models version created_at`]: (r) =>
-        r.json().models[0].versions[0].created_at !== undefined,                      
-        [`GET ${apiHost}/models version updated_at`]: (r) =>
-        r.json().models[0].versions[0].updated_at !== undefined,   
-        [`GET ${apiHost}/models version status`]: (r) =>
-        r.json().models[0].versions[0].status !== undefined,            
-        [`GET ${apiHost}/models id`]: (r) =>
-        r.json().models[0].id !== undefined,   
-        [`GET ${apiHost}/models full_Name`]: (r) =>
-        r.json().models[0].full_Name !== undefined,                                
-    });      
-    
-    // clean up
-    check(http.request("DELETE", `${apiHost}/models/${model_name}`, null, {
-      headers: genHeader(`application/json`),
-    }), {
-      "DELETE clean up response Status": (r) =>
-        r.status === 200 // TODO: update status to 201
-    });   
-  });
-}   
+  // Model Backend API: update model version description
+  {
+    group("Model Backend API: Update model version description", function () {
+      let fd_cls = new FormData();
+      let model_name = randomString(10)
+      console.log("Create model ", model_name)
+      fd_cls.append("name", model_name);
+      fd_cls.append("description", randomString(20));
+      fd_cls.append("cvtask", "CLASSIFICATION");
+      fd_cls.append("content", http.file(cls_model, "dummy-cls-model.zip"));
+      check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
+      }), {
+        "POST /models (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "POST /models (multipart) cvtask cls response Name": (r) =>
+          r.json().Name !== undefined,      
+          "POST /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().FullName !== undefined,   
+          "POST /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().CVTask === "CLASSIFICATION",   
+          "POST /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().Versions.length === 1,                                        
+      });
 
+      check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
+        headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
+      }), {
+        "POST /models (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "POST /models (multipart) cvtask cls response Name": (r) =>
+          r.json().Name !== undefined,      
+          "POST /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().FullName !== undefined,   
+          "POST /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().CVTask === "CLASSIFICATION",   
+          "POST /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().Versions.length === 2,                                        
+      });      
+
+      let new_description = randomString(20)
+      let payload = JSON.stringify({
+        "status": 1,
+        "description": new_description
+      });
+      check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        "PATCH /models (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          r.json().name !== undefined,      
+          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().full_Name !== undefined,   
+          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().cv_task === "CLASSIFICATION",   
+          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().versions.length === 2,       
+          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          r.json().versions[0].status === "ONLINE",  
+          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          r.json().versions[1].status === "OFFLINE",  
+          "PATCH /models (multipart) cvtask cls response Version 1 Description": (r) =>
+          r.json().versions[0].description === new_description,                                                                      
+      });  
+      
+      let new_description2 = randomString(20)
+      payload = JSON.stringify({
+        "status": 1,
+        "description": new_description2
+      });
+      check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
+        headers: genHeader(`application/json`),
+      }), {
+        "PATCH /models (multipart) cls response Status": (r) =>
+          r.status === 200, // TODO: update status to 201
+          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          r.json().name !== undefined,      
+          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          r.json().full_Name !== undefined,   
+          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          r.json().cv_task === "CLASSIFICATION",   
+          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          r.json().versions.length === 2,       
+          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          r.json().versions[0].status === "ONLINE",  
+          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          r.json().versions[1].status === "ONLINE",  
+          "PATCH /models (multipart) cvtask cls response Version 1 Description": (r) =>
+          r.json().versions[0].description === new_description,              
+          "PATCH /models (multipart) cvtask cls response Version 2 Description": (r) =>
+          r.json().versions[1].description === new_description2,                                                                      
+      });         
+      
+      // clean up
+      check(http.request("DELETE", `${apiHost}/models/${model_name}`, null, {
+        headers: genHeader(`application/json`),
+      }), {
+        "DELETE clean up response Status": (r) =>
+          r.status === 200 // TODO: update status to 204
+      });   
+    });
+  }  
 
   sleep(1);
 }
