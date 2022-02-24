@@ -30,7 +30,7 @@ export function setup() {
       let fd = new FormData();
       fd.append("name", model_name);
       fd.append("description", randomString(20));
-      fd.append("cvtask", "det");
+      fd.append("cvtask", "DETECTION");
       fd.append("content", http.file(det_model, "dummy-det-model.zip"));
       check(http.request("POST", `${modelHost}/models/upload`, fd.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
