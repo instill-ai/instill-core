@@ -56,36 +56,36 @@ We use **data connector** as a general term to represent data source and data de
 Execute the following commands to start pre-built images with all the dependencies:
 
 ```bash
-git clone https://github.com/instill-ai/vdp.git
+$ git clone https://github.com/instill-ai/vdp.git
 
 # Note that this may take a while due to the enormous size of the Triton server image,
 # but the image pulling process should be just a one-time effort.
-make all
+$ make all
 ```
 
 ### Run the samples to trigger an object detection pipeline
 We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
 
 ```bash
-cd examples-go
+$ cd examples-go
 
 # Download a YOLOv4 ONNX model for object detection task (GPU not required)
-curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
+$ curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
 
 # [optional] Download a test image or use your own images
-curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
+$ curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
 # Deploy the model
-go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
+$ go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
 
 # Test the model
-go run test-model/main.go --model-name yolov4 --test-image dog.jpg
+$ go run test-model/main.go --model-name yolov4 --test-image dog.jpg
 
 # Create an object detection pipeline
-go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
+$ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
 
 # Trigger the pipeline by using the same test image
-go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
+$ go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
 ```
 
 ### Create a pipeline with your own models
@@ -95,22 +95,21 @@ Please follow the guideline "[Prepare your own model to deploy on VDP
 ### Clean up
 To clean up all running services:
 ```
-make prune
+$ make prune
 ```
 
 ## Documentation
 
-The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec, run
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec on http://localhost:3000:
 ```bash
-make doc
+$ make doc
 ```
-, and now visit http://localhost:3000.
 
 ## Local development
 
-You can build a development Docker image using:
+You can build a development Docker image for VDP by:
 ```bash
-make build
+$ make build
 ```
 
 ## Community support
@@ -122,4 +121,4 @@ For general help using VDP, you can use one of these channels:
 
 ## License
 
-See the [LICENSE](https://github.com/instill-ai/vdp/blob/main/LICENSE) file for licensing information.
+See the [LICENSE](./LICENSE) file for licensing information.
