@@ -48,8 +48,7 @@ export function setup() {
       });
 
       let payload = JSON.stringify({
-        "model": { "status": 1 },
-        "update_mask": "status"
+        "status": 1
       });
       check(http.patch(`${modelHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
