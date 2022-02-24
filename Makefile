@@ -1,6 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := vdp pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend triton_conda_env
+INSTILL_SERVICES := pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend triton_conda_env
 3RD_PARTY_SERVICES := triton_server pg_sql temporal temporal_admin_tools temporal_web redis redoc_openapi
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
@@ -14,32 +14,32 @@ export
 
 all:			## Build and launch all services
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose up -d ${ALL_SERVICES}
+	@docker-compose up -d vdp ${ALL_SERVICES}
 .PHONY: all
 
 logs:			## Tail all logs with -n 10
 	@docker-compose logs --follow --tail=10
 .PHONY: logs
 
-pull:			## Pull all images
+pull:			## Pull all service images
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose pull ${ALL_SERVICES}
 .PHONY: pull
 
 stop:			## Stop all components
-	@docker-compose stop ${ALL_SERVICES}
+	@docker-compose stop vdp ${ALL_SERVICES}
 .PHONY: stop
 
 start:			## Start all stopped services
-	@docker-compose start ${ALL_SERVICES}
+	@docker-compose start vdp ${ALL_SERVICES}
 .PHONY: start
 
 restart:		## Restart all services
-	@docker-compose restart ${ALL_SERVICES}
+	@docker-compose restart vdp ${ALL_SERVICES}
 .PHONY: restart
 
 rm:				## Remove all stopped service containers
-	@docker-compose rm -f ${ALL_SERVICES}
+	@docker-compose rm -f vdp ${ALL_SERVICES}
 .PHONY: rm
 
 down:			## Stop all services and remove all service containers
@@ -47,15 +47,15 @@ down:			## Stop all services and remove all service containers
 .PHONY: down
 
 images:			## List all container images
-	@docker-compose images ${ALL_SERVICES}
+	@docker-compose images vdp ${ALL_SERVICES}
 .PHONY: images
 
 ps:				## List all service containers
-	@docker-compose ps ${ALL_SERVICES}
+	@docker-compose ps vdp ${ALL_SERVICES}
 .PHONY: ps
 
 top:			## Display all running service processes
-	@docker-compose top ${ALL_SERVICES}
+	@docker-compose top vdp ${ALL_SERVICES}
 .PHONY: top
 
 prune:			## Remove all services containers and system prune everything
