@@ -291,9 +291,9 @@ export default function (data) {
           }
         ),
         {
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response status is 200`]: (r) => r.status === 200,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents.length`]: (r) => r.json("contents").length === 1,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].score`]: (r) => r.json("contents")[0].contents[0].score !== undefined,
+          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response status is 200`]: (r) => r.status === 200,
+          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response contents.length`]: (r) => r.json("contents").length === 1,
+          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response contents[0].contents[0].score`]: (r) => r.json("contents")[0].contents[0].score !== undefined,
         }
       );
     });

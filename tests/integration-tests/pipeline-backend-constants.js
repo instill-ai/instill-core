@@ -1,6 +1,6 @@
 import encoding from "k6/encoding";
 
-const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dog.jpg`, "b");
+export const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dog.jpg`, "b");
 
 export const detectionModel = {
   name: "dummy-det",
