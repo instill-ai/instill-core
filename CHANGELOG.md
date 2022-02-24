@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.1.3-alpha](https://github.com/instill-ai/vdp/compare/v0.1.2-alpha...v0.1.3-alpha) (2022-02-24)
+
+
+### Bug Fixes
+
+* some typos in examples-go ([#80](https://github.com/instill-ai/vdp/issues/80)) ([d81f564](https://github.com/instill-ai/vdp/commit/d81f5649265c2deb1ff9b08fd31b2ad779450922))
+* typos in examples-go ([#77](https://github.com/instill-ai/vdp/issues/77)) ([cb94c9f](https://github.com/instill-ai/vdp/commit/cb94c9fbcf3bbfa98a2f691ab50d33bfb5afd7c0))
+
 ### [0.1.2-alpha](https://github.com/instill-ai/vdp/compare/v0.1.1-alpha...v0.1.2-alpha) (2022-02-21)
 
 
