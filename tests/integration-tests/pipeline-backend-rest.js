@@ -1,8 +1,8 @@
 import http from "k6/http";
-import {sleep, check, group, fail} from "k6";
-import {FormData} from "https://jslib.k6.io/formdata/0.0.2/index.js";
-import {randomString} from "https://jslib.k6.io/k6-utils/1.1.0/index.js";
-import {URL} from "https://jslib.k6.io/url/1.0.0/index.js";
+import { sleep, check, group, fail } from "k6";
+import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
+import { randomString } from "https://jslib.k6.io/k6-utils/1.1.0/index.js";
+import { URL } from "https://jslib.k6.io/url/1.0.0/index.js";
 
 import {
   genHeader,
@@ -10,7 +10,8 @@ import {
 
 import * as pipelineConstants from "./pipeline-backend-constants.js";
 
-const apiHost = "http://127.0.0.1:8446";
+const pipelineHost = "http://127.0.0.1:8446";
+const modelHost = "http://127.0.0.1:8445";
 
 const model_name = pipelineConstants.detectionModel.name;
 const det_model = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dummy-det-model.zip`, "b");
@@ -23,55 +24,54 @@ export let options = {
 };
 
 export function setup() {
-  // Model Backend API: make inference
+  // Prepare sample model in model-backend
   {
-    group("Model Backend API: Predict Model with detection model", function () {
+    group("Model Backend API: Create detection model", function () {
       let fd = new FormData();
-      console.log("Create model ", model_name)
       fd.append("name", model_name);
       fd.append("description", randomString(20));
       fd.append("cvtask", "det");
       fd.append("content", http.file(det_model, "dummy-det-model.zip"));
-      check(http.request("POST", `http://127.0.0.1:8445/models/upload`, fd.body(), {
+      check(http.request("POST", `${modelHost}/models/upload`, fd.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
       }), {
         "POST /models/upload (multipart) det response Status": (r) =>
-          r.status === 200, 
-          "POST /models/upload (multipart) cvtask det response Name": (r) =>
-          r.json().Name !== undefined,      
-          "POST /models/upload (multipart) cvtask det response FullName": (r) =>
-          r.json().FullName !== undefined,   
-          "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
-          r.json().CVTask === "DETECTION",   
-          "POST /models/upload (multipart) cvtask det response Versions": (r) =>
-          r.json().Versions.length > 0,                                        
+          r.status === 200,
+        "POST /models/upload (multipart) cvtask det response Name": (r) =>
+          r.json().Name !== undefined,
+        "POST /models/upload (multipart) cvtask det response FullName": (r) =>
+          r.json().FullName !== undefined,
+        "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
+          r.json().CVTask === "DETECTION",
+        "POST /models/upload (multipart) cvtask det response Versions": (r) =>
+          r.json().Versions.length > 0,
       });
 
       let payload = JSON.stringify({
-        "model": {"status": 1},
+        "model": { "status": 1 },
         "update_mask": "status"
       });
-      check(http.patch(`http://127.0.0.1:8445/models/${model_name}/versions/1`, payload, {
+      check(http.patch(`${modelHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Status`]: (r) =>
-          r.status === 200, 
-          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Name`]: (r) =>
-          r.json().name !== undefined,      
-          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response FullName`]: (r) =>
-          r.json().full_Name !== undefined,   
-          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response CVTask`]: (r) =>
-          r.json().cv_task === "DETECTION",   
-          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Versions`]: (r) =>
-          r.json().versions.length > 0,       
-          [`PATCH ${apiHost}/models/${model_name}/versions/1 det response Version 1 Status`]: (r) =>
-          r.json().versions[0].status === "ONLINE",  
-      });  
+        [`PATCH /models/${model_name}/versions/1 det response Status`]: (r) =>
+          r.status === 200,
+        [`PATCH /models/${model_name}/versions/1 det response Name`]: (r) =>
+          r.json().name !== undefined,
+        [`PATCH /models/${model_name}/versions/1 det response FullName`]: (r) =>
+          r.json().full_Name !== undefined,
+        [`PATCH /models/${model_name}/versions/1 det response CVTask`]: (r) =>
+          r.json().cv_task === "DETECTION",
+        [`PATCH /models/${model_name}/versions/1 det response Versions`]: (r) =>
+          r.json().versions.length > 0,
+        [`PATCH /models/${model_name}/versions/1 det response Version 1 Status`]: (r) =>
+          r.json().versions[0].status === "ONLINE",
+      });
     });
-  } 
+  }
 }
 
-const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/dog.jpg`, "b");
+const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dog.jpg`, "b");
 
 export default function (data) {
   let resp;
@@ -83,7 +83,7 @@ export default function (data) {
   // Health check
   {
     group("Pipelines API: Health check", () => {
-      check(http.request("GET", `${apiHost}/health/pipeline`), {
+      check(http.request("GET", `${pipelineHost}/health/pipeline`), {
         "GET /health/pipelines response status is 200": (r) => r.status === 200,
       });
     });
@@ -93,7 +93,7 @@ export default function (data) {
   {
     let createPipelineEntity = Object.assign(
       {
-        name: randomString(256),
+        name: randomString(100),
         description: randomString(512),
         active: true,
       },
@@ -102,7 +102,7 @@ export default function (data) {
     group("Pipelines API: Create pipeline with sample model", () => {
       resp = http.request(
         "POST",
-        `${apiHost}/pipelines`,
+        `${pipelineHost}/pipelines`,
         JSON.stringify(createPipelineEntity),
         {
           headers: genHeader("application/json"),
@@ -113,7 +113,7 @@ export default function (data) {
         "POST /pipelines response id check": (r) => r.json("name") !== undefined,
       });
       check(
-        http.request("POST", `${apiHost}/pipelines`, JSON.stringify({}), {
+        http.request("POST", `${pipelineHost}/pipelines`, JSON.stringify({}), {
           headers: genHeader("application/json"),
         }),
         {
@@ -121,7 +121,7 @@ export default function (data) {
         }
       );
       check(
-        http.request("POST", `${apiHost}/pipelines`, null, {
+        http.request("POST", `${pipelineHost}/pipelines`, null, {
           headers: genHeader("application/json"),
         }),
         {
@@ -132,7 +132,7 @@ export default function (data) {
 
     group("Pipelines API: List pipelines", () => {
       check(
-        http.request("GET", `${apiHost}/pipelines`, null, {
+        http.request("GET", `${pipelineHost}/pipelines`, null, {
           headers: genHeader("application/json"),
         }),
         {
@@ -141,7 +141,7 @@ export default function (data) {
           "GET /pipelines response contents should not have recipe": (r) => r.json("contents")[0].recipe === undefined || r.json("contents")[0].recipe == null,
         }
       );
-      const url = new URL(`${apiHost}/pipelines`);
+      const url = new URL(`${pipelineHost}/pipelines`);
       url.searchParams.append("view", 2);
       check(
         http.request("GET", url.toString(), null, {
@@ -161,7 +161,7 @@ export default function (data) {
       check(
         http.request(
           "GET",
-          `${apiHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("name")}`,
           null,
           {
             headers: genHeader("application/json"),
@@ -176,7 +176,7 @@ export default function (data) {
         }
       );
       check(
-        http.request("GET", `${apiHost}/pipelines/non_exist_id`, null, {
+        http.request("GET", `${pipelineHost}/pipelines/non_exist_id`, null, {
           headers: genHeader("application/json"),
         }),
         {
@@ -196,7 +196,7 @@ export default function (data) {
       check(
         http.request(
           "PATCH",
-          `${apiHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("name")}`,
           JSON.stringify(updatePipelineEntity),
           {
             headers: genHeader("application/json"),
@@ -213,7 +213,7 @@ export default function (data) {
       check(
         http.request(
           "PATCH",
-          `${apiHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("name")}`,
           null,
           {
             headers: genHeader("application/json"),
@@ -227,7 +227,7 @@ export default function (data) {
       check(
         http.request(
           "PATCH",
-          `${apiHost}/pipelines/non_exist_id`,
+          `${pipelineHost}/pipelines/non_exist_id`,
           JSON.stringify(updatePipelineEntity),
           {
             headers: genHeader("application/json"),
@@ -247,7 +247,7 @@ export default function (data) {
       check(
         http.request(
           "POST",
-          `${apiHost}/pipelines/${resp.json("name")}/upload/outputs`,
+          `${pipelineHost}/pipelines/${resp.json("name")}/upload/outputs`,
           fd.body(),
           {
             headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
@@ -268,7 +268,7 @@ export default function (data) {
 export function teardown(data) {
   group("Pipeline API: Delete all pipelines created by this test", () => {
     for (const pipeline of http
-      .request("GET", `${apiHost}/pipelines`, null, {
+      .request("GET", `${pipelineHost}/pipelines`, null, {
         headers: genHeader(
           "application/json"
         ),
@@ -279,7 +279,7 @@ export function teardown(data) {
       });
 
       check(
-        http.request("DELETE", `${apiHost}/pipelines/${pipeline.name}`, null, {
+        http.request("DELETE", `${pipelineHost}/pipelines/${pipeline.name}`, null, {
           headers: genHeader("application/json"),
         }),
         {
@@ -287,13 +287,13 @@ export function teardown(data) {
             r.status === 204,
         }
       );
-
-      check(http.request("DELETE", `http://127.0.0.1:8445/models/${model_name}`, null, {
-        headers: genHeader(`application/json`),
-      }), {
-        "DELETE clean up response Status": (r) =>
-          r.status === 200 // TODO: update status to 204
-      });   
     }
+
+    check(http.request("DELETE", `${modelHost}/models/${model_name}`, null, {
+      headers: genHeader(`application/json`),
+    }), {
+      "DELETE clean up response Status": (r) =>
+        r.status === 200 // TODO: update status to 201
+    });
   });
 }
