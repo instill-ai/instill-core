@@ -60,7 +60,7 @@ services:
 
   pipeline_backend_migrate:
     container_name: pipeline-backend-migrate
-    image: instill/pipeline-backend:v0.2.0-alpha
+    image: instill/pipeline-backend:v0.2.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -76,7 +76,7 @@ services:
 
   pipeline_backend:
     container_name: pipeline-backend
-    image: instill/pipeline-backend:v0.2.0-alpha
+    image: instill/pipeline-backend:v0.2.1-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8446

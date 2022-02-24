@@ -70,8 +70,6 @@ export function setup() {
   }
 }
 
-const dogImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dog.jpg`, "b");
-
 export default function (data) {
   let resp;
 
@@ -240,9 +238,49 @@ export default function (data) {
     });
 
     group("Pipelines API: Trigger a pipeline", () => {
+      // url data
+      check(
+        http.request(
+          "POST",
+          `${pipelineHost}/pipelines/${resp.json("name")}/outputs`,
+          JSON.stringify(pipelineConstants.triggerPipelineJSONUrl),
+          {
+            headers: genHeader("application/json"),
+          }
+        ),
+        {
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response status is 200`]: (r) => r.status === 200,
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents.length`]: (r) =>
+            r.json("contents").length === 1,
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents.length`]: (r) =>
+            r.json("contents")[0].contents.length === 1,
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].category`]: (r) =>
+            r.json("contents")[0].contents[0].category === "test",
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].score`]: (r) =>
+            r.json("contents")[0].contents[0].score === 1,
+          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].box`]: (r) =>
+            r.json("contents")[0].contents[0].box !== undefined,
+        }
+      );
+
+      // base64 data
+      check(
+        http.request(
+          "POST",
+          `${pipelineHost}/pipelines/${resp.json("name")}/outputs`,
+          JSON.stringify(pipelineConstants.triggerPipelineJSONBase64),
+          {
+            headers: genHeader("application/json"),
+          }
+        ),
+        {
+          [`POST /pipelines/${resp.json("name")}/outputs (base64) response status is 200`]: (r) => r.status === 200,
+        }
+      );
+
       // multipart data
       const fd = new FormData();
-      fd.append("contents", http.file(dogImg));
+      fd.append("contents", http.file(pipelineConstants.dogImg));
       check(
         http.request(
           "POST",
