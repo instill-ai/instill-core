@@ -58,6 +58,7 @@ Execute the following commands to start pre-built images with all the dependenci
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git
 
+$ cd vdp
 # Note that this may take a while due to the enormous size of the Triton server image,
 # but the image pulling process should be just a one-time effort.
 $ make all
