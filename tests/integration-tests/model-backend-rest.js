@@ -224,7 +224,6 @@ export default function (data) {
           "POST /models (multipart) cvtask cls response Versions": (r) =>
           r.json().Versions.length === 1,                                        
       });
-
       check(http.request("POST", `${apiHost}/models/upload`, fd_cls.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd_cls.boundary}`),
       }), {
@@ -246,19 +245,19 @@ export default function (data) {
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response Version 1 Status`]: (r) =>
           r.json().versions[0].status === "ONLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 online cvtask cls response Version 2 Status`]: (r) =>
           r.json().versions[1].status === "OFFLINE",                                                            
       });  
 
@@ -268,19 +267,19 @@ export default function (data) {
       check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response Version 1 Status`]: (r) =>
           r.json().versions[0].status === "ONLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 online cvtask cls response Version 2 Status`]: (r) =>
           r.json().versions[1].status === "ONLINE",                                                            
       });    
       
@@ -290,41 +289,41 @@ export default function (data) {
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response Version 1 Status`]: (r) =>
           r.json().versions[0].status === "OFFLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 offline cvtask cls response Version 2 Status`]: (r) =>
           r.json().versions[1].status === "ONLINE",                                                            
       });  
-
+      
       payload = JSON.stringify({
         "status": 0
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response Version 1 Status`]: (r) =>
           r.json().versions[0].status === "OFFLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 offline cvtask cls response Version 2 Status`]: (r) =>
           r.json().versions[1].status === "OFFLINE",                                                            
       });       
       
@@ -337,7 +336,7 @@ export default function (data) {
       });   
     });
   }  
-
+  
   // Model Backend API: make inference
   {
     group("Model Backend API: Predict Model with classification model", function () {
@@ -362,7 +361,7 @@ export default function (data) {
           "POST /models (multipart) cvtask cls response Versions": (r) =>
           r.json().Versions.length === 1,                                        
       });
-
+      
       let payload = JSON.stringify({
         "status": 1
       });
@@ -382,7 +381,7 @@ export default function (data) {
           "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
           r.json().versions[0].status === "ONLINE",  
       });  
-
+      
       // Predict with url
       payload = JSON.stringify({
         "contents": [{"url": "https://artifacts.instill.tech/dog.jpg"}]
@@ -399,7 +398,7 @@ export default function (data) {
           [`POST ${apiHost}/models/${model_name}/versions/1/outputs url cls response contents.score`]: (r) =>
           r.json().contents[0].score === 1,            
       });  
-
+      
       // Predict with base64
       payload = JSON.stringify({
         "contents": [{"base64": base64_image,}]
@@ -416,7 +415,7 @@ export default function (data) {
           [`POST ${apiHost}/models/${model_name}/versions/1/outputs base64 cls response contents.score`]: (r) =>
           r.json().contents[0].score === 1,            
       });  
-
+      
       // Predict with multiple-part
       const fd = new FormData();
       fd.append("contents", http.file(dog_img));
@@ -559,7 +558,7 @@ export default function (data) {
       });   
     });
   }   
-
+  
   // Model Backend API: make inference
   {
     group("Model Backend API: Predict Model with undefined cvtask model", function () {
@@ -590,17 +589,17 @@ export default function (data) {
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models/ (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "UNDEFINED",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 1,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Version 1 Status`]: (r) =>
           r.json().versions[0].status === "ONLINE",  
       });  
 
@@ -825,55 +824,45 @@ export default function (data) {
 
       let new_description = randomString(20)
       let payload = JSON.stringify({
-        "status": 1,
         "description": new_description
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+      [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/1 cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
-          r.json().versions[0].status === "ONLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
-          r.json().versions[1].status === "OFFLINE",  
           "PATCH /models (multipart) cvtask cls response Version 1 Description": (r) =>
           r.json().versions[0].description === new_description,                                                                      
       });  
       
       let new_description2 = randomString(20)
       payload = JSON.stringify({
-        "status": 1,
         "description": new_description2
       });
       check(http.patch(`${apiHost}/models/${model_name}/versions/2`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        "PATCH /models (multipart) cls response Status": (r) =>
+        [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response Status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          "PATCH /models (multipart) cvtask cls response Name": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response Name`]: (r) =>
           r.json().name !== undefined,      
-          "PATCH /models (multipart) cvtask cls response FullName": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response FullName`]: (r) =>
           r.json().full_Name !== undefined,   
-          "PATCH /models (multipart) cvtask cls response CVTask": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response CVTask`]: (r) =>
           r.json().cv_task === "CLASSIFICATION",   
-          "PATCH /models (multipart) cvtask cls response Versions": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response Versions`]: (r) =>
           r.json().versions.length === 2,       
-          "PATCH /models (multipart) cvtask cls response Version 1 Status": (r) =>
-          r.json().versions[0].status === "ONLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 2 Status": (r) =>
-          r.json().versions[1].status === "ONLINE",  
-          "PATCH /models (multipart) cvtask cls response Version 1 Description": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response Version 1 Description`]: (r) =>
           r.json().versions[0].description === new_description,              
-          "PATCH /models (multipart) cvtask cls response Version 2 Description": (r) =>
+          [`PATCH ${apiHost}/models/${model_name}/versions/2 cvtask cls response Version 2 Description`]: (r) =>
           r.json().versions[1].description === new_description2,                                                                      
       });         
       
@@ -891,5 +880,32 @@ export default function (data) {
 }
 
 export function teardown(data) {
-
+  group("Model API: Delete all models created by this test", () => {
+    let res = http
+    .request("GET", `${apiHost}/models`, null, {
+      headers: genHeader(
+        "application/json"
+      ),
+    })
+    for (const model of http
+      .request("GET", `${apiHost}/models`, null, {
+        headers: genHeader(
+          "application/json"
+        ),
+      })
+      .json("models")) {
+      check(model, {
+        "GET /clients response contents[*] id": (c) => c.id !== undefined,
+      });
+      check(
+        http.request("DELETE", `${apiHost}/models/${model.name}`, null, {
+          headers: genHeader("application/json"),
+        }),
+        {
+          [`DELETE /models/${model.name} response status is 204`]: (r) =>
+            r.status === 200, //TODO: update to 204
+        }
+      ); 
+    }
+  });
 }
