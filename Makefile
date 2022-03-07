@@ -63,7 +63,7 @@ prune:			## Remove all services containers and system prune everything
 	@docker system prune -f --volumes
 .PHONY: prune
 
-build:			## Build instill/vdp:dev local development image
+build:			## Build instill/vdp:dev for local development
 	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:dev .
 .PHONY: build
 
