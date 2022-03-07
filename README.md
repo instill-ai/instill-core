@@ -32,7 +32,6 @@ The goal of VDP is to seamlessly bring Vision AI into the modern data stack with
   - [Create a pipeline with your own models](#create-a-pipeline-with-your-own-models)
   - [Clean up](#clean-up)
 - [Documentation](#documentation)
-- [Local development](#local-development)
 - [Community support](#community-support)
 - [License](#license)
 
@@ -40,7 +39,7 @@ The goal of VDP is to seamlessly bring Vision AI into the modern data stack with
 
 ## How VDP works
 
-The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates end-to-end visual data processing. Each pipeline consists of three ordered components:
+The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline consists of three ordered components:
 1. **data source**: where the pipeline starts. It connects the source of image and video data to be processed.
 2. **model**: a deployed Vision AI model to process the ingested visual data and generate structured outputs
 3. **data destination**: where to send the structured outputs
@@ -56,14 +55,15 @@ We use **data connector** as a general term to represent data source and data de
 Execute the following commands to start pre-built images with all the dependencies:
 
 ```bash
-$ git clone https://github.com/instill-ai/vdp.git
+$ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
-$ cd vdp
+# Build instill/vdp:dev local development image
+$ make build
 
-# Note that this may take a while due to the enormous size of the Triton server image,
-# but the image pulling process should be just a one-time effort.
+# Launch all services.
 $ make all
 ```
+:warning: Downloading the Triton server image will take a while, but it should be just a one-time effort.
 
 ### Run the samples to trigger an object detection pipeline
 We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
@@ -105,13 +105,6 @@ $ make prune
 The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec on http://localhost:3000:
 ```bash
 $ make doc
-```
-
-## Local development
-
-You can build a development Docker image for VDP by:
-```bash
-$ make build
 ```
 
 ## Community support

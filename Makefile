@@ -12,7 +12,7 @@ export
 
 #============================================================================
 
-all:			## Build and launch all services
+all:			## Launch all services
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose up -d vdp ${ALL_SERVICES}
 .PHONY: all
@@ -63,7 +63,7 @@ prune:			## Remove all services containers and system prune everything
 	@docker system prune -f --volumes
 .PHONY: prune
 
-build:			## Build local docker image
+build:			## Build instill/vdp:dev for local development
 	@DOCKER_BUILDKIT=1 docker build -t instill/vdp:dev .
 .PHONY: build
 
