@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	modelPB "github.com/instill-ai/protogen-go/model"
+	modelPB "github.com/instill-ai/protogen-go/model/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -35,9 +35,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := modelPB.NewModelClient(conn)
+	c := modelPB.NewModelServiceClient(conn)
 
-	uploadStream, err := c.CreateModelByUpload(ctx)
+	uploadStream, err := c.CreateModelBinaryFileUpload(ctx)
 	if err != nil {
 		log.Fatalf("can not create model: %v", err)
 	}
@@ -61,19 +61,23 @@ func main() {
 			log.Fatalf("there is an error while copying from file to buf: %v", err)
 		}
 		if firstChunk {
-			err = uploadStream.Send(&modelPB.CreateModelRequest{
-				Name:        *modelName,
-				Description: "YoloV4 for object detection",
-				CvTask:      modelPB.CVTask_DETECTION,
-				Content:     buf[:n],
+			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
+				ModelInitData: &modelPB.ModelInitData{
+					Name:        *modelName,
+					Description: "YoloV4 for object detection",
+					Task:        modelPB.Model_TASK_DETECTION,
+					Byte:        buf[:n],
+				},
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
 			}
 			firstChunk = false
 		} else {
-			err = uploadStream.Send(&modelPB.CreateModelRequest{
-				Content: buf[:n],
+			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
+				ModelInitData: &modelPB.ModelInitData{
+					Byte: buf[:n],
+				},
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
@@ -92,18 +96,18 @@ func main() {
 		model, err := c.GetModel(ctx, &modelPB.GetModelRequest{
 			Name: *modelName,
 		})
-		if err == nil && model.Name != "" {
+		if err == nil && model.Model.Name != "" {
 			break
 		}
 	}
 
-	_, err = c.UpdateModel(ctx, &modelPB.UpdateModelRequest{
+	_, err = c.UpdateModelVersion(ctx, &modelPB.UpdateModelVersionRequest{
 		Name:    *modelName,
-		Version: int32(*modelVersion),
-		Model: &modelPB.UpdateModelInfo{
-			Status: modelPB.ModelStatus_ONLINE,
+		Version: uint64(*modelVersion),
+		VersionPatch: &modelPB.UpdateModelVersionPatch{
+			Status: modelPB.ModelVersion_STATUS_ONLINE,
 		},
-		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
+		FieldMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
 	})
 	if err != nil {
 		log.Fatalf("can not make model online: %v", err)
