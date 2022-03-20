@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	modelPB "github.com/instill-ai/protogen-go/model"
+	modelPB "github.com/instill-ai/protogen-go/model/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -35,9 +35,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := modelPB.NewModelClient(conn)
+	c := modelPB.NewModelServiceClient(conn)
 
-	predictStream, err := c.PredictModelByUpload(ctx)
+	predictStream, err := c.TriggerModelBinaryFileUpload(ctx)
 	if err != nil {
 		log.Fatalf("can not test model via predict endpoint: %v", err)
 	}
@@ -61,18 +61,18 @@ func main() {
 			log.Fatalf("there is an error while copying from file to buf: %s", errRead.Error())
 		}
 		if firstChunk {
-			err = predictStream.Send(&modelPB.PredictModelRequest{
+			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
 				Name:    *modelName,
-				Version: int32(*modelVersion),
-				Content: buf[:n],
+				Version: uint64(*modelVersion),
+				Bytes:   buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
 			}
 			firstChunk = false
 		} else {
-			err = predictStream.Send(&modelPB.PredictModelRequest{
-				Content: buf[:n],
+			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
+				Bytes: buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)

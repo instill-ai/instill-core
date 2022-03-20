@@ -10,8 +10,8 @@ import {
 
 import * as pipelineConstants from "./pipeline-backend-constants.js";
 
-const pipelineHost = "http://127.0.0.1:8446";
-const modelHost = "http://127.0.0.1:8445";
+const pipelineHost = "http://localhost:8446";
+const modelHost = "http://localhost:8445";
 
 const model_name = pipelineConstants.detectionModel.name;
 const det_model = open(`${__ENV.TEST_FOLDER_ABS_PATH}/tests/integration-tests/data/dummy-det-model.zip`, "b");
@@ -30,41 +30,43 @@ export function setup() {
       let fd = new FormData();
       fd.append("name", model_name);
       fd.append("description", randomString(20));
-      fd.append("cvtask", "DETECTION");
+      fd.append("task", "TASK_DETECTION");
       fd.append("content", http.file(det_model, "dummy-det-model.zip"));
       check(http.request("POST", `${modelHost}/models/upload`, fd.body(), {
         headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
       }), {
         "POST /models/upload (multipart) det response Status": (r) =>
-          r.status === 200,
-        "POST /models/upload (multipart) cvtask det response Name": (r) =>
-          r.json().Name !== undefined,
-        "POST /models/upload (multipart) cvtask det response FullName": (r) =>
-          r.json().FullName !== undefined,
-        "POST /models/upload (multipart) cvtask det response CVTask": (r) =>
-          r.json().CVTask === "DETECTION",
-        "POST /models/upload (multipart) cvtask det response Versions": (r) =>
-          r.json().Versions.length > 0,
+          r.status === 200, // TODO: update status to 201
+          "POST /models/upload (multipart) task det response model.name": (r) =>
+          r.json().model.name !== undefined,
+          "POST /models/upload (multipart) task det response model.fullName": (r) =>
+          r.json().model.fullName !== undefined,
+          "POST /models/upload (multipart) task det response model.task": (r) =>
+          r.json().model.task === "TASK_DETECTION",
+          "POST /models/upload (multipart) task det response model.modelVersions.length": (r) =>
+          r.json().model.modelVersions.length === 1,
       });
 
       let payload = JSON.stringify({
-        "status": 1
+        "status": "STATUS_ONLINE",
       });
       check(http.patch(`${modelHost}/models/${model_name}/versions/1`, payload, {
         headers: genHeader(`application/json`),
       }), {
-        [`PATCH /models/${model_name}/versions/1 det response Status`]: (r) =>
-          r.status === 200,
-        [`PATCH /models/${model_name}/versions/1 det response Name`]: (r) =>
-          r.json().name !== undefined,
-        [`PATCH /models/${model_name}/versions/1 det response FullName`]: (r) =>
-          r.json().full_Name !== undefined,
-        [`PATCH /models/${model_name}/versions/1 det response CVTask`]: (r) =>
-          r.json().cv_task === "DETECTION",
-        [`PATCH /models/${model_name}/versions/1 det response Versions`]: (r) =>
-          r.json().versions.length > 0,
-        [`PATCH /models/${model_name}/versions/1 det response Version 1 Status`]: (r) =>
-          r.json().versions[0].status === "ONLINE",
+        [`PATCH /models/${model_name}/versions/1 online task cls response status`]: (r) =>
+          r.status === 200, // TODO: update status to 201
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.version`]: (r) =>
+          r.json().modelVersion.version !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.modelId`]: (r) =>
+          r.json().modelVersion.modelId !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.description`]: (r) =>
+          r.json().modelVersion.description !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.createdAt`]: (r) =>
+          r.json().modelVersion.createdAt !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.updatedAt`]: (r) =>
+          r.json().modelVersion.updatedAt !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.status`]: (r) =>
+          r.json().modelVersion.status === "STATUS_ONLINE",
       });
     });
   }
@@ -96,6 +98,7 @@ export default function (data) {
       },
       pipelineConstants.detectionRecipe
     );
+
     group("Pipelines API: Create pipeline with sample model", () => {
       resp = http.request(
         "POST",
@@ -107,7 +110,7 @@ export default function (data) {
       );
       check(resp, {
         "POST /pipelines response status is 201": (r) => r.status === 201,
-        "POST /pipelines response id check": (r) => r.json("name") !== undefined,
+        "POST /pipelines response pipeline.name": (r) => r.json().pipeline.name !== undefined,
       });
       check(
         http.request("POST", `${pipelineHost}/pipelines`, JSON.stringify({}), {
@@ -134,8 +137,8 @@ export default function (data) {
         }),
         {
           "GET /pipelines (url) response status is 200": (r) => r.status === 200,
-          "GET /pipelines response contents >= 1": (r) => r.json("contents").length >= 1,
-          "GET /pipelines response contents should not have recipe": (r) => r.json("contents")[0].recipe === undefined || r.json("contents")[0].recipe == null,
+          "GET /pipelines response pipelines.length >= 1": (r) => r.json().pipelines.length >= 1,
+          "GET /pipelines response pipelines[0] should not have recipe": (r) => r.json().pipelines[0].recipe === undefined || r.json().pipelines[0].recipe == null,
         }
       );
       const url = new URL(`${pipelineHost}/pipelines`);
@@ -147,9 +150,9 @@ export default function (data) {
         {
           "GET /pipelines (url) response status is 200": (r) =>
             r.status === 200,
-          "GET /pipelines response contents should have recipe": (
+          "GET /pipelines response pipeline[0] should have recipe": (
             r
-          ) => r.json("contents")[0].recipe !== undefined,
+          ) => r.json().pipelines[0].recipe !== undefined,
         }
       );
     });
@@ -158,18 +161,18 @@ export default function (data) {
       check(
         http.request(
           "GET",
-          `${pipelineHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}`,
           null,
           {
             headers: genHeader("application/json"),
           }
         ),
         {
-          [`GET /pipelines/${resp.json("name")} response status is 200`]: (r) => r.status === 200,
-          [`GET /pipelines/${resp.json("name")} response name`]: (r) => r.json("name") === createPipelineEntity.name,
-          [`GET /pipelines/${resp.json("name")} response description`]: (r) => r.json("description") === createPipelineEntity.description,
-          [`GET /pipelines/${resp.json("name")} response id`]: (r) => r.json("id") !== undefined,
-          [`GET /pipelines/${resp.json("name")} response recipe`]: (r) => r.json("recipe") !== undefined,
+          [`GET /pipelines/${resp.json("pipeline.name")} response status is 200`]: (r) => r.status === 200,
+          [`GET /pipelines/${resp.json("pipeline.name")} response pipeline.name`]: (r) => r.json().pipeline.name === createPipelineEntity.name,
+          [`GET /pipelines/${resp.json("pipeline.name")} response pipeline.description`]: (r) => r.json().pipeline.description === createPipelineEntity.description,
+          [`GET /pipelines/${resp.json("pipeline.name")} response pipeline.id`]: (r) => r.json().pipeline.id !== undefined,
+          [`GET /pipelines/${resp.json("pipeline.name")} response pipeline.recipe`]: (r) => r.json().pipeline.recipe !== undefined,
         }
       );
       check(
@@ -193,31 +196,31 @@ export default function (data) {
       check(
         http.request(
           "PATCH",
-          `${pipelineHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}`,
           JSON.stringify(updatePipelineEntity),
           {
             headers: genHeader("application/json"),
           }
         ),
         {
-          [`PATCH /pipelines/${resp.json("name")} response status is 200`]: (r) => r.status === 200,
-          [`PATCH /pipelines/${resp.json("name")} response name`]: (r) => r.json("name") === createPipelineEntity.name,
-          [`PATCH /pipelines/${resp.json("name")} response description`]: (r) => r.json("description") === updatePipelineEntity.description,
-          [`PATCH /pipelines/${resp.json("name")} response id`]: (r) => r.json("id") !== undefined,
-          [`PATCH /pipelines/${resp.json("name")} response recipe`]: (r) => r.json("recipe") !== undefined,
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response status is 200`]: (r) => r.status === 200,
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response pipeline.name`]: (r) => r.json().pipeline.name === createPipelineEntity.name,
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response pipeline.description`]: (r) => r.json().pipeline.description === updatePipelineEntity.description,
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response pipeline.id`]: (r) => r.json().pipeline.id !== undefined,
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response pipeline.recipe`]: (r) => r.json().pipeline.recipe !== undefined,
         }
       );
       check(
         http.request(
           "PATCH",
-          `${pipelineHost}/pipelines/${resp.json("name")}`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}`,
           null,
           {
             headers: genHeader("application/json"),
           }
         ),
         {
-          [`PATCH /pipelines/${resp.json("name")} response status is 200`]:
+          [`PATCH /pipelines/${resp.json("pipeline.name")} response status is 200`]:
             (r) => r.status === 200,
         }
       );
@@ -242,24 +245,24 @@ export default function (data) {
       check(
         http.request(
           "POST",
-          `${pipelineHost}/pipelines/${resp.json("name")}/outputs`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}/outputs`,
           JSON.stringify(pipelineConstants.triggerPipelineJSONUrl),
           {
             headers: genHeader("application/json"),
           }
         ),
         {
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response status is 200`]: (r) => r.status === 200,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents.length`]: (r) =>
-            r.json("contents").length === 1,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents.length`]: (r) =>
-            r.json("contents")[0].contents.length === 1,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].category`]: (r) =>
-            r.json("contents")[0].contents[0].category === "test",
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].score`]: (r) =>
-            r.json("contents")[0].contents[0].score === 1,
-          [`POST /pipelines/${resp.json("name")}/outputs (url) response contents[0].contents[0].box`]: (r) =>
-            r.json("contents")[0].contents[0].box !== undefined,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response status is 200`]: (r) => r.status === 200,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput.length`]: (r) =>
+            r.json().output.detectionOutput.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects.length`]: (r) =>
+            r.json().output.detectionOutput[0].boundingBoxObjects.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].category`]: (r) =>
+            r.json().output.detectionOutput[0].boundingBoxObjects[0].category === "test",
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].score`]: (r) =>
+            r.json().output.detectionOutput[0].boundingBoxObjects[0].score === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].boundingBox`]: (r) =>
+            r.json().output.detectionOutput[0].boundingBoxObjects[0].boundingBox !== undefined,
         }
       );
 
@@ -267,14 +270,14 @@ export default function (data) {
       check(
         http.request(
           "POST",
-          `${pipelineHost}/pipelines/${resp.json("name")}/outputs`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}/outputs`,
           JSON.stringify(pipelineConstants.triggerPipelineJSONBase64),
           {
             headers: genHeader("application/json"),
           }
         ),
         {
-          [`POST /pipelines/${resp.json("name")}/outputs (base64) response status is 200`]: (r) => r.status === 200,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (base64) response status is 200`]: (r) => r.status === 200,
         }
       );
 
@@ -284,16 +287,16 @@ export default function (data) {
       check(
         http.request(
           "POST",
-          `${pipelineHost}/pipelines/${resp.json("name")}/upload/outputs`,
+          `${pipelineHost}/pipelines/${resp.json("pipeline.name")}/upload/outputs`,
           fd.body(),
           {
             headers: genHeader(`multipart/form-data; boundary=${fd.boundary}`),
           }
         ),
         {
-          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response status is 200`]: (r) => r.status === 200,
-          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response contents.length`]: (r) => r.json("contents").length === 1,
-          [`POST /pipelines/${resp.json("name")}/outputs (multipart) response contents[0].contents[0].score`]: (r) => r.json("contents")[0].contents[0].score !== undefined,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response status is 200`]: (r) => r.status === 200,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detectionOutput.length`]: (r) => r.json().output.detection_output.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detectionOutput[0].boundingBoxObjects[0].score`]: (r) => r.json().output.detection_output[0].bounding_box_objects[0].score !== undefined,
         }
       );
     });
@@ -310,7 +313,7 @@ export function teardown(data) {
           "application/json"
         ),
       })
-      .json("contents")) {
+      .json("pipelines")) {
       check(pipeline, {
         "GET /clients response contents[*] id": (c) => c.id !== undefined,
       });
@@ -329,7 +332,7 @@ export function teardown(data) {
     check(http.request("DELETE", `${modelHost}/models/${model_name}`, null, {
       headers: genHeader(`application/json`),
     }), {
-      "DELETE clean up response Status": (r) =>
+      "DELETE clean up response status": (r) =>
         r.status === 200 // TODO: update status to 201
     });
   });

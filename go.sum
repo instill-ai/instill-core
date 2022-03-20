@@ -201,8 +201,8 @@ github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKe
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
-github.com/instill-ai/protogen-go v0.1.1-alpha h1:rZ/mGWOi8sbSfub840WBDB/AmaClgkRjGT/8sDvCveo=
-github.com/instill-ai/protogen-go v0.1.1-alpha/go.mod h1:q2Pq4P0AY/59RGibT4nSDnOsA4wD4XhLueFRoGYNBjk=
+github.com/instill-ai/protogen-go v0.1.4-alpha h1:Je7QW9/4S1nWgAGwEtEZb0cUl0n/Fbilp/bkl99KN2o=
+github.com/instill-ai/protogen-go v0.1.4-alpha/go.mod h1:q2Pq4P0AY/59RGibT4nSDnOsA4wD4XhLueFRoGYNBjk=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=

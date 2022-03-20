@@ -12,7 +12,7 @@ export const detectionRecipe = {
     source: {
       type: "Direct",
     },
-    model: [detectionModel],
+    models: [detectionModel],
     destination: {
       type: "Direct",
     },
@@ -20,17 +20,17 @@ export const detectionRecipe = {
 };
 
 export const triggerPipelineJSONUrl = {
-  contents: [
+  inputs: [
     {
-      url: "https://artifacts.instill.tech/dog.jpg",
+      imageUrl: "https://artifacts.instill.tech/dog.jpg",
     },
   ],
 };
 
 export const triggerPipelineJSONBase64 = {
-  contents: [
+  inputs: [
     {
-      base64: encoding.b64encode(dogImg, "b"),
+      imageBase64: encoding.b64encode(dogImg, "b"),
     },
   ],
 };
