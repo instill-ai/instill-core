@@ -64,7 +64,7 @@ func main() {
 			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
 				Name:    *modelName,
 				Version: uint64(*modelVersion),
-				Chunk:   buf[:n],
+				Bytes:   buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
@@ -72,7 +72,7 @@ func main() {
 			firstChunk = false
 		} else {
 			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
-				Chunk: buf[:n],
+				Bytes: buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)

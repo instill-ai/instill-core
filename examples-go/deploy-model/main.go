@@ -62,12 +62,10 @@ func main() {
 		}
 		if firstChunk {
 			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				ModelInitData: &modelPB.ModelInitData{
-					Name:        *modelName,
-					Description: "YoloV4 for object detection",
-					Task:        modelPB.Model_TASK_DETECTION,
-					Byte:        buf[:n],
-				},
+				Name:        *modelName,
+				Description: "YoloV4 for object detection",
+				Task:        modelPB.Model_TASK_DETECTION,
+				Bytes:       buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
@@ -75,9 +73,7 @@ func main() {
 			firstChunk = false
 		} else {
 			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				ModelInitData: &modelPB.ModelInitData{
-					Byte: buf[:n],
-				},
+				Bytes: buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)

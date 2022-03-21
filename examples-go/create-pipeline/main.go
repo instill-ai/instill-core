@@ -46,7 +46,7 @@ func main() {
 			Models: []*pb.Model{
 				{
 					Name:    *modelName,
-					Version: int32(*modelVersion),
+					Version: uint64(*modelVersion),
 				},
 			},
 			Destination: &pb.Destination{Type: "Direct"},
