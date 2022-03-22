@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/instill-ai/protogen-go/pipeline"
+	pipelinePB "github.com/instill-ai/protogen-go/pipeline/v1alpha"
 	"github.com/instill-ai/vdp/configs"
 	"github.com/instill-ai/vdp/internal/cache"
 	"github.com/instill-ai/vdp/pkg/models"
@@ -47,7 +47,7 @@ func (a *PipelineActivities) VisualDataOperatorActivity(ctx context.Context, inp
 
 	// Deserialized data to sturct
 	var httpBodyCache = models.VDOHttpBodyCache{}
-	gob.Register(pipeline.TriggerPipelineRequest{})
+	gob.Register(pipelinePB.TriggerPipelineRequest{})
 	dec := gob.NewDecoder(bytes.NewBuffer(result))
 	if err := dec.Decode(&httpBodyCache); err != nil {
 		log.Error(err.Error())

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/instill-ai/protogen-go/pipeline"
+	pb "github.com/instill-ai/protogen-go/pipeline/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -35,7 +35,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pb.NewPipelineClient(conn)
+	client := pb.NewPipelineServiceClient(conn)
 
 	createPipelineReq := &pb.CreatePipelineRequest{
 		Name:        *pipelineName,
@@ -43,10 +43,10 @@ func main() {
 		Active:      true,
 		Recipe: &pb.Recipe{
 			Source: &pb.Source{Type: "Direct"},
-			Model: []*pb.Model{
+			Models: []*pb.Model{
 				{
 					Name:    *modelName,
-					Version: int32(*modelVersion),
+					Version: uint64(*modelVersion),
 				},
 			},
 			Destination: &pb.Destination{Type: "Direct"},

@@ -26,7 +26,7 @@ services:
 
   model_backend_migrate:
     container_name: model-backend-migrate
-    image: instill/model-backend:v0.3.0-alpha
+    image: instill/model-backend:v0.3.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -40,7 +40,7 @@ services:
 
   model_backend:
     container_name: model-backend
-    image: instill/model-backend:v0.3.0-alpha
+    image: instill/model-backend:v0.3.1-alpha
     restart: unless-stopped
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -76,7 +76,7 @@ services:
 
   pipeline_backend:
     container_name: pipeline-backend
-    image: instill/pipeline-backend:v0.2.1-alpha
+    image: instill/pipeline-backend:v0.3.0-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8446
@@ -192,7 +192,7 @@ services:
     container_name: redoc-openapi
     image: volbrene/redoc:1.2.0
     environment:
-      - 'URLS=[{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/pipeline/pipeline.swagger.json'', name: ''Pipeline''},{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/model/model.swagger.json'', name: ''Model''}]'
+      - 'URLS=[{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/instill/pipeline/v1alpha/pipeline.swagger.json'', name: ''Pipeline''},{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/instill/model/v1alpha/model.swagger.json'', name: ''Model''}]'
       - PAGE_TITLE=Instill AI - API Reference
     ports:
       - 3000:80
