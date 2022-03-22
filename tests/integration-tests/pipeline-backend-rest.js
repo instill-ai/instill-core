@@ -39,12 +39,12 @@ export function setup() {
           r.status === 200, // TODO: update status to 201
           "POST /models/upload (multipart) task det response model.name": (r) =>
           r.json().model.name !== undefined,
-          "POST /models/upload (multipart) task det response model.fullName": (r) =>
-          r.json().model.fullName !== undefined,
+          "POST /models/upload (multipart) task det response model.full_name": (r) =>
+          r.json().model.full_name !== undefined,
           "POST /models/upload (multipart) task det response model.task": (r) =>
           r.json().model.task === "TASK_DETECTION",
-          "POST /models/upload (multipart) task det response model.modelVersions.length": (r) =>
-          r.json().model.modelVersions.length === 1,
+          "POST /models/upload (multipart) task det response model.model_versions.length": (r) =>
+          r.json().model.model_versions.length === 1,
       });
 
       let payload = JSON.stringify({
@@ -55,18 +55,18 @@ export function setup() {
       }), {
         [`PATCH /models/${model_name}/versions/1 online task cls response status`]: (r) =>
           r.status === 200, // TODO: update status to 201
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.version`]: (r) =>
-          r.json().modelVersion.version !== undefined,
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.modelId`]: (r) =>
-          r.json().modelVersion.modelId !== undefined,
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.description`]: (r) =>
-          r.json().modelVersion.description !== undefined,
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.createdAt`]: (r) =>
-          r.json().modelVersion.createdAt !== undefined,
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.updatedAt`]: (r) =>
-          r.json().modelVersion.updatedAt !== undefined,
-          [`PATCH /models/${model_name}/versions/1 online task cls response modelVersion.status`]: (r) =>
-          r.json().modelVersion.status === "STATUS_ONLINE",
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.version`]: (r) =>
+          r.json().model_version.version !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.model_id`]: (r) =>
+          r.json().model_version.model_id !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.description`]: (r) =>
+          r.json().model_version.description !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.created_at`]: (r) =>
+          r.json().model_version.created_at !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.updated_at`]: (r) =>
+          r.json().model_version.updated_at !== undefined,
+          [`PATCH /models/${model_name}/versions/1 online task cls response model_version.status`]: (r) =>
+          r.json().model_version.status === "STATUS_ONLINE",
       });
     });
   }
@@ -253,16 +253,16 @@ export default function (data) {
         ),
         {
           [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response status is 200`]: (r) => r.status === 200,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput.length`]: (r) =>
-            r.json().output.detectionOutput.length === 1,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects.length`]: (r) =>
-            r.json().output.detectionOutput[0].boundingBoxObjects.length === 1,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].category`]: (r) =>
-            r.json().output.detectionOutput[0].boundingBoxObjects[0].category === "test",
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].score`]: (r) =>
-            r.json().output.detectionOutput[0].boundingBoxObjects[0].score === 1,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detectionOutput[0].boundingBoxObjects[0].boundingBox`]: (r) =>
-            r.json().output.detectionOutput[0].boundingBoxObjects[0].boundingBox !== undefined,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detection_outputs.length`]: (r) =>
+            r.json().output.detection_outputs.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detection_outputs[0].bounding_box_objects.length`]: (r) =>
+            r.json().output.detection_outputs[0].bounding_box_objects.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detection_outputs[0].bounding_box_objects[0].category`]: (r) =>
+            r.json().output.detection_outputs[0].bounding_box_objects[0].category === "test",
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detection_outputs[0].bounding_box_objects[0].score`]: (r) =>
+            r.json().output.detection_outputs[0].bounding_box_objects[0].score === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (url) response output.detection_outputs[0].bounding_box_objects[0].bounding_box`]: (r) =>
+            r.json().output.detection_outputs[0].bounding_box_objects[0].bounding_box !== undefined,
         }
       );
 
@@ -295,8 +295,8 @@ export default function (data) {
         ),
         {
           [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response status is 200`]: (r) => r.status === 200,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detectionOutput.length`]: (r) => r.json().output.detection_output.length === 1,
-          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detectionOutput[0].boundingBoxObjects[0].score`]: (r) => r.json().output.detection_output[0].bounding_box_objects[0].score !== undefined,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detection_outputs.length`]: (r) => r.json().output.detection_outputs.length === 1,
+          [`POST /pipelines/${resp.json("pipeline.name")}/outputs (multipart) response output.detection_outputs[0].bounding_box_objects[0].score`]: (r) => r.json().output.detection_outputs[0].bounding_box_objects[0].score !== undefined,
         }
       );
     });
