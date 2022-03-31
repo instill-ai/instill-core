@@ -95,7 +95,7 @@ services:
 
   triton_conda_env:
     container_name: triton-conda-env
-    image: instill/triton-conda-env:v0.1.0-alpha-cpu
+    image: instill/triton-conda-env:v0.2.1-alpha-cpu
     volumes:
       - conda_pack:/conda-pack
 
