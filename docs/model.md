@@ -13,13 +13,21 @@ To deploy a model on VDP, it needs to be prepared following the layout below (re
   <version>/
     <model-definition-file>
 ```
-The config.pbtxt file describes the [model configuration](https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md) for the model.
-To prepare pre-processing and post-processing model in Python Backend, create a Python file with a [structure](https://github.com/triton-inference-server/python_backend#usage) similar to below:
-```
+The `config.pbtxt` file describes the [model configuration](https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md) for the model.
+
+To deploy your Vision AI model with Python code for pre-processing and post-processing, use Triton Python Backend that supports `conda-pack` to deploy Python models with dependencies. We provide a [custom Conda environment](https://github.com/instill-ai/triton-python-model). If your model is not compatible with Python 3.8 or if it requires additional dependencies, you could [create your own Conda environment](https://github.com/triton-inference-server/python_backend#2-packaging-the-conda-environment) and configure the `config.pbtext` to point to the custom conda-pack tar file accordingly.
+
+- Convert your Python code into a pre-processing model and a post-processing model that are compatible with the Python Backend following the guideline above
+- Set up an [Ensemble model](https://github.com/triton-inference-server/server/blob/main/docs/architecture.md#ensemble-models) to encapsulate a "pre-processing model -> Vision AI model -> post-processing model" procedure
+- compress all model files into a `.zip` file
+- use the [sample codes](../examples-go/deploy-model/main.go) to deploy the model
+
+### Prepare the pre-processing Python model
+To prepare pre-processing model in Python Backend, create a Python file with a [structure](https://github.com/triton-inference-server/python_backend#usage) similar to below:
+```python
 import triton_python_backend_utils as pb_utils
 class TritonPythonModel:
-    """Your Python model must use the same class name. Every Python model
-    that is created must have "TritonPythonModel" as the class name.
+    """Your Python model must use the same class name. Every Python model that is created must have "TritonPythonModel" as the class name.
     """
 
     def initialize(self, args):
@@ -60,7 +68,7 @@ class TritonPythonModel:
 
         responses = []
 
-        # Every Python backend must iterate through list of requests and create
+         # Every Python backend must iterate through list of requests and create
         # an instance of pb_utils.InferenceResponse class for each of them. You
         # should avoid storing any of the input Tensors in the class attributes
         # as they will be overridden in subsequent inference requests. You can
@@ -81,32 +89,120 @@ class TritonPythonModel:
         print('Cleaning up...')
 ```
 
-Triton Python Backend supports `conda-pack` to deploy Python models with dependencies. We provide a custom Conda environment that contains Numpy and Scikit-Learn. If your model is not compatible with Python 3.8 or if it requires additional dependencies, you could [create your own Conda environment](https://github.com/triton-inference-server/python_backend#2-packaging-the-conda-environment) and configure the `config.pbtext` to point to the custom conda-pack tar file accordingly.
+### Prepare the post-processing Python model to standardise inference output format
+You can prepare the post-processing model the same way as the pre-processing model above. However, to get the model inference output in a standarised format you can
+- specify a task when creating a model in VDP
+- create a Python model that inherits the corresponding post-processing task class.
 
-To deploy your Vision AI model with Python code for pre-processing and post-processing:
-- Convert your Python code into a pre-processing model and a post-processing model that are compatible with the Python Backend following the guideline above
-- Set up an [Ensemble model](https://github.com/triton-inference-server/server/blob/main/docs/architecture.md#ensemble-models) to encapsulate a "pre-processing model -> Vision AI model -> post-processing model" procedure
-- compress all model files into a `.zip` file
-- use the [sample codes](../examples-go/deploy-model/main.go) to deploy the model
+If no task is specified when creating a model, the inference output will be in Triton raw message ModelInferResponse format.
 
-## Standardise output format of the model inference
-To get the model inference output in a standarised format, you can specify a Computer Vision (CV) task when creating a model in VDP. The model output has to conform to the required format of that task so it can be parsed correctly. If no CV task is specified when creating a model, the inference output will be in Triton raw message ModelInferResponse format.
+#### Supported tasks
+Here is a list of tasks that VDP supports.
+- TASK_CLASSIFICATION
+- TASK_DETECTION
 
-### Supported CV tasks
-Here is a list of CV tasks that VDP supports.
-- CLASSIFICATION
-- DETECTION
+We will continue adding new tasks and make the parser more flexible. If you want to make a request, please feel free to open an issue and describe your use case in details.
 
-We will continue adding new CV tasks and make the parser more flexible. If you want to make a request, please feel free to open an issue and describe your use case in details.
+##### TASK_CLASSIFICATION
+Create a `labels.txt` file to list all the categories, with one category label per line. Include the file in the model configuration.
 
-#### CLASSIFICATION
-__Required model output format__
+__`labels.txt` example__
+   ```
+   cat
+   dog
+   ```
+__`config.pbtxt` output example__
+   ```
+   ...
+   output [
+     {
+       ...
+       label_filename: "labels.txt"
+     }
+   ]
+   ...
+   ```
+Create a Python file with a structure similar to below:
+```python
+import numpy as np
+from typing import Tuple
+from triton_python_model.task.classification import PostClassificationModel
 
-A string with format:
+
+class TritonPythonModel(PostClassificationModel):
+    """Your Python model must use the same class name. Every Python model that is created must have "TritonPythonModel" as the class name.
+    """
+    def __init__(self) -> None:
+        """ Constructor function must be implemented in every model. This function initializes the names of the input and output variables in the model configuration.
+        """
+        # super().__init__(input_names=[...], output_names=[...])
+
+    def post_process_per_image(self, inputs: Tuple[np.ndarray]) -> np.ndarray:
+        """`post_process_per_image` must be implemented in every Python model. This function receives a sequence of the input array of the model for one image of a batch, converts and returns the an array that represents the classification scores `scores` for this image.
+
+        Parameters
+        ----------
+        inputs: Tuple[np.ndarray]
+          a sequence of Input array of one image
+
+        Returns
+        -------
+        np.ndarray
+          classification score array `scores` of this image. The shape of `scores` should be (n,), where `n` is the number of categories.
+        """
+        # return np.array([0.4, 0.6]) # Dummy example of classification with 2 classes
 ```
-{label name}:{label category}:{score}  # example: 'dog:16:0.998824'
+__Standardised output example__
+```
+{
+  "contents": [
+    {
+      "category": "dog",
+      "score": 0.6
+    },
+    {
+      "category": "cat",
+      "score": 0.4
+    }
+  ]
+}
 ```
 
+##### TASK_DETECTION
+Create a Python file with a structure similar to below:
+```python
+import numpy as np
+from typing import Tuple
+from triton_python_model.task.detection import PostDetectionModel
+
+
+class TritonPythonModel(PostDetectionModel):
+    """Your Python model must use the same class name. Every Python model that is created must have "TritonPythonModel" as the class name.
+    """
+    def __init__(self) -> None:
+        """ Constructor function must be implemented in every model. This function initializes the names of the input and output variables in the model configuration.
+        """
+        # super().__init__(input_names=[...], output_names=[...])
+
+    def post_process_per_image(self, inputs: Tuple[np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """`post_process_per_image` must be implemented in every Python model. This function receives a sequence of the input array of the model for one image of a batch, converts and returns the a sequence of array `bboxes` and `labels`. `bboxes` represents the detected bounding boxes and scores. `labels` represents the corresponding category label for each bounding box.
+
+        Parameters
+        ----------
+        inputs: Tuple[np.ndarray]
+          a sequence of Input array of one image
+
+        Returns
+        -------
+        Tuple[np.ndarray]
+          - `bboxes`: bounding boxes detected in this image with shape (n,5) or (0,). The bounding box format is [x1, y1, x2, y2, score] in the image.
+          - `labels`: labels corresponding to the bounding boxes with shape (n,) or (0,), where `n` is the number of categories.
+
+          The length of `bboxes` must be the same as that of `labels`.
+          -
+        """
+        # return np.array([[2, 5, 10, 20, 0.98]]), np.array(["cat"]) # Dummy detection example
+```
 __Standardised output example__
 ```
 {
@@ -114,42 +210,16 @@ __Standardised output example__
     {
       "contents": [
         {
-          "category": "dog",
-          "score": 0.980409,
+          "category": "cat",
+          "score": 0.98,
           "box": {
-            "top": 99.084984,
-            "left": 325.79257,
-            "width": 204.18991,
-            "height": 402.58002
+            "top": 5.0,
+            "left": 2.0,
+            "width": 8.0,
+            "height": 15.0
           }
         }
       ]
-    }
-  ]
-}
-```
-
-#### DETECTION
-__Required model output format__
-
-Two arrays for Label and Box object:
-
-Label array:
-```
-labels: [[label], label]]
-```
-Box object array:
-```
-bboxes: [[Left, Top, Width, Height, Score], [Left, Top, Width, Height, Score]]
-```
-
-__Standardised output example__
-```
-{
-  "contents": [
-    {
-      "category": "dog",
-      "score": 0.998824
     }
   ]
 }
