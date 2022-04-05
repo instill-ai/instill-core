@@ -72,7 +72,7 @@ func main() {
 		// contents = append(contents, &pb.TriggerPipelineBinaryFileUploadRequest{Chunk: buffer[:n]})
 
 		req := &pb.TriggerPipelineBinaryFileUploadRequest{
-			Chunk: buffer[:n],
+			Bytes: buffer[:n],
 		}
 
 		err = stream.Send(req)

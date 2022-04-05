@@ -79,9 +79,14 @@ $ curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 
 # Deploy the model
 $ go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
+# Or we deploy a model from GitHub repository
+$ go run deploy-model/main.go --mode github --url https://github.com/instill-ai/mobilenetv2.git --model-name mobilenetv2 # the cv task is in front-matter stored in README.md in GitHub repository
 
 # Test the model
 $ go run test-model/main.go --model-name yolov4 --test-image dog.jpg
+# Or if you create a model from Github repository https://github.com/instill-ai/mobilenetv2.git
+go run test-model/main.go --model-name mobilenetv2 --test-image dog.jpg
+
 
 # Create an object detection pipeline
 $ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4

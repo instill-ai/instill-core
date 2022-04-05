@@ -17,6 +17,8 @@ import (
 
 func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
+	mode := flag.String("mode", "local", "the mode to create a model which could be 'local' or 'github'")
+	repoUrl := flag.String("url", "https://github.com/instill-ai/mobilenetv2.git", "the HTTP GitHub repository URL")
 	modelPath := flag.String("model-path", "./examples-go/yolov4-onnx-cpu.zip", "the path of the zip compressed file for model")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
@@ -37,55 +39,71 @@ func main() {
 
 	c := modelPB.NewModelServiceClient(conn)
 
-	uploadStream, err := c.CreateModelBinaryFileUpload(ctx)
-	if err != nil {
-		log.Fatalf("can not create model: %v", err)
-	}
-	defer uploadStream.CloseSend()
-
-	buf := make([]byte, 64*1024)
-	firstChunk := true
-	file, err := os.Open(*modelPath)
-	if err != nil {
-		log.Fatalf("failed to open file: %v", err)
-	}
-	defer file.Close()
-
-	for {
-		n, err := file.Read(buf)
+	switch *mode {
+	case "github":
+		uploadGithub, err := c.CreateModelByGitHub(ctx, &modelPB.CreateModelByGitHubRequest{
+			Name:        *modelName,
+			Description: "YoloV4 for object detection",
+			Github: &modelPB.GitHub{
+				RepoUrl: *repoUrl,
+			},
+		})
 		if err != nil {
-			if err == io.EOF {
-				err = nil
-				break
-			}
-			log.Fatalf("there is an error while copying from file to buf: %v", err)
+			log.Fatalf("there is an error while creating model: %v", err)
 		}
-		if firstChunk {
-			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				Name:        *modelName,
-				Description: "YoloV4 for object detection",
-				Task:        modelPB.Model_TASK_DETECTION,
-				Bytes:       buf[:n],
-			})
-			if err != nil {
-				log.Fatalf("failed to send data via stream: %v", err)
-			}
-			firstChunk = false
-		} else {
-			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				Bytes: buf[:n],
-			})
-			if err != nil {
-				log.Fatalf("failed to send data via stream: %v", err)
-			}
+		log.Printf("model has been created, the response is: %+v", uploadGithub)
+	case "local":
+		uploadStream, err := c.CreateModelBinaryFileUpload(ctx)
+		if err != nil {
+			log.Fatalf("can not create model: %v", err)
 		}
-	}
+		defer uploadStream.CloseSend() //nolint
 
-	uploadResp, err := uploadStream.CloseAndRecv()
-	if err != nil {
-		log.Fatalf("there is an error while creating model: %v", err)
+		buf := make([]byte, 64*1024)
+		firstChunk := true
+		file, err := os.Open(*modelPath)
+		if err != nil {
+			log.Fatalf("failed to open file: %v", err)
+		}
+		defer file.Close()
+
+		for {
+			n, err := file.Read(buf)
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				log.Fatalf("there is an error while copying from file to buf: %v", err)
+			}
+			if firstChunk {
+				err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
+					Name:        *modelName,
+					Description: "YoloV4 for object detection",
+					Task:        modelPB.Model_TASK_DETECTION,
+					Bytes:       buf[:n],
+				})
+				if err != nil {
+					log.Fatalf("failed to send data via stream: %v", err)
+				}
+				firstChunk = false
+			} else {
+				err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
+					Bytes: buf[:n],
+				})
+				if err != nil {
+					log.Fatalf("failed to send data via stream: %v", err)
+				}
+			}
+		}
+
+		uploadResp, err := uploadStream.CloseAndRecv()
+		if err != nil {
+			log.Fatalf("there is an error while creating model: %v", err)
+		}
+		log.Printf("model has been created, the response is: %+v", uploadResp)
+	default:
+		log.Fatalf("Mode %v is not supported", mode)
 	}
-	log.Printf("model has been created, the response is: %+v", uploadResp)
 
 	for {
 		time.Sleep(1000)

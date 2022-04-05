@@ -26,7 +26,7 @@ services:
 
   model_backend_migrate:
     container_name: model-backend-migrate
-    image: instill/model-backend:v0.3.2-alpha
+    image: instill/model-backend:dev
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -40,7 +40,7 @@ services:
 
   model_backend:
     container_name: model-backend
-    image: instill/model-backend:v0.3.2-alpha
+    image: instill/model-backend:dev
     restart: unless-stopped
     environment:
       CFG_DATABASE_USERNAME: postgres

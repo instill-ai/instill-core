@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/bochengyang/zapadapter v0.0.0-20220121170652-8b0c7573d884
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/instill-ai/protogen-go v0.1.4-alpha
+	github.com/instill-ai/protogen-go v0.1.5-alpha.0.20220405104634-05079661392a
 	github.com/knadh/koanf v1.4.0
 	go.temporal.io/api v1.7.0
 	go.temporal.io/sdk v1.13.0

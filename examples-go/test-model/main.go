@@ -1,4 +1,5 @@
 // Package main implements a client for Model service.
+// Package main implements a client for Model service.
 package main
 
 import (
@@ -49,6 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not open the file: %v", err)
 	}
+	finfo, _ := file.Stat()
 
 	for {
 		n, errRead := file.Read(buf)
@@ -62,9 +64,10 @@ func main() {
 		}
 		if firstChunk {
 			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
-				Name:    *modelName,
-				Version: uint64(*modelVersion),
-				Bytes:   buf[:n],
+				Name:        *modelName,
+				Version:     uint64(*modelVersion),
+				FileLengths: []uint64{uint64(finfo.Size())},
+				Bytes:       buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
