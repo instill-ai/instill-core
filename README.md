@@ -81,6 +81,8 @@ $ curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
 $ go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
 # Or we deploy a model from GitHub repository
 $ go run deploy-model/main.go --mode github --url https://github.com/instill-ai/mobilenetv2.git --model-name mobilenetv2 # the cv task is in front-matter stored in README.md in GitHub repository
+# If run with GPU, could try with gpu branch
+go run deploy-model/main.go --mode github --url https://github.com/instill-ai/mobilenetv2.git --branch gpu --model-name mobilenetv2
 
 # Test the model
 $ go run test-model/main.go --model-name yolov4 --test-image dog.jpg

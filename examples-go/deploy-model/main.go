@@ -19,6 +19,7 @@ func main() {
 	serverAddress := flag.String("address", "localhost:8445", "the server address")
 	mode := flag.String("mode", "local", "the mode to create a model which could be 'local' or 'github'")
 	repoUrl := flag.String("url", "https://github.com/instill-ai/mobilenetv2.git", "the HTTP GitHub repository URL")
+	repoBranch := flag.String("branch", "main", "the HTTP GitHub repository branch")
 	modelPath := flag.String("model-path", "./examples-go/yolov4-onnx-cpu.zip", "the path of the zip compressed file for model")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
 	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
@@ -46,6 +47,11 @@ func main() {
 			Description: "YoloV4 for object detection",
 			Github: &modelPB.GitHub{
 				RepoUrl: *repoUrl,
+				GitRef: &modelPB.GitRef{
+					Ref: &modelPB.GitRef_Branch{
+						Branch: *repoBranch,
+					},
+				},
 			},
 		})
 		if err != nil {
