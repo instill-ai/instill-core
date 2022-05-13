@@ -90,11 +90,11 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
-      CFG_SERVER_PORT: 8445
+      CFG_SERVER_PORT: 8083
       CFG_TRITONSERVER_GRPCURI: triton-server:8001
       CFG_TRITONSERVER_MODELSTORE: /model-repository
     ports:
-      - 8445:8445
+      - 8083:8083
     volumes:
       - model_repository:/model-repository
     depends_on:
@@ -122,13 +122,13 @@ services:
     image: instill/pipeline-backend:v0.3.1-alpha
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8446
+      CFG_SERVER_PORT: 8081
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
     ports:
-      - 8446:8446
+      - 8081:8081
     volumes:
       - ./backends/pipeline-backend/config:/pipeline-backend/configs
     depends_on:
