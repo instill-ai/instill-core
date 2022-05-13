@@ -1,6 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend triton_conda_env
+INSTILL_SERVICES := mgmt_backend mgmt_backend_migrate mgmt_backend_init pipeline_backend_migrate pipeline_backend model_backend_migrate model_backend triton_conda_env
 3RD_PARTY_SERVICES := triton_server pg_sql temporal temporal_admin_tools temporal_web redis redoc_openapi
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 

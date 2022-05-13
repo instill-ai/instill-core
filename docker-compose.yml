@@ -24,6 +24,49 @@ services:
     depends_on:
       - temporal
 
+  mgmt_backend_migrate:
+    container_name: mgmt-backend-migrate
+    image: instill/mgmt-backend:v0.1.0-alpha
+    restart: on-failure
+    environment:
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+    entrypoint: ./mgmt-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  mgmt_backend_init:
+    container_name: mgmt-backend-init
+    image: instill/mgmt-backend:v0.1.0-alpha
+    restart: on-failure
+    environment:
+      CFG_SERVER_PORT: 8080
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+    entrypoint: ./mgmt-backend-init
+    depends_on:
+      - mgmt_backend_migrate
+
+  mgmt_backend:
+    container_name: mgmt-backend
+    image: instill/mgmt-backend:v0.1.0-alpha
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PORT: 8080
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+    ports:
+      - 8080:8080
+    depends_on:
+      - mgmt_backend_migrate
+
   model_backend_migrate:
     container_name: model-backend-migrate
     image: instill/model-backend:v0.3.2-alpha
