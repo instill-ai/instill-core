@@ -9,8 +9,6 @@ volumes:
     name: conda-pack
   model_repository:
     name: model-repository
-  pg_sql:
-    name: pg-sql
 
 services:
   vdp:
@@ -44,10 +42,10 @@ services:
     restart: on-failure
     environment:
       CFG_SERVER_PORT: 8080
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
     entrypoint: ./mgmt-backend-init
     depends_on:
       - mgmt_backend_migrate
@@ -58,39 +56,133 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8080
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
     ports:
       - 8080:8080
     depends_on:
       - mgmt_backend_migrate
 
-  model_backend_migrate:
-    container_name: model-backend-migrate
-    image: instill/model-backend:v0.3.2-alpha
+  pipeline_backend_migrate:
+    container_name: pipeline-backend-migrate
+    image: instill/pipeline-backend:v0.4.0-alpha
     restart: on-failure
     environment:
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./pipeline-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  pipeline_backend:
+    container_name: pipeline-backend
+    image: instill/pipeline-backend:v0.4.0-alpha
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PORT: 8081
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_CONNECTORBACKEND_HOST: connector_backend
+      CFG_CONNECTORBACKEND_PORT: 8082
+      CFG_MODELBACKEND_HOST: model_backend
+      CFG_MODELBACKEND_PORT: 8083
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: "temporal:7233"
+    ports:
+      - 8081:8081
+    depends_on:
+      - pipeline_backend_migrate
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - temporal
+      - redis
+
+  connector_backend_migrate:
+    container_name: connector-backend-migrate
+    image: instill/connector-backend:v0.1.0-alpha
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./connector-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  connector_backend_init:
+    container_name: connector-backend-init
+    image: instill/connector-backend:v0.1.0-alpha
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./connector-backend-init
+    depends_on:
+      - connector_backend_migrate
+
+  connector_backend:
+    container_name: connector-backend
+    image: instill/connector-backend:v0.1.0-alpha
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PORT: 8082
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    ports:
+      - 8082:8082
+    depends_on:
+      - connector_backend_init
+
+  model_backend_migrate:
+    container_name: model-backend-migrate
+    image: instill/model-backend:v0.4.0-alpha
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
     entrypoint: ./model-backend-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
-  model_backend:
-    container_name: model-backend
-    image: instill/model-backend:v0.3.2-alpha
-    restart: unless-stopped
+  model_backend_init:
+    container_name: model-backend-init
+    image: instill/model-backend:v0.4.0-alpha
+    restart: on-failure
     environment:
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./model-backend-init
+    depends_on:
+      - model_backend_migrate
+
+  model_backend:
+    container_name: model-backend
+    image: instill/model-backend:v0.4.0-alpha
+    restart: unless-stopped
+    environment:
       CFG_SERVER_PORT: 8083
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
       CFG_TRITONSERVER_GRPCURI: triton-server:8001
       CFG_TRITONSERVER_MODELSTORE: /model-repository
     ports:
@@ -100,41 +192,8 @@ services:
     depends_on:
       triton_server:
         condition: service_healthy
-
-  pipeline_backend_migrate:
-    container_name: pipeline-backend-migrate
-    image: instill/pipeline-backend:v0.3.1-alpha
-    restart: on-failure
-    environment:
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_DATABASE_HOST: pg_sql
-      CFG_DATABASE_PORT: 5432
-    volumes:
-      - ./backends/pipeline-backend/config:/pipeline-backend/configs
-    entrypoint: ./pipeline-backend-migrate
-    depends_on:
-      pg_sql:
-        condition: service_healthy
-
-  pipeline_backend:
-    container_name: pipeline-backend
-    image: instill/pipeline-backend:v0.3.1-alpha
-    restart: unless-stopped
-    environment:
-      CFG_SERVER_PORT: 8081
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_DATABASE_HOST: pg_sql
-      CFG_DATABASE_PORT: 5432
-    ports:
-      - 8081:8081
-    volumes:
-      - ./backends/pipeline-backend/config:/pipeline-backend/configs
-    depends_on:
-      - pipeline_backend_migrate
-      - temporal
-      - redis
+      model_backend_init:
+        condition: service_completed_successfully
 
   triton_conda_env:
     container_name: triton-conda-env
@@ -165,20 +224,16 @@ services:
 
   pg_sql:
     container_name: pg-sql
-    image: bitnami/postgresql:14.1.0
+    image: postgres:14.1-alpine
     restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: password
     ports:
       - 5432:5432
-    volumes:
-      - pg_sql:/bitnami/postgresql
-      - ./scripts/postgresql_healthcheck.sh:/scripts/postgresql_healthcheck.sh
+    environment:
+      POSTGRES_PASSWORD: password
     healthcheck:
-      test: ["CMD", "/scripts/postgresql_healthcheck.sh"]
-      interval: 15s
-      timeout: 5s
-      retries: 6
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      timeout: 20s
+      retries: 10
 
   temporal:
     container_name: temporal
