@@ -17,6 +17,15 @@ all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose up -d ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
+.PHONY: dev
+dev:			## Lunch and build all services with their dev version (i.e., main branch)
+	@[ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend pull https://github.com/instill-ai/mgmt-backend.git
+	@[ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend pull https://github.com/instill-ai/pipeline-backend.git
+	@[ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend pull https://github.com/instill-ai/connector-backend.git
+	@[ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend pull https://github.com/instill-ai/model-backend.git
+	@docker-compose -f docker-compose-dev.yml build --parallel
+	@docker-compose -f docker-compose-dev.yml up -d
+
 .PHONY: logs
 logs:			## Tail all logs with -n 10
 	@docker-compose logs --follow --tail=10
