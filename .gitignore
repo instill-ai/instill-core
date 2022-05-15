@@ -25,3 +25,6 @@ go.work
 
 # Models for example codes
 *.zip
+
+# local development folder
+dev

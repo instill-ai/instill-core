@@ -11,17 +11,6 @@ volumes:
     name: model-repository
 
 services:
-  vdp:
-    container_name: vdp
-    build:
-      context: .
-    image: instill/vdp:dev
-    restart: unless-stopped
-    volumes:
-      - ./configs:/vdp/configs
-    depends_on:
-      - temporal
-
   mgmt_backend_migrate:
     container_name: mgmt-backend-migrate
     image: instill/mgmt-backend:v0.1.0-alpha
@@ -249,7 +238,7 @@ services:
     ports:
       - 7233:7233
     volumes:
-      - ./backends/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+      - ./configs/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
     depends_on:
       pg_sql:
         condition: service_healthy

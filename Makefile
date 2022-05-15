@@ -13,9 +13,9 @@ export
 #============================================================================
 
 .PHONY: all
-all:			## Launch all services
+all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose up -d vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose up -d ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -28,19 +28,19 @@ pull:			## Pull all service images
 
 .PHONY: stop
 stop:			## Stop all components
-	@docker-compose stop vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose stop ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: start
 start:			## Start all stopped services
-	@docker-compose start vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose start ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: restart
 restart:		## Restart all services
-	@docker-compose restart vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose restart ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: rm
 rm:				## Remove all stopped service containers
-	@docker-compose rm -f vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose rm -f ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
@@ -48,15 +48,15 @@ down:			## Stop all services and remove all service containers and volumes
 
 .PHONY: images
 images:			## List all container images
-	@docker-compose images vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose images ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: ps
 ps:				## List all service containers
-	@docker-compose ps vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose ps ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: top
 top:			## Display all running service processes
-	@docker-compose top vdp ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose top ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
 .PHONY: doc
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3000
