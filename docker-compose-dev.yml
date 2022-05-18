@@ -299,9 +299,8 @@ services:
 
   redoc_openapi:
     container_name: redoc-openapi
-    image: volbrene/redoc:1.2.0
+    image: redocly/redoc:v2.0.0-rc.70
     environment:
-      - 'URLS=[{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/instill/pipeline/v1alpha/pipeline.swagger.json'', name: ''Pipeline''},{url: ''https://raw.githubusercontent.com/instill-ai/protobufs/main/instill/model/v1alpha/model.swagger.json'', name: ''Model''}]'
-      - PAGE_TITLE=Instill AI - API Reference
+      - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
       - 3000:80
