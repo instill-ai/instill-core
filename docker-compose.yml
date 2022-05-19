@@ -52,7 +52,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - mgmt_backend_migrate
+      - mgmt_backend_init
 
   pipeline_backend_migrate:
     container_name: pipeline-backend-migrate
