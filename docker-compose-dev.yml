@@ -88,6 +88,8 @@ services:
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
+      CFG_MGMTBACKEND_HOST: mgmt_backend
+      CFG_MGMTBACKEND_PORT: 8080
       CFG_CONNECTORBACKEND_HOST: connector_backend
       CFG_CONNECTORBACKEND_PORT: 8082
       CFG_MODELBACKEND_HOST: model_backend
