@@ -13,7 +13,7 @@ volumes:
 services:
   mgmt_backend_migrate:
     container_name: mgmt-backend-migrate
-    image: instill/mgmt-backend:v0.1.0-alpha
+    image: instill/mgmt-backend:v0.1.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -27,7 +27,7 @@ services:
 
   mgmt_backend_init:
     container_name: mgmt-backend-init
-    image: instill/mgmt-backend:v0.1.0-alpha
+    image: instill/mgmt-backend:v0.1.1-alpha
     restart: on-failure
     environment:
       CFG_SERVER_PORT: 8080
@@ -41,7 +41,7 @@ services:
 
   mgmt_backend:
     container_name: mgmt-backend
-    image: instill/mgmt-backend:v0.1.0-alpha
+    image: instill/mgmt-backend:v0.1.1-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8080
@@ -56,7 +56,7 @@ services:
 
   pipeline_backend_migrate:
     container_name: pipeline-backend-migrate
-    image: instill/pipeline-backend:v0.4.0-alpha
+    image: instill/pipeline-backend:v0.5.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -70,7 +70,7 @@ services:
 
   pipeline_backend:
     container_name: pipeline-backend
-    image: instill/pipeline-backend:v0.4.0-alpha
+    image: instill/pipeline-backend:v0.5.1-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8081
@@ -78,6 +78,8 @@ services:
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
+      CFG_MGMTBACKEND_HOST: mgmt_backend
+      CFG_MGMTBACKEND_PORT: 8080
       CFG_CONNECTORBACKEND_HOST: connector_backend
       CFG_CONNECTORBACKEND_PORT: 8082
       CFG_MODELBACKEND_HOST: model_backend
@@ -95,7 +97,7 @@ services:
 
   connector_backend_migrate:
     container_name: connector-backend-migrate
-    image: instill/connector-backend:v0.1.0-alpha
+    image: instill/connector-backend:v0.2.0-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -109,7 +111,7 @@ services:
 
   connector_backend_init:
     container_name: connector-backend-init
-    image: instill/connector-backend:v0.1.0-alpha
+    image: instill/connector-backend:v0.2.0-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -122,7 +124,7 @@ services:
 
   connector_backend:
     container_name: connector-backend
-    image: instill/connector-backend:v0.1.0-alpha
+    image: instill/connector-backend:v0.2.0-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
@@ -130,6 +132,8 @@ services:
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
+      CFG_MGMTBACKEND_HOST: mgmt_backend
+      CFG_MGMTBACKEND_PORT: 8080
     ports:
       - 8082:8082
     depends_on:
@@ -137,7 +141,7 @@ services:
 
   model_backend_migrate:
     container_name: model-backend-migrate
-    image: instill/model-backend:v0.4.0-alpha
+    image: instill/model-backend:v0.4.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -151,7 +155,7 @@ services:
 
   model_backend_init:
     container_name: model-backend-init
-    image: instill/model-backend:v0.4.0-alpha
+    image: instill/model-backend:v0.4.1-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -164,7 +168,7 @@ services:
 
   model_backend:
     container_name: model-backend
-    image: instill/model-backend:v0.4.0-alpha
+    image: instill/model-backend:v0.4.1-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
