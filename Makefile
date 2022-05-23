@@ -1,7 +1,8 @@
 .DEFAULT_GOAL:=help
 
 INSTILL_SERVICES := mgmt_backend pipeline_backend connector_backend model_backend triton_conda_env
-3RD_PARTY_SERVICES := pg_sql triton_server temporal temporal_admin_tools temporal_web redis redoc_openapi
+3RD_PARTY_SERVICES := pg_sql triton_server redis redoc_openapi
+TEMPORAL := temporal temporal_admin_tools temporal_ui
 VOLUMES := model-repository conda-pack
 
 #============================================================================
@@ -15,7 +16,7 @@ export
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose up -d ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose up -d ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: dev
 dev:			## Lunch and build all services with their dev version (i.e., main branch)
@@ -26,6 +27,10 @@ dev:			## Lunch and build all services with their dev version (i.e., main branch
 	@docker-compose -f docker-compose-dev.yml build --parallel
 	@docker-compose -f docker-compose-dev.yml up -d
 
+.PHONY: temporal
+temporal:		## Launch Temporal services
+	@docker-compose up -d ${TEMPORAL}
+
 .PHONY: logs
 logs:			## Tail all logs with -n 10
 	@docker-compose logs --follow --tail=10
@@ -33,23 +38,23 @@ logs:			## Tail all logs with -n 10
 .PHONY: pull
 pull:			## Pull all service images
 	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose pull ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose pull ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: stop
 stop:			## Stop all components
-	@docker-compose stop ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose stop ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: start
 start:			## Start all stopped services
-	@docker-compose start ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose start ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: restart
 restart:		## Restart all services
-	@docker-compose restart ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose restart ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: rm
 rm:				## Remove all stopped service containers
-	@docker-compose rm -f ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose rm -f ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
@@ -57,15 +62,15 @@ down:			## Stop all services and remove all service containers and volumes
 
 .PHONY: images
 images:			## List all container images
-	@docker-compose images ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose images ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: ps
 ps:				## List all service containers
-	@docker-compose ps ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose ps ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: top
 top:			## Display all running service processes
-	@docker-compose top ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
+	@docker-compose top ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES} ${TEMPORAL}
 
 .PHONY: doc
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3000

@@ -55,6 +55,7 @@ services:
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
       - 8080:8080
     depends_on:
@@ -95,6 +96,7 @@ services:
       CFG_MODELBACKEND_HOST: model_backend
       CFG_MODELBACKEND_PORT: 8083
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: "temporal:7233"
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
       - 8081:8081
     depends_on:
@@ -150,6 +152,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_MGMTBACKEND_HOST: mgmt_backend
       CFG_MGMTBACKEND_PORT: 8080
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
       - 8082:8082
     depends_on:
@@ -200,6 +203,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_TRITONSERVER_GRPCURI: triton-server:8001
       CFG_TRITONSERVER_MODELSTORE: /model-repository
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
       - 8083:8083
     volumes:
@@ -252,7 +256,7 @@ services:
 
   temporal:
     container_name: temporal
-    image: temporalio/auto-setup:1.15.0
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       - DB=postgresql
@@ -260,18 +264,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PWD=password
       - POSTGRES_SEEDS=pg_sql
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     ports:
       - 7233:7233
-    volumes:
-      - ./configs/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
     depends_on:
       pg_sql:
         condition: service_healthy
 
   temporal_admin_tools:
     container_name: temporal-admin-tools
-    image: temporalio/admin-tools:1.15.0
+    image: temporalio/admin-tools:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
@@ -280,15 +281,14 @@ services:
     depends_on:
       - temporal
 
-  temporal_web:
-    container_name: temporal-web
-    image: temporalio/web:1.13.0
+  temporal_ui:
+    container_name: temporal-ui
+    image: temporalio/ui:${TEMPORAL_UI_VERSION}
     restart: unless-stopped
     environment:
-      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-      - TEMPORAL_PERMIT_WRITE_API=true
+      - TEMPORAL_ADDRESS=temporal:7233
     ports:
-      - 8088:8088
+      - 8088:8080
     depends_on:
       - temporal
 
@@ -307,4 +307,4 @@ services:
     environment:
       - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
-      - 3000:80
+      - 3001:80

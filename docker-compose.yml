@@ -138,6 +138,7 @@ services:
       - 8082:8082
     depends_on:
       - connector_backend_init
+      - mgmt_backend
 
   model_backend_migrate:
     container_name: model-backend-migrate
@@ -230,7 +231,7 @@ services:
 
   temporal:
     container_name: temporal
-    image: temporalio/auto-setup:1.15.0
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       - DB=postgresql
@@ -249,7 +250,7 @@ services:
 
   temporal_admin_tools:
     container_name: temporal-admin-tools
-    image: temporalio/admin-tools:1.15.0
+    image: temporalio/admin-tools:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
@@ -258,15 +259,13 @@ services:
     depends_on:
       - temporal
 
-  temporal_web:
-    container_name: temporal-web
-    image: temporalio/web:1.13.0
-    restart: unless-stopped
+  temporal_ui:
+    container_name: temporal-ui
+    image: temporalio/ui:${TEMPORAL_UI_VERSION}
     environment:
-      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-      - TEMPORAL_PERMIT_WRITE_API=true
+      - TEMPORAL_ADDRESS=temporal:7233
     ports:
-      - 8088:8088
+      - 8088:8080
     depends_on:
       - temporal
 
@@ -285,4 +284,4 @@ services:
     environment:
       - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
-      - 3000:80
+      - 3001:80
