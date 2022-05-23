@@ -242,8 +242,6 @@ services:
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     ports:
       - 7233:7233
-    volumes:
-      - ./configs/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
     depends_on:
       pg_sql:
         condition: service_healthy
