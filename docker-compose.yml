@@ -211,8 +211,8 @@ services:
       retries: 10
     shm_size: 2gb
     ulimits:
-        memlock: -1
-        stack: 67108864
+      memlock: -1
+      stack: 67108864
     depends_on:
       - triton_conda_env
 

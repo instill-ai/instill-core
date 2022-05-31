@@ -138,6 +138,21 @@ services:
     depends_on:
       - connector_backend_migrate
 
+  connector_backend_worker:
+    container_name: connector-backend-worker
+    image: instill/connector-backend:dev
+    build:
+      context: ./dev/connector-backend
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./connector-backend-worker
+    depends_on:
+      - connector_backend_init
+
   connector_backend:
     container_name: connector-backend
     image: instill/connector-backend:dev
