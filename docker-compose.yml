@@ -5,6 +5,8 @@ networks:
     name: instill-network
 
 volumes:
+  conenctor_config:
+    name: connector-config
   conda_pack:
     name: conda-pack
   model_repository:
@@ -97,7 +99,7 @@ services:
 
   connector_backend_migrate:
     container_name: connector-backend-migrate
-    image: instill/connector-backend:v0.2.0-alpha
+    image: instill/connector-backend:v0.3.0-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -111,7 +113,7 @@ services:
 
   connector_backend_init:
     container_name: connector-backend-init
-    image: instill/connector-backend:v0.2.0-alpha
+    image: instill/connector-backend:v0.3.0-alpha
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: pg_sql
@@ -122,9 +124,27 @@ services:
     depends_on:
       - connector_backend_migrate
 
+  connector_backend_worker:
+    container_name: connector-backend-worker
+    image: instill/connector-backend:v0.3.0-alpha
+    restart: unless-stopped
+    environment:
+      CFG_DATABASE_HOST: pg_sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
+    volumes:
+      - conenctor_config:/connector-config
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ./connector-backend-worker
+    depends_on:
+      - connector_backend_init
+      - temporal
+
   connector_backend:
     container_name: connector-backend
-    image: instill/connector-backend:v0.2.0-alpha
+    image: instill/connector-backend:v0.3.0-alpha
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
@@ -134,6 +154,8 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_MGMTBACKEND_HOST: mgmt_backend
       CFG_MGMTBACKEND_PORT: 8080
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
       - 8082:8082
     depends_on:

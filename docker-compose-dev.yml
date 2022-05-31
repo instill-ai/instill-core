@@ -145,7 +145,7 @@ services:
     image: instill/connector-backend:dev
     build:
       context: ./dev/connector-backend
-    restart: on-failure
+    restart: unless-stopped
     environment:
       CFG_DATABASE_HOST: pg_sql
       CFG_DATABASE_PORT: 5432
@@ -180,6 +180,7 @@ services:
       - 8082:8082
     depends_on:
       - connector_backend_worker
+      - mgmt_backend
 
   model_backend_migrate:
     container_name: model-backend-migrate

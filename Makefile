@@ -1,9 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := mgmt_backend pipeline_backend connector_backend model_backend triton_conda_env
-3RD_PARTY_SERVICES := pg_sql triton_server redis redoc_openapi
 TEMPORAL := temporal temporal_admin_tools temporal_ui
-VOLUMES := model-repository conda-pack
 
 #============================================================================
 
