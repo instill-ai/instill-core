@@ -213,13 +213,13 @@ services:
 
   triton_conda_env:
     container_name: triton-conda-env
-    image: instill/triton-conda-env:v0.2.1-alpha-cpu
+    image: instill/triton-conda-env:v${TRITON_CONDA_ENV_VERSOIN}-cpu
     volumes:
       - conda_pack:/conda-pack
 
   triton_server:
     container_name: triton-server
-    image: nvcr.io/nvidia/tritonserver:${TRITONSERVER_VERSION}
+    image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     ports:
@@ -240,7 +240,7 @@ services:
 
   pg_sql:
     container_name: pg-sql
-    image: postgres:14.1-alpine
+    image: postgres:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
     ports:
       - 5432:5432
