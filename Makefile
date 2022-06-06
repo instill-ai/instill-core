@@ -8,7 +8,8 @@ TEMPORAL := temporal temporal_admin_tools temporal_ui
 include .env
 export
 
-TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:22.05-py3-m1,nvcr.io/nvidia/tritonserver:22.05-py3)
+TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:22.05-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:22.05-py3)
+TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:0.2.2-alpha-cpu-arm64,instill/triton-conda-env:0.2.2-alpha-cpu)
 
 #============================================================================
 

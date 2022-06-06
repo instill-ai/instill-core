@@ -213,7 +213,7 @@ services:
 
   triton_conda_env:
     container_name: triton-conda-env
-    image: instill/triton-conda-env:${TRITON_CONDA_ENV_VERSOIN}-cpu
+    image: ${TRITONCONDAENV_IMAGE_TAG}
     volumes:
       - conda_pack:/conda-pack
 
