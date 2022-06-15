@@ -23,7 +23,7 @@ dev:			## Lunch and build all services with their dev version (i.e., main branch
 	@[ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
 	@[ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
 	@[ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
-	@[ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
+	@[ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main && git -C dev/model-backend submodule init && git -C dev/model-backend submodule update
 	@docker-compose -f docker-compose-dev.yml build --parallel
 	@docker-compose -f docker-compose-dev.yml up -d
 
