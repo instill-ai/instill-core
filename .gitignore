@@ -28,3 +28,6 @@ go.work
 
 # local development folder
 dev
+
+# VSCode
+.vscode
