@@ -333,3 +333,17 @@ services:
       - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
       - 3001:80
+
+  console:
+    container_name: console
+    image: instill/console:dev
+    build:
+      context: ./dev/console
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    depends_on:
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - pipeline_backend
