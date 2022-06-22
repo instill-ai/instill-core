@@ -8,9 +8,9 @@ TEMPORAL := temporal temporal_admin_tools temporal_ui
 include .env
 export
 
-TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:22.05-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:22.05-py3)
-TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:0.2.2-alpha-cpu-arm64,instill/triton-conda-env:0.2.2-alpha-cpu)
-
+TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:${TRITON_SERVER_VERSION}-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3)
+TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu-arm64,instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu)
+REDIS_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),arm64v8/redis:${REDIS_VERSION}-alpine,amd64/redis:${REDIS_VERSION}-alpine)
 #============================================================================
 
 .PHONY: all
@@ -19,14 +19,8 @@ all:			## Launch all services with their up-to-date release version
 	@docker-compose up -d
 
 .PHONY: dev
-dev:			## Lunch and build all services with their dev version (i.e., main branch)
-	@[ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
-	@[ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
-	@[ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
-	@[ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
-	@[ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
-	@docker-compose -f docker-compose-dev.yml build --parallel
-	@docker-compose -f docker-compose-dev.yml up -d
+dev:			## Lunch all dependent services given the profile
+	COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
@@ -72,6 +66,15 @@ ps:				## List all service containers
 .PHONY: top
 top:			## Display all running service processes
 	@docker-compose top
+
+.PHONY: build
+build:							## Build all dev docker images
+	@[ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
+	@[ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
+	@[ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
+	@[ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
+	@[ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
+	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build --parallel
 
 .PHONY: doc
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3000
