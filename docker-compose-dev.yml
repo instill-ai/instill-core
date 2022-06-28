@@ -54,7 +54,7 @@ services:
         - SERVICE_NAME=mgmt-backend
     restart: on-failure
     environment:
-      CFG_SERVER_PORT: 8080
+      CFG_SERVER_PORT: 8084
       CFG_DATABASE_HOST: pg-sql
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
@@ -78,7 +78,7 @@ services:
         - SERVICE_NAME=mgmt-backend
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8080
+      CFG_SERVER_PORT: 8084
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
@@ -88,7 +88,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_SERVER_CORSORIGINS: http://localhost:3000
     ports:
-      - 8080:8080
+      - 8084:8084
     entrypoint: ./mgmt-backend
     depends_on:
       - mgmt_backend_init
@@ -141,7 +141,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8080
+      CFG_MGMTBACKEND_PORT: 8084
       CFG_CONNECTORBACKEND_HOST: connector-backend
       CFG_CONNECTORBACKEND_PORT: 8082
       CFG_MODELBACKEND_HOST: model-backend
@@ -221,6 +221,8 @@ services:
         - SERVICE_NAME=connector-backend
     restart: unless-stopped
     environment:
+      CFG_WORKER_MOUNTSOURCE_VDP: vdp
+      CFG_WORKER_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: pg-sql
       CFG_DATABASE_PORT: 5432
       CFG_DATABASE_USERNAME: postgres
@@ -259,7 +261,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8080
+      CFG_MGMTBACKEND_PORT: 8084
       CFG_PIPELINEBACKEND_HOST: pipeline-backend
       CFG_PIPELINEBACKEND_PORT: 8081
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
@@ -342,7 +344,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8080
+      CFG_MGMTBACKEND_PORT: 8084
       CFG_PIPELINEBACKEND_HOST: pipeline-backend
       CFG_PIPELINEBACKEND_PORT: 8081
       CFG_TRITONSERVER_GRPCURI: triton-server:8001
@@ -385,6 +387,8 @@ services:
     container_name: triton-server
     image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 0
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false --log-verbose=1
     ports:
       - 8001:8001
@@ -438,7 +442,7 @@ services:
       - DB_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PWD=password
-      - POSTGRES_SEEDS=pg_sql
+      - POSTGRES_SEEDS=pg-sql
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     ports:
       - 7233:7233
