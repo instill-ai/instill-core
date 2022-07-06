@@ -81,6 +81,8 @@ For the OpenAPI documentation, access http://localhost:3001 after `make all`, or
 ## Local dev
 
 
+## Local development
+
 ## Community support
 
 For general help using VDP, you can use one of these channels:
