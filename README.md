@@ -22,7 +22,7 @@
 2. **Transform** it into analysable structured data by Vision AI models
 3. **Load** the transformed data into warehouses, applications, or other destinations
 
-The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
+## Why build VDP
 
 > :warning: Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
@@ -39,7 +39,7 @@ We use **data connector** as a general term to represent data source and data de
 
 ## Quick start
 
-### Download and run VDP locally
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 Execute the following commands to start pre-built images with all the dependencies:
 
