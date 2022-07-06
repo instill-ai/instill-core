@@ -22,9 +22,11 @@
 2. **Transform** it into analysable structured data by Vision AI models
 3. **Load** the transformed data into warehouses, applications, or other destinations
 
-## Why build VDP
+## Why we build VDP
 
-> :warning: Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
+
+## Features
 
 ## How VDP works
 
@@ -39,6 +41,7 @@ We use **data connector** as a general term to represent data source and data de
 
 ## Quick start
 
+> **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 Execute the following commands to start pre-built images with all the dependencies:
@@ -46,13 +49,16 @@ Execute the following commands to start pre-built images with all the dependenci
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
-# Launch all services.
+# Launch all services
 $ make all
 ```
 
-That's it!
+🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
 
-> :warning: The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
+Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
+
+> **Warning** 
+> The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
 ### Shut down VDP
 To shut down all running services:
