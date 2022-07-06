@@ -24,18 +24,7 @@
 
 The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
 
-### Table of contents <!-- omit in toc -->
-- [How VDP works](#how-vdp-works)
-- [Quick start](#quick-start)
-  - [Download and run VDP locally](#download-and-run-vdp-locally)
-  - [Run the samples to trigger an object detection pipeline](#run-the-samples-to-trigger-an-object-detection-pipeline)
-  - [Create a pipeline with your own models](#create-a-pipeline-with-your-own-models)
-  - [Clean up](#clean-up)
-- [Documentation](#documentation)
-- [Community support](#community-support)
-- [License](#license)
-
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+> :warning: Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 ## How VDP works
 
@@ -57,55 +46,40 @@ Execute the following commands to start pre-built images with all the dependenci
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
-# Build instill/vdp:dev local development image
-$ make build
-
 # Launch all services.
 $ make all
 ```
-:warning: Downloading the Triton server image will take a while, but it should be just a one-time effort.
 
-### Run the samples to trigger an object detection pipeline
-We provide sample codes on how to build and trigger an object detection pipeline. Run it with the local VDP:
+That's it!
 
-```bash
-$ cd examples-go
+> :warning: The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
-# Download a YOLOv4 ONNX model for object detection task (GPU not required)
-$ curl -o yolov4-onnx-cpu.zip https://artifacts.instill.tech/vdp/sample-models/yolov4-onnx-cpu.zip
-
-# [optional] Download a test image or use your own images
-$ curl -o dog.jpg https://artifacts.instill.tech/dog.jpg
-
-# Deploy the model
-$ go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolov4
-
-# Test the model
-$ go run test-model/main.go --model-name yolov4 --test-image dog.jpg
-
-# Create an object detection pipeline
-$ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
-
-# Trigger the pipeline by using the same test image
-$ go run trigger-pipeline/main.go --pipeline-name hello-pipeline --test-image dog.jpg
+### Shut down VDP
+To shut down all running services:
 ```
+$ make down
+```
+
+### Low-code examples
+
+Based on the API-first design, the use of VDO should be as simple as making API calls. A number of code examples can be found in the `examples/` folder.
 
 ### Create a pipeline with your own models
 Please follow the guideline "[Prepare your own model to deploy on VDP
-](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)". Based on the above sample codes, you can deploy a prepared model and create your own pipeline.
-
-### Clean up
-To clean up all running services:
-```
-$ make prune
-```
+](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)".
 
 ## Documentation
 
-The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. To view the generated OpenAPI spec on http://localhost:3000:
-```bash
-$ make doc
-```
+Please refer to the official documentation [website](https://docs.instill.tech).
+
+### API
+
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
+
+For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `docker-compose up -d redoc_openapi`.
+
+## Local dev
+
 
 ## Community support
 
