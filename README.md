@@ -16,11 +16,11 @@
 
 ---
 
-**Visual Data Preparation (VDP)** is an open-source tool to streamline the end-to-end visual data processing pipeline:
+**Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
-1. Ingest unstructured visual data from data sources such as data lakes or IoT devices;
-2. Transform visual data to meaningful structured data representations by Vision AI models;
-3. Load the structured data into warehouses, applications, or other destinations.
+1. **Ingest** unstructured visual data from pre-built data sources such as cloud and on-prem storage, or IoT devices
+2. **Transform** it into analysable structured data by Vision AI models
+3. **Load** the transformed data into warehouses, applications, or other destinations
 
 The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
 
