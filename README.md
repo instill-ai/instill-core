@@ -49,23 +49,22 @@ Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
 > **Warning** 
 > The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
-### Shut down VDP
+#### Shut down VDP
 To shut down all running services:
 ```
 $ make down
 ```
 
-### Low-code examples
+<!-- ### Low-code examples -->
 
-Based on the API-first design, the use of VDO should be as simple as making API calls. A number of code examples can be found in the `examples/` folder.
+<!-- Based on the API-first design, the use of VDO should be as simple as making API calls. A number of code examples can be found in the `examples/` folder. -->
 
-### Create a pipeline with your own models
-Please follow the guideline "[Prepare your own model to deploy on VDP
-](docs/model.md#prepare-your-own-model-to-deploy-on-vdp)".
+<!-- ### Create a pipeline with your own models -->
+<!-- Please follow the [guideline](docs/model.md#prepare-your-own-model-to-deploy-on-vdp) to build pipelines with your own model. -->
 
 ## Documentation
 
-Please refer to the official documentation [website](https://docs.instill.tech).
+📔 Documentation & tutorials are coming soon!
 
 ### API
 
