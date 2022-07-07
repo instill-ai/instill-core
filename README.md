@@ -8,12 +8,6 @@
     <a href="https://blog.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Blog</a>
 </h4>
 
-<h4 align="center">
-    <p>
-        <a href="https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme"><strong>Get Early Access</strong></a>
-    <p>
-</h4>
-
 ---
 
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
@@ -25,8 +19,6 @@
 ## Why we build VDP
 
 The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
-
-## Features
 
 ## How VDP works
 
@@ -40,9 +32,6 @@ Based on [the mode of a pipeline](docs/pipeline-mode.md), it will ingest and pro
 We use **data connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
 
 ## Quick start
-
-> **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 Execute the following commands to start pre-built images with all the dependencies:
 
@@ -84,17 +73,19 @@ The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provi
 
 For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `docker-compose up -d redoc_openapi`.
 
-## Local dev
-
-
 ## Local development
+
+> **Note**
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 ## Community support
 
 For general help using VDP, you can use one of these channels:
 
 - [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
-- [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and the Instill AI Team)
+- [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and our team)
+
+If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready. 
 
 ## License
 

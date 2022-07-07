@@ -11,7 +11,7 @@ A pipeline with the `SYNC` mode responds to requests synchronously. The result i
 
 To create a pipeline with the `SYNC` mode, please use `Direct` for both data source and destination.
 
-### ASYNC (coming soon)
+### ASYNC
 
 A pipeline with the `ASYNC` mode responds to asynchronous workload. The user triggers the pipeline with an asynchronous request and only receives an acknowledged response. Once the data is processed, the result is sent to the data destination to be retrieved later. This mode is a good fit for use cases that do not need inference results immediately.
 <p align="center">
