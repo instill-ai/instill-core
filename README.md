@@ -71,7 +71,7 @@ $ make down
 
 The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
 
-For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `docker-compose up -d redoc_openapi`.
+For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
 ## Local development
 
