@@ -49,7 +49,8 @@ Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
 > **Warning** 
 > The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
-#### Shut down VDP
+**Shut down VDP**
+
 To shut down all running services:
 ```
 $ make down
@@ -66,7 +67,7 @@ $ make down
 
 📔 Documentation & tutorials are coming soon!
 
-### API
+**API Reference**
 
 The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
 
