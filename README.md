@@ -77,6 +77,8 @@ For the OpenAPI documentation, access http://localhost:3001 after `make all`, or
 > **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
+Please refer to the [guide](docs/development.md) for local development.
+
 ## Community support
 
 For general help using VDP, you can use one of these channels:
