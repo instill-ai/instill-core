@@ -5,21 +5,21 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"time"
 
-	modelPB "github.com/instill-ai/protogen-go/model/v1alpha"
+	modelPB "github.com/instill-ai/protogen-go/vdp/model/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8445", "the server address")
+	serverAddress := flag.String("address", "localhost:8083", "the server address")
 	testImagePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent for prediction")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
-	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *modelName == "" {
@@ -37,7 +37,7 @@ func main() {
 
 	c := modelPB.NewModelServiceClient(conn)
 
-	predictStream, err := c.TriggerModelBinaryFileUpload(ctx)
+	predictStream, err := c.TriggerModelInstanceBinaryFileUpload(ctx)
 	if err != nil {
 		log.Fatalf("can not test model via predict endpoint: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("can not open the file: %v", err)
 	}
-
+	fi, _ := file.Stat()
 	for {
 		n, errRead := file.Read(buf)
 		if errRead != nil {
@@ -61,21 +61,21 @@ func main() {
 			log.Fatalf("there is an error while copying from file to buf: %s", errRead.Error())
 		}
 		if firstChunk {
-			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
-				Name:    *modelName,
-				Version: uint64(*modelVersion),
-				Bytes:   buf[:n],
+			err = predictStream.Send(&modelPB.TriggerModelInstanceBinaryFileUploadRequest{
+				Name:        fmt.Sprintf("models/%v/instances/latest", *modelName),
+				FileLengths: []uint64{uint64(fi.Size())},
+				Bytes:       buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("failed to send data via stream: %v", err)
+				log.Fatalf("Could not send buffer data to server")
 			}
 			firstChunk = false
 		} else {
-			err = predictStream.Send(&modelPB.TriggerModelBinaryFileUploadRequest{
+			err = predictStream.Send(&modelPB.TriggerModelInstanceBinaryFileUploadRequest{
 				Bytes: buf[:n],
 			})
 			if err != nil {
-				log.Fatalf("failed to send data via stream: %v", err)
+				log.Fatalf("Could not send buffer data to server")
 			}
 		}
 	}

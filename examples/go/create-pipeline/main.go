@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/instill-ai/protogen-go/pipeline/v1alpha"
+	pb "github.com/instill-ai/protogen-go/vdp/pipeline/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
