@@ -15,84 +15,6 @@ volumes:
     name: model-repository
 
 services:
-  mgmt_backend_migrate:
-    profiles:
-      - all
-      - pipeline
-      - connector
-      - model
-      - console
-    container_name: mgmt-backend-migrate
-    image: instill/mgmt-backend:latest
-    build:
-      context: ./dev/mgmt-backend
-      args:
-        - SERVICE_NAME=mgmt-backend
-    restart: on-failure
-    environment:
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
-    entrypoint: ./mgmt-backend-migrate
-    depends_on:
-      pg_sql:
-        condition: service_healthy
-
-  mgmt_backend_init:
-    profiles:
-      - all
-      - pipeline
-      - connector
-      - model
-      - console
-    container_name: mgmt-backend-init
-    image: instill/mgmt-backend:latest
-    build:
-      context: ./dev/mgmt-backend
-      args:
-        - SERVICE_NAME=mgmt-backend
-    restart: on-failure
-    environment:
-      CFG_SERVER_PORT: 8084
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-    entrypoint: ./mgmt-backend-init
-    depends_on:
-      - mgmt_backend_migrate
-
-  mgmt_backend:
-    profiles:
-      - all
-      - pipeline
-      - connector
-      - model
-      - console
-    container_name: mgmt-backend
-    image: instill/mgmt-backend:latest
-    build:
-      context: ./dev/mgmt-backend
-      args:
-        - SERVICE_NAME=mgmt-backend
-    restart: unless-stopped
-    environment:
-      CFG_SERVER_PORT: 8084
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
-      CFG_SERVER_EDITION: local-ce:latest
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_SERVER_CORSORIGINS: http://localhost:3000
-    ports:
-      - 8084:8084
-    entrypoint: ./mgmt-backend
-    depends_on:
-      - mgmt_backend_init
-
   pipeline_backend_migrate:
     profiles:
       - all
@@ -154,8 +76,6 @@ services:
     entrypoint: ./pipeline-backend
     depends_on:
       - pipeline_backend_migrate
-      - mgmt_backend
-      - model_backend
       - temporal
       - redis
 
@@ -271,7 +191,6 @@ services:
     entrypoint: ./connector-backend
     depends_on:
       - connector_backend_worker
-      - mgmt_backend
 
   model_backend_migrate:
     profiles:
@@ -362,6 +281,84 @@ services:
         condition: service_healthy
       model_backend_init:
         condition: service_completed_successfully
+
+  mgmt_backend_migrate:
+    profiles:
+      - all
+      - pipeline
+      - connector
+      - model
+      - console
+    container_name: mgmt-backend-migrate
+    image: instill/mgmt-backend:latest
+    build:
+      context: ./dev/mgmt-backend
+      args:
+        - SERVICE_NAME=mgmt-backend
+    restart: on-failure
+    environment:
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: pg-sql
+      CFG_DATABASE_PORT: 5432
+    entrypoint: ./mgmt-backend-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  mgmt_backend_init:
+    profiles:
+      - all
+      - pipeline
+      - connector
+      - model
+      - console
+    container_name: mgmt-backend-init
+    image: instill/mgmt-backend:latest
+    build:
+      context: ./dev/mgmt-backend
+      args:
+        - SERVICE_NAME=mgmt-backend
+    restart: on-failure
+    environment:
+      CFG_SERVER_PORT: 8084
+      CFG_DATABASE_HOST: pg-sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./mgmt-backend-init
+    depends_on:
+      - mgmt_backend_migrate
+
+  mgmt_backend:
+    profiles:
+      - all
+      - pipeline
+      - connector
+      - model
+      - console
+    container_name: mgmt-backend
+    image: instill/mgmt-backend:latest
+    build:
+      context: ./dev/mgmt-backend
+      args:
+        - SERVICE_NAME=mgmt-backend
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PORT: 8084
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: local-ce:latest
+      CFG_DATABASE_HOST: pg-sql
+      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_SERVER_CORSORIGINS: http://localhost:3000
+    ports:
+      - 8084:8084
+    entrypoint: ./mgmt-backend
+    depends_on:
+      - mgmt_backend_init
 
   triton_conda_env:
     profiles:

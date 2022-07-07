@@ -75,7 +75,7 @@ build:							## Build all dev docker images
 	@printf "set up latest connector-backend: " && [ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
 	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
 	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build --parallel
+	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
 
 .PHONY: doc
 doc:			## Run Redoc for OpenAPI spec at http://localhost:3001
