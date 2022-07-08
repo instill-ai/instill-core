@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0-alpha](https://github.com/instill-ai/vdp/compare/v0.1.6-alpha...v0.2.0-alpha) (2022-07-08)
+
+
+### Features
+
+* add console ([3151126](https://github.com/instill-ai/vdp/commit/315112667bba2e1ff53354ce98cf4a9254973566))
+
+
+### Bug Fixes
+
+* fix connector-backend-worker in docker-compose-dev ([c5d7260](https://github.com/instill-ai/vdp/commit/c5d7260e4942625c8c4f33086d0c19af3c3c873a))
+* fix OpenAPI swagger service ([#104](https://github.com/instill-ai/vdp/issues/104)) ([2e3fd90](https://github.com/instill-ai/vdp/commit/2e3fd90e11cc54944bfed0d136f64587f3f698fa))
+* fix temporal dynamicconfig ([57edcde](https://github.com/instill-ai/vdp/commit/57edcde477e56c4cc9a275a4b847f3dfff58ec32))
+
 ### [0.1.6-alpha](https://github.com/instill-ai/vdp/compare/v0.1.5-alpha...v0.1.6-alpha) (2022-04-03)
 
 
