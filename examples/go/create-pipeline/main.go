@@ -42,9 +42,9 @@ func main() {
 			Id:    *pipelineName,
 			State: pb.Pipeline_STATE_ACTIVE,
 			Recipe: &pb.Recipe{
-				Source:         "source-http",
+				Source:         "source-connectors/source-http",
 				ModelInstances: []string{fmt.Sprintf("models/%s/instances/latest", *modelName)},
-				Destination:    "destination-http",
+				Destination:    "source-connectors/destination-http",
 			},
 		},
 	}
