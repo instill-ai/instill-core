@@ -75,7 +75,7 @@ func main() {
 		req := &pb.TriggerPipelineBinaryFileUploadRequest{
 			Name:        *pipelineName,
 			FileLengths: []uint64{uint64(fi.Size())},
-			Bytes:       buffer[:n],
+			Content:     buffer[:n],
 		}
 
 		err = stream.Send(req)

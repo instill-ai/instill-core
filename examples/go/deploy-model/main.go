@@ -68,7 +68,7 @@ func main() {
 					Description:     &des,
 					ModelDefinition: "model-definitions/local",
 				},
-				Bytes: buf[:n],
+				Content: buf[:n],
 			})
 			firstChunk = false
 			if err != nil {
@@ -76,7 +76,7 @@ func main() {
 			}
 		} else {
 			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				Bytes: buf[:n],
+				Content: buf[:n],
 			})
 
 			if err != nil {

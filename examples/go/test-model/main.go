@@ -64,7 +64,7 @@ func main() {
 			err = predictStream.Send(&modelPB.TriggerModelInstanceBinaryFileUploadRequest{
 				Name:        fmt.Sprintf("models/%v/instances/latest", *modelName),
 				FileLengths: []uint64{uint64(fi.Size())},
-				Bytes:       buf[:n],
+				Content:     buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("Could not send buffer data to server")
@@ -72,7 +72,7 @@ func main() {
 			firstChunk = false
 		} else {
 			err = predictStream.Send(&modelPB.TriggerModelInstanceBinaryFileUploadRequest{
-				Bytes: buf[:n],
+				Content: buf[:n],
 			})
 			if err != nil {
 				log.Fatalf("Could not send buffer data to server")
