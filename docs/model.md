@@ -155,14 +155,14 @@ class TritonPythonModel(PostClassificationModel):
 __Standardised output example__
 ```
 {
-  "contents": [
+  "output": [
     {
-      "category": "dog",
-      "score": 0.6
-    },
-    {
-      "category": "cat",
-      "score": 0.4
+      "classification_outputs": [
+        {
+          "category": "golden retriever",
+          "score": 0.896806
+        }
+      ]
     }
   ]
 }
@@ -206,18 +206,32 @@ class TritonPythonModel(PostDetectionModel):
 __Standardised output example__
 ```
 {
-  "contents": [
+  "output": [
     {
-      "contents": [
+      "detection_outputs": [
         {
-          "category": "cat",
-          "score": 0.98,
-          "box": {
-            "top": 5.0,
-            "left": 2.0,
-            "width": 8.0,
-            "height": 15.0
-          }
+          "bounding_box_objects": [
+            {
+              "bounding_box": {
+                "height": 402.58002,
+                "left": 325.79257,
+                "top": 99.084984,
+                "width": 204.18991
+              },
+              "category": "dog",
+              "score": 0.980409
+            },
+            {
+              "bounding_box": {
+                "height": 242.36629,
+                "left": 133.76926,
+                "top": 195.17857,
+                "width": 207.4065
+              },
+              "category": "dog",
+              "score": 0.9009272
+            }
+          ]
         }
       ]
     }
