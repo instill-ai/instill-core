@@ -38,7 +38,7 @@
 
 Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
 
-We've learned that model serving for an effective end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Building from scratch since 2016, we had had a battle-proven model serving system in-house running in production for years.
+We've learned that model serving for an effective end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Since 2016, building everything from scratch, we had had a battle-proven model serving system in-house running in production for years.
 
 We'd love to generalise the infrastructure to make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
 
