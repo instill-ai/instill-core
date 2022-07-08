@@ -248,6 +248,7 @@ services:
       - conda_pack:/conda-pack
 
   triton_server:
+    runtime: ${TRITONSERVER_RUNTIME:-}
     container_name: triton-server
     image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
