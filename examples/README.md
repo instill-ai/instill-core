@@ -15,6 +15,9 @@ $ go run deploy-model/main.go --model-path yolov4-onnx-cpu.zip --model-name yolo
 # Test the model
 $ go run test-model/main.go --model-name yolov4 --test-image dog.jpg
 
+# Create a HTTP source connector and a HTTP destination connector
+$ go run create-connector/main.go 
+
 # Create an object detection pipeline
 $ go run create-pipeline/main.go --pipeline-name hello-pipeline --model-name yolov4
 
