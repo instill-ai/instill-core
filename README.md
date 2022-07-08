@@ -16,16 +16,6 @@
 2. **Transform** it into analysable structured data by Vision AI models
 3. **Load** the transformed data into warehouses, applications, or other destinations
 
-## Why we build VDP
-
-Before we started to build VDP, for years, we'd fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
-
-We've learned that model serving for a robust end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Building from scratch, we had a battle-proven system built in-house running in production for years.
-
-We'd love to generalise the infrastructure and make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
-
-The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
-
 ## Highlights
 
 - 🚀 **The fastest way to build end-to-end visual data pipelines** - building a pipeline is like assembling LEGO blocks
@@ -41,6 +31,18 @@ The goal of VDP is to seamlessly bring Vision AI into the modern data stack with
 - 🧁 **Scalable API-first microservice design for great developer experience** - seamless integration to modern data stack at any scale
 
 - 🤠 **Build for every Vision AI practitioner** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
+
+## Why we build VDP
+
+Before we started to build VDP, for years, we'd fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
+
+We've learned that model serving for a robust end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Building from scratch, we had a battle-proven system built in-house running in production for years.
+
+We'd love to generalise the infrastructure and make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
+
+The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
+
+
 
 ## How VDP works
 
@@ -70,7 +72,7 @@ Check out the pipeline recipe example below. This recipe defines that the pipeli
 > We use **connector** as a general term to represent data source and destination. Please find the supported connectors [here](docs/connector.md).
 
 ### Guidance philosophy
-We expect VDP to be exposed to more MLOps integrations in the future, it is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
+VDP is built with open heart and we expect VDP to be exposed to more MLOps integrations. It is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
 
 - [Triton Inference Server](https://github.com/triton-inference-server/server) for high-performance model serving
 
@@ -78,7 +80,7 @@ We expect VDP to be exposed to more MLOps integrations in the future, it is impl
 
 - [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
 
-, and hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
+We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
 
 ## Quick start
 
