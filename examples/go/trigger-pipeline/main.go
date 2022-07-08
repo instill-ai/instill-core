@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8446", "the server address")
+	serverAddress := flag.String("address", "localhost:8081", "the server address")
 	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline you've created")
 	testImagePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
 	flag.Parse()
@@ -40,6 +40,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot open image file: ", err)
 	}
+	fi, _ := file.Stat()
 	defer file.Close()
 
 	stream, err := client.TriggerPipelineBinaryFileUpload(ctx)
@@ -72,7 +73,9 @@ func main() {
 		// contents = append(contents, &pb.TriggerPipelineBinaryFileUploadRequest{Chunk: buffer[:n]})
 
 		req := &pb.TriggerPipelineBinaryFileUploadRequest{
-			Chunk: buffer[:n],
+			Name:        *pipelineName,
+			FileLengths: []uint64{uint64(fi.Size())},
+			Bytes:       buffer[:n],
 		}
 
 		err = stream.Send(req)

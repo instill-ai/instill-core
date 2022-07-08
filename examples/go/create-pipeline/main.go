@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
@@ -12,10 +13,9 @@ import (
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8446", "the server address")
+	serverAddress := flag.String("address", "localhost:8081", "the server address")
 	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
-	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *pipelineName == "" {
@@ -38,18 +38,14 @@ func main() {
 	client := pb.NewPipelineServiceClient(conn)
 
 	createPipelineReq := &pb.CreatePipelineRequest{
-		Name:        *pipelineName,
-		Description: "Hello! My first pipeline",
-		Active:      true,
-		Recipe: &pb.Recipe{
-			Source: &pb.Source{Type: "Direct"},
-			Models: []*pb.Model{
-				{
-					Name:    *modelName,
-					Version: uint64(*modelVersion),
-				},
+		Pipeline: &pb.Pipeline{
+			Name:  *pipelineName,
+			State: pb.Pipeline_STATE_ACTIVE,
+			Recipe: &pb.Recipe{
+				Source:         "http",
+				ModelInstances: []string{fmt.Sprintf("models/%s/instances/latest", *modelName)},
+				Destination:    "http",
 			},
-			Destination: &pb.Destination{Type: "Direct"},
 		},
 	}
 
