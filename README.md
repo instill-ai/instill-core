@@ -96,7 +96,7 @@ $ make all
 Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
 
 > **Warning**
-> The image of model-backend (~2GB) and Triton Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
+> The image of model-backend (~2GB) and Triton Inference Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
 **Shut down VDP**
 
