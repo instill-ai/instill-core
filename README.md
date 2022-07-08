@@ -13,7 +13,9 @@
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
 1. **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
+
 2. **Transform** it into analysable structured data by Vision AI models
+
 3. **Load** the transformed data into warehouses, applications, or other destinations
 
 ## Highlights
@@ -129,10 +131,14 @@ For the OpenAPI documentation, access http://localhost:3001 after `make all`, or
 We love contribution to VDP in any forms:
 
 - Please refer to the [guide](docs/development.md) for local development.
-- Please open general issues in
-  - [instill-ai/vdp](https://github.com/instill-ai/vdp) for general issues;
-  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [mgmt-backend](https://github.com/instill-ai/mgmt-backend), etc., for any backend specific issues.
-- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress
+
+- Please open issues in the repository
+
+  - [vdp](https://github.com/instill-ai/vdp) for general issues;
+
+  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [mgmt-backend](https://github.com/instill-ai/mgmt-backend), etc., for backend-specific issues.
+
+- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress.
 
 > **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
@@ -142,6 +148,7 @@ We love contribution to VDP in any forms:
 For general help using VDP, you can use one of these channels:
 
 - [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
+
 - [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and our team)
 
 If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
