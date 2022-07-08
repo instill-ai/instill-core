@@ -44,12 +44,14 @@ The goal of VDP is to seamlessly bring Vision AI into the modern data stack with
 
 ## How VDP works
 
-The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline consists of three ordered components:
-1. **data source**: where the pipeline starts. It connects the source of image and video data to be processed.
-2. **model**: a deployed Vision AI model to process the ingested visual data and generate structured outputs
-3. **data destination**: where to send the structured outputs
+The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline is defined and formed by a _recipe_ that contains three components:
+1. **source**: where the pipeline starts. It connects the source of image and video data to be processed.
 
-Based on [the mode of a pipeline](docs/pipeline-mode.md), it will ingest and process the visual data, send the outputs to the destination every time the trigger event occurs.
+2. **model instances**: a series of deployed Vision AI models to process the ingested visual data in parallel and generate structured outputs
+
+3. **destination**: where to send the structured outputs
+
+Based on [the mode of a pipeline](docs/pipeline-mode.md), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
 
 We use **data connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
 
