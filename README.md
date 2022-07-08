@@ -53,7 +53,21 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on [the mode of a pipeline](docs/pipeline-mode.md), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
 
-We use **data connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
+Check out the pipeline recipe example below. This recipe defines that the pipeline accepts HTTP requests, processes the request data using YOLOv4 model, and returns the outputs in HTTP responses. With this simple configuration, now we can use this pipeline as a fully-functional HTTP prediction server.
+```JSON
+{
+    "recipe": {
+        "source": "source-connectors/source-http",
+        "model_instances": [
+            "models/yolov4/instances/v1.0-cpu"
+        ],
+        "destination": "destination-connectors/destination-http"
+    }
+}
+```
+
+> **Note**
+> We use **connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
 
 ### Guidance philosophy
 We expect VDP to be exposed to more MLOps integrations in the future, it is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
