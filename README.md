@@ -67,7 +67,7 @@ Check out the pipeline recipe example below. This recipe defines that the pipeli
 ```
 
 > **Note**
-> We use **connector** as a general term to represent data source and data destination. Please find the supported data connectors [here](docs/connector.md).
+> We use **connector** as a general term to represent data source and destination. Please find the supported connectors [here](docs/connector.md).
 
 ### Guidance philosophy
 We expect VDP to be exposed to more MLOps integrations in the future, it is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
