@@ -1,7 +1,5 @@
 # Local development
 
-VDP is designed with a microservice based architecture. This
-
 On the local machine, clone `vdp` repository in your workspace, move to the repository folder, and launch all dependent microservices:
 ```
 $ cd <your-workspace>

@@ -57,8 +57,11 @@ We use **data connector** as a general term to represent data source and data de
 
 ### Guidance philosophy
 We expect VDP to be exposed to more MLOps integrations in the future, it is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
+
 - [Triton Inference Server](https://github.com/triton-inference-server/server) for high-performance model serving
+
 - [Temporal](https://github.com/temporalio/temporal) for a reliable, durable and scalable workflow engine
+
 - [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
 
 , and hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
@@ -97,20 +100,26 @@ $ make down
 
 ## Documentation
 
-📔 Documentation & tutorials are coming soon!
+📔 **Documentation & tutorials are coming soon!**
 
-**API Reference**
+📘 **API Reference**
 
 The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
 
 For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
-## Local development
+## Contribution
+
+We love contribution to VDP in any forms:
+
+- Please refer to the [guide](docs/development.md) for local development.
+- Please open general issues in
+  - [instill-ai/vdp](https://github.com/instill-ai/vdp) for general issues;
+  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [mgmt-backend](https://github.com/instill-ai/mgmt-backend), etc., for any backend specific issues.
+- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) for tracing progress
 
 > **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
-
-Please refer to the [guide](docs/development.md) for local development.
 
 ## Community support
 
@@ -120,13 +129,6 @@ For general help using VDP, you can use one of these channels:
 - [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and our team)
 
 If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
-
-## Acknowledgement
-
-Without these open-source projects, the idea of VDP won't be possible to come to real:
-1. Triton Server
-2. Airbyte
-3. Temporal
 
 ## License
 
