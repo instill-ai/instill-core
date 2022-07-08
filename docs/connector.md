@@ -26,5 +26,6 @@ Instill AI provides connectors for data integration, and we propose a `Stage` to
 
 | Connector | Stage | Description |
 | :--- | :--- | --- |
-| HTTP | Alpha | Paired with the HTTP source. When the data has proceeded, the data is sent back to users directly depending on the trigger endpoint |
-| gRPC | Alpha | Paired with the gRPC source. When the data has proceeded, the data is sent back to users directly depending on the trigger endpoint |
+| HTTP | Alpha | Paired with the HTTP source. When the data has proceeded, the data is sent back to users directly depending on the trigger endpoint. |
+| gRPC | Alpha | Paired with the gRPC source. When the data has proceeded, the data is sent back to users directly depending on the trigger endpoint. |
+| Airbyte destinations | Alpha | All destination connectors that Airbyte supports. See the full list [here](https://docs.airbyte.com/integrations/). |
