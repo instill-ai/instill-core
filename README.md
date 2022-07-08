@@ -53,7 +53,7 @@ The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that
 
 Based on [the mode of a pipeline](docs/pipeline-mode.md), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
 
-Check out the pipeline recipe example below. This recipe defines that the pipeline accepts HTTP requests, processes the request data using YOLOv4 model, and returns the outputs in HTTP responses. With this simple configuration, now we can use this pipeline as a fully-functional HTTP prediction server.
+Check out the pipeline recipe example below. This recipe defines that the pipeline accepts HTTP requests, processes the request data using YOLOv4 model, and returns the outputs in HTTP responses. With this simple configuration, now we have a pipeline equivalent to a powerful HTTP prediction server 🚀.
 ```JSON
 {
     "recipe": {
