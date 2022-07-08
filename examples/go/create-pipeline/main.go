@@ -39,12 +39,12 @@ func main() {
 
 	createPipelineReq := &pb.CreatePipelineRequest{
 		Pipeline: &pb.Pipeline{
-			Name:  *pipelineName,
+			Id:    *pipelineName,
 			State: pb.Pipeline_STATE_ACTIVE,
 			Recipe: &pb.Recipe{
-				Source:         "http",
+				Source:         "source-http",
 				ModelInstances: []string{fmt.Sprintf("models/%s/instances/latest", *modelName)},
-				Destination:    "http",
+				Destination:    "destination-http",
 			},
 		},
 	}
