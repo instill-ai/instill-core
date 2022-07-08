@@ -34,11 +34,11 @@
 
 ## Why we build VDP
 
-Before we started to build VDP, for years, we'd fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
+Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
 
-We've learned that model serving for a robust end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Building from scratch, we had a battle-proven system built in-house running in production for years.
+We've learned that model serving for an effective end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Building from scratch since 2016, we had had a battle-proven model serving system in-house running in production for years.
 
-We'd love to generalise the infrastructure and make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
+We'd love to generalise the infrastructure to make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
 
 The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
 
