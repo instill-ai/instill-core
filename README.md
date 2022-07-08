@@ -116,7 +116,7 @@ We love contribution to VDP in any forms:
 - Please open general issues in
   - [instill-ai/vdp](https://github.com/instill-ai/vdp) for general issues;
   - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [mgmt-backend](https://github.com/instill-ai/mgmt-backend), etc., for any backend specific issues.
-- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) for tracing progress
+- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress
 
 > **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
