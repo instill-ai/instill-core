@@ -4,22 +4,22 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"time"
 
-	modelPB "github.com/instill-ai/protogen-go/model/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
+
+	modelPB "github.com/instill-ai/protogen-go/vdp/model/v1alpha"
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8445", "the server address")
+	serverAddress := flag.String("address", "localhost:8083", "the server address")
 	modelPath := flag.String("model-path", "./examples-go/yolov4-onnx-cpu.zip", "the path of the zip compressed file for model")
 	modelName := flag.String("model-name", "", "the name of the model for creating pipeline's recipe")
-	modelVersion := flag.Int("model-version", 1, "the version of the model for creating pipeline's recipe")
 	flag.Parse()
 
 	if *modelName == "" {
@@ -60,25 +60,31 @@ func main() {
 			}
 			log.Fatalf("there is an error while copying from file to buf: %v", err)
 		}
+
 		if firstChunk {
+			des := "YoloV4 for object detection"
 			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				Name:        *modelName,
-				Description: "YoloV4 for object detection",
-				Task:        modelPB.Model_TASK_DETECTION,
-				Bytes:       buf[:n],
+				Model: &modelPB.Model{
+					Id:              *modelName,
+					Description:     &des,
+					ModelDefinition: "model-definitions/local",
+				},
+				Content: buf[:n],
 			})
+			firstChunk = false
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
 			}
-			firstChunk = false
 		} else {
 			err = uploadStream.Send(&modelPB.CreateModelBinaryFileUploadRequest{
-				Bytes: buf[:n],
+				Content: buf[:n],
 			})
+
 			if err != nil {
 				log.Fatalf("failed to send data via stream: %v", err)
 			}
 		}
+
 	}
 
 	uploadResp, err := uploadStream.CloseAndRecv()
@@ -90,21 +96,17 @@ func main() {
 	for {
 		time.Sleep(1000)
 		res, err := c.GetModel(ctx, &modelPB.GetModelRequest{
-			Name: *modelName,
+			Name: fmt.Sprintf("models/%s", *modelName),
 		})
 		if err == nil && res.Model.Name != "" {
 			break
 		}
 	}
 
-	_, err = c.UpdateModelVersion(ctx, &modelPB.UpdateModelVersionRequest{
-		Name:    *modelName,
-		Version: uint64(*modelVersion),
-		VersionPatch: &modelPB.UpdateModelVersionPatch{
-			Status: modelPB.ModelVersion_STATUS_ONLINE,
-		},
-		FieldMask: &fieldmaskpb.FieldMask{Paths: []string{"name", "status"}},
+	_, err = c.DeployModelInstance(ctx, &modelPB.DeployModelInstanceRequest{
+		Name: fmt.Sprintf("models/%v/instances/latest", *modelName),
 	})
+
 	if err != nil {
 		log.Fatalf("can not make model online: %v", err)
 	}

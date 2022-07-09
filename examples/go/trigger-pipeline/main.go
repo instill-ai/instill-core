@@ -10,13 +10,14 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/instill-ai/protogen-go/pipeline/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	pipelinePB "github.com/instill-ai/protogen-go/vdp/pipeline/v1alpha"
 )
 
 func main() {
-	serverAddress := flag.String("address", "localhost:8446", "the server address")
+	serverAddress := flag.String("address", "localhost:8081", "the server address")
 	pipelineName := flag.String("pipeline-name", "", "the name of the pipeline you've created")
 	testImagePath := flag.String("test-image", "./dog.jpg", "the test image that are going to be sent")
 	flag.Parse()
@@ -34,12 +35,13 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pb.NewPipelineServiceClient(conn)
+	client := pipelinePB.NewPipelineServiceClient(conn)
 
 	file, err := os.Open(*testImagePath)
 	if err != nil {
 		log.Fatal("cannot open image file: ", err)
 	}
+	fi, _ := file.Stat()
 	defer file.Close()
 
 	stream, err := client.TriggerPipelineBinaryFileUpload(ctx)
@@ -47,7 +49,7 @@ func main() {
 		log.Fatal("cannot upload image: ", err)
 	}
 
-	req := &pb.TriggerPipelineBinaryFileUploadRequest{
+	req := &pipelinePB.TriggerPipelineBinaryFileUploadRequest{
 		Name: *pipelineName,
 	}
 
@@ -71,8 +73,10 @@ func main() {
 		// req := []*pb.TriggerPipelineBinaryFileUploadRequest{}
 		// contents = append(contents, &pb.TriggerPipelineBinaryFileUploadRequest{Chunk: buffer[:n]})
 
-		req := &pb.TriggerPipelineBinaryFileUploadRequest{
-			Chunk: buffer[:n],
+		req := &pipelinePB.TriggerPipelineBinaryFileUploadRequest{
+			Name:        *pipelineName,
+			FileLengths: []uint64{uint64(fi.Size())},
+			Content:     buffer[:n],
 		}
 
 		err = stream.Send(req)
