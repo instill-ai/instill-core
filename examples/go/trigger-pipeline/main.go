@@ -10,9 +10,10 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/instill-ai/protogen-go/vdp/pipeline/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	pipelinePB "github.com/instill-ai/protogen-go/vdp/pipeline/v1alpha"
 )
 
 func main() {
@@ -34,7 +35,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := pb.NewPipelineServiceClient(conn)
+	client := pipelinePB.NewPipelineServiceClient(conn)
 
 	file, err := os.Open(*testImagePath)
 	if err != nil {
@@ -48,7 +49,7 @@ func main() {
 		log.Fatal("cannot upload image: ", err)
 	}
 
-	req := &pb.TriggerPipelineBinaryFileUploadRequest{
+	req := &pipelinePB.TriggerPipelineBinaryFileUploadRequest{
 		Name: *pipelineName,
 	}
 
@@ -72,7 +73,7 @@ func main() {
 		// req := []*pb.TriggerPipelineBinaryFileUploadRequest{}
 		// contents = append(contents, &pb.TriggerPipelineBinaryFileUploadRequest{Chunk: buffer[:n]})
 
-		req := &pb.TriggerPipelineBinaryFileUploadRequest{
+		req := &pipelinePB.TriggerPipelineBinaryFileUploadRequest{
 			Name:        *pipelineName,
 			FileLengths: []uint64{uint64(fi.Size())},
 			Content:     buffer[:n],

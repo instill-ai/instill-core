@@ -10,9 +10,10 @@ import (
 	"os"
 	"time"
 
-	modelPB "github.com/instill-ai/protogen-go/vdp/model/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	modelPB "github.com/instill-ai/protogen-go/vdp/model/v1alpha"
 )
 
 func main() {

@@ -6,9 +6,11 @@ import (
 	"log"
 	"time"
 
-	ct "github.com/instill-ai/protogen-go/vdp/connector/v1alpha"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/structpb"
+
+	connectorPB "github.com/instill-ai/protogen-go/vdp/connector/v1alpha"
 )
 
 func main() {
@@ -24,14 +26,14 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := ct.NewConnectorServiceClient(conn)
+	client := connectorPB.NewConnectorServiceClient(conn)
 
-	createSourceConnectorReq := &ct.CreateSourceConnectorRequest{
-		SourceConnector: &ct.SourceConnector{
+	createSourceConnectorReq := &connectorPB.CreateSourceConnectorRequest{
+		SourceConnector: &connectorPB.SourceConnector{
 			Id:                        "source-http",
 			SourceConnectorDefinition: "source-connectors/source-http",
-			Connector: &ct.Connector{
-				Configuration: "{}",
+			Connector: &connectorPB.Connector{
+				Configuration: &structpb.Struct{},
 			},
 		},
 	}
@@ -42,12 +44,12 @@ func main() {
 		log.Printf("the source connector has been created successfully: %v\n", res)
 	}
 
-	createDestinationConnectorReq := &ct.CreateDestinationConnectorRequest{
-		DestinationConnector: &ct.DestinationConnector{
+	createDestinationConnectorReq := &connectorPB.CreateDestinationConnectorRequest{
+		DestinationConnector: &connectorPB.DestinationConnector{
 			Id:                             "destination-http",
 			DestinationConnectorDefinition: "source-connectors/destination-http",
-			Connector: &ct.Connector{
-				Configuration: "{}",
+			Connector: &connectorPB.Connector{
+				Configuration: &structpb.Struct{},
 			},
 		},
 	}
