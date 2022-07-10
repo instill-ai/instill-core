@@ -22,6 +22,8 @@
 
 - 🚀 **The fastest way to build end-to-end visual data pipelines** - building a pipeline is like assembling LEGO blocks
 
+- ⚡️ **High-performing backends** implemented in Go with Triton Inference Server for unleashing the full-power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, Tensorflow, ONNX, Python and more. 
+
 - 🖱️ **One-click import & deploy ML/DL models** from popular GitHub, [Hugging Face](https://huggingface.co) or cloud storage managed by version control tools like [DVC](https://dvc.org) or [ArtiVC](https://artivc.io)
 
 - 📦 **Standardised vision task** structured output formats to streamline with data warehouse
@@ -83,6 +85,12 @@ VDP is built with open heart and we expect VDP to be exposed to more MLOps integ
 - [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
 
 We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
+
+## Prerequisites
+
+- **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows.
+
+- **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker-compose](https://docs.docker.com/compose/install/) before using VDP.
 
 ## Quick start
 
@@ -147,9 +155,11 @@ We love contribution to VDP in any forms:
 
 For general help using VDP, you can use one of these channels:
 
-- [GitHub](https://github.com/instill-ai/vdp) (bug reports, feature requests, project discussions and contributions)
+- [GitHub](https://github.com/instill-ai/vdp) - bug reports, feature requests, project discussions and contributions
 
-- [Discord](https://discord.gg/sevxWsqpGh) (live discussion with the community and our team)
+- [Discord](https://discord.gg/sevxWsqpGh) - live discussion with the community and our team
+
+- [Newsletter](https://www.instill.tech/newsletter/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) & [Twitter](https://twitter.com/instill_tech) - get the latest updates
 
 If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
 
