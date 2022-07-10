@@ -516,13 +516,13 @@ services:
       context: ./dev/console
     restart: unless-stopped
     environment:
-      - API_VERSION=v1alpha
       - DISABLE_USAGE_COLLECTION=false
       - CONSOLE_DOMAIN=localhost
-      - PIPELINE_API_ENDPOINT=http://pipeline-backend:8081
-      - CONNECTOR_API_ENDPOINT=http://connector-backend:8082
-      - MODEL_API_ENDPOINT=http://model-backend:8083
-      - MGMT_API_ENDPOINT=http://mgmt-backend:8084
+      - API_VERSION=v1alpha
+      - MGMT_BACKEND_BASE_URL=http://localhost:8084
+      - PIPELINE_BACKEND_BASE_URL=http://localhost:8081
+      - CONNECTOR_BACKEND_BASE_URL=http://localhost:8082
+      - MODEL_BACKEND_BASE_URL=http://localhost:8083
     ports:
       - 3000:3000
     depends_on:
