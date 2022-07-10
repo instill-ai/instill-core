@@ -22,7 +22,7 @@
 
 - 🚀 **The fastest way to build end-to-end visual data pipelines** - building a pipeline is like assembling LEGO blocks
 
-- ⚡️ **High-performing backends** implemented in Go with Triton Inference Server for unleashing the full-power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, Tensorflow, ONNX, Python and more. 
+- ⚡️ **High-performing backends** implemented in Go with Triton Inference Server for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
 
 - 🖱️ **One-click import & deploy ML/DL models** from popular GitHub, [Hugging Face](https://huggingface.co) or cloud storage managed by version control tools like [DVC](https://dvc.org) or [ArtiVC](https://artivc.io)
 
@@ -34,7 +34,7 @@
 
 - 🧁 **Scalable API-first microservice design for great developer experience** - seamless integration to modern data stack at any scale
 
-- 🤠 **Build for every Vision AI practitioner** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
+- 🤠 **Build for every Vision AI and Data practitioner** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
 ## Why we build VDP
 
@@ -73,6 +73,7 @@ Check out the pipeline recipe example below. This recipe defines that the pipeli
 ```
 
 > **Note**
+>
 > We use **connector** as a general term to represent data source and destination. Please find the supported connectors [here](docs/connector.md).
 
 ### Guidance philosophy
@@ -108,6 +109,7 @@ $ make all
 Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
 
 > **Warning**
+>
 > The image of model-backend (~2GB) and Triton Inference Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
 **Shut down VDP**
