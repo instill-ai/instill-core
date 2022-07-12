@@ -4,7 +4,7 @@ TEMPORAL := temporal temporal_admin_tools temporal_ui
 
 #============================================================================
 
-# load environment variables for local development
+# load environment variables
 include .env
 export
 
