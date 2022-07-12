@@ -36,6 +36,13 @@
 
 - 🤠 **Build for every Vision AI and Data practitioner** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
+## Online demos
+
+Want to showcase your ML/DL models? We also offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
+
+### Object Detection: YOLOv4 vs. YOLOv7
+We use VDP to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference. Try out the live demo [![VDP Demo](https://img.shields.io/badge/VDP-YOLOv4%20vs%20YOLOv7%20Demo-blue)](https://demo.instill.tech/yolov4-vs-yolov7)
+
 ## Why we build VDP
 
 Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
