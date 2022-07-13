@@ -98,7 +98,7 @@ We hope VDP can also enrich the open-source communities in a way to bring more p
 
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows.
 
-- **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker-compose](https://docs.docker.com/compose/install/) before using VDP.
+- **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker-compose](https://docs.docker.com/compose/install/) before using VDP. Be aware to use Docker-compose v1 with command `docker-compose` rather than v2 `docker compose`.
 
 ## Quick start
 
@@ -108,7 +108,7 @@ Execute the following commands to start pre-built images with all the dependenci
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
 # Launch all services
-$ make all
+$ sudo make all
 ```
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
