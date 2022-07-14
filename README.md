@@ -22,13 +22,13 @@
 
 - 🚀 **The fastest way to build end-to-end visual data pipelines** - building a pipeline is like assembling LEGO blocks
 
-- ⚡️ **High-performing backends** implemented in Go with Triton Inference Server for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
+- ⚡️ **High-performing backends** implemented in Go with [Triton Inference Server](https://github.com/triton-inference-server/server) for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
 
 - 🖱️ **One-click import & deploy ML/DL models** from popular GitHub, [Hugging Face](https://huggingface.co) or cloud storage managed by version control tools like [DVC](https://dvc.org) or [ArtiVC](https://artivc.io)
 
 - 📦 **Standardised vision task** structured output formats to streamline with data warehouse
 
-- 🔌 **Pre-built ETL data connectors** for extensive data access
+- 🔌 **Pre-built ETL data connectors** for extensive data access integrated with [Airbyte](https://github.com/airbytehq/airbyte)
 
 - 🪢 **Build pipelines for diverse scenarios** - **SYNC** for real-time inference and **ASYNC** for on-demand workload
 
@@ -45,19 +45,17 @@ We use VDP to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) 
 
 ## Why we build VDP
 
-Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision.
+Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision, sweating blood to build everything from scratch.
 
-We've learned that model serving for an effective end-to-end data flow requires not only **high throughput** and **low latency** but also **cost efficiency**, which altogether is non-trivial. Since 2016, building everything from scratch, we had had a battle-proven model serving system in-house running in production for years.
+We've learned that model serving for an effective end-to-end data flow concerns not only **high throughput** and **low latency** but also **cost efficiency**, and these criteria are non-trivial to achieve altogether. Nonetheless, we had successfully built a battle-proven model serving system in-house and have the system run in production for years.
 
-We'd love to generalise the infrastructure to make Vision AI more accessible to everyone. Fortunately what we had built can actually be modularised into working components to be used for a broader spectrum of vision tasks and industry sectors.
+What we had built can actually be modularised into working components to be generalised to a broader spectrum of vision tasks and industry sectors. We think it's about time to share the experiences and to extend the system to make Vision AI more accessible to everyone.
 
-The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool is proposed to streamline unstructured visual data processing across different stakeholders.
-
-
+The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool can make a significant impact on unstructured visual data processing across different stakeholders.
 
 ## How VDP works
 
-The core concept of VDP is _pipeline_. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline is defined and formed by a _recipe_ that contains three components:
+The core concept of VDP is **_pipeline_**. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline is defined and formed by a _recipe_ that contains three components:
 1. **source**: where the pipeline starts. It connects the source of image and video data to be processed.
 
 2. **model instances**: a series of deployed Vision AI models to process the ingested visual data in parallel and generate structured outputs
@@ -98,7 +96,7 @@ We hope VDP can also enrich the open-source communities in a way to bring more p
 
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows.
 
-- **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker-compose](https://docs.docker.com/compose/install/) before using VDP.
+- **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
 
 ## Quick start
 
@@ -149,7 +147,9 @@ We love contribution to VDP in any forms:
 
 - Please refer to the [guide](docs/development.md) for local development.
 
-- Please open issues in the repository
+- Please open a topic in the repository [Discussions](https://github.com/instill-ai/vdp/discussions) for any feature requests.
+
+- Please open issues for bug report in the repository
 
   - [vdp](https://github.com/instill-ai/vdp) for general issues;
 
