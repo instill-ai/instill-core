@@ -10,6 +10,12 @@
 
 ---
 
+# Visual Data Preparation (VDP)  &nbsp; [![Twitter URL](https://img.shields.io/twitter/url?logo=twitter&style=social&url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp&via=instill_tech&text=Build%20end-to-end%20visual%20data%20processing%20pipelines%20with%20VDP%2C%2010x%20faster.&hashtags=ETL%2Cvdp%2Cdata%2Cai%2Cml%2Copensource)
+
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?color=blue&include_prereleases)](https://github.com/instill-ai/vdp/releases)
+[![License Apache-2.0](https://img.shields.io/crates/l/ap)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
+[![Discord](https://img.shields.io/discord/928991293856681984?color=blue&label=community&logo=discord&logoColor=fff)](https://discord.gg/sevxWsqpGh)
+
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
 1. **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
