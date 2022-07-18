@@ -46,7 +46,7 @@
 
 Want to showcase your ML/DL models? We also offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
 
-### Object Detection: YOLOv4 vs. YOLOv7
+#### Object Detection: YOLOv4 vs. YOLOv7
 We use VDP to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference. Try out the live demo [![VDP Demo](https://img.shields.io/badge/VDP-YOLOv4%20vs%20YOLOv7%20Demo-blue)](https://demo.instill.tech/yolov4-vs-yolov7)
 
 ## Why we build VDP
@@ -136,6 +136,19 @@ $ make down
 
 <!-- ### Create a pipeline with your own models -->
 <!-- Please follow the [guideline](docs/model.md#prepare-your-own-model-to-deploy-on-vdp) to build pipelines with your own model. -->
+
+## Model Hub
+
+We curate a list of ready-to-use models for VDP. These models are from different sources and have been tested by our team. Want to contribute a new model? Please create an issue, we are happy to test and add it to the list 👐.
+
+| Model | Task | Sources | Framework | CPU/GPU | Notes |
+| ----- | ---- | ------ | --------- | ------- | ----  |
+| [MobileNet v2](https://github.com/onnx/models/tree/main/vision/classification/mobilenet) | Image classification | [GitHub](https://github.com/instill-ai/model-mobilenetv2) |  ONNX | ✅ GPU ✅ CPU | |
+| [YOLOv4](https://github.com/AlexeyAB/darknet) | Object detection | [GitHub](https://github.com/instill-ai/model-yolov4), [GitHub-DVC](https://github.com/instill-ai/model-yolov4-dvc) |  ONNX | ✅ GPU ✅ CPU | |
+| [YOLOv7](https://github.com/WongKinYiu/yolov7)  | Object detection | [GitHub](https://github.com/instill-ai/model-yolov7), [GitHub-DVC](https://github.com/instill-ai/model-yolov7-dvc)  | ONNX | ✅ GPU ✅ CPU | |
+| [Detectron2 Keypoint R-CNN R50-FPN](https://github.com/facebookresearch/detectron2/blob/main/configs/COCO-Keypoints/keypoint_rcnn_R_50_FPN_1x.yaml) | Keypoint detection | [GitHub](https://github.com/instill-ai/model-keypoint-detection) | PyTorch | ❌ GPU ✅ CPU | |
+
+Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
 
 ## Documentation
 
