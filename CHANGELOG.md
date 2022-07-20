@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2-alpha](https://github.com/instill-ai/vdp/compare/v0.2.1-alpha...v0.2.2-alpha) (2022-07-20)
+
+
+### Miscellaneous Chores
+
+* release v0.2.2-alpha ([2459ab1](https://github.com/instill-ai/vdp/commit/2459ab1a0274450ed9ae65663dceb4a4088d141e))
+
 ## [0.2.1-alpha](https://github.com/instill-ai/vdp/compare/v0.2.0-alpha...v0.2.1-alpha) (2022-07-12)
 
 
