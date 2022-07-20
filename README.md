@@ -141,12 +141,12 @@ $ make down
 
 We curate a list of ready-to-use models for VDP. These models are from different sources and have been tested by our team. Want to contribute a new model? Please create an issue, we are happy to test and add it to the list 👐.
 
-| Model | Task | Sources | Framework | CPU/GPU | Notes |
-| ----- | ---- | ------ | --------- | ------- | ----  |
-| [MobileNet v2](https://github.com/onnx/models/tree/main/vision/classification/mobilenet) | Image classification | [GitHub](https://github.com/instill-ai/model-mobilenetv2) |  ONNX | ✅ GPU ✅ CPU | |
-| [YOLOv4](https://github.com/AlexeyAB/darknet) | Object detection | [GitHub](https://github.com/instill-ai/model-yolov4), [GitHub-DVC](https://github.com/instill-ai/model-yolov4-dvc) |  ONNX | ✅ GPU ✅ CPU | |
-| [YOLOv7](https://github.com/WongKinYiu/yolov7)  | Object detection | [GitHub](https://github.com/instill-ai/model-yolov7), [GitHub-DVC](https://github.com/instill-ai/model-yolov7-dvc)  | ONNX | ✅ GPU ✅ CPU | |
-| [Detectron2 Keypoint R-CNN R50-FPN](https://github.com/facebookresearch/detectron2/blob/main/configs/COCO-Keypoints/keypoint_rcnn_R_50_FPN_1x.yaml) | Keypoint detection | [GitHub](https://github.com/instill-ai/model-keypoint-detection) | PyTorch | ❌ GPU ✅ CPU | |
+| Model                                                                                                                                               | Task                 | Sources                                                                                                            | Framework | CPU | GPU | Notes |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ | --------- | --- | --- | ----- |
+| [MobileNet v2](https://github.com/onnx/models/tree/main/vision/classification/mobilenet)                                                            | Image classification | [GitHub](https://github.com/instill-ai/model-mobilenetv2)                                                          | ONNX      | ✅   | ✅   |       |
+| [YOLOv4](https://github.com/AlexeyAB/darknet)                                                                                                       | Object detection     | [GitHub](https://github.com/instill-ai/model-yolov4), [GitHub-DVC](https://github.com/instill-ai/model-yolov4-dvc) | ONNX      | ✅   | ✅   |       |
+| [YOLOv7](https://github.com/WongKinYiu/yolov7)                                                                                                      | Object detection     | [GitHub](https://github.com/instill-ai/model-yolov7), [GitHub-DVC](https://github.com/instill-ai/model-yolov7-dvc) | ONNX      | ✅   | ✅   |       |
+| [Detectron2 Keypoint R-CNN R50-FPN](https://github.com/facebookresearch/detectron2/blob/main/configs/COCO-Keypoints/keypoint_rcnn_R_50_FPN_1x.yaml) | Keypoint detection   | [GitHub](https://github.com/instill-ai/model-keypoint-detection)                                                   | PyTorch   | ✅   | ❌   |       |
 
 Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
 
