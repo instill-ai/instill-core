@@ -440,7 +440,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PWD: password
       POSTGRES_SEEDS: pg-sql
-      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development.yaml
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
     ports:
       - 7233:7233
     depends_on:
