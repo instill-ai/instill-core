@@ -75,18 +75,28 @@ top:			## Display all running service processes
 
 .PHONY: build
 build:							## Build all dev docker images
-	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
 	@printf "set up latest pipeline-backend: " && [ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
 	@printf "set up latest connector-backend: " && [ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
 	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
+	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
 	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
 	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
 
 .PHONY: doc
-doc:			## Run Redoc for OpenAPI spec at http://localhost:3001
+doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 	@docker-compose up -d redoc_openapi
+
+.PHONY: integration-test
+integration-test:			## Run integration test for all dev repositories
+	@make build
+	@make dev PROFILE=all
+	@cd dev/pipeline-backend && HOSTNAME=localhost make integration-test
+	@cd dev/connector-backend && HOSTNAME=localhost make integration-test
+	@cd dev/model-backend && HOSTNAME=localhost make integration-test
+	@cd dev/mgmt-backend && HOSTNAME=localhost make integration-test
+	@make down
 
 .PHONY: help
 help:       	## Show this help
-	@echo "\nMake Application using Docker-Compose files."
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@echo "\nMake Application wiht Docker Compose"
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

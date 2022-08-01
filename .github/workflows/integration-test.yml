@@ -1,0 +1,28 @@
+name: Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # mono occupies port 8084 which conflicts with mgmt-backend
+      - name: Stop mono service
+        run: |
+          sudo kill -9 `sudo lsof -t -i:8084`
+          sudo lsof -i -P -n | grep LISTEN
+
+      - name: Run integration test
+        run: make integration-test

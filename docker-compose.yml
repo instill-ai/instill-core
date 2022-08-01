@@ -104,8 +104,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: ./connector-backend-worker
     depends_on:
-      - connector_backend_init
-      - temporal
+      connector_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
 
   connector_backend:
     container_name: connector-backend
@@ -297,6 +299,11 @@ services:
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
     ports:
       - 7233:7233
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "workflow", "list"]
+      interval: 10s
+      timeout: 1m
+      retries: 10
     depends_on:
       pg_sql:
         condition: service_healthy

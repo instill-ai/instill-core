@@ -15,6 +15,7 @@
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?color=blue&include_prereleases)](https://github.com/instill-ai/vdp/releases)
 [![License Apache-2.0](https://img.shields.io/crates/l/ap)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/928991293856681984?color=blue&label=community&logo=discord&logoColor=fff)](https://discord.gg/sevxWsqpGh)
+[![Integration Test](https://img.shields.io/github/workflow/status/instill-ai/vdp/Integration%20Test/main?&label=integration%20test&logoColor=fff)](https://github.com/instill-ai/vdp/actions/workflows/integration-test.yml)
 
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
