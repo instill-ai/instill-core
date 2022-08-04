@@ -88,7 +88,7 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
-	@make build
+	@make build PROFILE=all
 	@make dev PROFILE=all
 	@cd dev/pipeline-backend && HOSTNAME=localhost make integration-test
 	@cd dev/connector-backend && HOSTNAME=localhost make integration-test
