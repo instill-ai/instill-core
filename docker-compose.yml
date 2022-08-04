@@ -228,7 +228,6 @@ services:
     image: instill/mgmt-backend:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8084
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce

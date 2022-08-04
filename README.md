@@ -19,11 +19,11 @@
 
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
-1. **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
+- **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
 
-2. **Transform** it into analysable structured data by Vision AI models
+- **Transform** it into analysable structured data by Vision AI models
 
-3. **Load** the transformed data into warehouses, applications, or other destinations
+- **Load** the transformed data into warehouses, applications, or other destinations
 
 ## Highlights
 
@@ -173,7 +173,7 @@ We love contribution to VDP in any forms:
 
   - [vdp](https://github.com/instill-ai/vdp) for general issues;
 
-  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [mgmt-backend](https://github.com/instill-ai/mgmt-backend), etc., for backend-specific issues.
+  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [console](https://github.com/instill-ai/console), etc., for specific issues.
 
 - Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress.
 
