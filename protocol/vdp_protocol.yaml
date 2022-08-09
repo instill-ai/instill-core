@@ -138,7 +138,7 @@ definitions:
     required:
       - raw_output
     properties:
-      raw_output:
+      raw_outputs:
         description: "The raw output of the model"
         type: array
         items:
