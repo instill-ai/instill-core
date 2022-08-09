@@ -136,7 +136,7 @@ definitions:
     type: object
     additionalProperties: true
     required:
-      - raw_output
+      - raw_outputs
     properties:
       raw_outputs:
         description: "The raw output of the model"
