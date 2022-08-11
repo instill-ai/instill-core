@@ -15,9 +15,17 @@ definitions:
   TaskOutput:
     type: object
     additionalProperties: true
-    minProperties: 2
     required:
       - task
+    anyOf:
+      - required:
+          - classification
+      - required:
+          - detection
+      - required:
+          - keypoint
+      - required:
+          - unspecified
     properties:
       task:
         description: "Task type"
