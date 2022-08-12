@@ -12,10 +12,10 @@ properties:
     description: "Task type"
     type: string
     enum:
-      - CLASSIFICATION
-      - DETECTION
-      - KEYPOINT
-      - UNSPECIFIED
+      - TASK_CLASSIFICATION
+      - TASK_DETECTION
+      - TASK_KEYPOINT
+      - TASK_UNSPECIFIED
   batch_outputs:
     "$ref": "#/definitions/BatchOutputs"
 definitions:
