@@ -13,10 +13,13 @@
 
 # Visual Data Preparation (VDP)  &nbsp; [![Twitter URL](https://img.shields.io/twitter/url?logo=twitter&style=social&url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp&via=instill_tech&text=Build%20end-to-end%20visual%20data%20processing%20pipelines%20with%20VDP%2C%2010x%20faster.&hashtags=ETL%2Cvdp%2Cdata%2Cai%2Cml%2Copensource)
 
-[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?color=blue&include_prereleases)](https://github.com/instill-ai/vdp/releases)
-[![License Apache-2.0](https://img.shields.io/crates/l/ap)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
-[![Discord](https://img.shields.io/discord/928991293856681984?color=blue&label=community&logo=discord&logoColor=fff)](https://discord.gg/sevxWsqpGh)
-[![Integration Test](https://img.shields.io/github/workflow/status/instill-ai/vdp/Integration%20Test/main?&label=integration%20test&logoColor=fff)](https://github.com/instill-ai/vdp/actions/workflows/integration-test.yml)
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?&label=Release&color=blue&include_prereleases&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgOEg3VjRIMjNWMTdIMjFDMjEgMTguNjYgMTkuNjYgMjAgMTggMjBDMTYuMzQgMjAgMTUgMTguNjYgMTUgMTdIOUM5IDE4LjY2IDcuNjYgMjAgNiAyMEM0LjM0IDIwIDMgMTguNjYgMyAxN0gxVjEyTDQgOFpNMTggMThDMTguNTUgMTggMTkgMTcuNTUgMTkgMTdDMTkgMTYuNDUgMTguNTUgMTYgMTggMTZDMTcuNDUgMTYgMTcgMTYuNDUgMTcgMTdDMTcgMTcuNTUgMTcuNDUgMTggMTggMThaTTQuNSA5LjVMMi41NCAxMkg3VjkuNUg0LjVaTTYgMThDNi41NSAxOCA3IDE3LjU1IDcgMTdDNyAxNi40NSA2LjU1IDE2IDYgMTZDNS40NSAxNiA1IDE2LjQ1IDUgMTdDNSAxNy41NSA1LjQ1IDE4IDYgMThaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)](https://github.com/instill-ai/vdp/releases)
+[![License Apache-2.0](https://img.shields.io/crates/l/ap?label=License&color=blue&logo=apache)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
+[![Discord](https://img.shields.io/discord/928991293856681984?color=blue&label=Community&logo=discord&logoColor=fff)](https://discord.gg/sevxWsqpGh)
+[![Pipeline-backend Docker pull](https://img.shields.io/docker/pulls/instill/pipeline-backend?label=Docker&logo=docker&logoColor=fff)](https://hub.docker.com/u/instill)
+[![Integration test](https://img.shields.io/github/workflow/status/instill-ai/vdp/Integration%20Test?label=Test&logoColor=fff&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wIDEuNzVDMCAwLjc4NCAwLjc4NCAwIDEuNzUgMEg1LjI1QzYuMjE2IDAgNyAwLjc4NCA3IDEuNzVWNS4yNUM3IDUuNzE0MTMgNi44MTU2MyA2LjE1OTI1IDYuNDg3NDQgNi40ODc0NEM2LjE1OTI1IDYuODE1NjMgNS43MTQxMyA3IDUuMjUgN0g0VjExQzQgMTEuMjY1MiA0LjEwNTM2IDExLjUxOTYgNC4yOTI4OSAxMS43MDcxQzQuNDgwNDMgMTEuODk0NiA0LjczNDc4IDEyIDUgMTJIOVYxMC43NUM5IDkuNzg0IDkuNzg0IDkgMTAuNzUgOUgxNC4yNUMxNS4yMTYgOSAxNiA5Ljc4NCAxNiAxMC43NVYxNC4yNUMxNiAxNC43MTQxIDE1LjgxNTYgMTUuMTU5MiAxNS40ODc0IDE1LjQ4NzRDMTUuMTU5MiAxNS44MTU2IDE0LjcxNDEgMTYgMTQuMjUgMTZIMTAuNzVDMTAuMjg1OSAxNiA5Ljg0MDc1IDE1LjgxNTYgOS41MTI1NiAxNS40ODc0QzkuMTg0MzcgMTUuMTU5MiA5IDE0LjcxNDEgOSAxNC4yNVYxMy41SDVDNC4zMzY5NiAxMy41IDMuNzAxMDcgMTMuMjM2NiAzLjIzMjIzIDEyLjc2NzhDMi43NjMzOSAxMi4yOTg5IDIuNSAxMS42NjMgMi41IDExVjdIMS43NUMxLjI4NTg3IDcgMC44NDA3NTIgNi44MTU2MyAwLjUxMjU2MyA2LjQ4NzQ0QzAuMTg0Mzc0IDYuMTU5MjUgMCA1LjcxNDEzIDAgNS4yNUwwIDEuNzVaTTEuNzUgMS41QzEuNjgzNyAxLjUgMS42MjAxMSAxLjUyNjM0IDEuNTczMjIgMS41NzMyMkMxLjUyNjM0IDEuNjIwMTEgMS41IDEuNjgzNyAxLjUgMS43NVY1LjI1QzEuNSA1LjM4OCAxLjYxMiA1LjUgMS43NSA1LjVINS4yNUM1LjMxNjMgNS41IDUuMzc5ODkgNS40NzM2NiA1LjQyNjc4IDUuNDI2NzhDNS40NzM2NiA1LjM3OTg5IDUuNSA1LjMxNjMgNS41IDUuMjVWMS43NUM1LjUgMS42ODM3IDUuNDczNjYgMS42MjAxMSA1LjQyNjc4IDEuNTczMjJDNS4zNzk4OSAxLjUyNjM0IDUuMzE2MyAxLjUgNS4yNSAxLjVIMS43NVpNMTAuNzUgMTAuNUMxMC42ODM3IDEwLjUgMTAuNjIwMSAxMC41MjYzIDEwLjU3MzIgMTAuNTczMkMxMC41MjYzIDEwLjYyMDEgMTAuNSAxMC42ODM3IDEwLjUgMTAuNzVWMTQuMjVDMTAuNSAxNC4zODggMTAuNjEyIDE0LjUgMTAuNzUgMTQuNUgxNC4yNUMxNC4zMTYzIDE0LjUgMTQuMzc5OSAxNC40NzM3IDE0LjQyNjggMTQuNDI2OEMxNC40NzM3IDE0LjM3OTkgMTQuNSAxNC4zMTYzIDE0LjUgMTQuMjVWMTAuNzVDMTQuNSAxMC42ODM3IDE0LjQ3MzcgMTAuNjIwMSAxNC40MjY4IDEwLjU3MzJDMTQuMzc5OSAxMC41MjYzIDE0LjMxNjMgMTAuNSAxNC4yNSAxMC41SDEwLjc1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==)](https://github.com/instill-ai/vdp/actions/workflows/integration-test.yml)
+[![Documentation deployment workflow](https://img.shields.io/github/workflow/status/instill-ai/instill.tech/deploy-to-prod?label=Docs&logoColor=fff&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNiAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wIDAuNzUwMDA0QzAgMC41NTEwOTEgMC4wNzkwMTc2IDAuMzYwMzI2IDAuMjE5NjcgMC4yMTk2NzRDMC4zNjAzMjIgMC4wNzkwMjEzIDAuNTUxMDg4IDMuNjgxOTFlLTA2IDAuNzUgMy42ODE5MWUtMDZINS4wMDNDNi4yMyAzLjY4MTkxZS0wNiA3LjMyIDAuNTkwMDA0IDguMDAzIDEuNTAxQzguMzUyMTggMS4wMzQzMyA4LjgwNTQ4IDAuNjU1NjI3IDkuMzI2ODMgMC4zOTUwNDJDOS44NDgxNyAwLjEzNDQ1NiAxMC40MjMyIC0wLjAwMDgxMzY0NiAxMS4wMDYgMy42ODE5MWUtMDZIMTUuMjUxQzE1LjQ0OTkgMy42ODE5MWUtMDYgMTUuNjQwNyAwLjA3OTAyMTMgMTUuNzgxMyAwLjIxOTY3NEMxNS45MjIgMC4zNjAzMjYgMTYuMDAxIDAuNTUxMDkxIDE2LjAwMSAwLjc1MDAwNFYxMS4yNUMxNi4wMDEgMTEuNDQ4OSAxNS45MjIgMTEuNjM5NyAxNS43ODEzIDExLjc4MDNDMTUuNjQwNyAxMS45MjEgMTUuNDQ5OSAxMiAxNS4yNTEgMTJIMTAuNzQ0QzEwLjQ0ODUgMTIgMTAuMTU1OSAxMi4wNTgyIDkuODgyOTYgMTIuMTcxM0M5LjYwOTk3IDEyLjI4NDMgOS4zNjE5MyAxMi40NTAxIDkuMTUzIDEyLjY1OUw4LjUzMSAxMy4yOEM4LjM5MDM3IDEzLjQyMDUgOC4xOTk3NSAxMy40OTkzIDguMDAxIDEzLjQ5OTNDNy44MDIyNSAxMy40OTkzIDcuNjExNjMgMTMuNDIwNSA3LjQ3MSAxMy4yOEw2Ljg0OSAxMi42NTlDNi42NDAwNyAxMi40NTAxIDYuMzkyMDMgMTIuMjg0MyA2LjExOTA0IDEyLjE3MTNDNS44NDYwNiAxMi4wNTgyIDUuNTUzNDggMTIgNS4yNTggMTJIMC43NUMwLjU1MTA4OCAxMiAwLjM2MDMyMiAxMS45MjEgMC4yMTk2NyAxMS43ODAzQzAuMDc5MDE3NiAxMS42Mzk3IDAgMTEuNDQ4OSAwIDExLjI1TDAgMC43NTAwMDRaTTguNzU1IDMuNzVDOC43NTUgMy4xNTMyNyA4Ljk5MjA1IDIuNTgwOTcgOS40MTQwMSAyLjE1OTAxQzkuODM1OTcgMS43MzcwNiAxMC40MDgzIDEuNSAxMS4wMDUgMS41SDE0LjVWMTAuNUgxMC43NDNDMTAuMDMzIDEwLjUgOS4zNDMgMTAuNzAxIDguNzUxIDExLjA3Mkw4Ljc1NSAzLjc1VjMuNzVaTTcuMjUxIDExLjA3NEw3LjI1NSA2LjAwMUw3LjI1MyAzLjc0OEM3LjI1MjQ3IDMuMTUxNjEgNy4wMTUxOCAyLjU3OTgzIDYuNTkzMjggMi4xNTgzMUM2LjE3MTM4IDEuNzM2NzggNS41OTkzOSAxLjUgNS4wMDMgMS41SDEuNVYxMC41SDUuMjU3QzUuOTYyNDIgMTAuNSA2LjY1MzU1IDEwLjY5ODkgNy4yNTEgMTEuMDc0VjExLjA3NFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=)](https://github.com/instill-ai/instill.tech/actions/workflows/deploy-prod.yml)
+
 
 **Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
 
@@ -70,7 +73,7 @@ The core concept of VDP is **_pipeline_**. A pipeline is an end-to-end workflow 
 
 3. **destination**: where to send the structured outputs
 
-Based on [the mode of a pipeline](docs/pipeline-mode.md), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
+Based on [pipeline mode](https://www.instill.tech/docs/core-concepts/pipeline#mode), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
 
 Check out the pipeline recipe example below. This recipe defines that the pipeline accepts HTTP requests, processes the request data using YOLOv4 model, and returns the outputs in HTTP responses. With this simple configuration, now we have a pipeline equivalent to a powerful HTTP prediction server 🚀.
 ```JSON
@@ -84,10 +87,6 @@ Check out the pipeline recipe example below. This recipe defines that the pipeli
     }
 }
 ```
-
-> **Note**
->
-> We use **connector** as a general term to represent data source and destination. Please find the supported connectors [here](docs/connector.md).
 
 ### Guidance philosophy
 VDP is built with open heart and we expect VDP to be exposed to more MLOps integrations. It is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
@@ -119,7 +118,9 @@ $ make all
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
 
-Here is a [step-by-step guide](docs/quickstart.md) to build your first pipeline.
+Jump right in 
+- [Build your first SYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-a-sync-cls-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
+- [Build your first ASYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-an-async-det-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
 
 > **Warning**
 >
@@ -131,13 +132,6 @@ To shut down all running services:
 ```
 $ make down
 ```
-
-<!-- ### Low-code examples -->
-
-<!-- Based on the API-first design, the use of VDO should be as simple as making API calls. A number of code examples can be found in the `examples/` folder. -->
-
-<!-- ### Create a pipeline with your own models -->
-<!-- Please follow the [guideline](docs/model.md#prepare-your-own-model-to-deploy-on-vdp) to build pipelines with your own model. -->
 
 ## Model Hub
 
@@ -154,7 +148,10 @@ Note: The `GitHub-DVC` source in the table means importing a model into VDP from
 
 ## Documentation
 
-📔 **Documentation & tutorials are coming soon!**
+📔 **Documentation**
+
+ 
+ Check out the [documentation & tutorials](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) to learn VDP!
 
 📘 **API Reference**
 
@@ -166,7 +163,7 @@ For the OpenAPI documentation, access http://localhost:3001 after `make all`, or
 
 We love contribution to VDP in any forms:
 
-- Please refer to the [guide](docs/development.md) for local development.
+- Please refer to the [guideline](https://www.instill.tech/docs/development/setup-local-development/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) for local development.
 
 - Please open a topic in the repository [Discussions](https://github.com/instill-ai/vdp/discussions) for any feature requests.
 
