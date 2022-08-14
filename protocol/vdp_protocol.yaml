@@ -1,28 +1,33 @@
 ---
 "$schema": http://json-schema.org/draft-07/schema#
 "$id": https://github.com/instill-ai/vdp/blob/main/protocol/vdp_protocol.yaml
-title: VDP_Protocol
+title: VdpProtocol
 type: object
-description: VDP Protocol structures
-required:
-  - task
-  - batch_outputs
+description: VdpProtocol structs
 properties:
-  task:
-    description: "Task type"
-    type: string
-    enum:
-      - TASK_CLASSIFICATION
-      - TASK_DETECTION
-      - TASK_KEYPOINT
-      - TASK_UNSPECIFIED
-  batch_outputs:
-    "$ref": "#/definitions/BatchOutputs"
+  model_instance_output:
+    "$ref": "#/definitions/ModelInstanceOutput"
 definitions:
-  BatchOutputs:
-    type: array
-    items:
-      "$ref": "#/definitions/TaskOutput"
+  ModelInstanceOutput:
+    type: object
+    additionalProperties: true
+    required:
+      - task
+      - batch_outputs
+    properties:
+      task:
+        description: "Task type"
+        type: string
+        enum:
+          - TASK_CLASSIFICATION
+          - TASK_DETECTION
+          - TASK_KEYPOINT
+          - TASK_UNSPECIFIED
+      batch_outputs:
+        description: "a list of inference output for a specific CV Task"
+        type: array
+        items:
+          "$ref": "#/definitions/TaskOutput"
   TaskOutput:
     type: object
     additionalProperties: true
