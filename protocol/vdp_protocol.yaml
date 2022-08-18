@@ -22,6 +22,7 @@ definitions:
           - TASK_CLASSIFICATION
           - TASK_DETECTION
           - TASK_KEYPOINT
+          - TASK_OCR
           - TASK_UNSPECIFIED
       batch_outputs:
         description: "a list of inference output for a specific CV Task"
@@ -39,17 +40,22 @@ definitions:
       - required:
           - keypoint
       - required:
+          - ocr
+      - required:
           - unspecified
     properties:
       classification:
         description: "Classify into pre-defined categories"
         "$ref": "#/definitions/Classification"
       detection:
-        description: "Detect and localize multiple objects"
+        description: "Detect and localise multiple objects"
         "$ref": "#/definitions/Detection"
       keypoint:
-        description: "Detect and localize keypoints of multiple objects"
+        description: "Detect and localise keypoints of multiple objects"
         "$ref": "#/definitions/Keypoint"
+      ocr:
+        description: "Detect, localise and recognise texts"
+        "$ref": "#/definitions/Ocr"
       unspecified:
         description: "Unspecified task with output in the free form"
         "$ref": "#/definitions/Unspecified"
@@ -83,26 +89,7 @@ definitions:
             - score
           properties:
             bounding_box:
-              description: "The detected bounding box in (top, left, width, height) format"
-              type: object
-              required:
-                - top
-                - left
-                - width
-                - height
-              properties:
-                top:
-                  description: "Bounding box top y-axis value"
-                  type: number
-                left:
-                  description: "Bounding box left x-axis value"
-                  type: number
-                width:
-                  description: "Bounding box width value"
-                  type: number
-                height:
-                  description: "Bounding box height value"
-                  type: number
+              "$ref": "#/definitions/BoundingBox"
             category:
               description: "The predicted category of the bounding box"
               type: string
@@ -146,6 +133,23 @@ definitions:
             score:
               description: "The confidence score of the predicted object"
               type: number
+  Ocr:
+    type: object
+    additionalProperties: true
+    required:
+      - bounding_boxes
+      - texts
+    properties:
+      bounding_boxes:
+        description: "A list of detected bounding boxes"
+        type: array
+        items:
+          "$ref": "#/definitions/BoundingBox"
+      texts:
+        description: "Text string recognised per bounding box in the `bounding_boxes`"
+        type: array
+        items:
+          type: string
   Unspecified:
     type: object
     additionalProperties: true
@@ -178,3 +182,25 @@ definitions:
               description: "The output data"
               type: array
               items: {} # Allow any type
+  BoundingBox:
+    type: object
+    description: "The detected bounding box in (top, left, width, height) format"
+    additionalProperties: true
+    required:
+      - top
+      - left
+      - width
+      - height
+    properties:
+      top:
+        description: "Bounding box top y-axis value"
+        type: number
+      left:
+        description: "Bounding box left x-axis value"
+        type: number
+      width:
+        description: "Bounding box width value"
+        type: number
+      height:
+        description: "Bounding box height value"
+        type: number
