@@ -3,7 +3,7 @@
 </h1>
 
 <h4 align="center">
-    <a href="https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Doc</a> | 
+    <a href="https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Doc</a> |
     <a href="https://www.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Website</a> |
     <a href="https://discord.gg/sevxWsqpGh">Community</a> |
     <a href="https://blog.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Blog</a>
@@ -31,73 +31,27 @@
 
 ## Highlights
 
-- 🚀 **The fastest way to build end-to-end visual data pipelines** - building a pipeline is like assembling LEGO blocks
+- 🚀 **[The fastest way to build end-to-end visual data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
 
-- ⚡️ **High-performing backends** implemented in Go with [Triton Inference Server](https://github.com/triton-inference-server/server) for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
+- ⚡️ **[High-performing backends](https://www.instill.tech/docs/prepare-models/overview)** implemented in Go with Triton Inference Server for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
 
-- 🖱️ **One-click import & deploy ML/DL models** from popular GitHub, [Hugging Face](https://huggingface.co) or cloud storage managed by version control tools like [DVC](https://dvc.org) or [ArtiVC](https://artivc.io)
+- 🖱️ **[One-click import & deploy ML/DL models]((https://www.instill.tech/docs/import-models/overview))** from GitHub, Hugging Face or cloud storage managed by version control tools like DVC or ArtiVC
 
-- 📦 **Standardised vision task** structured output formats to streamline with data warehouse
+- 📦 **[Standardised CV Task](https://www.instill.tech/docs/core-concepts/cv-task)** structured output formats to streamline with data warehouse
 
-- 🔌 **Pre-built ETL data connectors** for extensive data access integrated with [Airbyte](https://github.com/airbytehq/airbyte)
+- 🔌 **[Pre-built ETL data connectors](https://www.instill.tech/docs/core-concepts/connector)** for extensive data access integrated with Airbyte
 
-- 🪢 **Build pipelines for diverse scenarios** - **SYNC** for real-time inference and **ASYNC** for on-demand workload
+- 🪢 **[Build pipelines for diverse scenarios](https://www.instill.tech/docs/core-concepts/pipeline#mode)** - **SYNC** mode for real-time inference and **ASYNC** mode for on-demand workload
 
-- 🧁 **Scalable API-first microservice design for great developer experience** - seamless integration to modern data stack at any scale
+- 🧁 **[Scalable API-first microservice design for great developer experience](https://product-website-ocsqyfm11-instill-ai.vercel.app/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
 
-- 🤠 **Build for every Vision AI and Data practitioner** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
+- 🤠 **[Build for every Vision AI and Data practitioner](https://product-website-ocsqyfm11-instill-ai.vercel.app/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
 ## Online demos
 
 Want to showcase your ML/DL models? We also offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
 
-#### Object Detection: YOLOv4 vs. YOLOv7
-We use VDP to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference. Try out the live demo [![VDP Demo](https://img.shields.io/badge/VDP-YOLOv4%20vs%20YOLOv7%20Demo-blue)](https://demo.instill.tech/yolov4-vs-yolov7)
-
-## Why we build VDP
-
-Before we started to build VDP, we had fought with streaming large volume data (billions of images a day!) to automate vision tasks using deep learning-based computer vision, sweating blood to build everything from scratch.
-
-We've learned that model serving for an effective end-to-end data flow concerns not only **high throughput** and **low latency** but also **cost efficiency**, and these criteria are non-trivial to achieve altogether. Nonetheless, we had successfully built a battle-proven model serving system in-house and have the system run in production for years.
-
-What we had built can actually be modularised into working components to be generalised to a broader spectrum of vision tasks and industry sectors. We think it's about time to share the experiences and to extend the system to make Vision AI more accessible to everyone.
-
-The goal of VDP is to seamlessly bring Vision AI into the modern data stack with a standardised framework. Check our blog post [Missing piece in modern data stack: visual data preparation](https://blog.instill.tech/visual-data-preparation/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) on how this tool can make a significant impact on unstructured visual data processing across different stakeholders.
-
-## How VDP works
-
-The core concept of VDP is **_pipeline_**. A pipeline is an end-to-end workflow that automates a sequence of tasks to process visual data. Each pipeline is defined and formed by a _recipe_ that contains three components:
-1. **source**: where the pipeline starts. It connects the source of image and video data to be processed.
-
-2. **model instances**: a series of deployed Vision AI models to process the ingested visual data in parallel and generate structured outputs
-
-3. **destination**: where to send the structured outputs
-
-Based on [pipeline mode](https://www.instill.tech/docs/core-concepts/pipeline#mode), it will extract and process the visual data, and send the outputs to the destination every time the trigger event occurs.
-
-Check out the pipeline recipe example below. This recipe defines that the pipeline accepts HTTP requests, processes the request data using YOLOv4 model, and returns the outputs in HTTP responses. With this simple configuration, now we have a pipeline equivalent to a powerful HTTP prediction server 🚀.
-```JSON
-{
-    "recipe": {
-        "source": "source-connectors/source-http",
-        "model_instances": [
-            "models/yolov4/instances/v1.0-cpu"
-        ],
-        "destination": "destination-connectors/destination-http"
-    }
-}
-```
-
-### Guidance philosophy
-VDP is built with open heart and we expect VDP to be exposed to more MLOps integrations. It is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
-
-- [Triton Inference Server](https://github.com/triton-inference-server/server) for high-performance model serving
-
-- [Temporal](https://github.com/temporalio/temporal) for a reliable, durable and scalable workflow engine
-
-- [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
-
-We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
+- [![VDP Demo](https://img.shields.io/badge/VDP-Object%20Detection:%20YOLOv4%20vs%20YOLOv7-blue)](https://demo.instill.tech/yolov4-vs-yolov7)
 
 ## Prerequisites
 
@@ -118,11 +72,11 @@ $ make all
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
 
-Jump right in 
+Jump right in
 - [Build your first SYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-a-sync-cls-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
 - [Build your first ASYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-an-async-det-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
 
-> **Warning**
+> **Note**
 >
 > The image of model-backend (~2GB) and Triton Inference Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
@@ -132,6 +86,29 @@ To shut down all running services:
 ```
 $ make down
 ```
+### Guidance philosophy
+VDP is built with open heart and we expect VDP to be exposed to more MLOps integrations. It is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
+
+- [Triton Inference Server](https://github.com/triton-inference-server/server) for high-performance model serving
+
+- [Temporal](https://github.com/temporalio/temporal) for a reliable, durable and scalable workflow engine
+
+- [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
+
+We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
+
+## Documentation
+
+📔 **Documentation**
+
+
+ Check out the [documentation & tutorials](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) to learn VDP!
+
+📘 **API Reference**
+
+The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
+
+For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
 ## Model Hub
 
@@ -146,18 +123,6 @@ We curate a list of ready-to-use models for VDP. These models are from different
 
 Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
 
-## Documentation
-
-📔 **Documentation**
-
- 
- Check out the [documentation & tutorials](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) to learn VDP!
-
-📘 **API Reference**
-
-The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
-
-For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
 ## Contribution
 
