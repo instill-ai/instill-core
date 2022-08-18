@@ -8,14 +8,15 @@ TEMPORAL := temporal temporal_admin_tools temporal_ui
 include .env
 export
 
-NVIDIA_SMI := $(shell nvidia-smi 2>/dev/null 1>&2; echo $$?)
-ifeq ($(NVIDIA_SMI),0)
-	TRITONSERVER_RUNTIME := nvidia
-endif
-
 TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:${TRITON_SERVER_VERSION}-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3)
 TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-m1,instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu)
 REDIS_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),arm64v8/redis:${REDIS_VERSION}-alpine,amd64/redis:${REDIS_VERSION}-alpine)
+
+NVIDIA_SMI := $(shell nvidia-smi 2>/dev/null 1>&2; echo $$?)
+ifeq ($(NVIDIA_SMI),0)
+	TRITONSERVER_RUNTIME := nvidia
+	TRITONCONDAENV_IMAGE_TAG := instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-gpu
+endif
 
 #============================================================================
 
