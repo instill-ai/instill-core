@@ -43,7 +43,7 @@
 
 - 🪢 **[Build pipelines for diverse scenarios](https://www.instill.tech/docs/core-concepts/pipeline#mode)** - **SYNC** mode for real-time inference and **ASYNC** mode for on-demand workload
 
-- 🧁 **[Scalable API-first microservice design for great developer experience](https://product-website-ocsqyfm11-instill-ai.vercel.app/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
+- 🧁 **[Scalable API-first microservice design for great developer experience](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
 
 - 🤠 **[Build for every Vision AI and Data practitioner](https://product-website-ocsqyfm11-instill-ai.vercel.app/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
