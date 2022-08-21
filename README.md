@@ -123,8 +123,19 @@ We curate a list of ready-to-use models for VDP. These models are from different
 
 Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
 
+## Community support
 
-## Contribution
+For general help using VDP, you can use one of these channels:
+
+- [GitHub](https://github.com/instill-ai/vdp) - bug reports, feature requests, project discussions and contributions
+
+- [Discord](https://discord.gg/sevxWsqpGh) - live discussion with the community and our team
+
+- [Newsletter](https://www.instill.tech/newsletter/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) & [Twitter](https://twitter.com/instill_tech) - get the latest updates
+
+If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
+
+## Contributing
 
 We love contribution to VDP in any forms:
 
@@ -143,17 +154,21 @@ We love contribution to VDP in any forms:
 > **Note**
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
-## Community support
+## Contributors
 
-For general help using VDP, you can use one of these channels:
+Thanks go to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
-- [GitHub](https://github.com/instill-ai/vdp) - bug reports, feature requests, project discussions and contributions
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
 
-- [Discord](https://discord.gg/sevxWsqpGh) - live discussion with the community and our team
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
 
-- [Newsletter](https://www.instill.tech/newsletter/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) & [Twitter](https://twitter.com/instill_tech) - get the latest updates
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
-If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
+This project follows the [all-contributors](https://allcontributors.org) specification.
+Contributions of any kind are welcome!
 
 ## License
 
