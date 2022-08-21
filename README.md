@@ -161,6 +161,11 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/pinglin"><img src="https://avatars.githubusercontent.com/u/628430?v=4" width="100px;" alt="" style="border-radius:50%"/><br /><sub><b>Ping-Lin Chang</b></sub></a></td>
+  </tr>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
