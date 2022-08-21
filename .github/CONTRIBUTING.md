@@ -4,15 +4,22 @@ Hello! Thanks for your interest in contributing to the codebase.
 
 ## How to contribute
 
-We encourage contributions and use [All Contributions](https://allcontributors.org/) to maintain a list of all the people who have contributed to VDP.
+We love contribution to VDP in any forms:
 
-To acknowledge a contribution, add a comment on issue or Pull Request (PR)
-```
-@all-contributors please add @<username> for <contributions>
-```
-The all-contributions Bot will open a PR to add the contributor to the README.
+- Please refer to the [guideline](https://www.instill.tech/docs/development/setup-local-development/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) for local development.
 
-Commonly used contribution types includes `design`, `doc`, `bug`, `code` and `ideas`. See [the full list of valid `contribution` types](https://allcontributors.org/docs/en/emoji-key).
+- Please open a topic in the repository [Discussions](https://github.com/instill-ai/vdp/discussions) for any feature requests.
+
+- Please open issues for bug report in the repository
+
+  - [vdp](https://github.com/instill-ai/vdp) for general issues;
+
+  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [console](https://github.com/instill-ai/console), etc., for specific issues.
+
+- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress.
+
+> **Note**
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 
 
