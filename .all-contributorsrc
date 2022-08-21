@@ -7,7 +7,21 @@
   "contributorsSortAlphabetically": false,
   "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square)](#contributors)",
   "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\" style=\"border-radius:50%\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
-  "skipCi": "true",
+  "skipCi": true,
   "commitConvention": "angular",
-  "contributors": []
+  "contributors": [
+    {
+      "login": "pinglin",
+      "name": "Ping-Lin Chang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/628430?v=4",
+      "profile": "https://github.com/pinglin",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "projectName": "vdp",
+  "projectOwner": "instill-ai",
+  "repoType": "github",
+  "repoHost": "https://github.com"
 }
