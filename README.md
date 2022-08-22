@@ -29,6 +29,8 @@
 
 - **Load** the transformed data into warehouses, applications, or other destinations
 
+![VDO Concept](https://artifacts.instill.tech/imgs/vdp-concept.png?id=1)
+
 ## Highlights
 
 - 🚀 **[The fastest way to build end-to-end visual data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
@@ -49,13 +51,17 @@
 
 ## Online demos
 
-Want to showcase your ML/DL models? We also offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
+An online demo VDP instance has been provisioned, in which you can directly play around the basic features in its Console via https://demo.instill.tech and the API (e.g., https://demo.instill.tech/v1alpha/pipelines).
 
-- [![VDP Demo](https://img.shields.io/badge/VDP-Object%20Detection:%20YOLOv4%20vs%20YOLOv7-blue)](https://demo.instill.tech/yolov4-vs-yolov7)
+A number of applications that you can possibly use VDP to quickly achieve are showcased below:
+
+- [![Object Detection Demo](https://img.shields.io/badge/Object%20Detection-%20YOLOv4%20vs%20YOLOv7-pink)](https://demo.instill.tech/yolov4-vs-yolov7)
+
+Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
 
 ## Prerequisites
 
-- **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows.
+- **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (compose file version: `3.9`) to run all services at local. Please install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
 
@@ -71,6 +77,8 @@ $ make all
 ```
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
+
+![VDO Console](https://artifacts.instill.tech/imgs/vdp-console.png?)
 
 Jump right in
 - [Build your first SYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-a-sync-cls-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
