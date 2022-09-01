@@ -23,9 +23,9 @@ jobs:
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:examples/streamlit/yolov4-vs-yolov7"
+          context: "{{defaultContext}}:examples/streamlit/yolov7"
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: instill/streamlit-yolov4-vs-yolov7:latest
-          cache-from: type=registry,ref=instill/streamlit-yolov4-vs-yolov7:buildcache
-          cache-to: type=registry,ref=instill/streamlit-yolov4-vs-yolov7:buildcache,mode=max
+          tags: instill/streamlit-yolov7:latest
+          cache-from: type=registry,ref=instill/streamlit-yolov7:buildcache
+          cache-to: type=registry,ref=instill/streamlit-yolov7:buildcache,mode=max
