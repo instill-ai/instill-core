@@ -34,11 +34,11 @@ Now go to `http://localhost:8501/` 🎉
 ## Deploy the demo using Docker
 Build a Docker image
 ```bash
-$ docker build -t vdp-streamlit .
+$ docker build -t streamlit-yolov4-vs-yolov7 .
 ```
 Run the Docker container and connect to VDP 
 ```bash
-$ docker run -p 8501:8501 --network instill-network vdp-steamlit -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://pipeline-backend:8081 --yolov4=yolov4 --yolov7=yolov7
+$ docker run -p 8501:8501 --network instill-network streamlit-yolov4-vs-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://pipeline-backend:8081 --yolov4=yolov4 --yolov7=yolov7
 
 You can now view your Streamlit app in your browser.
 
