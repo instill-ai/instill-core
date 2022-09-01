@@ -1,4 +1,4 @@
-# streamlit-yolov7
+# YOLOv7 demo
 
 This demo is to showcase [YOLOv4](https://github.com/AlexeyAB/darknet) vs. [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with [MS-COCO](https://cocodataset.org) dataset. 
 
