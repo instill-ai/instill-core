@@ -1,10 +1,6 @@
 # YOLOv7 demo
 
-This demo is to showcase using VDP to quickly set up a [YOLOv7](https://github.com/WongKinYiu/yolov7) object detection pipeline. It also uses Streamlit to qualitatively compare the detection results with a [YOLOv4](https://github.com/AlexeyAB/darknet) pipeline.
-
-It is built with
-- [VDP](https://github.com/instill-ai/vdp) as the backbone of the Computer Vision (CV) task solver, and
-- [Streamlit](https://streamlit.io) as the application framework to build beautiful UI components.
+This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [YOLOv7](https://github.com/WongKinYiu/yolov7) object detection pipeline. It also uses [Streamlit](https://streamlit.io) to qualitatively compare the detection results with a [YOLOv4](https://github.com/AlexeyAB/darknet) pipeline.
 
 ## Preparation
 Run VDP locally
@@ -14,7 +10,7 @@ $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 $ make all
 ```
 
- Create two pipelines: `yolov4` and `yolov7` by following the [tutorial](https://blog.instill.tech/vdp-streamlit-yolov4-vs-yolov7).
+ Create two pipelines: `yolov4` and `yolov7` by following the [tutorial](https://blog.instill.tech/vdp-streamlit-yolov7).
 
 ## How to run the demo
 Run the following command
@@ -34,11 +30,11 @@ Now go to `http://localhost:8501/` 🎉
 ## Deploy the demo using Docker
 Build a Docker image
 ```bash
-$ docker build -t streamlit-yolov4-vs-yolov7 .
+$ docker build -t streamlit-yolov7 .
 ```
 Run the Docker container and connect to VDP 
 ```bash
-$ docker run -p 8501:8501 --network instill-network streamlit-yolov4-vs-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://pipeline-backend:8081 --yolov4=yolov4 --yolov7=yolov7
+$ docker run -p 8501:8501 --network instill-network streamlit-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://pipeline-backend:8081 --yolov4=yolov4 --yolov7=yolov7
 
 You can now view your Streamlit app in your browser.
 
