@@ -1,6 +1,6 @@
 # YOLOv7 demo
 
-This demo is to showcase [YOLOv4](https://github.com/AlexeyAB/darknet) vs. [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with [MS-COCO](https://cocodataset.org) dataset. 
+This demo is to showcase using VDP to quickly set up a [YOLOv7](https://github.com/WongKinYiu/yolov7) object detection pipeline. It also uses Streamlit to qualitatively compare the detection results with a [YOLOv4](https://github.com/AlexeyAB/darknet) pipeline.
 
 It is built with
 - [VDP](https://github.com/instill-ai/vdp) as the backbone of the Computer Vision (CV) task solver, and
