@@ -22,7 +22,7 @@ services:
       - connector
       - model
       - console
-    container_name: pipeline-backend-migrate
+    container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/pipeline-backend:latest
     build:
       context: ./dev/pipeline-backend
@@ -30,8 +30,8 @@ services:
         - SERVICE_NAME=pipeline-backend
     restart: on-failure
     environment:
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./pipeline-backend-migrate
@@ -46,7 +46,7 @@ services:
       - connector
       - model
       - console
-    container_name: pipeline-backend
+    container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/pipeline-backend:latest
     build:
       context: ./dev/pipeline-backend
@@ -58,21 +58,21 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8084
-      CFG_CONNECTORBACKEND_HOST: connector-backend
-      CFG_CONNECTORBACKEND_PORT: 8082
-      CFG_MODELBACKEND_HOST: model-backend
-      CFG_MODELBACKEND_PORT: 8083
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: "temporal:7233"
-      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: redis:6379
-      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:3000
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PORT: ${MGMT_BACKEND_PORT}
+      CFG_CONNECTORBACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CFG_CONNECTORBACKEND_PORT: ${CONNECTOR_BACKEND_PORT}
+      CFG_MODELBACKEND_HOST: ${MODEL_BACKEND_HOST}
+      CFG_MODELBACKEND_PORT: ${MODEL_BACKEND_PORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - 8081:8081
+      - ${PIPELINE_BACKEND_PORT}:8081
     entrypoint: ./pipeline-backend
     depends_on:
       - pipeline_backend_migrate
@@ -86,7 +86,7 @@ services:
       - pipeline
       - model
       - console
-    container_name: connector-backend-migrate
+    container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: instill/connector-backend:latest
     build:
       context: ./dev/connector-backend
@@ -94,8 +94,8 @@ services:
         - SERVICE_NAME=connector-backend
     restart: on-failure
     environment:
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./connector-backend-migrate
@@ -110,7 +110,7 @@ services:
       - pipeline
       - model
       - console
-    container_name: connector-backend-init
+    container_name: ${CONNECTOR_BACKEND_HOST}-init
     image: instill/connector-backend:latest
     build:
       context: ./dev/connector-backend
@@ -118,8 +118,8 @@ services:
         - SERVICE_NAME=connector-backend
     restart: on-failure
     environment:
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./connector-backend-init
@@ -133,7 +133,7 @@ services:
       - pipeline
       - model
       - console
-    container_name: connector-backend-worker
+    container_name: ${CONNECTOR_BACKEND_HOST}-worker
     image: instill/connector-backend:latest
     build:
       context: ./dev/connector-backend
@@ -143,11 +143,11 @@ services:
     environment:
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
       CFG_WORKER_MOUNTSOURCE_AIRBYTE: airbyte
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     volumes:
       - vdp:/vdp
       - airbyte:/airbyte
@@ -166,7 +166,7 @@ services:
       - pipeline
       - model
       - console
-    container_name: connector-backend
+    container_name: ${CONNECTOR_BACKEND_HOST}
     image: instill/connector-backend:latest
     build:
       context: ./dev/connector-backend
@@ -178,18 +178,18 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8084
-      CFG_PIPELINEBACKEND_HOST: pipeline-backend
-      CFG_PIPELINEBACKEND_PORT: 8081
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
-      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:3000
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PORT: ${MGMT_BACKEND_PORT}
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PORT: ${PIPELINE_BACKEND_PORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - 8082:8082
+      - ${CONNECTOR_BACKEND_PORT}:8082
     entrypoint: ./connector-backend
     depends_on:
       - connector_backend_worker
@@ -201,7 +201,7 @@ services:
       - pipeline
       - connector
       - console
-    container_name: model-backend-migrate
+    container_name: ${MODEL_BACKEND_HOST}-migrate
     image: instill/model-backend:latest
     build:
       context: ./dev/model-backend
@@ -209,8 +209,8 @@ services:
         - SERVICE_NAME=model-backend
     restart: on-failure
     environment:
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./model-backend-migrate
@@ -225,7 +225,7 @@ services:
       - pipeline
       - connector
       - console
-    container_name: model-backend-init
+    container_name: ${MODEL_BACKEND_HOST}-init
     image: instill/model-backend:latest
     build:
       context: ./dev/model-backend
@@ -233,8 +233,8 @@ services:
         - SERVICE_NAME=model-backend
     restart: on-failure
     environment:
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./model-backend-init
@@ -248,7 +248,7 @@ services:
       - pipeline
       - connector
       - console
-    container_name: model-backend
+    container_name: ${MODEL_BACKEND_HOST}
     image: instill/model-backend:latest
     build:
       context: ./dev/model-backend
@@ -260,21 +260,21 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_MGMTBACKEND_HOST: mgmt-backend
-      CFG_MGMTBACKEND_PORT: 8084
-      CFG_PIPELINEBACKEND_HOST: pipeline-backend
-      CFG_PIPELINEBACKEND_PORT: 8081
-      CFG_TRITONSERVER_GRPCURI: triton-server:8001
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: temporal:7233
-      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: redis:6379
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PORT: ${MGMT_BACKEND_PORT}
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PORT: ${PIPELINE_BACKEND_PORT}
+      CFG_TRITONSERVER_GRPCURI: ${TRITON_SERVER_HOST}:${TRITON_SERVER_PORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_TRITONSERVER_MODELSTORE: /model-repository
-      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:3000
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - 8083:8083
+      - ${MODEL_BACKEND_PORT}:8083
     volumes:
       - model_repository:/model-repository
     entrypoint: ./model-backend
@@ -291,7 +291,7 @@ services:
       - connector
       - model
       - console
-    container_name: mgmt-backend-migrate
+    container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/mgmt-backend:latest
     build:
       context: ./dev/mgmt-backend
@@ -301,8 +301,8 @@ services:
     environment:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
     entrypoint: ./mgmt-backend-migrate
     depends_on:
       pg_sql:
@@ -315,7 +315,7 @@ services:
       - connector
       - model
       - console
-    container_name: mgmt-backend-init
+    container_name: ${MGMT_BACKEND_HOST}-init
     image: instill/mgmt-backend:latest
     build:
       context: ./dev/mgmt-backend
@@ -323,9 +323,8 @@ services:
         - SERVICE_NAME=mgmt-backend
     restart: on-failure
     environment:
-      CFG_SERVER_PORT: 8084
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./mgmt-backend-init
@@ -339,7 +338,7 @@ services:
       - connector
       - model
       - console
-    container_name: mgmt-backend
+    container_name: ${MGMT_BACKEND_HOST}
     image: instill/mgmt-backend:latest
     build:
       context: ./dev/mgmt-backend
@@ -351,13 +350,13 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
-      CFG_DATABASE_HOST: pg-sql
-      CFG_DATABASE_PORT: 5432
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:3000
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - 8084:8084
+      - ${MGMT_BACKEND_PORT}:8084
     entrypoint: ./mgmt-backend
     depends_on:
       - mgmt_backend_init
@@ -383,14 +382,14 @@ services:
       - connector
       - model
       - console
-    container_name: triton-server
+    container_name: ${TRITON_SERVER_HOST}
     image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
     environment:
       NVIDIA_VISIBLE_DEVICES: 0
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false --log-verbose=1
     ports:
-      - 8001:8001
+      - ${TRITON_SERVER_PORT}:8001
     volumes:
       - model_repository:/model-repository
       - conda_pack:/conda-pack
@@ -400,8 +399,8 @@ services:
       retries: 10
     shm_size: 2gb
     ulimits:
-        memlock: -1
-        stack: 67108864
+      memlock: -1
+      stack: 67108864
     depends_on:
       - triton_conda_env
 
@@ -413,11 +412,11 @@ services:
       - connector
       - model
       - console
-    container_name: pg-sql
+    container_name: ${POSTGRESQL_HOST}
     image: postgres:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
     ports:
-      - 5432:5432
+      - ${POSTGRESQL_PORT}:5432
     environment:
       POSTGRES_PASSWORD: password
     healthcheck:
@@ -433,18 +432,18 @@ services:
       - connector
       - model
       - console
-    container_name: temporal
+    container_name: ${TEMPORAL_HOST}
     image: temporalio/auto-setup:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       DB: postgresql
-      DB_PORT: 5432
+      DB_PORT: ${POSTGRESQL_PORT}
       POSTGRES_USER: postgres
       POSTGRES_PWD: password
-      POSTGRES_SEEDS: pg-sql
+      POSTGRES_SEEDS: ${POSTGRESQL_HOST}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
     ports:
-      - 7233:7233
+      - ${TEMPORAL_PORT}:7233
     healthcheck:
       test: ["CMD", "tctl", "--address", "temporal:7233", "workflow", "list"]
       interval: 10s
@@ -462,11 +461,11 @@ services:
       - connector
       - model
       - console
-    container_name: temporal-admin-tools
+    container_name: ${TEMPORAL_HOST}-admin-tools
     image: temporalio/admin-tools:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
-      TEMPORAL_CLI_ADDRESS: temporal:7233
+      TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     stdin_open: true
     tty: true
     depends_on:
@@ -480,13 +479,13 @@ services:
       - connector
       - model
       - console
-    container_name: temporal-ui
+    container_name: ${TEMPORAL_UI_HOST}
     image: temporalio/ui:${TEMPORAL_UI_VERSION}
     restart: unless-stopped
     environment:
-      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     ports:
-      - 8088:8080
+      - ${TEMPORAL_UI_PORT}:8080
     depends_on:
       - temporal
 
@@ -498,26 +497,26 @@ services:
       - connector
       - model
       - console
-    container_name: redis
+    container_name: ${REDIS_HOST}
     image: ${REDIS_IMAGE_TAG}
     restart: unless-stopped
     environment:
       ALLOW_EMPTY_PASSWORD: "true"
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
 
   redoc_openapi:
-    container_name: redoc-openapi
-    image: redocly/redoc:v2.0.0-rc.70
+    container_name: ${REDOC_OPENAPI_HOST}
+    image: redocly/redoc:${REDOC_OPENAPI_VERSION}
     environment:
       SPEC_URL: https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
-      - 3001:80
+      - ${REDOC_OPENAPI_PORT}:80
 
   console:
     profiles:
       - all
-    container_name: console
+    container_name: ${CONSOLE_HOST}
     image: instill/console:latest
     build:
       context: ./dev/console
@@ -532,7 +531,7 @@ services:
       MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
       MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
     ports:
-      - 3000:3000
+      - ${CONSOLE_PORT}:3000
     depends_on:
       - mgmt_backend
       - connector_backend
