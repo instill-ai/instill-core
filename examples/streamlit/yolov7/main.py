@@ -13,10 +13,10 @@ from utils import draw_detection, gen_detection_table
 
 def parse_detection_response(resp: requests.Response):
     r""" Parse a detection response in to bounding boxes, categories and scores
-    
+
     Args:
         resp (`requests.Response`): response for standardised object detection task
-    
+
     Returns: parsed outputs, a tuple of 
         List[Tuple[float]]: a list of detected bounding boxes in the format of (top, left, width, height)
         List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
@@ -39,8 +39,9 @@ def parse_detection_response(resp: requests.Response):
                 v.bounding_box.height))
             categories.append(v.category)
             scores.append(v.score)
-        
+
         return boxes_ltwh, categories, scores
+
 
 def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url: str) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
@@ -63,7 +64,8 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
 
     return requests.post("{}/pipelines/{}:trigger".format(pipeline_backend_base_url, pipeline_id), json=body)
 
-def display_intro_markdown():
+
+def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"):
     st.set_page_config(page_title="VDP - YOLOv4 vs. YOLOv7",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
@@ -72,9 +74,9 @@ def display_intro_markdown():
 
     # YOLOv4 vs. YOLOv7
 
-    [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/intent/tweet?hashtags=%2Cvdp%2Cyolov4%2Cyolov7%2Cstreamlit&original_referer=http%3A%2F%2Flocalhost%3A8501%2F&ref_src=twsrc%5Etfw%7Ctwcamp%5Ebuttonembed%7Ctwterm%5Ehashtag%7Ctwgr%5EYOLOv7&text=%F0%9F%94%A5%F0%9F%94%A5%F0%9F%94%A5%20Try%20out%20VDP%20%2B%20YOLOv7%20demo&url={opt.demo_url})
-    [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u={opt.demo_url}&display=popup&ref=plugin&src=share_button)
-    [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url={opt.demo_url})
+    [![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/intent/tweet?hashtags=%2Cvdp%2Cyolov4%2Cyolov7%2Cstreamlit&original_referer=http%3A%2F%2Flocalhost%3A8501%2F&ref_src=twsrc%5Etfw%7Ctwcamp%5Ebuttonembed%7Ctwterm%5Ehashtag%7Ctwgr%5EYOLOv7&text=%F0%9F%94%A5%F0%9F%94%A5%F0%9F%94%A5%20Try%20out%20VDP%20%2B%20YOLOv7%20demo&url={})
+    [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u={}&display=popup&ref=plugin&src=share_button)
+    [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url={})
 
     [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline
 
@@ -95,8 +97,9 @@ def display_intro_markdown():
         
     Let's trigger two pipelines with an input image each:
     
-    """
+    """.format(demo_url, demo_url, demo_url)
     st.markdown(intro_markdown)
+
 
 def display_vdp_markdown():
     vdp_markdown = """
@@ -113,6 +116,7 @@ def display_vdp_markdown():
     With the help of the VDP pipeline, you can start manipulating the data using other structured data tooling in the modern data stack. The results of the above demo will be streamed to the destination data warehouse like:
     """
     st.markdown(vdp_markdown)
+
 
 def display_trigger_request_code():
     request_code = f"""
@@ -133,7 +137,7 @@ def display_trigger_request_code():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--demo-url', type=str,
-                        default='http://localhost:8501', help='demo URL')
+                        default='https://demo.instill.tech/yolov4-vs-yolov7', help='demo URL')
     parser.add_argument('--pipeline-backend-base-url', type=str,
                         default='http://localhost:8081', help='pipeline backend base URL')
     parser.add_argument('--yolov4', type=str,
@@ -145,7 +149,7 @@ if __name__ == "__main__":
 
     pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
 
-    display_intro_markdown()
+    display_intro_markdown(opt.demo_url)
 
     # Use image remote URL to fetch an image in input
     image_url = st.text_input(
@@ -156,7 +160,8 @@ if __name__ == "__main__":
         pipeline_ids = [opt.yolov4, opt.yolov7]
         pipeline_results = []
         for pipeline_id in pipeline_ids:
-            resp = trigger_detection_pipeline(pipeline_backend_base_url, pipeline_id, image_url)
+            resp = trigger_detection_pipeline(
+                pipeline_backend_base_url, pipeline_id, image_url)
             boxes_ltwh, categories, scores = parse_detection_response(resp)
             pipeline_results.append((resp, boxes_ltwh, categories, scores))
 
@@ -168,7 +173,8 @@ if __name__ == "__main__":
         img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         _, col, _ = st.columns([0.2, 0.6, 0.2])
-        col.image(img,use_column_width=True, caption=f"Image source: {image_url}")
+        col.image(img, use_column_width=True,
+                  caption=f"Image source: {image_url}")
 
         """
         #### Results
@@ -192,10 +198,10 @@ if __name__ == "__main__":
         # Show response for each pipeline
         cols = st.columns(len(pipeline_ids))
         for col, (resp, _, _, _) in zip(cols, pipeline_results):
-             if resp.status_code == 200:
+            if resp.status_code == 200:
                 with col.expander(f"POST /pipelines/{pipeline_id}:trigger response"):
                     st.json(resp.json())
-            
+
         # Display VDP markdown (full column)
         display_vdp_markdown()
         # Display detections with scores >= 0.5 in a table
@@ -210,7 +216,8 @@ if __name__ == "__main__":
                         subset='Score', left=detection_thres, right=1.0))
                 else:
                     col.dataframe(df)
-        st.caption("Highlight detections with score >= {}".format(detection_thres))
+        st.caption(
+            "Highlight detections with score >= {}".format(detection_thres))
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
