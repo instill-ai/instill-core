@@ -1,64 +1,38 @@
 ---
 "$schema": http://json-schema.org/draft-07/schema#
 "$id": https://github.com/instill-ai/vdp/blob/main/protocol/vdp_protocol.yaml
-title: VdpProtocol
+title: VDP Protocol
 type: object
-description: VdpProtocol structs
+description: VDP Protocol structs
+additionalProperties: true
+anyOf:
+  - required:
+      - classification
+  - required:
+      - detection
+  - required:
+      - keypoint
+  - required:
+      - ocr
+  - required:
+      - unspecified
 properties:
-  model_instance_output:
-    "$ref": "#/definitions/ModelInstanceOutput"
+  classification:
+    description: "Classify into pre-defined categories"
+    "$ref": "#/definitions/Classification"
+  detection:
+    description: "Detect and localise multiple objects"
+    "$ref": "#/definitions/Detection"
+  keypoint:
+    description: "Detect and localise keypoints of multiple objects"
+    "$ref": "#/definitions/Keypoint"
+  ocr:
+    description: "Detect, localise and recognise texts"
+    "$ref": "#/definitions/Ocr"
+  unspecified:
+    description: "Unspecified task with output in the free form"
+    "$ref": "#/definitions/Unspecified"
 definitions:
-  ModelInstanceOutput:
-    type: object
-    additionalProperties: true
-    required:
-      - task
-      - batch_outputs
-    properties:
-      task:
-        description: "Task type"
-        type: string
-        enum:
-          - TASK_CLASSIFICATION
-          - TASK_DETECTION
-          - TASK_KEYPOINT
-          - TASK_OCR
-          - TASK_UNSPECIFIED
-      batch_outputs:
-        description: "a list of inference output for a specific CV Task"
-        type: array
-        items:
-          "$ref": "#/definitions/TaskOutput"
-  TaskOutput:
-    type: object
-    additionalProperties: true
-    anyOf:
-      - required:
-          - classification
-      - required:
-          - detection
-      - required:
-          - keypoint
-      - required:
-          - ocr
-      - required:
-          - unspecified
-    properties:
-      classification:
-        description: "Classify into pre-defined categories"
-        "$ref": "#/definitions/Classification"
-      detection:
-        description: "Detect and localise multiple objects"
-        "$ref": "#/definitions/Detection"
-      keypoint:
-        description: "Detect and localise keypoints of multiple objects"
-        "$ref": "#/definitions/Keypoint"
-      ocr:
-        description: "Detect, localise and recognise texts"
-        "$ref": "#/definitions/Ocr"
-      unspecified:
-        description: "Unspecified task with output in the free form"
-        "$ref": "#/definitions/Unspecified"
   Classification:
     type: object
     additionalProperties: true
@@ -112,14 +86,14 @@ definitions:
             - score
           properties:
             keypoint_group:
-              description: "a keypoint group is composed of a list of pre-defined keypoints of a detected object"
+              description: "A keypoint group is composed of a list of pre-defined keypoints of a detected object"
               type: array
               items:
                 type: object
                 required:
-                  - x
-                  - y
-                  - v
+                  - "x"
+                  - "y"
+                  - "v"
                 properties:
                   x:
                     description: "x coordinate of the keypoint"
