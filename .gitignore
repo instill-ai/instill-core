@@ -21,7 +21,9 @@
 go.work
 
 # Images for example codes
-*.jpg
+examples/**/*.jpg
+examples/**/*.png
+examples/**/*.mp4
 
 # Models for example codes
 *.zip
