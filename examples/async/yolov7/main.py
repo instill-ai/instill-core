@@ -127,7 +127,7 @@ if __name__ ==  '__main__':
     opt = parser.parse_args()
 
     ###############################################################################
-    # Download video and extract frames
+    # Download video
     ###############################################################################
 
     video_filename = join(os.path.dirname(os.path.realpath(__file__)), "cows_dornick.mp4")
