@@ -35,7 +35,7 @@ properties:
 definitions:
   Classification:
     type: object
-    additionalProperties: true
+    additionalProperties: false
     required:
       - category
       - score
@@ -48,12 +48,12 @@ definitions:
         type: number
   Detection:
     type: object
-    additionalProperties: true
+    additionalProperties: false
     required:
-      - bounding_boxes
+      - objects
     properties:
-      bounding_boxes:
-        description: "A list of detected bounding boxes"
+      objects:
+        description: "A list of detected objects"
         type: array
         items:
           type: object
@@ -74,18 +74,18 @@ definitions:
     type: object
     additionalProperties: true
     required:
-      - keypoint_groups
+      - objects
     properties:
-      keypoint_groups:
-        description: "A list of keypoint groups, a keypoint group includes all the pre-defined keypoints of a detected object"
+      objects:
+        description: "A list of keypoint objects, a keypoint object includes all the pre-defined keypoints of a detected object"
         type: array
         items:
           type: object
           required:
-            - keypoint_group
+            - keypoints
             - score
           properties:
-            keypoint_group:
+            keypoints:
               description: "A keypoint group is composed of a list of pre-defined keypoints of a detected object"
               type: array
               items:
@@ -109,24 +109,31 @@ definitions:
               type: number
   Ocr:
     type: object
-    additionalProperties: true
+    additionalProperties: false
     required:
-      - bounding_boxes
-      - texts
+      - objects
     properties:
-      bounding_boxes:
+      objects:
         description: "A list of detected bounding boxes"
         type: array
         items:
-          "$ref": "#/definitions/BoundingBox"
-      texts:
-        description: "Text string recognised per bounding box in the `bounding_boxes`"
-        type: array
-        items:
-          type: string
+          type: object
+          required:
+            - bounding_box
+            - text
+            - score
+          properties:
+            bounding_box:
+              "$ref": "#/definitions/BoundingBox"
+            text:
+              description: "Text string recognised per bounding box in the `bounding_boxes`"
+              type: string
+            score:
+              description: "The confidence score of the predicted object"
+              type: number
   Unspecified:
     type: object
-    additionalProperties: true
+    additionalProperties: false
     required:
       - raw_outputs
     properties:
@@ -159,7 +166,7 @@ definitions:
   BoundingBox:
     type: object
     description: "The detected bounding box in (top, left, width, height) format"
-    additionalProperties: true
+    additionalProperties: false
     required:
       - top
       - left
