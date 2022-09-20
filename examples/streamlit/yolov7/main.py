@@ -6,21 +6,23 @@ import urllib
 import numpy as np
 import streamlit as st
 from types import SimpleNamespace
+from typing import List, Tuple
 from urllib.error import HTTPError
 
 from utils import draw_detection, gen_detection_table
 
 
-def parse_detection_response(resp: requests.Response):
+def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]], List[str], List[float]]:
     r""" Parse a detection response in to bounding boxes, categories and scores
 
     Args:
         resp (`requests.Response`): response for standardised object detection task
 
-    Returns: parsed outputs, a tuple of 
+    Returns: parsed outputs, a tuple of
         List[Tuple[float]]: a list of detected bounding boxes in the format of (top, left, width, height)
         List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         List[float]]: a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
+
     """
     if resp.status_code != 200:
         return [], [], []
@@ -31,7 +33,7 @@ def parse_detection_response(resp: requests.Response):
         boxes_ltwh = []
         categories = []
         scores = []
-        for v in r.model_instance_outputs[0].batch_outputs[0].detection.bounding_boxes:
+        for v in r.model_instance_outputs[0].task_outputs[0].detection.objects:
             boxes_ltwh.append((
                 v.bounding_box.left,
                 v.bounding_box.top,
@@ -47,12 +49,13 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
 
     Args:
-        pipeline_backend_base_url (string): VDP pipeline backend base URL
-        pipeline_id (string): pipeline ID
-        image_url (string): remote image URL, e.g., `https://artifacts.instill.tech/dog.jpg`
+        pipeline_backend_base_url (str): VDP pipeline backend base URL
+        pipeline_id (str): pipeline ID
+        image_url (str): remote image URL, e.g., `https://artifacts.instill.tech/dog.jpg`
 
     Returns: requests.Response
         pipeline trigger result
+
     """
     body = {
         "inputs": [
@@ -66,6 +69,8 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
 
 
 def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"):
+    r""" Display Markdown about demo introduction
+    """
     st.set_page_config(page_title="VDP - YOLOv4 vs. YOLOv7",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
@@ -92,16 +97,18 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
     # Demo
 
     To spice things up, we use open-source [VDP](https://github.com/instill-ai/vdp) to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference:
-    1. https://demo.instill.tech/v1alpha/pipelines/yolov4:trigger        
-    2. https://demo.instill.tech/v1alpha/pipelines/yolov7:trigger        
-        
+    1. https://demo.instill.tech/v1alpha/pipelines/yolov4:trigger
+    2. https://demo.instill.tech/v1alpha/pipelines/yolov7:trigger
+
     Let's trigger two pipelines with an input image each:
-    
+
     """.format(demo_url, demo_url, demo_url)
     st.markdown(intro_markdown)
 
 
 def display_vdp_markdown():
+    r""" Display Markdown about "What's cool about VDP"
+    """
     vdp_markdown = """
     # What's cool about VDP?
 
@@ -119,6 +126,8 @@ def display_vdp_markdown():
 
 
 def display_trigger_request_code():
+    r""" Display Trigger request code block
+    """
     request_code = f"""
         curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>:trigger' \\
         --header 'Content-Type: application/json' \\
@@ -173,8 +182,7 @@ if __name__ == "__main__":
         img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         _, col, _ = st.columns([0.2, 0.6, 0.2])
-        col.image(img, use_column_width=True,
-                  caption=f"Image source: {image_url}")
+        col.image(img, use_column_width=True, caption=f"Image source: {image_url}")
 
         """
         #### Results

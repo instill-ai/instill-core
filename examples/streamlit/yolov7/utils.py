@@ -95,6 +95,15 @@ COLORS = [[random.randint(0, 255) for _ in range(3)] for _ in COCOLabels]
 
 
 def get_label_color(label: str) -> List[int]:
+    r""" Get the corresponding color of a pre-defined COCO category
+
+    Args:
+        label (str): COCO category label
+
+    Returns: List[int]
+        category color in the format [R, G, B]
+
+    """
     category_idx = COCOLabels[label.upper()].value - 1
     return COLORS[category_idx]
 
@@ -104,12 +113,12 @@ def draw_detection(img: cv2.Mat, boxes_ltwh: List[Tuple[float]], categories: Lis
 
     Args:
         img (cv2.Mat): the original image
-        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height) 
+        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height)
         categories (List[str]): a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         scores (List[float]]): a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 
-    Returns:
-        cv2.Mat: image overlaid with detection results
+    Returns: cv2.Mat
+        the image overlaid with detection results
 
     """
     img_draw = img.copy()
@@ -143,7 +152,7 @@ def gen_detection_table(boxes_ltwh: List[Tuple[float]], categories: List[str], s
     r""" Generate detection data frame
 
     Args:
-        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height) 
+        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height)
         categories (List[str]): a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         scores (List[float]]): a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 

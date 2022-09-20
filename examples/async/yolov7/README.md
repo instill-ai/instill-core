@@ -58,8 +58,8 @@ $ python main.py
 You can use the following SQL query to convert the raw detections into multiple records and build a _Cow Counter_ dashboard
 ```sql
 -- Cow counter
-SELECT "public"."_airbyte_raw_detection"."_airbyte_ab_id" AS "id", "public"."_airbyte_raw_detection"."_airbyte_data"->'index' AS "index", "public"."_airbyte_raw_detection"."_airbyte_emitted_at" AS "processed_at", ceil(x.score) AS "count", x.category
-FROM "public"."_airbyte_raw_detection" CROSS JOIN LATERAL jsonb_to_recordset("public"."_airbyte_raw_detection"."_airbyte_data"->'detection'->'bounding_boxes') AS x(score numeric, category text)
+SELECT "public"."_airbyte_raw_vdp"."_airbyte_ab_id" AS "id", "public"."_airbyte_raw_vdp"."_airbyte_data"->'index' AS "index", "public"."_airbyte_raw_vdp"."_airbyte_emitted_at" AS "processed_at", ceil(x.score) AS "count", x.category
+FROM "public"."_airbyte_raw_vdp" CROSS JOIN LATERAL jsonb_to_recordset("public"."_airbyte_raw_vdp"."_airbyte_data"->'detection'->'objects') AS x(score numeric, category text)
 WHERE x.category = 'cow'
 ORDER BY "processed_at" ASC
 LIMIT 1048575
