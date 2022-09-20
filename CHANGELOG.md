@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.6-alpha](https://github.com/instill-ai/vdp/compare/v0.2.5-alpha...v0.2.6-alpha) (2022-09-20)
+
+
+### Bug Fixes
+
+* update examples to be compatible with the latest protocol ([36a847b](https://github.com/instill-ai/vdp/commit/36a847b57ab1725ccd22df53eb0e203e729841d8))
+
+
+### Miscellaneous Chores
+
+* release v0.2.6-alpha ([b291862](https://github.com/instill-ai/vdp/commit/b291862532d452733fd21e5942aaa82af5c14839))
+
 ## [0.2.5-alpha](https://github.com/instill-ai/vdp/compare/v0.2.4-alpha...v0.2.5-alpha) (2022-08-18)
 
 
