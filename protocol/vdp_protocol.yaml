@@ -154,7 +154,7 @@ definitions:
             - score
           properties:
             rle:
-              description: RLE of instance mask
+              description: Run Length Encoding (RLE) of instance mask within the bounding box
               type: array              
             bounding_box:
               "$ref": "#/definitions/BoundingBox"
