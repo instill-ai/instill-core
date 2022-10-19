@@ -65,7 +65,7 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
         ]
     }
 
-    return requests.post("{}/pipelines/{}:trigger".format(pipeline_backend_base_url, pipeline_id), json=body)
+    return requests.post("{}/pipelines/{}/trigger".format(pipeline_backend_base_url, pipeline_id), json=body)
 
 
 def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"):
@@ -97,8 +97,8 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
     # Demo
 
     To spice things up, we use open-source [VDP](https://github.com/instill-ai/vdp) to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference:
-    1. https://demo.instill.tech/v1alpha/pipelines/yolov4:trigger
-    2. https://demo.instill.tech/v1alpha/pipelines/yolov7:trigger
+    1. https://demo.instill.tech/v1alpha/pipelines/yolov4/trigger
+    2. https://demo.instill.tech/v1alpha/pipelines/yolov7/trigger
 
     Let's trigger two pipelines with an input image each:
 
@@ -129,7 +129,7 @@ def display_trigger_request_code():
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>:trigger' \\
+        curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
             "inputs": [
@@ -182,7 +182,8 @@ if __name__ == "__main__":
         img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         _, col, _ = st.columns([0.2, 0.6, 0.2])
-        col.image(img, use_column_width=True, caption=f"Image source: {image_url}")
+        col.image(img, use_column_width=True,
+                  caption=f"Image source: {image_url}")
 
         """
         #### Results
@@ -207,7 +208,7 @@ if __name__ == "__main__":
         cols = st.columns(len(pipeline_ids))
         for col, (resp, _, _, _) in zip(cols, pipeline_results):
             if resp.status_code == 200:
-                with col.expander(f"POST /pipelines/{pipeline_id}:trigger response"):
+                with col.expander(f"POST /pipelines/{pipeline_id}/trigger response"):
                     st.json(resp.json())
 
         # Display VDP markdown (full column)
