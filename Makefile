@@ -90,7 +90,8 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
-	@make dev PROFILE=all
+	sed 's/CFG_SERVER_PORT: 8083/CFG_SERVER_PORT: 8083\n      CFG_SERVER_ITMODE: "true"/g' docker-compose-dev.yml > /tmp/docker-compose-integration-test.yml
+	COMPOSE_PROFILES=all docker-compose -f /tmp/docker-compose-integration-test.yml up -d
 	@cd dev/console && npm install && npx playwright install && npx playwright test
 	@cd dev/pipeline-backend && HOSTNAME=localhost make integration-test
 	@cd dev/connector-backend && HOSTNAME=localhost make integration-test
