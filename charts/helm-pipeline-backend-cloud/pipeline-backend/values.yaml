@@ -1,0 +1,183 @@
+nameOverride:
+
+fullnameOverride:
+replicaCount: 1
+
+serviceAccountName: default
+
+imagePullSecrets:
+  - name: image-pull
+
+image:
+  registry: registry.hub.docker.com/instill
+  repository: pipeline-backend
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 0.9.1-alpha
+
+# -- Deployment
+deployment:
+  # -- pipeline-backend configurations
+  config:
+    server:
+      port: 8081
+      https:
+        cert:   # /ssl/tls.crt
+        key:    # /ssl/tls.key
+      corsorigins:
+        - http://localhost:3000
+        - https://instill-inc.tech
+        - https://instill.tech
+      edition: local-ce:dev
+      disableusage: false
+      debug: true
+    database:
+      host: pg-sql-postgresql.pg-sql
+      port: 5432
+      secret:
+        name: db-user-pass
+        usernamekey: username
+        passwordkey: password
+    cache:
+      redis:
+        redisoptions:
+          addr: redis-master.redis:6379
+    temporal:
+      clientoptions:
+        namespace: pipeline
+        hostport: temporal.temporal:7233
+    connectorbackend:
+      host: connector-backend.connector-backend
+      port: 8082
+      https:
+        cert:   # /ssl/tls.crt
+        key:    # /ssl/tls.key
+    modelbackend:
+      host: model-backend.model-backend
+      port: 8083
+      https:
+        cert:   # /ssl/tls.crt
+        key:    # /ssl/tls.key
+    mgmtbackend:
+      host: mgmt-backend.mgmt-backend
+      port: 8084
+      https:
+        cert:   # /ssl/tls.crt
+        key:    # /ssl/tls.key
+    usagebackend:
+      tlsenabled: true
+      host: usage.instill.tech
+      port: 443
+  # -- LivenessProbe
+  livenessProbe:
+    httpGet:
+      path: /v1alpha/__readiness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  # -- ReadynessProbe
+  readinessProbe:
+    httpGet:
+      path: /v1alpha/__liveness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  # -- Internal cluster port through which the model backend server can be queried
+  # -- If you want to add extra env variables
+  extraEnv: []
+  # -- If you want to mount external volume
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+
+  # -- If you want to add extra init containers
+  extraInitContainers: {}
+  # extraInitContainers: |
+  #  - name: ...
+  #    image: ...
+
+# -- Service
+service:
+  # -- Kubernetes service type
+  type: ClusterIP
+  # -- Port of the pipeline backend server.
+  port: 8081
+  annotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+strategy: {}
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+sidecarContainers: {}
+
+podDisruptionBudget:
+  enabled: false
+  spec:
+    minAvailable: 1
+
+job:
+  extraEnv: {}
+
+persistence:
+  existingSecret:

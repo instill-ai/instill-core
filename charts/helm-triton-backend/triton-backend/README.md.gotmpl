@@ -1,0 +1,149 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+{{ template "chart.description" . }}
+
+- [Introduction](#introduction)
+- [Deployment](#deployment)
+  - [KIND cluster configuration](#kind-cluster-configuration)
+  - [Model repository](#model-repository)
+    - [Locally accessible filesystem](#locally-accessible-filesystem)
+  - [Installing the Chart](#installing-the-chart)
+    - [Pull images from a private registry](#pull-images-from-a-private-registry)
+    - [Deploy Triton inference server](#deploy-triton-inference-server)
+      - [Install from source](#install-from-source)
+      - [Install from repository](#install-from-repository)
+  - [Use the inference server](#use-the-inference-server)
+  - [Uninstalling the Chart](#uninstalling-the-chart)
+- [Values](#values)
+
+## Introduction
+This chart installs a [NVIDIA Triton
+Inference Server](https://github.com/NVIDIA/triton-inference-server) on a Kubernetes cluster using Helm package manager. By default the cluster contains a single instance of the inference server but the *replicaCount* configuration parameter can be set to create a cluster of any size, as described below. This guide assumes you already have a functional Kubernetes
+cluster and helm installed. If you want Triton Server to use GPUs for inferencing, your cluster must be configured with support for the NVIDIA driver and CUDA version required by the version of the inference server you are using.
+
+The steps below describe how to use helm to launch the inference server.
+
+## Deployment
+The steps below describe how to use helm to launch the inference server and then send inference requests to the running server.
+>:information_source: Read [KIND cluster configuration](#kind-cluster-configuration) if you are deploying on a kinD cluster.
+
+### KIND cluster configuration
+If you are deploying on a kinD cluster, you need to configure the kinD cluster creation:
+ - Extra mounts: mount the model repository from host machine to the kinD cluster with `extraMount`
+ - Extra port mapping to expose a `NodePort` service: map ports to the host machine with `extraPortMappings` to get traffic into the kinD cluster
+
+Here, we provide a yaml config file as an example:
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: [model_repository_on_host]
+    containerPath: [model_repository_on_kind]
+  extraPortMappings:
+  - containerPort: [http_nodeport]
+    hostPort: [http_nodeport]
+    protocol: TCP
+  - containerPort: [grpc_nodeport]
+    hostPort: [grpc_nodeport]
+    protocol: TCP
+  - containerPort: [metrics_nodePort]
+    hostPort: [metrics_nodePort]
+    protocol: TCP
+```
+where
+- `model_repository_on_host` points to the model directory that stores models on the host machine
+- `model_repository_on_kind` is the value of `image.modelRepositoryPath` in `single_server/values.yaml`, kinD mounts `model_repository_on_host` from host machine to `model_repository_on_kind` on the kinD cluster
+- `http_nodeport` is the nodeport of the HTTP endpoint
+- `grpc_nodeport` is the nodeport of the gRPC endpoint
+- `metrics_nodeport` is the nodeport of the inference server metrics endpoint
+
+### Model repository
+Triton inference server needs a repository of models that it will make available for inferencing. The repository path is specified when Triton is started using `--model-store` or `--model-repository` option.
+
+You can place the model repository in
+- [**for now**] local accessible filesystem: models are stored under `/models` by default
+- Google Cloud Storage
+- Amazon S3
+
+#### Locally accessible filesystem
+For now, we use a [`hostPath`](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) volume to mount the directory from host nodes's filesystem into `/models` of the container. Config `image.modelRepositoryPath` in `single_server/values.yaml` to point to the local directory on the host node.
+
+>:information_source: `hostPath` volume is **NOT** recommended and will be improved in the future:
+> - The Pod is tightly coupled to the underlying volume and the node. It is against the Kubernetes principle: workload portability.
+> - The server is run as non-root user (user `1000` from group `1000`). The files or directories created on the underlying hosts are only writable by root. You either need to run your process as root in a privileged Container or modify the file permissions on the host to be able to write to a `hostPath` volume.
+
+### Installing the Chart
+
+#### Pull images from a private registry
+Our customized Triton server images are stored in Harbor which is a private registry, credentials need to be provided. Among [different ways](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry), we choose specifying ImagePullSecrets on a Pod, which is the recommended approach to run containers based on images in private registries. Use [our Harbor registry](https://harbor.instill.tech) as an example:
+```bash
+$ kubectl create secret docker-registry [secret_name] --docker-server=[harbor_domain] --docker-username=[harbor_username] --docker-password=[harbor_cli_key]
+```
+where
+- `secret_name` is the name of the secret you refer to on a Pod. In this case, it should be the same as `image.imagePullSecretsName` in `values.yaml`
+- `habor_domain` is the Harbor domain name: `'https://harbor.instill.tech'`
+- `harbor_username` is your username to login to Harbor
+- `harbor_cli_key` is your Harbor CLI key
+
+This will set your Docker credentials as a Secret in the cluster. The Pods that use the private registry get credentials from the secret to pull the images.
+
+#### Deploy Triton inference server
+There are two ways to deploy with Helm
+- Install from source
+- Install from a repository (e.g. our Harbor repository)
+
+The following commands deploy the inference server in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
+
+##### Install from source
+To install the chart with the release name `example`:
+```bash
+$ helm dependency update  # retrieve dependent charts into charts/ directory
+$ helm install example .  # deploy the server
+```
+
+##### Install from repository
+To install from Harbor repository with the release name `example`:
+```bash
+$ helm repo add --username [harbor_username] --password [harbor_cli_key] triton https://instill-harbor.ngrok.io/chartrepo/triton  # add Harbor project as separate index entry point
+$ helm repo update  # update info of available charts
+$ helm install --username [harbor_username] --password [harbor_cli_key] example triton/triton-inference-server --version [chart_version]  # deploy the server
+```
+where
+- `harbor_username` is your username to login to Harbor
+- `harbor_cli_key` is your Harbor CLI key
+- `chart_version` is the chart version to install. If this is not specified, the latest version is installed.
+
+### Use the inference server
+Now the inference server is running, you can send HTTP or GRPC requests to it to perform inferencing. On a _cluster-internal IP_, The inference server exposes
+- an HTTP endpoint on port `8000`,
+- a GRPC endpoint on port `8001`, and
+- a Prometheus metrics endpoint on port `8002`
+
+By default, the inference server is exposed with a `NodePort` service type. You'll be able to contact the service from outside the cluster by requesting `[NodeIP]:[NodePort]`. Get the ports if they are not specified in `single_server/values.yaml`
+```bash
+$ kubectl describe service example-triton-inference-server | grep NodePort
+```
+You can use curl to get the meta-data of the inference server from the HTTP endpoint:
+```
+$ curl [NodeIP]:[http_nodeport]/v2
+```
+The Triton inference server exposes both HTTP and GRPC based on KFServing standard inference protocols. The protocols provide endpoints to check server and model health, metadata and statistics. Additional endpoints allow model loading and unloading, and inferencing. See the [KFServing](https://github.com/kubeflow/kfserving/tree/master/docs/predict-api/v2) and [extension](https://github.com/NVIDIA/triton-inference-server/tree/master/docs/protocol) documentation for details.
+
+### Uninstalling the Chart
+To uninstall/delete the `example` deployment and the `example-metrics` deployment if enabled:
+```bash
+$ helm uninstall example # delete the inference server
+```
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Values
+
+Values for the Triton Server are described below.
+
+{{ template "chart.valuesTable" . }}

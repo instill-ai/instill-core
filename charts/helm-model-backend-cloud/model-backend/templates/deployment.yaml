@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "model-backend.fullname" . }}
+  labels:
+    {{- include "model-backend.labels" . | nindent 4 }}
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "model-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "model-backend.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName  | default ( include "model-backend.fullname" . ) }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: triton-models-volume
+          hostPath:
+            # Directory location on host
+            path: {{ .Values.deployment.config.tritonserver.modelstore }}
+            type: Directory
+         {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+        - name: volume-tls-secret-ca
+          secret:
+            secretName: {{ include "model-backend.fullname" . }}-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
+        - name: volume-tls-secret
+          secret:
+            secretName: {{ include "model-backend.fullname" . }}-tls
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        {{- end }}
+        {{- if .Values.deployment.extraVolumes }}
+        {{- toYaml .Values.deployment.extraVolumes | indent 8 }}
+        {{- end }}
+      initContainers:
+        - name: {{ .Chart.Name }}-migrate
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./model-backend-migrate"]
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+        - name: {{ .Chart.Name }}-init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./model-backend-init"]
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+        {{- if .Values.deployment.extraInitContainers }}
+        {{- toYaml .Values.deployment.extraInitContainers | indent 12 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./model-backend"]
+          ports:
+          {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+          - name: https
+            containerPort: {{ .Values.deployment.config.server.port }}
+            protocol: TCP
+          {{- else }}
+          - name: http
+            containerPort: {{ .Values.deployment.config.server.port }}
+            protocol: TCP
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.deployment.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.deployment.readinessProbe | nindent 12 }}
+          volumeMounts:
+            - name: triton-models-volume
+              mountPath: {{ .Values.deployment.config.tritonserver.modelstore }}
+            {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+            - name: volume-tls-secret
+              mountPath: "/etc/ssl/certs/ca.crt"
+              subPath: "ca.crt"
+              readOnly: true
+            - name: volume-tls-secret
+              mountPath: "/model-backend/ssl"
+              readOnly: true
+            {{- end }}
+            {{- if .Values.deployment.extraVolumeMounts }}
+            {{- toYaml .Values.deployment.extraVolumeMounts | indent 12 }}
+            {{- end }}
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+            - name: CFG_TRITONSERVER_MODELSTORE
+              value: "{{ .Values.deployment.config.tritonserver.modelstore }}"
+            - name: CFG_SERVER_DEBUG
+              value: "{{ .Values.deployment.config.server.debug }}"
+            - name: CFG_SERVER_DISABLEUSAGE
+              value: "{{ .Values.deployment.config.server.disableusage }}"
+            - name: CFG_SERVER_EDITION
+              value: "{{ .Values.deployment.config.server.edition }}"
+            - name: CFG_SERVER_PORT
+              value: "{{ .Values.deployment.config.server.port }}"
+            - name: CFG_MGMTBACKEND_HOST
+              value: "{{ .Values.deployment.config.mgmtbackend.host }}"
+            - name: CFG_MGMTBACKEND_PORT
+              value: "{{ .Values.deployment.config.mgmtbackend.port }}"
+            - name: CFG_PIPELINEBACKEND_HOST
+              value: "{{ .Values.deployment.config.pipelinebackend.host }}"
+            - name: CFG_PIPELINEBACKEND_PORT
+              value: "{{ .Values.deployment.config.pipelinebackend.port }}"
+            - name: CFG_TRITONSERVER_GRPCURI
+              value: "{{ .Values.deployment.config.tritonserver.grpcuri }}"
+            {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+            - name: CFG_SERVER_HTTPS_CERT
+              value: "{{ .Values.deployment.config.server.https.cert }}"
+            - name: CFG_SERVER_HTTPS_KEY
+              value: "{{ .Values.deployment.config.server.https.key }}"
+            - name: CFG_PIPELINEBACKEND_HTTPS_CERT
+              value: "{{ .Values.deployment.config.pipelinebackend.https.cert }}"
+            - name: CFG_PIPELINEBACKEND_HTTPS_KEY
+              value: "{{ .Values.deployment.config.pipelinebackend.https.key }}"
+            - name: CFG_MGMTBACKEND_HTTPS_CERT
+              value: "{{ .Values.deployment.config.mgmtbackend.https.cert }}"
+            - name: CFG_MGMTBACKEND_HTTPS_KEY
+              value: "{{ .Values.deployment.config.mgmtbackend.https.key }}"
+            {{- end }}
+            {{- if .Values.deployment.extraEnv }}
+            {{- toYaml .Values.deployment.extraEnv | indent 12 }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+

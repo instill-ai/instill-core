@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "temporal.fullname" . }}
+  labels:
+    {{- include "temporal.labels" . | nindent 4 }}
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "temporal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "temporal.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName  | default ( include "temporal.fullname" . ) }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if .Values.deployment.extraVolumes }}
+        {{- toYaml .Values.deployment.extraVolumes | indent 8 }}
+        {{- end }}
+      initContainers:
+        {{- if .Values.deployment.extraInitContainers }}
+        {{- toYaml .Values.deployment.extraInitContainers | indent 12 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: http
+            containerPort: 7233
+            protocol: TCP
+          volumeMounts:
+            {{- if .Values.deployment.extraVolumeMounts }}
+            {{- toYaml .Values.deployment.extraVolumeMounts | indent 12 }}
+            {{- end }}
+          env:
+            - name: DB
+              value: postgresql
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: POSTGRES_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: POSTGRES_SEEDS
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: DB_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+            - name: DYNAMIC_CONFIG_FILE_PATH
+              value: "{{ .Values.deployment.config.dynamicconfig }}"
+            {{- if .Values.deployment.extraEnv }}
+            {{- toYaml .Values.deployment.extraEnv | indent 12 }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+        - name: {{ .Chart.Name }}-ui
+          image: "{{ .Values.temporalUiImage.registry }}/{{ .Values.temporalUiImage.repository }}:{{ .Values.temporalUiImage.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: temporal.temporal:7233
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+

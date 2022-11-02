@@ -1,0 +1,187 @@
+# -- String to partially override common.names.fullname
+nameOverride:
+# -- String to fully override common.names.fullname
+fullnameOverride:
+
+# -- Number of instances to deploy for the server deployment
+replicaCount: 1
+
+# -- service account name
+serviceAccountName: default
+
+imagePullSecrets:
+  - name: image-pull
+
+# -- mgmt-backend image version
+image:
+  # -- mgmt-backend image registry
+  registry: registry.hub.docker.com/instill
+  # -- mgmt-backend image name
+  repository: mgmt-backend
+  # -- mgmt-backend image tag, default is the chart appVersion
+  tag: 0.2.6-alpha
+  # -- The image pulling policy
+  pullPolicy: IfNotPresent
+
+# -- Deployment
+deployment:
+  # -- mgmt-backend configurations
+  config:
+    server:
+      port: 8084
+      https:
+        cert: # /ssl/tls.crt
+        key: # /ssl/tls.key
+      corsorigins:
+        - http://localhost:3000
+      edition: local-ce:dev
+      disableusage: false
+      debug: true
+    database:
+      secret:
+        name: db-user-pass
+        usernamekey: username
+        passwordkey: password
+      host: pg-sql-postgresql.pg-sql
+      port: 5432
+      name: mgmt
+      version: 1
+      timezone: Etc/UTC
+      pool:
+        idleconnections: 5
+        maxconnections: 10
+        connlifetime: 30m # In minutes, e.g., '60m'
+    usagebackend:
+      tlsenabled: true
+      host: usage.instill.tech
+      port: 443
+  # -- LivenessProbe
+  livenessProbe:
+    httpGet:
+      path: /v1alpha/__readiness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  # -- ReadynessProbe
+  readinessProbe:
+    httpGet:
+      path: /v1alpha/__liveness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+  # -- If you want to add extra env variables
+  extraEnv: []
+  # -- If you want to mount external volume
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+
+  # -- If you want to add extra init containers
+  extraInitContainers: {}
+  # extraInitContainers: |
+  #  - name: ...
+  #    image: ...
+
+# -- Service
+service:
+  # -- Kubernetes service type
+  type: ClusterIP
+  # -- Port of the mgmt backend server.
+  port: 8084
+  annotations: {}
+
+# -- Security context for mgmt backend pods
+# fsGroup: 2000
+podSecurityContext: {}
+
+# -- Security context for mgmt backend containers
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+securityContext: {}
+
+# -- Strategy used to replace old pods by new ones
+strategy: {}
+
+# -- Resource assigned to the mgmt backend server.
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+resources: {}
+
+# -- Horizontal pod autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- Values for initalization job
+job:
+  annotations: {}
+  ttlSecondAfterFinished: 300
+
+# -- Pod nodeSelector
+nodeSelector: {}
+# If you do want to specify node labels, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'annotations:'.
+#   foo: bar
+
+# -- Pod tolerations
+tolerations: []
+
+
+# -- Pod affinity
+affinity: {}
+
+# -- Additional deployment annotations
+podAnnotations: {}
+
+# -- Ingress
+ingress:
+  # -- Ingress enable/disable
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Ingress annotations
+  annotations: {}
+    # kubernetes.io/ingress.allow-http: "false"
+  # -- Ingress hosts
+  hosts: []
+    # - host:
+    #   paths:
+    #     - path: /*
+    #       pathType: ImplementationSpecific
+  # -- Ingress TLS ipAddresses
+  tls: []
+    # - secretName:
+    #   hosts:
+    #     -
+
+# -- PodDistributionBudget
+pdb:
+  enabled: false
+  spec:
+    # -- Minimal number of available pods
+    minAvailable: 1

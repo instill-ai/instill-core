@@ -1,0 +1,230 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "connector-backend.fullname" . }}
+  labels:
+    {{- include "connector-backend.labels" . | nindent 4 }}
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "connector-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "connector-backend.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName  | default ( include "connector-backend.fullname" . ) }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: worker-source-vdp-volume
+        hostPath:
+          # Directory location on host
+          path: "/vdp"
+          type: DirectoryOrCreate
+      - name: worker-source-airbyte-volume
+        hostPath:
+          # Directory location on host
+          path: "/airbyte"
+          type: DirectoryOrCreate
+      {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+      - name: volume-tls-secret-ca
+        configMap:
+          name: {{ include "connector-backend.fullname" . }}-ca
+          items:
+            - key: ca.crt
+              path: ca.crt
+      - name: volume-tls-secret
+        secret:
+          secretName: {{ include "connector-backend.fullname" . }}-tls
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      {{- end }}
+      initContainers:
+        - name: {{ .Chart.Name }}-migrate
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./connector-backend-migrate"]
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+        - name: {{ .Chart.Name }}-init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./connector-backend-init"]
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+        {{- if .Values.deployment.extraInitContainers }}
+        {{- toYaml .Values.deployment.extraInitContainers | indent 12 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./connector-backend-worker"]
+          env:
+            - name: CFG_WORKER_MOUNTSOURCE_VDP
+              value: "/vdp"
+            - name: CFG_WORKER_MOUNTSOURCE_AIRBYTE
+              value: "/airbyte"
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+            - name: CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT
+              value: "{{ .Values.deployment.config.temporal.clientoptions.hostport }}"
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./connector-backend"]
+          ports:
+            {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+            - name: https
+            {{- else }}
+            - name: http
+            {{- end }}
+              containerPort: {{ .Values.deployment.config.server.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.deployment.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.deployment.readinessProbe | nindent 12 }}
+          volumeMounts:
+            {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+            - name: volume-tls-secret-ca
+              mountPath: "/etc/ssl/certs/ca.crt"
+              subPath: "ca.crt"
+              readOnly: true
+            - name: volume-tls-secret
+              mountPath: "/ssl"
+              readOnly: true
+            {{- end }}
+            {{- if .Values.deployment.extraVolumeMounts }}
+            {{- toYaml .Values.deployment.extraVolumeMounts | indent 12 }}
+            {{- end }}
+          env:
+            - name: CFG_DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.usernamekey }}"
+            - name: CFG_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.deployment.config.database.secret.name }}"
+                  key: "{{ .Values.deployment.config.database.secret.passwordkey }}"
+            - name: CFG_DATABASE_HOST
+              value: "{{ .Values.deployment.config.database.host }}"
+            - name: CFG_DATABASE_PORT
+              value: "{{ .Values.deployment.config.database.port }}"
+            - name: CFG_SERVER_DISABLEUSAGE
+              value: "{{ .Values.deployment.config.server.disableusage }}"
+            - name: CFG_SERVER_EDITION
+              value: "{{ .Values.deployment.config.server.edition }}"
+            - name: CFG_MGMTBACKEND_HOST
+              value: "{{ .Values.deployment.config.mgmtbackend.host }}"
+            - name: CFG_MGMTBACKEND_PORT
+              value: "{{ .Values.deployment.config.mgmtbackend.port }}"
+            - name: CFG_PIPELINEBACKEND_HOST
+              value: "{{ .Values.deployment.config.pipelinebackend.host }}"
+            - name: CFG_PIPELINEBACKEND_PORT
+              value: "{{ .Values.deployment.config.pipelinebackend.port }}"
+            - name: CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT
+              value: "{{ .Values.deployment.config.temporal.clientoptions.hostport }}"
+            {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+            - name: CFG_SERVER_HTTPS_CERT
+              value: "{{ .Values.deployment.config.server.https.cert }}"
+            - name: CFG_SERVER_HTTPS_KEY
+              value: "{{ .Values.deployment.config.server.https.key }}"
+            - name: CFG_MGMTBACKEND_HTTPS_CERT
+              value: "{{ .Values.deployment.config.mgmtbackend.https.cert }}"
+            - name: CFG_MGMTBACKEND_HTTPS_KEY
+              value: "{{ .Values.deployment.config.mgmtbackend.https.key }}"
+            - name: CFG_PIPELINEBACKEND_HTTPS_CERT
+              value: "{{ .Values.deployment.config.pipelinebackend.https.cert }}"
+            - name: CFG_PIPELINEBACKEND_HTTPS_KEY
+              value: "{{ .Values.deployment.config.pipelinebackend.https.key }}"
+            {{- end }}
+            {{- if .Values.deployment.extraEnv }}
+            {{- toYaml .Values.deployment.extraEnv | indent 12 }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+        {{- if $.Values.sidecarContainers }}
+        {{- toYaml $.Values.sidecarContainers | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

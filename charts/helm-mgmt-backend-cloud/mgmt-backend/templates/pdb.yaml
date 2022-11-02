@@ -1,0 +1,12 @@
+{{- if .Values.pdb.enabled -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "mgmt-backend.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLables:
+      {{- include "mgmt-backend.selectorLabels" . | nindent 6 -}}
+  {{ toYaml .Values.pdb.spec }}
+{{- end }}

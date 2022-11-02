@@ -1,0 +1,121 @@
+# -- String to partially override common.names.fullname
+nameOverride:
+# -- String to fully override common.names.fullname
+fullnameOverride:
+
+# -- Number of instances to deploy for the server deployment
+replicaCount: 1
+
+harbor:
+  # -- [Required to set] The Harbor username for login
+  username:
+  # -- [Required to set] The Harbor password for login
+  password:
+
+serviceAccountName: default
+
+imagePullSecrets:
+  - name: image-pull
+
+image:
+  # -- model backend image registry
+  registry: temporalio
+  # -- model backend image name
+  repository: auto-setup
+  # -- model backend image tag, default is the chart appVersion
+  tag: 1.17.1
+  # -- The image pulling policy
+  pullPolicy: IfNotPresent
+
+temporalUiImage:
+  # -- model backend image registry
+  registry: temporalio
+  # -- model backend image name
+  repository: ui
+  # -- model backend image tag, default is the chart appVersion
+  tag: 2.3.0
+  # -- The image pulling policy
+  pullPolicy: IfNotPresent
+
+# -- Deployment
+deployment:
+  # -- Temporal configuration
+  config:
+    server:
+      port: 7233
+    database:
+      secret:
+        name: db-user-pass
+        usernamekey: username
+        passwordkey: password
+      host: pg-sql-postgresql.pg-sql
+      port: 5432
+    dynamicconfig: config/dynamicconfig/docker.yaml
+  # -- Internal cluster port through which the model backend server can be queried
+  # -- If you want to add extra env variables
+  extraEnv: []
+  # -- If you want to mount external volume
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+
+  # -- If you want to add extra init containers
+  extraInitContainers: {}
+  # extraInitContainers: |
+  #  - name: ...
+  #    image: ...
+
+# -- Service
+service:
+  # -- Kubernetes service type
+  type: ClusterIP
+  # -- Port of the temporal server.
+  port: 7233
+  annotations: {}
+
+# -- Security context for model backend pods
+# fsGroup: 2000
+podSecurityContext: {}
+
+# -- Security context for model backend containers
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+securityContext:
+  fsGroup: 1000 #temporal group
+  runAsUser: 1000 #temporal user
+
+# -- Resource assigned to the model backend server.
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+resources: {}
+
+# -- Pod nodeSelector
+nodeSelector: {}
+
+# -- Pod tolerations
+tolerations: []
+
+# -- Pod affinity
+affinity: {}
+
+# -- Additional deployment annotations
+podAnnotations: {}
