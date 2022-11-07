@@ -42,7 +42,7 @@ spec:
           sizeLimit: "1Gi"
       initContainers:
         - name: {{ print .Chart.Name "-env" }}
-          image: "{{ .Values.tritonEnv.registry }}/{{ .Values.tritonEnv.repository }}:{{ .Values.tritonEnv.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.tritonEnv.registry }}/{{ .Values.tritonEnv.repository }}:{{ template "triton-backend.tritonEnvImageTag" . }}"
           imagePullPolicy: {{ .Values.tritonEnv.pullPolicy }}
           volumeMounts:
           - mountPath: {{ .Values.image.condaPackPath }}-env
@@ -54,7 +54,7 @@ spec:
           ]
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ template "triton-backend.dockerImageTag"  . }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
           - name: triton-models-volume

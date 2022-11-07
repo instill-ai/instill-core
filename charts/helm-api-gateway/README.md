@@ -1,4 +1,6 @@
-# Temporal Helm Chart
+# api-gateway Helm Chart
+
+This repository contains the Helm Charts related to the API Gateway ([api-gateway](https://github.com/instill-ai/api-gateway)). For more information, refer to the `README.md` in the Chart folders.
 
 ## Prerequisites
 
@@ -6,8 +8,8 @@
 
 ## How to contribute
 
-The `README.md` for the Helm chart will be automatically generated at commit time by the [helm-docs pre-commit hook](https://github.com/norwoodj/helm-docs). 
-As recommended by the [official Helm doc](https://helm.sh/docs/topics/charts/#the-chart-file-structure), the Helm chart is contained in its own folder, the name of the folder being the name of the Helm chart. 
+The `README.md` for the Helm chart will be automatically generated at commit time by the [helm-docs pre-commit hook](https://github.com/norwoodj/helm-docs).
+As recommended by the [official Helm doc](https://helm.sh/docs/topics/charts/#the-chart-file-structure), the Helm chart is contained in its own folder, the name of the folder being the name of the Helm chart.
 
 ## CI/CD
 

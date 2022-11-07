@@ -7,6 +7,9 @@ fullnameOverride:
 # -- Number of instances to deploy for the server deployment
 replicaCount: 1
 
+# -- host architect
+arch: amd
+
 ## -- Configure pod disruption budgets
 podDisruptionBudget:
   enabled: false
@@ -23,17 +26,17 @@ tritonEnv:
   # -- The image repository name
   repository: triton-conda-env
   # -- The image tag
-  tag: 0.2.6-alpha-m1
+  tag: 0.2.6-alpha
   # -- Image pull policy
   pullPolicy: IfNotPresent
 
 image:
   # -- The image registry address
-  registry: nvcr.io/nvidia
+  registry: registry.hub.docker.com/instill
   # -- The image repository name
   repository: tritonserver
   # -- The image tag
-  tag: 22.05-py3
+  tag: 22.05
   # -- Image pull policy
   pullPolicy: IfNotPresent
   # -- Path to the model repository. Either a local path if `modelRepositoryStorage = local` (e.g. `/raid/triton-repo-2011/models`)

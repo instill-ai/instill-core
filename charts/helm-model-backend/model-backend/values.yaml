@@ -19,30 +19,32 @@ imagePullSecrets:
 
 image:
   # -- model backend image registry
-  registry: temporalio
+  registry: registry.hub.docker.com/instill
   # -- model backend image name
-  repository: auto-setup
+  repository: model-backend
   # -- model backend image tag, default is the chart appVersion
-  tag: 1.17.1
-  # -- The image pulling policy
-  pullPolicy: IfNotPresent
-
-temporalUiImage:
-  # -- model backend image registry
-  registry: temporalio
-  # -- model backend image name
-  repository: ui
-  # -- model backend image tag, default is the chart appVersion
-  tag: 2.3.0
+  tag: latest
   # -- The image pulling policy
   pullPolicy: IfNotPresent
 
 # -- Deployment
 deployment:
-  # -- Temporal configuration
+  # -- model-backend configurations
   config:
     server:
-      port: 7233
+      port: 8083
+      https:
+        cert:
+        key:
+      corsorigins:
+        - http://localhost:3000
+        - https://api.instill-inc.tech
+        - https://api.instill.tech
+        - https://api-d2.instill.tech
+      edition: local-ee:dev
+      disableusage: true
+      debug: true
+      itmode: false
     database:
       secret:
         name: db-user-pass
@@ -50,7 +52,52 @@ deployment:
         passwordkey: password
       host: pg-sql-postgresql.pg-sql
       port: 5432
-    dynamicconfig: config/dynamicconfig/docker.yaml
+    tritonserver:
+      grpcuri: triton-backend.triton-backend:8001
+      modelstore: /model-repository
+    mgmtbackend:
+      host: mgmt-backend.mgmt-backend
+      port: 8084
+      https:
+        cert:
+        key:
+    cache:
+      redis:
+        redisoptions:
+          addr: redis-master.redis:6379
+    usagebackend:
+      tlsenabled: true
+      host: usage.instill.tech
+      port: 443
+    pipelinebackend:
+      host: pipeline-backend.pipeline-backend
+      port: 8081
+      https:
+        cert:
+        key:
+    maxbatchsizelimitation:
+      unspecified: 2
+      classification: 16
+      detection: 8
+      keypoint: 8
+      ocr: 2
+      instancesegmentation: 8
+  # -- LivenessProbe
+  livenessProbe:
+    httpGet:
+      path: /v1alpha/__readiness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  # -- ReadynessProbe
+  readinessProbe:
+    httpGet:
+      path: /v1alpha/__liveness
+      scheme: HTTP
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
   # -- Internal cluster port through which the model backend server can be queried
   # -- If you want to add extra env variables
   extraEnv: []
@@ -76,8 +123,8 @@ deployment:
 service:
   # -- Kubernetes service type
   type: ClusterIP
-  # -- Port of the temporal server.
-  port: 7233
+  # -- Port of the pipeline backend server.
+  port: 8083
   annotations: {}
 
 # -- Security context for model backend pods
@@ -91,9 +138,7 @@ podSecurityContext: {}
 # readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
-securityContext:
-  fsGroup: 1000 #temporal group
-  runAsUser: 1000 #temporal user
+securityContext: {}
 
 # -- Resource assigned to the model backend server.
 # We usually recommend not to specify default resources and to leave this as a conscious

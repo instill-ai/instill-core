@@ -144,6 +144,8 @@ spec:
               value: "{{ .Values.deployment.config.database.host }}"
             - name: CFG_DATABASE_PORT
               value: "{{ .Values.deployment.config.database.port }}"
+            - name: CFG_SERVER_DISABLEUSAGE
+              value: "{{ .Values.deployment.config.server.disableusage }}"
             {{- if .Values.deployment.extraEnv }}
               {{ toYaml .Values.deployment.extraEnv | indent 12 }}
             {{- end }}

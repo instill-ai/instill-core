@@ -29,7 +29,7 @@ deployment:
         - https://instill-inc.tech
         - https://instill.tech
       edition: local-ce:dev
-      disableusage: false
+      disableusage: true
       debug: true
     database:
       host: pg-sql-postgresql.pg-sql

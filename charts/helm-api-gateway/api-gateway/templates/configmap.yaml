@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env
+  namespace: {{ .Release.Namespace }}
+data:
+  .env: |-
+    #----------- Version --------------------------#
+    BASE_KRAKEND_VERSION=2.1.0
+
+    #----------- Hosts and Ports ------------------#
+    API_GATEWAY_HOST={{ .Values.apiGateway.host }}
+    API_GATEWAY_HTTPS_PORT={{ .Values.apiGateway.port.http }}
+    API_GATEWAY_STATS_PORT={{ .Values.apiGateway.port.stats }}
+    API_GATEWAY_METRICS_PORT={{ .Values.apiGateway.port.metrics }}
+
+    INFLUXDB_HOST={{ .Values.influxDB.host }}
+    INFLUXDB_HTTPS_PORT={{ .Values.influxDB.port }}
+
+    MGMT_BACKEND_HOST={{ .Values.mgmtBackend.host }}
+    MGMT_BACKEND_PORT={{ .Values.mgmtBackend.port }}
+
+    MODEL_BACKEND_HOST={{ .Values.modelBackend.host }}
+    MODEL_BACKEND_PORT={{ .Values.modelBackend.port }}
+
+    PIPELINE_BACKEND_HOST={{ .Values.pipelineBackend.host }}
+    PIPELINE_BACKEND_PORT={{ .Values.pipelineBackend.port }}
+    
+    CONNECTOR_BACKEND_HOST={{ .Values.connectorBackend.host }}
+    CONNECTOR_BACKEND_PORT={{ .Values.connectorBackend.port }}
+
+{{- if .Values.debug.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: krakend
+  namespace: {{ .Release.Namespace }}
+data:
+  krakend.json: |-
+{{ tpl (.Files.Get "config/krakend.json") . | indent 4 }}
+{{- end }}

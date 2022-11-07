@@ -13,10 +13,12 @@
   - [Uninstall](#uninstall)
 - [Chart values](#chart-values)
 
+### Caution
+> :warning: If deploying with `terraform-on-prem-dgx-common` on `g0` with `debug.enabled=true`, remember to keep the KrakenD configuration file `config/krakend-g0.json`up to the version for testing.
+
 # Requirements
 
-{{ template "chart.requirementsTable" . }}
-
+This Helm chart uses [cert-manager](https://cert-manager.io) for TLS certificate management. Please make sure cert-manager has been deployed on the target Kubernetes cluster.
 
 # Deploy the Chart
 

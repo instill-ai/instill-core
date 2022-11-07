@@ -29,7 +29,7 @@ deployment:
         - https://instill-inc.tech
         - https://instill.tech
       edition: local-ce:dev
-      disableusage: false
+      disableusage: true
       debug: true
     worker:
       mountsource:
@@ -51,7 +51,7 @@ deployment:
         connlifetime: 30m # In minutes, e.g., '60m'
     temporal:
       clientoptions:
-        hostport: temporal.temporal:7233
+        hostport: temporal-frontend.temporal:7233
     pipelinebackend:
       host: pipeline-backend.pipeline-backend
       port: 8081

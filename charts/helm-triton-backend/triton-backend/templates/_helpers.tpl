@@ -65,3 +65,25 @@ Selector labels
 app.kubernetes.io/name: {{ include "triton-backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Triton server image tag
+*/}}
+{{- define "triton-backend.dockerImageTag" -}}
+{{- if eq .Values.arch "arm64" -}}
+{{- printf "%v-py3-cpu-arm64" .Values.image.tag -}}
+{{- else -}}
+{{- printf "%v-py3" .Values.image.tag -}}
+{{- end }}
+{{- end }}
+
+{{/*
+Triton conda environment image tag
+*/}}
+{{- define "triton-backend.tritonEnvImageTag" -}}
+{{- if eq .Values.arch "arm64" -}}
+{{- printf "%v-m1" .Values.tritonEnv.tag -}}
+{{- else -}}
+{{- printf "%v-cpu" .Values.tritonEnv.tag -}}
+{{- end }}
+{{- end }}

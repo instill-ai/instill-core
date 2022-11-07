@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "api-gateway.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "api-gateway.labels" . | nindent 4 }}
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+{{- if .Values.podAnnotations }}
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+spec:
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "api-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "api-gateway.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+      {{- if .Values.debug.enabled }}
+      - name: volume-config
+        configMap:
+          name: krakend
+      {{- end }}
+      - name: volume-env
+        configMap:
+          name: env
+      {{- if and .Values.apiGateway.https.cert .Values.apiGateway.https.key }}
+      - name: volume-tls-ca-secret
+        secret:
+          secretName: {{ include "api-gateway.fullname" . }}-tls
+          items:
+          - key: ca.crt
+            path: ca.crt
+      - name: volume-tls-secret
+        secret:
+          secretName: {{ include "api-gateway.fullname" . }}-tls
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.apiGateway.port.http }}
+          protocol: TCP
+        - name: stats
+          containerPort: {{ .Values.apiGateway.port.stats }}
+          protocol: TCP
+        - name: metrics
+          containerPort: {{ .Values.apiGateway.port.metrics }}
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml .Values.apiGateway.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.apiGateway.readinessProbe | nindent 10 }}
+        volumeMounts:
+        {{- if .Values.debug.enabled }}
+        - name: volume-config
+          mountPath: "/api-gateway/config/krakend.json"
+          subPath: "krakend.json"
+        {{- end }}
+        - name: volume-env
+          mountPath: "/api-gateway/.env"
+          subPath: ".env"
+          readOnly: true
+        {{- if and .Values.apiGateway.https.cert .Values.apiGateway.https.key }}
+        - name: volume-tls-ca-secret
+          mountPath: "/etc/ssl/certs/ca.crt"
+          subPath: "ca.crt"
+          readOnly: true
+        - name: volume-tls-secret
+          mountPath: "/api-gateway/ssl"
+          readOnly: true
+        {{- end }}
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            bash config/envsubst.sh &&
+            FC_ENABLE=1 \
+            FC_SETTINGS="config/settings" \
+            FC_PARTIALS="config/partials" \
+            FC_TEMPLATES="config/templates" \
+            FC_OUT="config/out.json" \
+            krakend check -c config/base.json &&
+            jq . config/out.json > config/krakend.json &&
+            rm /api-gateway/config/out.json &&
+            krakend run \
+          {{- if .Values.debug.enabled }}
+            --debug \
+          {{- end }}
+            --config \
+            /api-gateway/config/krakend.json
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+{{- end }}

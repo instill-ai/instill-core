@@ -1,6 +1,0 @@
-apiVersion: v2
-name: temporal
-description: A Helm chart to deploy the temporal server on Kubernetes
-type: application
-version: 0.0.1
-appVersion: 1.17.1
