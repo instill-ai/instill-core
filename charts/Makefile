@@ -57,22 +57,11 @@ init: ## create cert, namespace, secret, sql and redis
 	@helm repo add pg-sql https://charts.bitnami.com/bitnami
 	@helm install pg-sql pg-sql/postgresql -n pg-sql --create-namespace --set global.postgresql.auth.postgresPassword=${DB_PASSWORD}
 	@helm install redis redis/redis -n redis --create-namespace --set auth.enabled=false
-	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n pg-sql -o 'jsonpath={.items..metadata.name}')  -n pg-sql && sleep 1 &&\
-	kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432 & sleep 1 &&\
-	cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql &&\
+	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n pg-sql -o 'jsonpath={.items..metadata.name}')  -n pg-sql &&\
+	kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432
+	@cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql &&\
 	cd ../helm-temporal && helm install -n temporal temporal -f values/values.postgresql.yaml --set server.replicaCount=1 --set cassandra.enabled=false --set prometheus.enabled=false --set grafana.enabled=false --set elasticsearch.enabled=false --set server.config.persistence.default.sql.user=postgres --set server.config.persistence.default.sql.password=${DB_PASSWORD} --set server.config.persistence.default.sql.host=pg-sql-postgresql.pg-sql  --set server.config.persistence.visibility.sql.user=postgres --set server.config.persistence.visibility.sql.password=${DB_PASSWORD} --set server.config.persistence.visibility.sql.host=pg-sql-postgresql.pg-sql . > /dev/null 2>&1 || true
 	@kubectl exec -it services/temporal-admintools -n temporal -- /bin/bash -c "tctl --ns default namespace register" > /dev/null 2>&1 || true ##deploy helm namespace default is not created
-
-.PHONY: test
-test: ## create cert, namespace, secret, sql and redis
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres drop --db $(TEMPORAL_DB) -f
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres create --db $(TEMPORAL_DB)
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres --db $(TEMPORAL_DB) setup -v 0.0
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres --db $(TEMPORAL_DB) update-schema -d ./schema/postgresql/v96/temporal/versioned
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres drop --db $(VISIBILITY_DB) -f
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres create --db $(VISIBILITY_DB)
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres --db $(VISIBILITY_DB) setup-schema -v 0.0
-	cd temporal && ./temporal-sql-tool -u postgres -pw 17930 -p 5432 --pl postgres --db $(VISIBILITY_DB) update-schema -d ./schema/postgresql/v96/visibility/versioned
 
 .PHONY: install
 install: ## install helm chart backends
@@ -91,8 +80,8 @@ stop:
 .PHONY: destroy
 destroy:
 	@for ns in ${ALL_SERVICES}; do kubectl delete namespace $$ns > /dev/null 2>&1 || true; done
-	@rm -rf temporal; rm -rf helm-temporal
 
 .PHONY: delete
 delete:
 	@minikube delete
+	@rm -rf temporal; rm -rf helm-temporal  > /dev/null 2>&1 || true
