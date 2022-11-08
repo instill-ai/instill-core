@@ -58,7 +58,8 @@ init: ## create cert, namespace, secret, sql and redis
 	@helm install pg-sql pg-sql/postgresql -n pg-sql --create-namespace --set global.postgresql.auth.postgresPassword=${DB_PASSWORD}
 	@helm install redis redis/redis -n redis --create-namespace --set auth.enabled=false
 	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n pg-sql -o 'jsonpath={.items..metadata.name}')  -n pg-sql &&\
-	kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432
+	kill -9 $(shell lsof -t -i:5432) > /dev/null 2>&1 || true && kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432 &
+	@wait $!
 	@cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql &&\
 	cd ../helm-temporal && helm install -n temporal temporal -f values/values.postgresql.yaml --set server.replicaCount=1 --set cassandra.enabled=false --set prometheus.enabled=false --set grafana.enabled=false --set elasticsearch.enabled=false --set server.config.persistence.default.sql.user=postgres --set server.config.persistence.default.sql.password=${DB_PASSWORD} --set server.config.persistence.default.sql.host=pg-sql-postgresql.pg-sql  --set server.config.persistence.visibility.sql.user=postgres --set server.config.persistence.visibility.sql.password=${DB_PASSWORD} --set server.config.persistence.visibility.sql.host=pg-sql-postgresql.pg-sql . > /dev/null 2>&1 || true
 	@kubectl exec -it services/temporal-admintools -n temporal -- /bin/bash -c "tctl --ns default namespace register" > /dev/null 2>&1 || true ##deploy helm namespace default is not created
