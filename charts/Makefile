@@ -36,9 +36,9 @@ setup: ## install minikube, helm, pull helm chart repositories
 	@sudo install ${MINIKUBE_BIN} /usr/local/bin/minikube
 	@curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
 	@rm ${MINIKUBE_BIN} ./get_helm.sh
-	@printf "set up latest helm-temporal: " && [ ! -d "helm-temporal" ] && git clone https://github.com/temporalio/helm-charts.git helm-temporal || git -C helm-temporal fetch && git -C helm-temporal reset --hard v1.18.0
+	@printf "set up latest helm-temporal v1.18.0: " && [ ! -d "helm-temporal" ] && git clone https://github.com/temporalio/helm-charts.git helm-temporal || git -C helm-temporal fetch && git -C helm-temporal reset --hard v1.18.0
 	@cd helm-temporal && helm dependency build
-	@printf "set up latest temporal: " && [ ! -d "temporal" ] && git clone https://github.com/temporalio/temporal.git temporal || git -C temporal fetch && git -C temporal reset --hard v1.18.4
+	@printf "set up temporal v1.18.4: " && [ ! -d "temporal" ] && git clone https://github.com/temporalio/temporal.git temporal || git -C temporal fetch && git -C temporal reset --hard v1.18.4
 	@cd temporal && make temporal-sql-tool
 
 .PHONY: start
@@ -54,15 +54,15 @@ init: ## create cert, namespace, secret, sql and redis
 	@kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.crds.yaml
 	@for ns in ${ALL_SERVICES}; do kubectl create namespace $$ns > /dev/null 2>&1 || true; done
 	@for ns in ${ALL_SERVICES}; do kubectl create secret generic db-user-pass --from-literal=username=postgres --from-literal=password=${DB_PASSWORD} -n $$ns > /dev/null 2>&1 || true; done
+	@helm install redis redis/redis -n redis --create-namespace --set auth.enabled=false && wait $!
 	@helm repo add pg-sql https://charts.bitnami.com/bitnami
 	@helm install pg-sql pg-sql/postgresql -n pg-sql --create-namespace --set global.postgresql.auth.postgresPassword=${DB_PASSWORD}
-	@helm install redis redis/redis -n redis --create-namespace --set auth.enabled=false
-	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n pg-sql -o 'jsonpath={.items..metadata.name}')  -n pg-sql &&\
-	kill -9 $(shell lsof -t -i:5432) > /dev/null 2>&1 || true && kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432 &
-	@wait $!
-	@cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql &&\
+# 	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n pg-sql -o 'jsonpath={.items..metadata.name}')  -n pg-sql --timeout=60s > /dev/null 2>&1 || true
+	@sleep 60 && kill -9 $(shell lsof -t -i:5432) > /dev/null 2>&1 || true && kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432 &
+	@sleep 10 && cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql &&\
 	cd ../helm-temporal && helm install -n temporal temporal -f values/values.postgresql.yaml --set server.replicaCount=1 --set cassandra.enabled=false --set prometheus.enabled=false --set grafana.enabled=false --set elasticsearch.enabled=false --set server.config.persistence.default.sql.user=postgres --set server.config.persistence.default.sql.password=${DB_PASSWORD} --set server.config.persistence.default.sql.host=pg-sql-postgresql.pg-sql  --set server.config.persistence.visibility.sql.user=postgres --set server.config.persistence.visibility.sql.password=${DB_PASSWORD} --set server.config.persistence.visibility.sql.host=pg-sql-postgresql.pg-sql . > /dev/null 2>&1 || true
-	@kubectl exec -it services/temporal-admintools -n temporal -- /bin/bash -c "tctl --ns default namespace register" > /dev/null 2>&1 || true ##deploy helm namespace default is not created
+# 	@kubectl wait --for=condition=ready pod $(shell kubectl get pods -n temporal -o 'jsonpath={.items..metadata.name}')  -n temporal --timeout=60s > /dev/null 2>&1 || true
+	@sleep 60 && kubectl exec -it services/temporal-admintools -n temporal -- /bin/bash -c "tctl --ns default namespace register" > /dev/null 2>&1 || true ##deploy helm namespace default is not created
 
 .PHONY: install
 install: ## install helm chart backends
