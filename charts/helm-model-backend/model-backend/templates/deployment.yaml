@@ -165,6 +165,8 @@ spec:
               value: "{{ .Values.deployment.config.pipelinebackend.port }}"
             - name: CFG_TRITONSERVER_GRPCURI
               value: "{{ .Values.deployment.config.tritonserver.grpcuri }}"
+            - name: CFG_CACHE_REDIS_REDISOPTIONS_ADDR
+              value: "{{ .Values.deployment.config.cache.redis.redisoptions.addr }}"
             {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
             - name: CFG_SERVER_HTTPS_CERT
               value: "{{ .Values.deployment.config.server.https.cert }}"
