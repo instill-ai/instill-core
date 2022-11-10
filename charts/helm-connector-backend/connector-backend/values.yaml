@@ -13,7 +13,7 @@ image:
   repository: connector-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 0.7.0-alpha
+  tag: latest
 
 # -- Deployment
 deployment:
@@ -116,13 +116,15 @@ service:
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+   runAsUser: 0
+   runAsGroup: 1000
+   fsGroup: 1000
 
 ingress:
   enabled: false
