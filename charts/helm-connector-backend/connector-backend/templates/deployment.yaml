@@ -42,6 +42,9 @@ spec:
           # Directory location on host
           path: "/airbyte"
           type: DirectoryOrCreate
+      - name: docker-sock
+        hostPath:
+          path: /var/run
       {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
       - name: volume-tls-secret-ca
         configMap:
@@ -110,6 +113,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: worker-source-vdp-volume
+            mountPath: /vdp
+          - name: worker-source-airbyte-volume
+            mountPath: /airbyte
+          - mountPath: /var/run
+            name: docker-sock
           command: ["./connector-backend-worker"]
           env:
             - name: CFG_WORKER_MOUNTSOURCE_VDP
