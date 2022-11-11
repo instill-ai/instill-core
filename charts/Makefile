@@ -50,19 +50,7 @@ start:
 
 .PHONY: init
 init: ## create cert, namespace, secret, sql and redis
-	@kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
-	@kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.crds.yaml
-	@for ns in ${ALL_SERVICES}; do kubectl create namespace $$ns > /dev/null 2>&1 || true; done
-	@for ns in ${ALL_SERVICES}; do kubectl create secret generic db-user-pass --from-literal=username=postgres --from-literal=password=${DB_PASSWORD} -n $$ns > /dev/null 2>&1 || true; done
-	@helm repo add redis https://charts.bitnami.com/bitnami
-	@helm install redis redis/redis -n redis --create-namespace --set auth.enabled=false > /dev/null 2>&1 || true
-	@helm repo add pg-sql https://charts.bitnami.com/bitnami
-	@helm install pg-sql pg-sql/postgresql -n pg-sql --create-namespace --set global.postgresql.auth.postgresPassword=${DB_PASSWORD} > /dev/null 2>&1 || true && \
-	sleep 10 && kubectl wait --for=condition=ready pod pg-sql-postgresql-0 -n pg-sql && sleep 1 && \
-	kill $(shell lsof -t -i:5432) > /dev/null 2>&1 || true && kubectl port-forward --namespace pg-sql svc/pg-sql-postgresql 5432:5432 & \
-	sleep 60 && cd temporal && export SQL_PLUGIN=postgres && export SQL_HOST=127.0.0.1 && export SQL_PORT=5432 && export SQL_USER=postgres && export SQL_PASSWORD=${DB_PASSWORD} && export SQL_DATABASE=temporal && export TEMPORAL_DB=temporal && make install-schema-postgresql && \
-	cd ../helm-temporal && helm install -n temporal temporal -f values/values.postgresql.yaml --set server.replicaCount=1 --set cassandra.enabled=false --set prometheus.enabled=false --set grafana.enabled=false --set elasticsearch.enabled=false --set server.config.persistence.default.sql.user=postgres --set server.config.persistence.default.sql.password=${DB_PASSWORD} --set server.config.persistence.default.sql.host=pg-sql-postgresql.pg-sql  --set server.config.persistence.visibility.sql.user=postgres --set server.config.persistence.visibility.sql.password=${DB_PASSWORD} --set server.config.persistence.visibility.sql.host=pg-sql-postgresql.pg-sql . > /dev/null 2>&1 || true &&\
-	sleep 30 && kubectl exec -it services/temporal-admintools -n temporal -- /bin/bash -c "tctl --ns default namespace register" > /dev/null 2>&1 || true
+	@./script/init.sh "${ALL_SERVICES}"
 
 .PHONY: install
 install: ## install helm chart backends
