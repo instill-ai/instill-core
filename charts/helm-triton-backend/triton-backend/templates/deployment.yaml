@@ -72,7 +72,7 @@ spec:
           args: [
             "/bin/bash",
             "-c",
-            "tritonserver --model-store={{ .Values.image.modelRepositoryPath }} --allow-http=true --model-control-mode=explicit --strict-model-config=false --log-verbose=1"
+            "tritonserver --model-store={{ .Values.image.modelRepositoryPath }} --allow-http=true --model-control-mode=explicit --strict-model-config=false"
           ]
           ports:
             - containerPort: 8000
