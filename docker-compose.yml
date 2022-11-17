@@ -16,8 +16,6 @@ volumes:
 
 services:
   api_gateway:
-    profiles:
-      - all
     container_name: ${API_GATEWAY_HOST}
     image: instill/api-gateway:${API_GATEWAY_VERSION}
     build:
