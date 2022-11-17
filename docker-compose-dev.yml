@@ -388,7 +388,7 @@ services:
     environment:
       NVIDIA_VISIBLE_DEVICES: 0
       LD_PRELOAD: /opt/tritonserver/lib/libgomp-d22c30c5.so.1
-    command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false --log-verbose=1
+    command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     ports:
       - ${TRITON_SERVER_PORT}:8001
     volumes:
