@@ -15,6 +15,33 @@ volumes:
     name: model-repository
 
 services:
+  api_gateway:
+    profiles:
+      - all
+    container_name: ${API_GATEWAY_HOST}
+    image: instill/api-gateway:${API_GATEWAY_VERSION}
+    build:
+      context: ./dev/api-gateway
+      args:
+        - SERVICE_NAME=api-gateway
+    restart: on-failure
+    ports:
+      - ${API_GATEWAY_PORT}:8000
+    environment:
+      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
+      CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CONNECTOR_BACKEND_PORT: ${CONNECTOR_BACKEND_PORT}
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
+      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
+    depends_on:
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - pipeline_backend
+
   pipeline_backend_migrate:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}

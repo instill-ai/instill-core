@@ -15,6 +15,33 @@ volumes:
     name: model-repository
 
 services:
+  api_gateway:
+    profiles:
+      - all
+    container_name: ${API_GATEWAY_HOST}
+    image: instill/api-gateway:latest
+    build:
+      context: ./dev/api-gateway
+      args:
+        - SERVICE_NAME=api-gateway
+    restart: on-failure
+    ports:
+      - ${API_GATEWAY_PORT}:8000
+    environment:
+      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
+      CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CONNECTOR_BACKEND_PORT: ${CONNECTOR_BACKEND_PORT}
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
+      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
+    depends_on:
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - pipeline_backend
+
   pipeline_backend_migrate:
     profiles:
       - all
@@ -22,6 +49,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/pipeline-backend:latest
     build:
@@ -46,6 +74,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/pipeline-backend:latest
     build:
@@ -87,6 +116,7 @@ services:
       - pipeline
       - model
       - console
+      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: instill/connector-backend:latest
     build:
@@ -111,6 +141,7 @@ services:
       - pipeline
       - model
       - console
+      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-init
     image: instill/connector-backend:latest
     build:
@@ -134,6 +165,7 @@ services:
       - pipeline
       - model
       - console
+      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
     image: instill/connector-backend:latest
     build:
@@ -167,6 +199,7 @@ services:
       - pipeline
       - model
       - console
+      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}
     image: instill/connector-backend:latest
     build:
@@ -202,6 +235,7 @@ services:
       - pipeline
       - connector
       - console
+      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}-migrate
     image: instill/model-backend:latest
     build:
@@ -226,6 +260,7 @@ services:
       - pipeline
       - connector
       - console
+      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}-init
     image: instill/model-backend:latest
     build:
@@ -286,6 +321,7 @@ services:
       - pipeline
       - connector
       - console
+      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}
     image: instill/model-backend:latest
     build:
@@ -329,6 +365,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/mgmt-backend:latest
     build:
@@ -353,6 +390,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}-init
     image: instill/mgmt-backend:latest
     build:
@@ -376,6 +414,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}
     image: instill/mgmt-backend:latest
     build:
@@ -407,6 +446,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: triton-conda-env
     image: ${TRITONCONDAENV_IMAGE_TAG}
     volumes:
@@ -420,6 +460,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${TRITON_SERVER_HOST}
     image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
@@ -452,6 +493,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${POSTGRESQL_HOST}
     image: postgres:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
@@ -495,6 +537,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${TEMPORAL_HOST}
     image: temporalio/auto-setup:${TEMPORAL_VERSION}
     restart: unless-stopped
@@ -527,6 +570,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${TEMPORAL_HOST}-admin-tools
     image: temporalio/admin-tools:${TEMPORAL_VERSION}
     restart: unless-stopped
@@ -546,6 +590,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${TEMPORAL_UI_HOST}
     image: temporalio/ui:${TEMPORAL_UI_VERSION}
     restart: unless-stopped
@@ -564,6 +609,7 @@ services:
       - connector
       - model
       - console
+      - api-gateway
     container_name: ${REDIS_HOST}
     image: ${REDIS_IMAGE_TAG}
     restart: unless-stopped

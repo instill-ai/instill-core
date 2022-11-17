@@ -79,6 +79,7 @@ build:							## Build all dev docker images
 	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
 	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
 	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
+	@printf "set up latest api gateway: " && [ ! -d "dev/api-gateway" ] && git clone https://github.com/instill-ai/api-gateway.git dev/api-gateway || git -C dev/api-gateway fetch && git -C dev/api-gateway reset --hard origin/add-backends
 	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
 
 .PHONY: doc
