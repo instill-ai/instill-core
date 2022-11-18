@@ -11,6 +11,7 @@ include ../.env
 export
 
 MINIKUBE_BIN := $(if $(filter arm64,$(shell uname -m)),minikube-darwin-arm64,minikube-linux-amd64)
+KIND_BIN := $(if $(filter arm64,$(shell uname -m)),kind-darwin-arm64,kind-linux-amd64)
 
 TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:${TRITON_SERVER_VERSION}-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3)
 TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-m1,instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu)
@@ -25,14 +26,27 @@ ifeq ($(NVIDIA_SMI),0)
 	TRITONCONDAENV_IMAGE_TAG := instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-gpu
 endif
 
+# LOCAL_KUBERNETES := minikube
+ifeq ($(kube),'')
+	LOCAL_KUBERNETES="minikube"
+else
+	LOCAL_KUBERNETES=$(kube)
+endif
 #============================================================================
 
 .PHONY: setup
 setup: ## install minikube, helm, pull helm chart repositories
-	@curl -LO https://storage.googleapis.com/minikube/releases/latest/${MINIKUBE_BIN}
-	@sudo install ${MINIKUBE_BIN} /usr/local/bin/minikube
+	@if [ "$(kube)" = "minikube" ] || [ "$(kube)" = "" ]; then\
+		curl -LO https://storage.googleapis.com/minikube/releases/latest/${MINIKUBE_BIN}; \
+		sudo install ${MINIKUBE_BIN} /usr/local/bin/minikube; \
+	elif  [ "$(kube)" = "kind" ]; then \
+		curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/${KIND_BIN}; \
+		chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind; \
+	else \
+		echo "Not support $(kube)!"; \
+    fi
 	@curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
-	@rm ${MINIKUBE_BIN} ./get_helm.sh
+	@rm ${MINIKUBE_BIN} ./get_helm.sh > /dev/null 2>&1 || true
 	@printf "set up latest helm-temporal ${TEMPORAL_HELM_VERSION}: " && [ ! -d "helm-temporal" ] && git clone https://github.com/temporalio/helm-charts.git helm-temporal || git -C helm-temporal fetch && git -C helm-temporal reset --hard ${TEMPORAL_HELM_VERSION}
 	@cd helm-temporal && helm dependency build
 	@printf "set up temporal ${TEMPORAL_VERSION}: " && [ ! -d "temporal" ] && git clone https://github.com/temporalio/temporal.git temporal || git -C temporal fetch && git -C temporal reset --hard ${TEMPORAL_VERSION}
@@ -40,10 +54,16 @@ setup: ## install minikube, helm, pull helm chart repositories
 
 .PHONY: start
 start:
-	@minikube start --driver=docker
-	@minikube ssh docker pull ${TRITONSERVER_IMAGE_TAG}  ## minikube limit download image timeout 2minutes, then large image should be manually connect ssh and pull
-	@minikube ssh docker pull ${TRITONCONDAENV_IMAGE_TAG}
-	@sudo minikube tunnel
+	@if [ "$(kube)" = "minikube" ] || [ "$(kube)" = "" ]; then\
+		minikube start --driver=docker; \
+		minikube ssh docker pull ${TRITONSERVER_IMAGE_TAG}; \
+		minikube ssh docker pull ${TRITONCONDAENV_IMAGE_TAG}; \
+	elif  [ "$(kube)" = "kind" ]; then \
+		kind create cluster; \
+	else \
+		echo "Not support $(kube)!"; \
+    fi
+
 
 .PHONY: init
 init: ## create cert, namespace, secret, sql and redis
@@ -51,13 +71,11 @@ init: ## create cert, namespace, secret, sql and redis
 
 .PHONY: install
 install: ## install helm chart backends
-	@cd helm-triton-backend/triton-backend && helm install -n triton-backend triton-backend . --set arch=$(shell uname -m) > /dev/null 2>&1 || true
-	@for srv in ${INSTILL_SERVICES}; do helm install -n $$srv $$srv helm-$$srv/$$srv > /dev/null 2>&1 || true ; done
+	@./script/install.sh "${INSTILL_SERVICES}"
 
 .PHONY: uninstall
 uninstall: ## uninstall helm chart backends
-	@cd helm-triton-backend/triton-backend && helm uninstall -n triton-backend triton-backend > /dev/null 2>&1 || true
-	@for srv in ${INSTILL_SERVICES}; do helm uninstall -n $$srv $$srv helm-$$srv/$$srv > /dev/null 2>&1 || true ; done
+	@./script/uninstall.sh "${INSTILL_SERVICES}"
 
 .PHONY: stop
 stop:
@@ -69,5 +87,12 @@ destroy:
 
 .PHONY: delete
 delete:
-	@minikube delete
+	@if [ "$(kube)" = "minikube" ] || [ "$(kube)" = "" ]; then\
+		minikube delete; \
+	elif  [ "$(kube)" = "kind" ]; then \
+		kind delete cluster; \
+	else \
+		echo "Not support $(kube)!"; \
+    fi
 	@rm -rf temporal; rm -rf helm-temporal  > /dev/null 2>&1 || true
+
