@@ -3,6 +3,7 @@
 ### Execute the following commands to deploy backend services into local Kubernetes cluster:
 
 #### Download tools minikube/kind/temporal
+Note: If you already have local Kubernetes tool, please skip this step
 ```bash
 # Download minikube/kind, helm
 # kube=minikube or kube=kind is optional parameter, default is minikube 
@@ -14,6 +15,9 @@ $ make setup kube=kind  # deploy with Kind
 ```
 
 #### Start creating a local Kubernetes cluster
+Note: 
+- If you already have local Kubernetes cluster (using Docker Kubernetes enables, Minikube or Kind, etc), please skip this step
+- If you are using Docker Kubernetes enables, please run `make pull` to download all docker images
 ```bash
 # start creating Kubernetes cluster
 # kube=minikube or kube=kind is optional parameter, default is minikube 
