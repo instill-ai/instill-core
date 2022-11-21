@@ -1,6 +1,6 @@
 .DEFAULT_GOAL:=help
 
-INSTILL_SERVICES := mgmt-backend model-backend pipeline-backend connector-backend api-gateway
+INSTILL_SERVICES := mgmt-backend model-backend pipeline-backend connector-backend api-gateway console
 3RD_PARTY_SERVICES := pg-sql temporal redis triton-backend
 ALL_SERVICES := ${INSTILL_SERVICES} ${3RD_PARTY_SERVICES}
 
