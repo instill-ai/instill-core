@@ -18,7 +18,7 @@ TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/trito
 REDIS_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),arm64v8/redis:${REDIS_VERSION}-alpine,amd64/redis:${REDIS_VERSION}-alpine)
 
 TEMPORAL_HELM_VERSION=v1.18.0
-TEMPORAL_VERSION=v1.18.4
+TEMPORAL_TOOL_VERSION=v1.18.4
 
 NVIDIA_SMI := $(shell nvidia-smi 2>/dev/null 1>&2; echo $$?)
 ifeq ($(NVIDIA_SMI),0)
@@ -49,7 +49,7 @@ setup: ## install minikube, helm, pull helm chart repositories
 	@rm ${MINIKUBE_BIN} ./get_helm.sh > /dev/null 2>&1 || true
 	@printf "set up latest helm-temporal ${TEMPORAL_HELM_VERSION}: " && [ ! -d "helm-temporal" ] && git clone https://github.com/temporalio/helm-charts.git helm-temporal || git -C helm-temporal fetch && git -C helm-temporal reset --hard ${TEMPORAL_HELM_VERSION}
 	@cd helm-temporal && helm dependency build
-	@printf "set up temporal ${TEMPORAL_VERSION}: " && [ ! -d "temporal" ] && git clone https://github.com/temporalio/temporal.git temporal || git -C temporal fetch && git -C temporal reset --hard ${TEMPORAL_VERSION}
+	@printf "set up temporal ${TEMPORAL_TOOL_VERSION}: " && [ ! -d "temporal" ] && git clone https://github.com/temporalio/temporal.git temporal || git -C temporal fetch && git -C temporal reset --hard ${TEMPORAL_TOOL_VERSION}
 	@cd temporal && make temporal-sql-tool
 
 .PHONY: start
@@ -68,6 +68,11 @@ start:
 .PHONY: init
 init: ## create cert, namespace, secret, sql and redis
 	@./script/init.sh "${ALL_SERVICES}"
+
+.PHONY: pull
+pull: ## Pull all service images
+	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@cd .. && docker-compose pull
 
 .PHONY: install
 install: ## install helm chart backends
