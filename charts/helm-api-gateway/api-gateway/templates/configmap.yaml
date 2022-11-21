@@ -14,9 +14,6 @@ data:
     API_GATEWAY_STATS_PORT={{ .Values.apiGateway.port.stats }}
     API_GATEWAY_METRICS_PORT={{ .Values.apiGateway.port.metrics }}
 
-    INFLUXDB_HOST={{ .Values.influxDB.host }}
-    INFLUXDB_HTTPS_PORT={{ .Values.influxDB.port }}
-
     MGMT_BACKEND_HOST={{ .Values.mgmtBackend.host }}
     MGMT_BACKEND_PORT={{ .Values.mgmtBackend.port }}
 
