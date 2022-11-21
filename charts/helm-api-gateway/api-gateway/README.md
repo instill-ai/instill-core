@@ -67,49 +67,59 @@ The following table lists the configurable parameters of the Helm Chart and thei
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| nameOverride | string | `nil` | Name to override |
+| fullnameOverride | string | `nil` | Full name to override |
+| replicaCount | int | `1` | Number of instances to deploy for the KrakenD API Gateway deployment |
+| image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
+| image.repository | string | `connector-backend` | The image repository name |
+| image.tag | string | `latest` | The image tag |
+| image.pullPolicy | string | `"IfNotPresent"` | The image pulling policy |
+| debug.enabled | bool | `false` | Enable KrakenD debug mode |
+| ingress.enabled | bool | `false` | Ingress enable/disable |
+| ingress.annotations | object | `{}` | Ingress annotations |
+| ingress.hosts | list | `[]` | Ingress hosts |
+| ingress.paths | list | `[]` | Ingress paths |
+| ingress.pathType | string | `nil` | Ingress pathType |
+| ingress.tls | list | `[{"hosts":[null],"secretName":null}]` | Ingress TLS certificates |
+| service.annotations | object | `{}` | Service annotations |
+| service.type | string | `"NodePort"` | Service type |
+| service.nodePortHttp | int | `30100` | NodePort for https port |
+| service.nodePortStats | int | `30101` | NodePort for stats port |
+| service.nodePortMetrics | int | `30102` | NodePort for metrics port |
+| strategy | object | `{}` | The strategy used to replace old Pods by new ones, which can be "Recreate" or "RollingUpdate". "RollingUpdate" is the default value. |
+| resources | object | `{}` | Resources assigned to the API Gateway. This is left empty by default to allow the user to configure it at install time. Resources should not be hardcoded here, but specified at install time to provide flexibility |
+| nodeSelector | object | `{}` | Pod nodeSelector |
+| tolerations | list | `[]` | Pod tolerations |
 | affinity | object | `{}` | Pod affinity |
+| podAnnotations | object | `{}` | Additional deployment annotations |
 | apiGateway.host | string | `nil` |  |
-| apiGateway.port.https | int | `8000` |  |
+| apiGateway.port.http | int | `8000` |  |
 | apiGateway.port.metrics | int | `9000` |  |
 | apiGateway.port.stats | int | `8090` |  |
-| cloudflareOriginCaKey | string | `nil` | Kubernetes secret name in which the Cloudflare Origin CA Key |
-| debug.enabled | bool | `false` | Enable KrakenD debug mode |
-| fullnameOverride | string | `nil` | Full name to override |
-| httpsPort | int | `8000` | Internal container port through which the KrakenD can be accessed |
-| hydra.audience | string | `nil` | 'audience' claim of the access token issued by Hydra. By default it is set to the Instill API url |
-| hydra.issuer | string | `"https://instill.tech/"` | 'issuer' claim of the token issued by Hydra. By default it is set to 'https://instill.tech/' |
-| hydra.publicDomain | string | `nil` | Hydra public service domain |
-| image.pullPolicy | string | `"Always"` | The image pulling policy |
-| image.registry | string | `nil` | The image registry address |
-| image.repository | string | `nil` | The image repository name |
-| image.tag | string | `nil` | The image tag |
-| inferenceBackend.host | string | `nil` |  |
-| inferenceBackend.port.https | int | `8443` |  |
-| influxDB.host | string | `nil` |  |
-| influxDB.port.https | int | `8086` |  |
-| ingress.annotations | object | `{}` | Ingress annotations |
-| ingress.enabled | bool | `false` | Ingress enable/disable |
-| ingress.hosts | list | `[]` | Ingress hosts |
-| ingress.pathType | string | `nil` | Ingress pathType |
-| ingress.paths | list | `[]` | Ingress paths |
-| ingress.tls | list | `[{"hosts":[null],"secretName":null}]` | Ingress TLS certificates |
-| metricsPort | int | `9000` | Internal container port through which Prometheus can scrape KrakenD metrics |
+| apiGateway.https.cert | string | `nil` |  |
+| apiGateway.https.key | string | `nil` |  |
 | mgmtBackend.host | string | `nil` |  |
-| mgmtBackend.port.https | int | `8444` |  |
+| mgmtBackend.port | int | `8084` |  |
+| mgmtBackend.https.cert | string | `nil` |  |
+| mgmtBackend.https.key | string | `nil` |  |
 | modelBackend.host | string | `nil` |  |
-| modelBackend.port.https | int | `8445` |  |
-| nameOverride | string | `nil` | Name to override |
-| nodeSelector | object | `{}` | Pod nodeSelector |
+| modelBackend.port | int | `8085` |  |
+| modelBackend.https.cert | string | `nil` |  |
+| modelBackend.https.key | string | `nil` |  |
 | pipelineBackend.host | string | `nil` |  |
-| pipelineBackend.port.https | int | `8443` |  |
-| podAnnotations | object | `{}` | Additional deployment annotations |
-| replicaCount | int | `1` | Number of instances to deploy for the KrakenD API Gateway deployment |
-| resources | object | `{}` | Resources assigned to the API Gateway. This is left empty by default to allow the user to configure it at install time. Resources should not be hardcoded here, but specified at install time to provide flexibility |
-| service.annotations | object | `{}` | Service annotations |
-| service.nodePortHttps | int | `30100` | NodePort for https port |
-| service.nodePortMetrics | int | `30102` | NodePort for metrics port |
-| service.nodePortStats | int | `30101` | NodePort for stats port |
-| service.type | string | `"NodePort"` | Service type |
-| statsPort | int | `8090` | Internal container port through which the KrakenD stats can be accessed |
-| strategy | object | `{}` | The strategy used to replace old Pods by new ones, which can be "Recreate" or "RollingUpdate". "RollingUpdate" is the default value. |
-| tolerations | list | `[]` | Pod tolerations |
+| pipelineBackend.port | int | `8083` |  |
+| pipelineBackend.https.cert | string | `nil` |  |
+| pipelineBackend.https.key | string | `nil` |  |
+| connectorBackend.host | string | `nil` |  |
+| connectorBackend.port | int | `8082` |  |
+| connectorBackend.https.cert | string | `nil` |  |
+| connectorBackend.https.key | string | `nil` |  |
+
+
+
+
+
+
+
+
+

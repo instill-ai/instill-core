@@ -99,11 +99,6 @@ apiGateway:
     initialDelaySeconds: 5
     periodSeconds: 10
 
-influxDB:
-  host:
-  port:
-    https: 8086
-
 mgmtBackend:
   host: mgmt-backend.mgmt-backend
   port: 8084
