@@ -10,11 +10,7 @@ Triton Inference Server
   - [Model repository](#model-repository)
     - [Locally accessible filesystem](#locally-accessible-filesystem)
   - [Installing the Chart](#installing-the-chart)
-    - [Pull images from a private registry](#pull-images-from-a-private-registry)
-    - [Deploy Triton inference server](#deploy-triton-inference-server)
       - [Install from source](#install-from-source)
-      - [Install from repository](#install-from-repository)
-  - [Use the inference server](#use-the-inference-server)
   - [Uninstalling the Chart](#uninstalling-the-chart)
 - [Values](#values)
 
@@ -103,7 +99,7 @@ Values for the Triton Server are described below.
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
 | replicaCount | int | `1` | Number of instances to deploy for the pipeline backend deployment |
-| imagePullSecrets | list | `[]` |  |
+| imagePullSecrets | list | `[]` | The image pull secret |
 | arch | string | `amd` | Architect host server (amd/arm) |
 | mode.useCpu | bool | `true` | Enable/Disable CPU inference |
 | tritonEnv.registry | string | `registry.hub.docker.com/instill` | Triton Conda Environment image registry address |
@@ -123,12 +119,12 @@ Values for the Triton Server are described below.
 | service.nodePortMetrics | int | `31002` | Kubernetes service nodePort for Metrics endpoint (optional). Same remarks. |
 | service.portGrpc | int | `8001` | Kubernetes internal service port for gRPC endpoint |
 | service.portHttp | int | `8000` | Kubernetes internal service port for HTTP/REST endpoint |
-| service.portMetrics | int | `8002` |  |
+| service.portMetrics | int | `8002` | Kubernetes internal service port for metrics endpoint |
 | service.type | string | `"NodePort"` | Kubernetes service type |
 | nodeSelector | object | `{}` | Pod nodeSelector |
 | tolerations | list | `[]` | Pod tolerations |
 | affinity | object | `{}` | Pod affinity |
 | podAnnotations | object | `{}` | Additional deployment annotations |
-| podDisruptionBudget.enabled | bool | `false` |  |
-| podDisruptionBudget.maxUnavailable | string | `nil` |  |
-| podDisruptionBudget.minAvailable | int | `1` |  |
+| podDisruptionBudget.enabled | bool | `false` | Pod disruption budget |
+| podDisruptionBudget.maxUnavailable | string | `nil` | Pod disruption budget maximum unavailable |
+| podDisruptionBudget.minAvailable | int | `1` | Pod disruption budget minimum available |

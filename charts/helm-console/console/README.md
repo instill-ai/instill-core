@@ -50,7 +50,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
 | replicaCount | int | `1` | Number of instances to deploy for the pipeline backend deployment |
-| imagePullSecrets | list | `[]` |  |
+| imagePullSecrets | list | `[]` | The image pull secret |
 | image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
 | image.repository | string | `console` | The image repository name |
 | image.tag | string | `latest` | The image tag |

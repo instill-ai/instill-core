@@ -68,7 +68,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
 | replicaCount | int | `1` | Number of instances to deploy for the mgmt backend deployment |
-| imagePullSecrets | list | `[]` |  |
+| imagePullSecrets | list | `[]` | The image pull secret |
 | image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
 | image.repository | string | `mgmt-backend` | The image repository name |
 | image.tag | string | `0.2.6-alpha` | The image tag |
@@ -85,7 +85,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | deployment.config.database.secret.passwordkey | string | `"password"` | The database secret password key |
 | deployment.config.database.host | string | `"pg-sql-postgresql.pg-sql"` | The database host |
 | deployment.config.database.port | int | `5432` | The database port |
-| deployment.config.database.name | string | `mgmt` |  |
+| deployment.config.database.name | string | `mgmt` | The database name |
 | deployment.config.usagebackend.tlsenabled | bool | `true` | The usage service tls enable flag |
 | deployment.config.usagebackend.host | string | `"usage.instill.tech"` | The usage service host |
 | deployment.config.usagebackend.port | int | `443` | The usage service port |

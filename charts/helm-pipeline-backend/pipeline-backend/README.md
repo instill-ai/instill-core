@@ -50,7 +50,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
 | replicaCount | int | `1` | Number of instances to deploy for the pipeline backend deployment |
-| imagePullSecrets | list | `[]` |  |
+| imagePullSecrets | list | `[]` | The image pull secret |
 | image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
 | image.repository | string | `pipeline-backend` | The image repository name |
 | image.tag | string | `latest` | The image tag |
@@ -67,7 +67,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | deployment.config.database.secret.passwordkey | string | `"password"` | The database secret password key |
 | deployment.config.database.host | string | `"pg-sql-postgresql.pg-sql"` | The database host |
 | deployment.config.database.port | int | `5432` | The database port |
-| deployment.config.database.name | string | `pipeline` |  |
+| deployment.config.database.name | string | `pipeline` | The database name |
 | deployment.config.connectorbackend.host | string | `"connector-backend.connector-backend"` | The connector backend host |
 | deployment.config.connectorbackend.port | int | `8082` | The connector backend port |
 | deployment.config.connectorbackend.https.cert | string | `nil` | The connector backend https cert file path |

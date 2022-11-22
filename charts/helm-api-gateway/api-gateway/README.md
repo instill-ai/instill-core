@@ -70,7 +70,7 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
 | replicaCount | int | `1` | Number of instances to deploy for the KrakenD API Gateway deployment |
-| imagePullSecrets | list | `[]` |  |
+| imagePullSecrets | list | `[]` | The image pull secret |
 | image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
 | image.repository | string | `connector-backend` | The image repository name |
 | image.tag | string | `latest` | The image tag |
@@ -93,28 +93,28 @@ The following table lists the configurable parameters of the Helm Chart and thei
 | tolerations | list | `[]` | Pod tolerations |
 | affinity | object | `{}` | Pod affinity |
 | podAnnotations | object | `{}` | Additional deployment annotations |
-| apiGateway.host | string | `nil` |  |
-| apiGateway.port.http | int | `8000` |  |
-| apiGateway.port.metrics | int | `9000` |  |
-| apiGateway.port.stats | int | `8090` |  |
-| apiGateway.https.cert | string | `nil` |  |
-| apiGateway.https.key | string | `nil` |  |
-| mgmtBackend.host | string | `nil` |  |
-| mgmtBackend.port | int | `8084` |  |
-| mgmtBackend.https.cert | string | `nil` |  |
-| mgmtBackend.https.key | string | `nil` |  |
-| modelBackend.host | string | `nil` |  |
-| modelBackend.port | int | `8085` |  |
-| modelBackend.https.cert | string | `nil` |  |
-| modelBackend.https.key | string | `nil` |  |
-| pipelineBackend.host | string | `nil` |  |
-| pipelineBackend.port | int | `8083` |  |
-| pipelineBackend.https.cert | string | `nil` |  |
-| pipelineBackend.https.key | string | `nil` |  |
-| connectorBackend.host | string | `nil` |  |
-| connectorBackend.port | int | `8082` |  |
-| connectorBackend.https.cert | string | `nil` |  |
-| connectorBackend.https.key | string | `nil` |  |
+| apiGateway.host | string | `nil` | API gateway host |
+| apiGateway.port.http | int | `8000` | API gateway http port|
+| apiGateway.port.metrics | int | `9000` | API gateway metrics port |
+| apiGateway.port.stats | int | `8090` | API gateway stats port |
+| apiGateway.https.cert | string | `nil` | API gateway https cert file path |
+| apiGateway.https.key | string | `nil` | API gateway https key file path |
+| mgmtBackend.host | string | `"mgmt-backend.mgmt-backend"` | Management backend host |
+| mgmtBackend.port | int | `8084` | Management backend port |
+| mgmtBackend.https.cert | string | `nil` | Management backend https cert file path |
+| mgmtBackend.https.key | string | `nil` | Management backend https key file path |
+| modelBackend.host | string | `"model-backend.model-backend"` | Model backend host |
+| modelBackend.port | int | `8083` | Model backend host |
+| modelBackend.https.cert | string | `nil` | Model backend https cert file path |
+| modelBackend.https.key | string | `nil` | Model backend https key file path |
+| pipelineBackend.host | string | `"pipeline-backend.pipeline-backend"` | Pipeline backend host |
+| pipelineBackend.port | int | `8081` | Pipeline backend port |
+| pipelineBackend.https.cert | string | `nil` | Pipeline backend https cert file path |
+| pipelineBackend.https.key | string | `nil` | Pipeline backend https key file path |
+| connectorBackend.host | string | `"connector-backend.connector-backend"` | Connector backend host |
+| connectorBackend.port | int | `8082` | Connector backend port |
+| connectorBackend.https.cert | string | `nil` | Connector backend https cert file path |
+| connectorBackend.https.key | string | `nil` | Connector backend https key file path |
 
 
 
