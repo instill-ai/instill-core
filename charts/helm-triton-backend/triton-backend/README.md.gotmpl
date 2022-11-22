@@ -80,60 +80,12 @@ For now, we use a [`hostPath`](https://kubernetes.io/docs/concepts/storage/volum
 
 ### Installing the Chart
 
-#### Pull images from a private registry
-Our customized Triton server images are stored in Harbor which is a private registry, credentials need to be provided. Among [different ways](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry), we choose specifying ImagePullSecrets on a Pod, which is the recommended approach to run containers based on images in private registries. Use [our Harbor registry](https://harbor.instill.tech) as an example:
-```bash
-$ kubectl create secret docker-registry [secret_name] --docker-server=[harbor_domain] --docker-username=[harbor_username] --docker-password=[harbor_cli_key]
-```
-where
-- `secret_name` is the name of the secret you refer to on a Pod. In this case, it should be the same as `image.imagePullSecretsName` in `values.yaml`
-- `habor_domain` is the Harbor domain name: `'https://harbor.instill.tech'`
-- `harbor_username` is your username to login to Harbor
-- `harbor_cli_key` is your Harbor CLI key
-
-This will set your Docker credentials as a Secret in the cluster. The Pods that use the private registry get credentials from the secret to pull the images.
-
-#### Deploy Triton inference server
-There are two ways to deploy with Helm
-- Install from source
-- Install from a repository (e.g. our Harbor repository)
-
-The following commands deploy the inference server in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
-
 ##### Install from source
 To install the chart with the release name `example`:
 ```bash
 $ helm dependency update  # retrieve dependent charts into charts/ directory
 $ helm install example .  # deploy the server
 ```
-
-##### Install from repository
-To install from Harbor repository with the release name `example`:
-```bash
-$ helm repo add --username [harbor_username] --password [harbor_cli_key] triton https://instill-harbor.ngrok.io/chartrepo/triton  # add Harbor project as separate index entry point
-$ helm repo update  # update info of available charts
-$ helm install --username [harbor_username] --password [harbor_cli_key] example triton/triton-inference-server --version [chart_version]  # deploy the server
-```
-where
-- `harbor_username` is your username to login to Harbor
-- `harbor_cli_key` is your Harbor CLI key
-- `chart_version` is the chart version to install. If this is not specified, the latest version is installed.
-
-### Use the inference server
-Now the inference server is running, you can send HTTP or GRPC requests to it to perform inferencing. On a _cluster-internal IP_, The inference server exposes
-- an HTTP endpoint on port `8000`,
-- a GRPC endpoint on port `8001`, and
-- a Prometheus metrics endpoint on port `8002`
-
-By default, the inference server is exposed with a `NodePort` service type. You'll be able to contact the service from outside the cluster by requesting `[NodeIP]:[NodePort]`. Get the ports if they are not specified in `single_server/values.yaml`
-```bash
-$ kubectl describe service example-triton-inference-server | grep NodePort
-```
-You can use curl to get the meta-data of the inference server from the HTTP endpoint:
-```
-$ curl [NodeIP]:[http_nodeport]/v2
-```
-The Triton inference server exposes both HTTP and GRPC based on KFServing standard inference protocols. The protocols provide endpoints to check server and model health, metadata and statistics. Additional endpoints allow model loading and unloading, and inferencing. See the [KFServing](https://github.com/kubeflow/kfserving/tree/master/docs/predict-api/v2) and [extension](https://github.com/NVIDIA/triton-inference-server/tree/master/docs/protocol) documentation for details.
 
 ### Uninstalling the Chart
 To uninstall/delete the `example` deployment and the `example-metrics` deployment if enabled:

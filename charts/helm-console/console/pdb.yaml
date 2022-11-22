@@ -2,12 +2,12 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "mgmt-backend.fullname" . }}
+  name: {{ include "console.fullname" . }}
   labels:
-    {{- include "mgmt-backend.labels" . | nindent 4 }}
+    {{- include "console.labels" . | nindent 4 }}
 spec:
   {{- toYaml .Values.podDisruptionBudget.spec | nindent 2 }}
   selector:
     matchLabels:
-      {{- include "mgmt-backend.selectorLabels" . | nindent 6 }}
+      {{- include "console.selectorLabels" . | nindent 6 }}
 {{- end }}

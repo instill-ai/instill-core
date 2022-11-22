@@ -9,8 +9,8 @@ replicaCount: 1
 # -- service account name
 serviceAccountName: default
 
+# -- The pull image secret
 imagePullSecrets:
-  - name: image-pull
 
 # -- mgmt-backend image version
 image:
@@ -137,11 +137,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# -- Values for initalization job
-job:
-  annotations: {}
-  ttlSecondAfterFinished: 300
-
 # -- Pod nodeSelector
 nodeSelector: {}
 # If you do want to specify node labels, uncomment the following
@@ -180,7 +175,7 @@ ingress:
     #     -
 
 # -- PodDistributionBudget
-pdb:
+podDisruptionBudget:
   enabled: false
   spec:
     # -- Minimal number of available pods

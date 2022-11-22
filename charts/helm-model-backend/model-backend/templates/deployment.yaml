@@ -7,7 +7,11 @@ metadata:
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "model-backend.selectorLabels" . | nindent 6 }}
@@ -29,7 +33,7 @@ spec:
             # Directory location on host
             path: {{ .Values.deployment.config.tritonserver.modelstore }}
             type: Directory
-         {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
+        {{- if and .Values.deployment.config.server.https.cert .Values.deployment.config.server.https.key }}
         - name: volume-tls-secret-ca
           secret:
             secretName: {{ include "model-backend.fullname" . }}-tls
@@ -188,6 +192,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+        {{- if $.Values.sidecarContainers }}
+        {{- toYaml $.Values.sidecarContainers | nindent 8 }}
+        {{- end }}          
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}

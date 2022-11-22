@@ -5,8 +5,8 @@ replicaCount: 1
 
 serviceAccountName: default
 
+# -- The pull image secret
 imagePullSecrets:
-  - name: image-pull
 
 image:
   registry: registry.hub.docker.com/instill
@@ -25,8 +25,6 @@ deployment:
       key:    # /ssl/tls.key
     corsorigins:
       - http://localhost:3000
-      - https://instill-inc.tech
-      - https://instill.tech
     edition: local-ce:dev
     disableusage: true
     debug: true
@@ -73,9 +71,9 @@ securityContext:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-   runAsUser: 0
-   runAsGroup: 1000
-   fsGroup: 1000
+  runAsUser: 0
+  runAsGroup: 1000
+  fsGroup: 1000
 
 ingress:
   enabled: false
@@ -128,9 +126,3 @@ podDisruptionBudget:
   enabled: false
   spec:
     minAvailable: 1
-
-job:
-  extraEnv: {}
-
-persistence:
-  existingSecret:

@@ -18,7 +18,7 @@
 
 # Requirements
 
-This Helm chart uses [cert-manager](https://cert-manager.io) for TLS certificate management. Please make sure cert-manager has been deployed on the target Kubernetes cluster.
+{{ template "chart.requirementsTable" . }}
 
 # Deploy the Chart
 
@@ -34,26 +34,6 @@ helm install --debug --dry-run [release-name] .
 
 # Deploy the server
 helm install [release-name] .
-```
-
-Install from a repository (e.g our Harbor repository):
-```bash
-# Add Harbor project as separate index entry point
-helm repo add \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    <HARBOR PROJECT NAME> \
-    https://harbor.instill.tech/chartrepo/<HARBOR PROJECT NAME>
-
-# Update info of available charts
-helm repo update
-
-# Deploy the server
-helm install \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    [release-name] \
-    <HARBOR PROJECT NAME>/{{ template "chart.name" . }}
 ```
 
 ## Uninstall

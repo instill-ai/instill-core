@@ -34,26 +34,6 @@ helm install --debug --dry-run [release-name] .
 helm install [release-name] .
 ```
 
-Install from a repository (e.g our Harbor repository):
-```bash
-# Add Harbor project as separate index entry point
-helm repo add \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    mgmt \
-    https://harbor.instill.tech/chartrepo/mgmt
-
-# Update info of available charts
-helm repo update
-
-# Deploy the server
-helm install \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    [release-name] \
-    mgmt/{{ template "chart.name" . }}
-```
-
 ## Uninstall
 
 To remove the deployed server:

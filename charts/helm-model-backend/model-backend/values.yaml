@@ -6,16 +6,10 @@ fullnameOverride:
 # -- Number of instances to deploy for the server deployment
 replicaCount: 1
 
-harbor:
-  # -- [Required to set] The Harbor username for login
-  username:
-  # -- [Required to set] The Harbor password for login
-  password:
+# -- The pull image secret
+imagePullSecrets:
 
 serviceAccountName: default
-
-imagePullSecrets:
-  - name: image-pull
 
 image:
   # -- model backend image registry
@@ -38,13 +32,9 @@ deployment:
         key:
       corsorigins:
         - http://localhost:3000
-        - https://api.instill-inc.tech
-        - https://api.instill.tech
-        - https://api-d2.instill.tech
       edition: local-ee:dev
       disableusage: true
       debug: true
-      itmode: false
     database:
       secret:
         name: db-user-pass
@@ -164,3 +154,17 @@ affinity: {}
 
 # -- Additional deployment annotations
 podAnnotations: {}
+
+podDisruptionBudget:
+  enabled: false
+  spec:
+    minAvailable: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+sidecarContainers: {}

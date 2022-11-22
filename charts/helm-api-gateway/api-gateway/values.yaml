@@ -7,6 +7,9 @@ fullnameOverride:
 # -- Number of instances to deploy for the KrakenD API Gateway deployment
 replicaCount: 1
 
+# -- The pull image secret
+imagePullSecrets:
+
 image:
   # -- The image registry address
   registry: instill
@@ -127,3 +130,14 @@ connectorBackend:
     cert: # /ssl/tls.crt
     key: # /ssl/tls.key
 
+podDisruptionBudget:
+  enabled: false
+  spec:
+    minAvailable: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80

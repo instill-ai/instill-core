@@ -47,68 +47,44 @@ The following table lists the configurable parameters of the Helm Chart and thei
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| config.cache.redis.redisoptions.addr | string | `"localhost:6379"` |  |
-| config.database.databasename | string | `"connectors"` |  |
-| config.database.host | string | `"192.168.1.92"` |  |
-| config.database.password | string | `"instillpw"` |  |
-| config.database.pool.connlifetime | int | `30` |  |
-| config.database.pool.idleconnections | int | `5` |  |
-| config.database.pool.maxconnections | int | `10` |  |
-| config.database.port | int | `3306` |  |
-| config.database.username | string | `"root"` |  |
-| config.modelbackend.host | string | `"model-backend.instill-model-backend"` |  |
-| config.modelbackend.port | int | `8445` |  |
-| config.modelbackend.scheme | string | `"https"` |  |
-| config.modelservice.host | string | `"model-backend.instill-model-backend"` |  |
-| config.modelservice.port | int | `8445` |  |
-| config.modelservice.tls | bool | `false` |  |
-| config.server.cors-origins[0] | string | `"http://localhost"` |  |
-| config.server.cors-origins[1] | string | `"https://instill-inc.tech"` |  |
-| config.server.cors-origins[2] | string | `"https://instill.tech"` |  |
-| config.server.https.cert | string | `"/ssl/tls.crt"` |  |
-| config.server.https.enabled | bool | `false` |  |
-| config.server.https.key | string | `"/ssl/tls.key"` |  |
-| config.server.paginate.salt | string | `"4N4ZgKp9gCtNkUR3"` |  |
-| config.server.port | int | `8080` |  |
-| config.temporal.clientoptions.hostport | string | `"temporal-frontend-headless.temporal.svc.cluster.local.:7233"` |  |
-| config.temporal.clientoptions.namespace | string | `"connector"` |  |
-| config.vdo.host | string | `"inference-backend.instill-inference-backend.svc.cluster.local."` |  |
-| config.vdo.path | string | `"inference/models/%s/versions/%s/outputs"` |  |
-| config.vdo.port | int | `8443` |  |
-| config.vdo.scheme | string | `"https"` |  |
-| fullnameOverride | string | `nil` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.registry | string | `nil` |  |
-| image.repository | string | `nil` |  |
-| image.tag | string | `""` |  |
+| nameOverride | string | `nil` | Name to override |
+| fullnameOverride | string | `nil` | Full name to override |
+| replicaCount | int | `1` | Number of instances to deploy for the pipeline backend deployment |
 | imagePullSecrets | list | `[]` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.className | string | `""` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0].host | string | `"chart-example.local"` |  |
-| ingress.hosts[0].paths[0].path | string | `"/"` |  |
-| ingress.hosts[0].paths[0].pathType | string | `"Prefix"` |  |
-| ingress.tls | list | `[]` |  |
-| job.extraEnv | object | `{}` |  |
-| nameOverride | string | `nil` |  |
-| nodeSelector | object | `{}` |  |
-| persistence.existingSecret | string | `nil` |  |
-| podAnnotations | object | `{}` |  |
-| podDisruptionBudget.enabled | bool | `false` |  |
-| podDisruptionBudget.spec.minAvailable | int | `1` |  |
-| podSecurityContext | object | `{}` |  |
-| replicaCount | int | `1` |  |
-| resources | object | `{}` |  |
-| securityContext | object | `{}` |  |
-| service.annotations | object | `{}` |  |
-| service.port | int | `8080` |  |
-| service.type | string | `"ClusterIP"` |  |
-| serviceAccountName | string | `"default"` |  |
-| sidecarContainers | object | `{}` |  |
-| strategy | object | `{}` |  |
-| tolerations | list | `[]` |  |
+| image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
+| image.repository | string | `console` | The image repository name |
+| image.tag | string | `latest` | The image tag |
+| image.pullPolicy | string | `"IfNotPresent"` | The image pulling policy |
+| deployment.config.port | int | `8081` | The server port |
+| deployment.config.https.cert | string | `nil` | The http cert file path |
+| deployment.config.https.key | string | `nil` | The http key file path |
+| deployment.config.corsorigins | list | `["http://localhost:3000"]` | The corsorigin list |
+| deployment.config.edition | string | `local-ce:dev` | The edition of backend |
+| deployment.config.disableusage | bool | `true` | The disable usage flag |
+| deployment.config.debug | bool | `false` | The debug flag |
+| deployment.config.apigatewayBaseUrl | string | `"http://localhost:8000"` | The API Gateway URL |
+| deployment.config.connectorbackend.port | int | `8082` | The connector backend port |
+| service.annotations | object | `{}` | The service annotation |
+| service.port | int | `8081` | The service port |
+| service.type | string | `"ClusterIP"` | The service type |
+| podSecurityContext | object | `{}` | The pod security context |
+| securityContext | object | `{}` | The security context |
+| ingress.enabled | bool | `false` | Ingress enable/disable |
+| ingress.annotations | object | `{}` | Ingress annotations |
+| ingress.hosts | list | `[]` | Ingress hosts |
+| ingress.paths | list | `[]` | Ingress paths |
+| ingress.pathType | string | `nil` | Ingress pathType |
+| ingress.tls | list | `[{"hosts":[null],"secretName":null}]` | Ingress TLS certificates |
+| strategy | object | `{}` | Strategy |
+| resources | object | `{}` | Resources |
+| autoscaling.enabled | bool | `false` | Autoscaling enable mode |
+| autoscaling.maxReplicas | int | `100` | Autoscaling maximum replicas |
+| autoscaling.minReplicas | int | `1` | Autoscaling minimun replicas |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` | Autoscaling target CPU percentage |
+| nodeSelector | object | `{}` | Node selector |
+| tolerations | list | `[]` | Tolerations |
+| affinity | object | `{}` | Affinity |
+| podDisruptionBudget.enabled | bool | `false` | Pod disruption budget |
+| podDisruptionBudget.spec.minAvailable | int | `1` | Pod disruption budget spec |
+| sidecarContainers | object | `{}` | sidecar containers |
+| podAnnotations | object | `{}` | Pod Annotations |

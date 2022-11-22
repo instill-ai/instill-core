@@ -24,8 +24,10 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: image-pull
+        {{- toYaml . | nindent 8 }}
+      {{- end }}    
       volumes:
       - name: triton-models-volume
         hostPath:

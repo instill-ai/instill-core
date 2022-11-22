@@ -5,8 +5,8 @@ replicaCount: 1
 
 serviceAccountName: default
 
+# -- The pull image secret
 imagePullSecrets:
-  - name: image-pull
 
 image:
   registry: registry.hub.docker.com/instill
@@ -26,8 +26,6 @@ deployment:
         key:    # /ssl/tls.key
       corsorigins:
         - http://localhost:3000
-        - https://instill-inc.tech
-        - https://instill.tech
       edition: local-ce:dev
       disableusage: true
       debug: true

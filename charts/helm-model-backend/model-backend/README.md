@@ -31,26 +31,6 @@ helm install --debug --dry-run [release-name] .
 helm install [release-name] .
 ```
 
-Install from a repository (e.g our Harbor repository):
-```bash
-# Add Harbor project as separate index entry point
-helm repo add \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    <HARBOR PROJECT NAME> \
-    https://harbor.instill.tech/chartrepo/<HARBOR PROJECT NAME>
-
-# Update info of available charts
-helm repo update
-
-# Deploy the server
-helm install \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    [release-name] \
-    <HARBOR PROJECT NAME>/model-backend
-```
-
 ## Uninstall
 
 To remove the deployed server:
@@ -65,47 +45,68 @@ The following table lists the configurable parameters of the Helm Chart and thei
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` | Pod affinity |
-| corsAllow | list | `["http://localhost:3000","https://api.instill-inc.tech","https://api.instill.tech","https://api-d2.instill.tech"]` | CORS-allowed source URLs |
-| db.dns.name | string | `"gcloud-sqlproxy"` | Name of the Kubernetes service linked to the deployed Triton server. This is used for DNS resolution. This is only used if `tritonService.ip` is not provided. |
-| db.dns.namespace | string | `"gcloud-sqlproxy"` | Namespace under which the Triton server is deployed |
-| db.name | string | `"models"` | SQL database name |
-| db.password | string | `nil` | [Required to set] Password for the `root` user. (10 character alphanumeric string) |
-| db.port | int | `3308` | MySQL Primary K8s service port |
-| db.username | string | `nil` | [Required to set] Database username |
-| db.version | int | `1` | SQL database version for mgirating |
-| fullnameOverride | string | `nil` | String to fully override common.names.fullname |
-| harbor.password | string | `nil` | [Required to set] The Harbor password for login |
-| harbor.username | string | `nil` | [Required to set] The Harbor username for login |
-| http.enabled | bool | `false` | If enabled, the server will be launched with HTTP. Both HTTP and HTTPS cannot be enabled at the same time. |
-| http.port | int | `8080` | HTTP port (container port) |
-| https.enabled | bool | `true` | If enabled, the server will be launched with HTTPS. Both HTTP and HTTPS cannot be enabled at the same time. |
-| https.port | int | `8445` | HTTPS port (container port) |
-| image.containerPort | int | `8445` | Internal cluster port through which the model backend server can be queried |
-| image.livenessProbe | object | `{}` | LivenessProbe httpGet:   path: /live   port: 3000   initialDelaySeconds: 40   periodSeconds: 10 |
-| image.pullPolicy | string | `"Always"` | The image pulling policy |
-| image.readinessProbe | object | `{}` | ReadynessProbe httpGet:   path: /ready   port: 3000   initialDelaySeconds: 3   periodSeconds: 5 |
-| image.registry | string | `"europe-west2-docker.pkg.dev/prj-c-devops-artifacts-a306/model"` | model backend image registry |
-| image.repository | string | `"model-backend"` | model backend image name |
-| image.tag | string | `nil` | model backend image tag, default is the chart appVersion |
-| nameOverride | string | `nil` | String to partially override common.names.fullname |
-| nodeSelector | object | `{}` | Pod nodeSelector |
-| podAnnotations | object | `{}` | Additional deployment annotations |
-| podSecurityContext | object | `{}` | Security context for model backend pods fsGroup: 2000 |
-| replicaCount | int | `1` | Number of instances to deploy for the server deployment |
-| resources | object | `{}` | Resource assigned to the model backend server. We usually recommend not to specify default resources and to leave this as a conscious choice for the user. This also increases chances charts run on environments with little resources, such as Minikube. If you do want to specify resources, uncomment the following lines, adjust them as necessary, and remove the curly braces after 'resources:'. limits:   cpu: 100m   memory: 128Mi requests:   cpu: 100m   memory: 128Mi |
-| securityContext | object | `{}` | Security context for model backend containers capabilities:   drop:   - ALL readOnlyRootFilesystem: true runAsNonRoot: true runAsUser: 1000 |
-| service.nodePort | int | `31300` | NodePort of the model backend server. Only valid when `service.type=NodePort`. If not specified, the NodePort is randomly assigned from a range (default: 30000-32767) by Kubernetes |
-| service.port | int | `8445` | Port of the model backend server. |
-| service.type | string | `"NodePort"` | Kubernetes service type |
-| serviceAccountName | string | `"default"` |  |
-| tolerations | list | `[]` | Pod tolerations |
-| tritonBackendService.dns.name | string | `"triton-backend"` | Name of the Kubernetes service linked to the deployed Triton server. This is used for DNS resolution. This is only used if `tritonService.ip` is not provided. |
-| tritonBackendService.dns.namespace | string | `"triton-backend"` | Namespace under which the Triton server is deployed |
-| tritonBackendService.grpcPort | int | `8001` | Internal cluster port through which the Triton server can be queried through gRPC |
-| tritonBackendService.httpPort | int | `8000` | Internal cluster port through which the Triton server can be queried through HTTP |
-| tritonBackendService.ip | string | `nil` | IP address for the deployed Triton server. If non-empty, the IP address will be used to communicate with the Triton service instead of `tritonService.dns` |
-| userMgmtService.dns.name | string | `"kratos-admin"` | Name of the Kubernetes service linked to the deployed User Management service. This is used for DNS resolution. This is only used if `tritonService.ip` is not provided. |
-| userMgmtService.dns.namespace | string | `"kratos"` | Namespace under which the Triton server is deployed |
-| userMgmtService.httpPort | int | `8000` | Internal cluster port through which the Triton server can be queried through HTTP |
-| userMgmtService.ip | string | `nil` | IP address for the deployed Triton server. If non-empty, the IP address will be used to communicate with the Triton service instead of `tritonService.dns` |
+| nameOverride | string | `nil` | Name to override |
+| fullnameOverride | string | `nil` | Full name to override |
+| replicaCount | int | `1` | Number of instances to deploy for the model backend deployment |
+| imagePullSecrets | list | `[]` |  |
+| image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
+| image.repository | string | `model-backend` | The image repository name |
+| image.tag | string | `latest` | The image tag |
+| image.pullPolicy | string | `"IfNotPresent"` | The image pulling policy |
+| deployment.config.server.port | int | `8083` | The server port |
+| deployment.config.server.https.cert | string | `nil` | The http cert file path |
+| deployment.config.server.https.key | string | `nil` | The http key file path |
+| deployment.config.server.corsorigins | list | `["http://localhost:3000"]` | The corsorigin list |
+| deployment.config.server.edition | string | `local-ce:dev` | The edition of backend |
+| deployment.config.server.disableusage | bool | `true` | The disable usage flag |
+| deployment.config.server.debug | bool | `false` | The debug flag |
+| deployment.config.database.secret.name | string | `"db-user-pass"` | The database secret name |
+| deployment.config.database.secret.usernamekey | string | `"username"` | The database secret username key |
+| deployment.config.database.secret.passwordkey | string | `"password"` | The database secret password key |
+| deployment.config.database.host | string | `"pg-sql-postgresql.pg-sql"` | The database host |
+| deployment.config.database.port | int | `5432` | The database port |
+| deployment.config.database.name | string | `model` |  |
+| deployment.config.pipelinebackend.host | string | `"pipeline-backend.pipeline-backend"` | The pipeline backend host |
+| deployment.config.pipelinebackend.port | int | `8081` | The pipeline backend port |
+| deployment.config.pipelinebackend.https.cert | string | `nil` | The pipeline backend https cert file path |
+| deployment.config.pipelinebackend.https.key | string | `nil` | The pipeline backend https key file path |
+| deployment.config.mgmtbackend.host | string | `"mgmt-backend.mgmt-backend"` | The management backend host |
+| deployment.config.mgmtbackend.port | int | `8084` | The management backend port |
+| deployment.config.mgmtbackend.https.cert | string | `nil` | The management backend https cert file path |
+| deployment.config.mgmtbackend.https.key | string | `nil` | The management backend https key file path |
+| deployment.config.usagebackend.tlsenabled | bool | `true` | The usage service tls enable flag |
+| deployment.config.usagebackend.host | string | `"usage.instill.tech"` | The usage service host |
+| deployment.config.usagebackend.port | int | `443` | The usage service port |
+| deployment.config.tritonserver.grpcuri | string | `"triton-backend.triton-backend:8001"` | The Triton server host port |
+| deployment.config.tritonserver.modelstore | string | `"/model-repository"` | The model storage path in Triton server |
+| deployment.config.cache.redis.redisoptions.addr | string | `"redis-master.redis:6379"` | The redis host port |
+| deployment.config.maxbatchsizelimitation.unspecified | int | `2` | The batch size limit for unspecified task |
+| deployment.config.maxbatchsizelimitation.classification | int | `16` | The batch size limit for classification task |
+| deployment.config.maxbatchsizelimitation.detection | int | `8` | The batch size limit for detection task |
+| deployment.config.maxbatchsizelimitation.keypoint | int | `8` | The batch size limit for keypoint task |
+| deployment.config.maxbatchsizelimitation.ocr | int | `2` | The batch size limit for ocr task |
+| deployment.config.maxbatchsizelimitation.instancesegmentation | int | `8` | The batch size limit for instance segmentation task |
+| service.annotations | object | `{}` | The service annotation |
+| service.port | int | `8083` | The service port |
+| service.type | string | `"ClusterIP"` | The service type |
+| podSecurityContext | object | `{}` | The pod security context |
+| securityContext | object | `{}` | The security context |
+| ingress.enabled | bool | `false` | Ingress enable/disable |
+| ingress.annotations | object | `{}` | Ingress annotations |
+| ingress.hosts | list | `[]` | Ingress hosts |
+| ingress.paths | list | `[]` | Ingress paths |
+| ingress.pathType | string | `nil` | Ingress pathType |
+| ingress.tls | list | `[{"hosts":[null],"secretName":null}]` | Ingress TLS certificates |
+| strategy | object | `{}` | Strategy |
+| resources | object | `{}` | Resources |
+| autoscaling.enabled | bool | `false` | Autoscaling enable mode |
+| autoscaling.maxReplicas | int | `100` | Autoscaling maximum replicas |
+| autoscaling.minReplicas | int | `1` | Autoscaling minimun replicas |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` | Autoscaling target CPU percentage |
+| nodeSelector | object | `{}` | Node selector |
+| tolerations | list | `[]` | Tolerations |
+| affinity | object | `{}` | Affinity |
+| podDisruptionBudget.enabled | bool | `false` | Pod disruption budget |
+| podDisruptionBudget.spec.minAvailable | int | `1` | Pod disruption budget spec |
+| sidecarContainers | object | `{}` | sidecar containers |
+| podAnnotations | object | `{}` | Pod Annotations |

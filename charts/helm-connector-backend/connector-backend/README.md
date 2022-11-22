@@ -33,26 +33,6 @@ helm install --debug --dry-run [release-name] .
 helm install [release-name] .
 ```
 
-Install from a repository (e.g our Harbor repository):
-```bash
-# Add Harbor project as separate index entry point
-helm repo add \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    inference \
-    https://harbor.instill.tech/chartrepo/inference
-
-# Update info of available charts
-helm repo update
-
-# Deploy the server
-helm install \
-    --username [harbor-username] \
-    --password [harbor-cli-key] \
-    [release-name] \
-    inference/connector-backend
-```
-
 ## Uninstall
 
 To remove the deployed server:
@@ -69,66 +49,61 @@ The following table lists the configurable parameters of the Helm Chart and thei
 |-----|------|---------|-------------|
 | nameOverride | string | `nil` | Name to override |
 | fullnameOverride | string | `nil` | Full name to override |
-| replicaCount | int | `1` | Number of instances to deploy for the KrakenD API Gateway deployment |
+| replicaCount | int | `1` | Number of instances to deploy for the connector backend deployment |
+| imagePullSecrets | list | `[]` |  |
 | image.registry | string | `registry.hub.docker.com/instill` | The image registry address |
 | image.repository | string | `connector-backend` | The image repository name |
 | image.tag | string | `latest` | The image tag |
 | image.pullPolicy | string | `"IfNotPresent"` | The image pulling policy |
-| deployment.config.server.port | int | `8082` |  |
-| deployment.config.server.https.cert | string | `nil` |  |
-| deployment.config.server.https.key | string | `nil` |  |
-| deployment.config.server.corsorigins | list | `[]` |  |
-| deployment.config.server.edition | string | `local-ce:dev` |  |
-| deployment.config.server.disableusage | bool | `true` |  |
-| deployment.config.server.debug | bool | `false` |  |
-| deployment.config.worker.mountsource.vdp | string | `vdp` |  |
-| deployment.config.worker.mountsource.airbyte | string | `airbyte` |  |
-| deployment.config.database.secret.name | string | `"db-user-pass"` |  |
-| deployment.config.database.secret.usernamekey | string | `"username"` |  |
-| deployment.config.database.secret.passwordkey | string | `"password"` |  |
-| deployment.config.database.host | string | `"pg-sql-postgresql.pg-sql"` |  |
-| deployment.config.database.password | string | `"5432"` |  |
-| deployment.config.database.pool.connlifetime | int | `30` |  |
-| deployment.config.database.pool.idleconnections | int | `5` |  |
-| deployment.config.database.pool.maxconnections | int | `10` |  |
-| deployment.config.database.port | int | `5432` |  |
+| deployment.config.server.port | int | `8082` | The server port |
+| deployment.config.server.https.cert | string | `nil` | The http cert file path |
+| deployment.config.server.https.key | string | `nil` | The http key file path |
+| deployment.config.server.corsorigins | list | `["http://localhost:3000"]` | The corsorigin list |
+| deployment.config.server.edition | string | `local-ce:dev` | The edition of backend |
+| deployment.config.server.disableusage | bool | `true` | The disable usage flag |
+| deployment.config.server.debug | bool | `false` | The debug flag |
+| deployment.config.database.secret.name | string | `"db-user-pass"` | The database secret name |
+| deployment.config.database.secret.usernamekey | string | `"username"` | The database secret username key |
+| deployment.config.database.secret.passwordkey | string | `"password"` | The database secret password key |
+| deployment.config.database.host | string | `"pg-sql-postgresql.pg-sql"` | The database host |
+| deployment.config.database.port | int | `5432` | The database port |
 | deployment.config.database.name | string | `connector` |  |
-| deployment.config.pipelinebackend.host | string | `"pipeline-backend.pipeline-backend"` |  |
-| deployment.config.pipelinebackend.port | int | `8081` |  |
-| deployment.config.pipelinebackend.https.cert | string | `nil` |  |
-| deployment.config.pipelinebackend.https.key | string | `nil` |  |
-| deployment.config.mgmtbackend.host | string | `"mgmt-backend.mgmt-backend"` |  |
-| deployment.config.mgmtbackend.port | int | `8084` |  |
-| deployment.config.mgmtbackend.https.cert | string | `nil` |  |
-| deployment.config.mgmtbackend.https.key | string | `nil` |  |
-| deployment.config.usagebackend.tlsenabled | bool | `true` |  |
-| deployment.config.usagebackend.host | string | `"usage.instill.tech"` |  |
-| deployment.config.usagebackend.port | int | `443` |  |
-| deployment.config.temporal.clientoptions.hostport | string | `"temporal-frontend.temporal:7233"` |  |
-| service.annotations | object | `{}` |  |
-| service.port | int | `8081` |  |
-| service.type | string | `"ClusterIP"` |  |
-| podSecurityContext | object | `{}` |  |
-| securityContext | object | `{}` |  |
+| deployment.config.pipelinebackend.host | string | `"pipeline-backend.pipeline-backend"` | The pipeline backend host |
+| deployment.config.pipelinebackend.port | int | `8081` | The pipeline backend port |
+| deployment.config.pipelinebackend.https.cert | string | `nil` | The pipeline backend https cert file path |
+| deployment.config.pipelinebackend.https.key | string | `nil` | The pipeline backend https key file path |
+| deployment.config.mgmtbackend.host | string | `"mgmt-backend.mgmt-backend"` | The management backend host |
+| deployment.config.mgmtbackend.port | int | `8084` | The management backend port |
+| deployment.config.mgmtbackend.https.cert | string | `nil` | The management backend https cert file path |
+| deployment.config.mgmtbackend.https.key | string | `nil` | The management backend https key file path |
+| deployment.config.usagebackend.tlsenabled | bool | `true` | The usage service tls enable flag |
+| deployment.config.usagebackend.host | string | `"usage.instill.tech"` | The usage service host |
+| deployment.config.usagebackend.port | int | `443` | The usage service port |
+| deployment.config.temporal.clientoptions.hostport | string | `"temporal-frontend.temporal:7233"` | The temporal host port |
+| service.annotations | object | `{}` | The service annotation |
+| service.port | int | `8081` | The service port |
+| service.type | string | `"ClusterIP"` | The service type |
+| podSecurityContext | object | `{}` | The pod security context |
+| securityContext | object | `{}` | The security context |
 | ingress.enabled | bool | `false` | Ingress enable/disable |
 | ingress.annotations | object | `{}` | Ingress annotations |
 | ingress.hosts | list | `[]` | Ingress hosts |
 | ingress.paths | list | `[]` | Ingress paths |
 | ingress.pathType | string | `nil` | Ingress pathType |
 | ingress.tls | list | `[{"hosts":[null],"secretName":null}]` | Ingress TLS certificates |
-| strategy | object | `{}` |  |
-| resources | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| nodeSelector | object | `{}` |  |
-| tolerations | list | `[]` |  |
-| affinity | object | `{}` |  |
-| podAnnotations | object | `{}` |  |
-| sidecarContainers | object | `{}` |  |
-| podDisruptionBudget.enabled | bool | `false` |  |
-| podDisruptionBudget.spec.minAvailable | int | `1` |  |
+| strategy | object | `{}` | Strategy |
+| resources | object | `{}` | Resources |
+| autoscaling.enabled | bool | `false` | Autoscaling enable mode |
+| autoscaling.maxReplicas | int | `100` | Autoscaling maximum replicas |
+| autoscaling.minReplicas | int | `1` | Autoscaling minimun replicas |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` | Autoscaling target CPU percentage |
+| nodeSelector | object | `{}` | Node selector |
+| tolerations | list | `[]` | Tolerations |
+| affinity | object | `{}` | Affinity |
+| podAnnotations | object | `{}` | Pod Annotations |
+| sidecarContainers | object | `{}` | Sidecar Containers |
+| podDisruptionBudget.enabled | bool | `false` | Pod Disruption Budget enable |
+| podDisruptionBudget.spec.minAvailable | int | `1` | Pod Disruption Budget spec min |
 
 
 

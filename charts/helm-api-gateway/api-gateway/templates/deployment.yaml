@@ -13,7 +13,9 @@ metadata:
 spec:
   strategy:
     {{- toYaml .Values.strategy | nindent 4 }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "api-gateway.selectorLabels" . | nindent 6 }}
@@ -22,6 +24,10 @@ spec:
       labels:
         {{- include "api-gateway.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}    
       volumes:
       {{- if .Values.debug.enabled }}
       - name: volume-config

@@ -7,14 +7,11 @@ fullnameOverride:
 # -- Number of instances to deploy for the server deployment
 replicaCount: 1
 
+# -- The pull image secret
+imagePullSecrets:
+
 # -- host architect
 arch: amd
-
-## -- Configure pod disruption budgets
-podDisruptionBudget:
-  enabled: false
-  minAvailable: 1
-  maxUnavailable:
 
 mode:
   # -- Enable/Disable CPU inference
@@ -76,3 +73,9 @@ affinity: {}
 
 # -- Additional deployment annotations
 podAnnotations: {}
+
+## -- Configure pod disruption budgets
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable:
