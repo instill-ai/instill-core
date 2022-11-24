@@ -3,9 +3,7 @@ name: Integration Test
 on:
   push:
     branches:
-      - main
-  release:
-    types: [published]
+      - "**"
 
 jobs:
   integration-test:
@@ -17,6 +15,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
