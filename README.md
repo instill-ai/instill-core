@@ -3,6 +3,10 @@
 </h1>
 
 <h4 align="center">
+    <a href="https://www.instill.tech/career?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">We're hiring 🚀</a>
+</h4>
+
+<h4 align="center">
     <a href="https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Doc</a> |
     <a href="https://www.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Website</a> |
     <a href="https://discord.gg/sevxWsqpGh">Community</a> |
@@ -166,3 +170,7 @@ We love contribution to VDP in any forms:
 ## License
 
 See the [LICENSE](./LICENSE) file for licensing information.
+
+## We're hiring 🚀
+
+Interested in building VDP with us? Join our remote team and build the future for unstructured data ETL. Check out [our open roles](https://www.instill.tech/career?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme).
