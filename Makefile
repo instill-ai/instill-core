@@ -27,7 +27,7 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: dev
 dev:			## Lunch all dependent services given the profile
-	COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
+	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
@@ -91,7 +91,7 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true
-	@cd dev/console && npm install && npx playwright install && npx playwright test
+	@cd dev/console && npm install && npx playwright install --with-deps && npx playwright test
 	@cd dev/pipeline-backend && HOSTNAME=localhost make integration-test
 	@cd dev/connector-backend && HOSTNAME=localhost make integration-test
 	@cd dev/model-backend && HOSTNAME=localhost make integration-test
