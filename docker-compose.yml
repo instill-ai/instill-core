@@ -196,6 +196,24 @@ services:
       model_backend_init:
         condition: service_completed_successfully
 
+  model_backend_worker:
+    container_name: ${MODEL_BACKEND_HOST}-worker
+    image: instill/model-backend:latest
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./model-backend-worker
+    depends_on:
+      model_backend_init:
+        condition: service_completed_successfully                
+
   mgmt_backend_migrate:
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/mgmt-backend:${MGMT_BACKEND_VERSION}
