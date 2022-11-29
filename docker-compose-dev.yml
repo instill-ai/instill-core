@@ -242,6 +242,40 @@ services:
     depends_on:
       - model_backend_migrate
 
+  model_backend_worker:
+    profiles:
+      - all
+      - mgmt
+      - pipeline
+      - connector
+      - console
+    container_name: ${MODEL_BACKEND_HOST}-worker
+    image: instill/model-backend:latest
+    build:
+      context: ./dev/model-backend
+      args:
+        - SERVICE_NAME=model-backend
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
+      CFG_SERVER_ITMODE: ${ITMODE}
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: local-ce:latest
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./model-backend-worker
+    depends_on:
+      model_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy      
+
   model_backend:
     profiles:
       - all
@@ -259,7 +293,6 @@ services:
     environment:
       CFG_SERVER_PORT: 8083
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_ITMODE: ${ITMODE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
@@ -282,38 +315,8 @@ services:
       - model_repository:/model-repository
     entrypoint: ./model-backend
     depends_on:
-      triton_server:
-        condition: service_healthy
-      model_backend_init:
-        condition: service_completed_successfully
-
-  model_backend_worker:
-    profiles:
-      - all
-      - mgmt
-      - pipeline
-      - connector
-      - console
-    container_name: ${MODEL_BACKEND_HOST}-worker
-    image: instill/model-backend:latest
-    build:
-      context: ./dev/model-backend
-      args:
-        - SERVICE_NAME=model-backend
-    restart: unless-stopped
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
-      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./model-backend-worker
-    depends_on:
-      model_backend_init:
-        condition: service_completed_successfully        
+      - triton_server
+      - model_backend_worker       
 
   mgmt_backend_migrate:
     profiles:
