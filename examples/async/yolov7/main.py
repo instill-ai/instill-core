@@ -239,7 +239,7 @@ if __name__ ==  '__main__':
 
     print("\n=====Trigger {} pipeline to process images in '{}'\n".format(opt.pipeline, image_dir))
     for files in tqdm(img_batch):
-        resp = requests.post(f'http://{backend["pipeline"]}/{ver}/pipelines/{opt.pipeline}:trigger-multipart',
+        resp = requests.post(f'http://{backend["pipeline"]}/{ver}/pipelines/{opt.pipeline}/trigger-multipart',
                         files=[("file", (filename, open(join(image_dir, filename), 'rb'))) for filename in files])
         if resp.status_code == 200:
             data_mapping_indices += resp.json()['data_mapping_indices']

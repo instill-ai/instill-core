@@ -3,12 +3,12 @@ import requests
 import json
 import cv2
 import utils
-from typing import List, Tuple
-from types import SimpleNamespace
-from io import BytesIO
 import streamlit as st
 import numpy as np
 import pandas as pd
+from typing import List, Tuple
+from types import SimpleNamespace
+from io import BytesIO
 from urllib.error import HTTPError
 
 
@@ -62,6 +62,58 @@ def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, file: Byt
     return requests.post("{}/pipelines/{}/trigger-multipart".format(pipeline_backend_base_url, pipeline_id),
                         files=[("file", (filename, file))])
 
+def display_intro_markdown(pipeline_id="stomata"):
+    r""" Display Markdown about demo introduction
+    """
+
+    st.set_page_config(page_title="VDP - Stomata instance segmentation",
+                       page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
+    st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
+
+    intro_markdown = """
+
+    # 🥦 Identify stomata by triggering VDP pipeline
+
+    [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline
+
+    - 🚀 The fastest way to build end-to-end visual data pipelines
+    - 🖱️ One-click import & deploy ML/DL models
+    - 🤠 Build for every Vision AI and Data practitioner
+
+    Give us a ⭐ on [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/instill-ai/vdp) and join our [![Discord](https://img.shields.io/badge/Community-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/sevxWsqpGh)
+
+    #### We are offering **FREE** fully-managed VDP on Instill Cloud
+    If you are interested in showcasing your models, please [sign up the form](https://www.instill.tech/get-access) and we will reach out to you. Seats are limited - first come , first served.
+
+    # Demo
+
+    We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [instance segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
+
+    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger:multipart`
+
+
+    """.format(pipeline_id)
+    st.markdown(intro_markdown)
+
+def display_vdp_markdown():
+    r""" Display Markdown about "What's cool about VDP"
+    """
+    vdp_markdown = """
+    # What's cool about VDP?
+
+    A VDP pipeline unlocks the value of unstructured visual data:
+
+    1. **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
+
+    2. **Transform** it into analysable structured data by Vision AI models
+
+    3. **Load** the transformed data into warehouses, applications, or other destinations
+
+    With the help of the VDP pipeline, you can start manipulating the data using other structured data tooling in the modern data stack.
+    """
+    st.markdown(vdp_markdown)
+
+
 def display_trigger_request_code(pipeline_id, filename):
     r""" Display Trigger request code block
     """
@@ -83,85 +135,92 @@ if __name__ == "__main__":
 
     pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
 
-    st.set_page_config(page_title="VDP - Identify stomata",
-                       page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
-    st.markdown("## 🥦 Identify stomata by triggering VDP pipeline")
+    display_intro_markdown()
 
-
+    # st.text(" Let's trigger the pipeline by uploading a local image:")
+    st.markdown("We provide an sample image below:")
+    filename = "sample.jpg"
+    with open(filename, "rb") as f:
+        buf = BytesIO(f.read())
+        image_bytes = buf.getvalue()
 
     # Drag and drop an image as input
     uploaded_file = st.file_uploader("Upload an image", type=([".png", ".jpg", ".jpeg", ".tif", ".tiff"]))
-    image_bytes = None
-    if uploaded_file:
-        image_bytes = uploaded_file.getvalue()
+    if uploaded_file is not None:
         filename = uploaded_file.name
-        arr = np.asarray(bytearray(image_bytes), dtype=np.uint8)
-        img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-        img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-        st.image(img)
-        st.caption(filename)
+        image_bytes = uploaded_file.getvalue()
 
-        try:
-            pipeline_id = opt.stomata
-            pipeline_results = []
-            display_trigger_request_code(pipeline_id, filename)
-            # Trigger VDP pipelines
-            resp = trigger_pipeline(
-                pipeline_backend_base_url, pipeline_id, image_bytes, filename)
+    arr = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+    img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
 
-            if resp.status_code == 200:
-                # Show trigger pipeline response
-                with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
-                        st.json(resp.json())
+    st.image(img)
+    st.caption(filename)
 
-                boxes_ltwh, rles, categories, scores = parse_instance_segmentation_response(resp)
-                polys = [utils.rle_to_polygon(rle, box) for rle, box in zip(rles, boxes_ltwh)]
-                rotated_boxes = utils.fit_polygens_to_rotated_bboxes(polys)
+    try:
+        pipeline_id = opt.stomata
+        pipeline_results = []
+        display_trigger_request_code(pipeline_id, filename)
+        # Trigger VDP pipelines
+        resp = trigger_pipeline(
+            pipeline_backend_base_url, pipeline_id, image_bytes, filename)
 
-                cols = st.columns(2)
+        if resp.status_code == 200:
+            # Show trigger pipeline response
+            with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
+                    st.json(resp.json())
 
-                cols[0].markdown("#### Display instance segmentation result")
-                # Visualise instance segmentation on input image
-                img_draw = utils.draw_polygons(img, polys, thickness=2, color=(0,0,255))
-                cols[0].image(img_draw)
+            boxes_ltwh, rles, categories, scores = parse_instance_segmentation_response(resp)
+            polys = [utils.rle_to_polygon(rle, box) for rle, box in zip(rles, boxes_ltwh)]
+            rotated_boxes = utils.fit_polygens_to_rotated_bboxes(polys)
 
-                # Visualise rotated bounding boxes
-                cols[1].markdown("#### Convert to rotated bounding boxes")
-                texts = ["{} {:.0%}".format(category, score) for category, score in zip(categories, scores)]
-                img_draw = utils.draw_rotated_bboxes(img_draw, rotated_boxes, texts, thickness=2, color=(0,0,255))
-                cols[1].image(img_draw)
+            cols = st.columns(2)
 
-                # Stomata statistics
-                st.markdown(f"""
-                #### Stomata statistics
+            cols[0].markdown("#### Display instance segmentation result")
+            # Visualise instance segmentation on input image
+            img_draw = utils.draw_polygons(img, polys, thickness=2, color=(0,0,255))
+            cols[0].image(img_draw)
 
-                Detect **{len(rotated_boxes)}** stomata from `{filename}`.
-                """)
+            # Visualise rotated bounding boxes
+            cols[1].markdown("#### Convert to rotated bounding boxes")
+            texts = ["{} {:.0%}".format(category, score) for category, score in zip(categories, scores)]
+            img_draw = utils.draw_rotated_bboxes(img_draw, rotated_boxes, texts, thickness=2, color=(0,0,255))
+            cols[1].image(img_draw)
 
+            # Stomata statistics
+            st.markdown(f"""
+            #### Stomata statistics
 
-
-                stats = np.zeros((len(rotated_boxes), 4))
-
-                for i, (rbox, score) in enumerate(zip(rotated_boxes, scores)):
-                    _, (width, height), _ = rbox # (center(x,y), (width, height), angel of rotation)
-                    long_axis = max(width, height)
-                    short_axis = min(width, height)
-                    ratio = long_axis/short_axis
-                    stats[i] = [score, long_axis, short_axis, ratio]
-
-                df = pd.DataFrame(
-                    stats,
-                    columns=("score", "long axis", "short axis", "ratio=long / short axis"))
-
-                score_thres = 0.5
-                st.dataframe(df.style.highlight_between(subset="score", left=score_thres, right=1.0), use_container_width=True)
-
-                st.caption(
-                    "Note: highlight detections with score >= {}".format(score_thres))
+            Detect **{len(rotated_boxes)}** stomata from `{filename}`.
+            """)
 
 
-            else:
-                st.error("Trigger pipeline {} inference error".format(pipeline_id))
 
-        except (ValueError, HTTPError, requests.ConnectionError) as err:
-            st.error("Something wrong with the demo: {}".format(err))
+            stats = np.zeros((len(rotated_boxes), 4))
+
+            for i, (rbox, score) in enumerate(zip(rotated_boxes, scores)):
+                _, (width, height), _ = rbox # (center(x,y), (width, height), angel of rotation)
+                long_axis = max(width, height)
+                short_axis = min(width, height)
+                ratio = short_axis/long_axis
+                stats[i] = [score, short_axis, long_axis, ratio]
+
+            df = pd.DataFrame(
+                stats,
+                columns=("score", "short axis", "long axis", "ratio = short / long axis"))
+
+            score_thres = 0.5
+            st.dataframe(df.style.highlight_between(subset="score", left=score_thres, right=1.0), use_container_width=True)
+
+            st.caption(
+                "Note: highlight detections with score >= {}".format(score_thres))
+
+
+        else:
+            st.error("Trigger pipeline {} inference error".format(pipeline_id))
+
+    except (ValueError, HTTPError, requests.ConnectionError) as err:
+        st.error("Something wrong with the demo: {}".format(err))
+
+
+    display_vdp_markdown()
