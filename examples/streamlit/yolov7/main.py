@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     # Use image remote URL to fetch an image in input
     image_url = st.text_input(
-        label="Feed me with an image URL and press ENTER", value="https://artifacts.instill.tech/dog.jpg")
+        label="Feed me with an image URL and press ENTER", value="https://artifacts.instill.tech/imgs/dog.jpg")
 
     try:
         # Trigger VDP pipelines
