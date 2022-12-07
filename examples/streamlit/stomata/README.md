@@ -8,7 +8,8 @@ Run VDP locally
 
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
-$ make all
+$ make build PROFILE=all  
+$ make dev PROFILE=all
 ```
 
 If this is your first time setting up VDP, access the Console (http://localhost:3000) and you should see the onboarding page. Please enter your email and you are all set!

@@ -51,7 +51,7 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
     Args:
         pipeline_backend_base_url (str): VDP pipeline backend base URL
         pipeline_id (str): pipeline ID
-        image_url (str): remote image URL, e.g., `https://artifacts.instill.tech/dog.jpg`
+        image_url (str): remote image URL, e.g., `https://artifacts.instill.tech/imgs/dog.jpg`
 
     Returns: requests.Response
         pipeline trigger result

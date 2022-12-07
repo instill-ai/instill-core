@@ -32,17 +32,18 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
         r = json.loads(resp.text, object_hook=lambda d: SimpleNamespace(**d))
 
         boxes_ltwh, rles, categories, scores = [], [], [], []
-        for v in r.model_instance_outputs[0].task_outputs[0].instance_segmentation.objects:
-            boxes_ltwh.append((
-                v.bounding_box.left,
-                v.bounding_box.top,
-                v.bounding_box.width,
-                v.bounding_box.height
-            ))
-#             rles.append([eval(i) for i in v.rle.split(",")])
-            rles.append(v.rle)
-            categories.append(v.label)
-            scores.append(v.score)
+        for output in r.model_instance_outputs[0].task_outputs:
+            for v in output.instance_segmentation.objects:
+                boxes_ltwh.append((
+                    v.bounding_box.left,
+                    v.bounding_box.top,
+                    v.bounding_box.width,
+                    v.bounding_box.height
+                ))
+    #             rles.append([eval(i) for i in v.rle.split(",")])
+                rles.append(v.rle)
+                categories.append(v.label)
+                scores.append(v.score)
 
     return boxes_ltwh, rles, categories, scores
 
@@ -170,7 +171,13 @@ if __name__ == "__main__":
             with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
                     st.json(resp.json())
 
-            boxes_ltwh, rles, categories, scores = parse_instance_segmentation_response(resp)
+            boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(resp)
+            # Convert RLE from string "n1,n2,n3,..." to COCO RLE
+            #   {
+            #       'counts': [n1, n2, n3, ...],
+            #       'size': [height, width] of the mask
+            #   }
+            rles = [{'counts': rle_str.split(","), 'size': [bbox_ltwh[3], bbox_ltwh[2]]} for rle_str, bbox_ltwh in zip(rles_str, boxes_ltwh)]
             polys = [utils.rle_to_polygon(rle, box) for rle, box in zip(rles, boxes_ltwh)]
             rotated_boxes = utils.fit_polygens_to_rotated_bboxes(polys)
 

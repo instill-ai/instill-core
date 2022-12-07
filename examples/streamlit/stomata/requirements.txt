@@ -5,3 +5,4 @@ pandas==1.5.2
 requests==2.28.1
 argparse==1.4.0
 scikit-image==0.19.3
+pycocotools==2.0.6

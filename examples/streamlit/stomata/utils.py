@@ -2,6 +2,8 @@ import cv2
 import random
 import numpy as np
 from skimage import measure
+from pycocotools import mask as cocomask
+from itertools import groupby
 
 random.seed(0)
 
@@ -76,28 +78,47 @@ def draw_rotated_bboxes(img, rboxes, texts=None, thickness=1, color=None):
             cv2.putText(img_draw, text, (c1[0], c1[1]-2), 0, tl/3, [255,255,255], thickness=tf, lineType=cv2.LINE_AA)
     return img_draw
 
-def rle_decode(mask_rle, mask_shape):
-    r""" Decode uncompressed RLE into binary mask
+def rle_encode(binary_mask):
+    r"""
     Args:
-        mask_rle: run-length as string formated (start length)
-        shape: (height,width) of array to return
-
-    Returns numpy array, 1 - mask, 0 - background
-
+        binary_mask: a binary mask with the shape of `mask_shape`
+    
+    Returns uncompressed Run-length Encoding (RLE) in COCO format
+            Link: https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
+            {
+                'counts': [n1, n2, n3, ...],
+                'size': [height, width] of the mask
+            }
     """
-    if len(mask_shape) != 2:
-        return None
-    if not isinstance(mask_rle, str):
-        return None
+    fortran_binary_mask = np.asfortranarray(binary_mask)
+    uncompressed_rle = {'counts': [], 'size': list(binary_mask.shape)}
+    counts = uncompressed_rle.get('counts')
+    for i, (value, elements) in enumerate(groupby(fortran_binary_mask.ravel(order='F'))):
+        if i == 0 and value == 1:
+            counts.append(0)    # Add 0 if the mask starts with one, since the odd counts are always the number of zeros
+        counts.append(len(list(elements)))
+    
+    return uncompressed_rle
 
-    s = mask_rle.split(",")
-    starts, lengths = [np.asarray(x, dtype=int) for x in (s[0:][::2], s[1:][::2])]
-    starts -= 1
-    ends = starts + lengths
-    img = np.zeros(mask_shape[0]*mask_shape[1], dtype=np.uint8)
-    for lo, hi in zip(starts, ends):
-        img[lo:hi] = 1
-    return img.reshape(mask_shape)
+def rle_decode(uncompressed_rle):
+    r"""
+    Args:
+        uncompressed_rle: uncompressed Run-length Encoding (RLE) in COCO format
+            Link: https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
+            {
+                'counts': [n1, n2, n3, ...],
+                'size': [height, width] of the mask
+            }
+        mask_shape: (height,width) of mask to return
+
+    Returns np.ndarray binary mask, 1 - mask, 0 - background
+    """
+    if len(uncompressed_rle.get('size')) != 2:
+        return None
+    
+    height, width = uncompressed_rle.get('size')
+    compressed_rle = cocomask.frPyObjects(uncompressed_rle, height, width)
+    return cocomask.decode(compressed_rle)
 
 def binary_mask_to_polygons(binary_mask, tolerance=0):
     r""" Converts a binary mask to COCO polygon representation
@@ -127,17 +148,22 @@ def binary_mask_to_polygons(binary_mask, tolerance=0):
     return polygons
 
 
-def rle_to_polygon(mask_rle, bbox_ltwh):
+def rle_to_polygon(uncompressed_rle, bbox_ltwh):
     r""" Convert RLE to polygons related to the original image
 
     Args:
-        mask_rle: run-length as string formated (start length)
+        uncompressed_rle: uncompressed_rle: uncompressed Run-length Encoding (RLE) in COCO format
+            Link: https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
+            {
+                'counts': [n1, n2, n3, ...],
+                'size': [height, width] of the mask
+            }
         bbox_ltwh: the bounding box that constraints the RLE in the format of [left, top, width, height]
 
     Return a list of polygons related to the original image
     """
-    left, top, w, h = bbox_ltwh
-    mask = rle_decode(mask_rle, (h, w))
+    left, top, _, _ = bbox_ltwh
+    mask = rle_decode(uncompressed_rle)
     polygons = binary_mask_to_polygons(mask)
     o_polygons = []
     for p in polygons:
