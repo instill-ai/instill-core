@@ -15,7 +15,7 @@ anyOf:
   - required:
       - ocr
   - required:
-      - instance_segmentation      
+      - instance_segmentation
   - required:
       - unspecified
 properties:
@@ -33,7 +33,7 @@ properties:
     "$ref": "#/definitions/Ocr"
   instance_segmentation:
     description: "Detect and delineate each distinct object of interest appearing in an image"
-    "$ref": "#/definitions/InstanceSegmentation"    
+    "$ref": "#/definitions/InstanceSegmentation"
   unspecified:
     description: "Unspecified task with output in the free form"
     "$ref": "#/definitions/Unspecified"
@@ -155,7 +155,7 @@ definitions:
           properties:
             rle:
               description: Run Length Encoding (RLE) of instance mask within the bounding box
-              type: string              
+              type: string
             bounding_box:
               "$ref": "#/definitions/BoundingBox"
             label:
@@ -163,7 +163,7 @@ definitions:
               type: string
             score:
               description: "The confidence score of the predicted instance object"
-              type: number              
+              type: number
   Unspecified:
     type: object
     additionalProperties: false
@@ -198,19 +198,19 @@ definitions:
               items: {} # Allow any type
   BoundingBox:
     type: object
-    description: "The detected bounding box in (top, left, width, height) format"
+    description: "The detected bounding box in (left, top, width, height) format"
     additionalProperties: false
     required:
-      - top
       - left
+      - top
       - width
       - height
     properties:
-      top:
-        description: "Bounding box top y-axis value"
-        type: number
       left:
         description: "Bounding box left x-axis value"
+        type: number
+      top:
+        description: "Bounding box top y-axis value"
         type: number
       width:
         description: "Bounding box width value"

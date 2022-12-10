@@ -19,7 +19,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
         resp (`requests.Response`): response for standardised instance segmentation task
 
     Returns: parsed outputs, a tuple of
-        List[Tuple[float]]: a list of detected bounding boxes in the format of (top, left, width, height)
+        List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
         List[str]: a list of Uncompressed Run-length encoding (RLE) in the format of comma separated string separated by comma. The length of this list must be the same as the detected bounding boxes.
         List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         List[float]: a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
@@ -138,7 +138,6 @@ if __name__ == "__main__":
 
     display_intro_markdown()
 
-    # st.text(" Let's trigger the pipeline by uploading a local image:")
     st.markdown("We provide an sample image below:")
     filename = "sample.jpg"
     with open(filename, "rb") as f:

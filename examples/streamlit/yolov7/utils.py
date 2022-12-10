@@ -113,7 +113,7 @@ def draw_detection(img: cv2.Mat, boxes_ltwh: List[Tuple[float]], categories: Lis
 
     Args:
         img (cv2.Mat): the original image
-        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height)
+        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (left, top, width, height)
         categories (List[str]): a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         scores (List[float]]): a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 
@@ -152,7 +152,7 @@ def gen_detection_table(boxes_ltwh: List[Tuple[float]], categories: List[str], s
     r""" Generate detection data frame
 
     Args:
-        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (top, left, width, height)
+        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (left, top, width, height)
         categories (List[str]): a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         scores (List[float]]): a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 

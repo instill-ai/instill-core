@@ -19,7 +19,7 @@ def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]
         resp (`requests.Response`): response for standardised object detection task
 
     Returns: parsed outputs, a tuple of
-        List[Tuple[float]]: a list of detected bounding boxes in the format of (top, left, width, height)
+        List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
         List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         List[float]: a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 
