@@ -177,10 +177,8 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     entrypoint: ./model-backend-worker
     depends_on:
-      model_backend_init:
-        condition: service_completed_successfully      
-      temporal:
-        condition: service_healthy      
+      - model_backend_init
+      - temporal_admin_tools 
 
   model_backend:
     container_name: ${MODEL_BACKEND_HOST}
@@ -303,6 +301,22 @@ services:
       timeout: 20s
       retries: 10
 
+  elasticsearch:
+    container_name: temporal-elasticsearch
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    ports:
+      - 9200:9200
+    volumes:
+      - /var/lib/elasticsearch/data
+
   temporal:
     container_name: temporal
     image: temporalio/auto-setup:${TEMPORAL_VERSION}
@@ -314,6 +328,9 @@ services:
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
+      ENABLE_ES: true
+      ES_SEEDS: elasticsearch
+      ES_VERSION: v7      
     ports:
       - ${TEMPORAL_PORT}:7233
     healthcheck:
@@ -322,8 +339,8 @@ services:
       timeout: 1m
       retries: 10
     depends_on:
-      pg_sql:
-        condition: service_healthy
+      - pg_sql
+      - elasticsearch
 
   temporal_admin_tools:
     container_name: ${TEMPORAL_HOST}-admin-tools
@@ -331,6 +348,7 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    command: tctl --namespace model-backend namespace register && sleep 1 && tctl --ns model-backend --auto_confirm admin cluster add-search-attributes --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text
     stdin_open: true
     tty: true
     depends_on:
