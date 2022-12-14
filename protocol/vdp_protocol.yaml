@@ -17,7 +17,7 @@ anyOf:
   - required:
       - instance_segmentation
   - required:
-      - semantic_segmentation      
+      - semantic_segmentation
   - required:
       - unspecified
 properties:
@@ -38,7 +38,7 @@ properties:
     "$ref": "#/definitions/InstanceSegmentation"
   semantic_segmentation:
     description: "Label specific regions of an image according to what's being shown"
-    "$ref": "#/definitions/SemanticSegmentation"    
+    "$ref": "#/definitions/SemanticSegmentation"
   unspecified:
     description: "Unspecified task with output in the free form"
     "$ref": "#/definitions/Unspecified"
@@ -164,7 +164,7 @@ definitions:
             bounding_box:
               "$ref": "#/definitions/BoundingBox"
             category:
-              description: "Category text string recognised per bounding box in the `bounding_boxes`"
+              description: "The predicted category of the bounding box"
               type: string
             score:
               description: "The confidence score of the predicted instance object"
