@@ -1,7 +1,5 @@
 .DEFAULT_GOAL:=help
 
-TEMPORAL := temporal temporal_admin_tools temporal_ui
-
 #============================================================================
 
 # load environment variables
@@ -22,7 +20,7 @@ endif
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose up -d
 
 .PHONY: dev
@@ -31,7 +29,7 @@ dev:			## Lunch all dependent services given the profile
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
-	@docker-compose up -d ${TEMPORAL}
+	@docker-compose up -d temporal temporal_admin_tools temporal_ui
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -39,7 +37,7 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mWARNING:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose pull
 
 .PHONY: stop
