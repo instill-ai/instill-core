@@ -90,10 +90,10 @@ integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true
 	@cd dev/console && npm install && npx playwright install --with-deps && npx playwright test
-	@cd dev/pipeline-backend && HOST=localhost make integration-test
-	@cd dev/connector-backend && HOST=localhost make integration-test
-	@cd dev/model-backend && HOST=localhost make integration-test
-	@cd dev/mgmt-backend && HOST=localhost make integration-test
+	@cd dev/pipeline-backend && make integration-test HOST=localhost
+	@cd dev/connector-backend && make integration-test HOST=localhost
+	@cd dev/model-backend && make integration-test HOST=localhost
+	@cd dev/mgmt-backend && make integration-test HOST=localhost
 	@make down
 
 .PHONY: help
