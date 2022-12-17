@@ -137,7 +137,7 @@ services:
 
   model_backend_migrate:
     container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/model-backend:latest
+    image: instill/model-backend:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -151,7 +151,7 @@ services:
 
   model_backend_init:
     container_name: ${MODEL_BACKEND_HOST}-init
-    image: instill/model-backend:latest
+    image: instill/model-backend:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -164,7 +164,7 @@ services:
 
   model_backend_worker:
     container_name: ${MODEL_BACKEND_HOST}-worker
-    image: instill/model-backend:latest
+    image: instill/model-backend:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
@@ -175,14 +175,17 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./model-backend-worker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - model_repository:/model-repository
+    entrypoint: ./model-backend-worker-init && ./model-backend-worker
     depends_on:
       - model_backend_init
       - temporal_admin_tools 
 
   model_backend:
     container_name: ${MODEL_BACKEND_HOST}
-    image: instill/model-backend:latest
+    image: instill/model-backend:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
@@ -348,7 +351,6 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    command: tctl --namespace model-backend namespace register && sleep 1 && tctl --ns model-backend --auto_confirm admin cluster add-search-attributes --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text
     stdin_open: true
     tty: true
     depends_on:

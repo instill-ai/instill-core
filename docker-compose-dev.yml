@@ -269,10 +269,15 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./model-backend-worker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - model_repository:/model-repository
+    command: ./model-backend-worker
     depends_on:
-      - model_backend_init
-      - temporal_admin_tools
+      model_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
 
   model_backend:
     profiles:
@@ -314,7 +319,7 @@ services:
     entrypoint: ./model-backend
     depends_on:
       - triton_server
-      - model_backend_worker       
+      - model_backend_worker
 
   mgmt_backend_migrate:
     profiles:
@@ -529,7 +534,8 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - temporal
+      temporal:
+        condition: service_healthy
 
   temporal_ui:
     profiles:
