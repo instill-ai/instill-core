@@ -77,7 +77,7 @@ def display_intro_markdown(pipeline_id="inst"):
 
     intro_markdown = """
 
-    # 🥦 Instance segmentation by triggering VDP pipeline
+    # Instance segmentation by triggering VDP pipeline
 
     [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline
 

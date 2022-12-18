@@ -27,7 +27,7 @@ To set it up,
 
 **Step 2: Import a model from GitHub**
 
-To process images, here we import a model from our public GitHub repo [instill-ai/model-instance-segmentation-dvc](https://github.com/instill-ai/model-instance-segmentation-dvc).
+To process images, here we import a [Mask R-CNN](https://github.com/onnx/models/blob/main/vision/object_detection_segmentation/mask-rcnn/model/MaskRCNN-10.onnx) model from our public GitHub repo [instill-ai/model-instance-segmentation-dvc](https://github.com/instill-ai/model-instance-segmentation-dvc).
 
 To set it up,
 
