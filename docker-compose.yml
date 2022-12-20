@@ -168,6 +168,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_ITMODE: ${ITMODE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
