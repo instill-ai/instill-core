@@ -13,7 +13,7 @@ $ make all
 
 If this is your first time setting up VDP, access the Console (http://localhost:3000) and you should see the onboarding page. Please enter your email and you are all set!
 
-After onboarding, you will be redirected to the **Pipeline** page on the left sidebar, where you can build your first VDP pipeline by clicking **Set up your first pipeline** and forever change the way you approach visual data processing workflow development.
+After onboarding, you will be redirected to the **Pipeline** page on the left sidebar, where you can build your first VDP pipeline by clicking **Set up your first pipeline** and forever change the way you approach unstructured data processing workflow development.
 
 #### Create a SYNC pipeline `stomata`
 

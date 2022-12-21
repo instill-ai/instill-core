@@ -9,6 +9,6 @@ jobs:
   track_issue:
     uses: instill-ai/meta/.github/workflows/add-issue-to-prj.yml@main
     with:
-      project_number: 5 # Visual Data Preparation (VDP) project
+      project_number: 5 # Versatile Data Pipeline (VDP) project
     secrets:
       botGitHubToken: ${{ secrets.botGitHubToken }}
