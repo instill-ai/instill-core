@@ -51,7 +51,7 @@
 
 - 🧁 **[Scalable API-first microservice design for great developer experience](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
 
-- 🤠 **[Build for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
+- 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
 ## Online demos
 

@@ -87,7 +87,7 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
 
     - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
-    - 🤠 Build for every AI and Data practitioner
+    - 🤠 Built for every AI and Data practitioner
 
     Give us a ⭐ on [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/instill-ai/vdp) and join our [![Discord](https://img.shields.io/badge/Community-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/sevxWsqpGh)
 
