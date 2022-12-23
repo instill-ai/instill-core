@@ -85,3 +85,19 @@ To shut down all running services:
 ```
 $ make down
 ```
+
+## Deploy the demo using Docker
+
+Build a Docker image
+```bash
+$ docker build -t streamlit-instance-segmentation .
+```
+Run the Docker container and connect to VDP
+```bash
+$ docker run -p 8501:8501 --network instill-network streamlit-instance-segmentation -- --pipeline-backend-base-url=http://pipeline-backend:8081 --pipeline-id=inst
+
+You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:8501
+
+```
