@@ -332,7 +332,7 @@ services:
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
-      ENABLE_ES: true
+      ENABLE_ES: "true"
       ES_SEEDS: elasticsearch
       ES_VERSION: v7      
     ports:
