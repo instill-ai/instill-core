@@ -242,6 +242,43 @@ services:
     depends_on:
       - model_backend_migrate
 
+  model_backend_worker:
+    profiles:
+      - all
+      - mgmt
+      - pipeline
+      - connector
+      - console
+    container_name: ${MODEL_BACKEND_HOST}-worker
+    image: instill/model-backend:latest
+    build:
+      context: ./dev/model-backend
+      args:
+        - SERVICE_NAME=model-backend
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
+      CFG_SERVER_ITMODE: ${ITMODE}
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: local-ce:latest
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - model_repository:/model-repository
+    command: ./model-backend-worker
+    depends_on:
+      model_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
   model_backend:
     profiles:
       - all
@@ -259,7 +296,6 @@ services:
     environment:
       CFG_SERVER_PORT: 8083
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_ITMODE: ${ITMODE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
@@ -282,10 +318,8 @@ services:
       - model_repository:/model-repository
     entrypoint: ./model-backend
     depends_on:
-      triton_server:
-        condition: service_healthy
-      model_backend_init:
-        condition: service_completed_successfully
+      - triton_server
+      - model_backend_worker
 
   mgmt_backend_migrate:
     profiles:
@@ -429,6 +463,29 @@ services:
       timeout: 20s
       retries: 10
 
+  elasticsearch:
+    profiles:
+      - all
+      - mgmt
+      - pipeline
+      - connector
+      - model
+      - console  
+    container_name: temporal-elasticsearch
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    ports:
+      - 9200:9200
+    volumes:
+      - /var/lib/elasticsearch/data
+
   temporal:
     profiles:
       - all
@@ -447,6 +504,9 @@ services:
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
+      ENABLE_ES: "true"
+      ES_SEEDS: elasticsearch
+      ES_VERSION: v7        
     ports:
       - ${TEMPORAL_PORT}:7233
     healthcheck:
@@ -455,8 +515,8 @@ services:
       timeout: 1m
       retries: 10
     depends_on:
-      pg_sql:
-        condition: service_healthy
+      - pg_sql
+      - elasticsearch
 
   temporal_admin_tools:
     profiles:
@@ -474,7 +534,8 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - temporal
+      temporal:
+        condition: service_healthy
 
   temporal_ui:
     profiles:
@@ -521,6 +582,7 @@ services:
   console:
     profiles:
       - all
+      - model
     container_name: ${CONSOLE_HOST}
     image: instill/console:latest
     build:
