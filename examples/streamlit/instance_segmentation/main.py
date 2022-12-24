@@ -40,7 +40,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
                     v.bounding_box.height
                 ))
                 rles.append(v.rle)
-                categories.append(v.label)
+                categories.append(v.category)
                 scores.append(v.score)
 
     return boxes_ltwh, rles, categories, scores
