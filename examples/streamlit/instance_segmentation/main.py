@@ -2,13 +2,12 @@ import argparse
 import requests
 import json
 import cv2
+import urllib
 import utils
 import streamlit as st
 import numpy as np
-import pandas as pd
 from typing import List, Tuple
 from types import SimpleNamespace
-from io import BytesIO
 from urllib.error import HTTPError
 
 
@@ -40,46 +39,51 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
                     v.bounding_box.width,
                     v.bounding_box.height
                 ))
-    #             rles.append([eval(i) for i in v.rle.split(",")])
                 rles.append(v.rle)
                 categories.append(v.category)
                 scores.append(v.score)
 
     return boxes_ltwh, rles, categories, scores
 
-def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, file: BytesIO, filename: str) -> requests.Response:
+def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url: str) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
 
     Args:
         pipeline_backend_base_url (str): VDP pipeline backend base URL
         pipeline_id (str): pipeline ID
-        file (BytesIO): a bytes object for the input image
-        filename (str): file name
+        image_url (str): remote image URL, e.g., `https://artifacts.instill.tech/imgs/dog.jpg`
 
     Returns: requests.Response
         pipeline trigger result
 
     """
-    return requests.post("{}/pipelines/{}/trigger-multipart".format(pipeline_backend_base_url, pipeline_id),
-                        files=[("file", (filename, file))])
+    body = {
+        "inputs": [
+            {
+                'image_url': image_url
+            }
+        ]
+    }
 
-def display_intro_markdown(pipeline_id="stomata"):
+    return requests.post("{}/pipelines/{}/trigger".format(pipeline_backend_base_url, pipeline_id), json=body)
+
+def display_intro_markdown(pipeline_id="inst"):
     r""" Display Markdown about demo introduction
     """
 
-    st.set_page_config(page_title="VDP - Stomata instance segmentation",
+    st.set_page_config(page_title="VDP - Instance segmentation",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
 
     intro_markdown = """
 
-    # 🥦 Identify stomata by triggering VDP pipeline
+    # Instance segmentation by triggering VDP pipeline
 
-    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline end-to-end unstructured data processing
+    [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline
 
     - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
-    - 🤠 Built for every AI and Data practitioner
+    - 🤠 Build for every Vision AI and Data practitioner
 
     Give us a ⭐ on [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/instill-ai/vdp) and join our [![Discord](https://img.shields.io/badge/Community-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/sevxWsqpGh)
 
@@ -88,9 +92,9 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     # Demo
 
-    We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [instance segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
+    We use open-source [VDP](https://github.com/instill-ai/vdp) to import the [Mask R-CNN](https://github.com/instill-ai/model-instance-segmentation-dvc) model pre-trained on COCO dataset.
 
-    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger:multipart`
+    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger`
 
 
     """.format(pipeline_id)
@@ -106,21 +110,28 @@ def display_vdp_markdown():
 
     1. **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
 
-    2. **Transform** it into meaningful data representations by AI models
+    2. **Transform** it into analysable structured data by Vision AI models
 
     3. **Load** the transformed data into warehouses, applications, or other destinations
 
-    With the help of the VDP pipeline, you can start manipulating the data using other data tooling in the modern data stack.
+    With the help of the VDP pipeline, you can start manipulating the data using other structured data tooling in the modern data stack.
     """
     st.markdown(vdp_markdown)
 
 
-def display_trigger_request_code(pipeline_id, filename):
+def display_trigger_request_code(pipeline_id):
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger:multipart' \\
-        --form 'file=@"{filename}"'
+        curl -X POST '{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger' \\
+        --header 'Content-Type: application/json' \\
+        --data-raw '{{
+            "inputs": [
+                {{
+                    "image_url": "{image_url}"
+                }}
+            ]
+        }}'
         """
     with st.expander(f"cURL"):
         st.code(request_code, language="bash")
@@ -129,8 +140,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline-backend-base-url', type=str,
                         default='http://localhost:8081', help='pipeline backend base URL')
-    parser.add_argument('--stomata', type=str,
-                        default='stomata', help='Stomata instance segmentation pipeline ID on VDP')
+    parser.add_argument('--pipeline-id', type=str,
+                        default='inst', help='Instance segmentation pipeline ID on VDP')
     opt = parser.parse_args()
     print(opt)
 
@@ -138,95 +149,58 @@ if __name__ == "__main__":
 
     display_intro_markdown()
 
-    st.markdown("We provide an sample image below:")
-    filename = "sample.jpg"
-    with open(filename, "rb") as f:
-        buf = BytesIO(f.read())
-        image_bytes = buf.getvalue()
-
-    # Drag and drop an image as input
-    uploaded_file = st.file_uploader("Upload an image", type=([".png", ".jpg", ".jpeg", ".tif", ".tiff"]))
-    if uploaded_file is not None:
-        filename = uploaded_file.name
-        image_bytes = uploaded_file.getvalue()
-
-    arr = np.asarray(bytearray(image_bytes), dtype=np.uint8)
-    img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-
-    st.image(img)
-    st.caption(filename)
+    # Use image remote URL to fetch an image in input
+    image_url = st.text_input(
+        label="Feed me with an image URL and press ENTER", value="https://artifacts.instill.tech/imgs/dog.jpg")
 
     try:
-        pipeline_id = opt.stomata
+        req = urllib.request.Request(
+            image_url, headers={'User-Agent': "XYZ/3.0"})
+        con = urllib.request.urlopen(req, timeout=10)
+        arr = np.asarray(bytearray(con.read()), dtype=np.uint8)
+        img_bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        img_height, img_width = img.shape[:2]
+
+        pipeline_id = opt.pipeline_id
         pipeline_results = []
-        display_trigger_request_code(pipeline_id, filename)
         # Trigger VDP pipelines
         resp = trigger_pipeline(
-            pipeline_backend_base_url, pipeline_id, image_bytes, filename)
+            pipeline_backend_base_url, pipeline_id, image_url)
 
         if resp.status_code == 200:
-            # Show trigger pipeline response
-            with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
-                    st.json(resp.json())
-
             boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(resp)
-            # Convert RLE from string "n1,n2,n3,..." to COCO RLE
-            #   {
-            #       'counts': [n1, n2, n3, ...],
-            #       'size': [height, width] of the mask
-            #   }
-            rles = [{'counts': rle_str.split(","), 'size': [bbox_ltwh[3], bbox_ltwh[2]]} for rle_str, bbox_ltwh in zip(rles_str, boxes_ltwh)]
-            polys = [utils.rle_to_polygon(rle, box) for rle, box in zip(rles, boxes_ltwh)]
-            rotated_boxes = utils.fit_polygens_to_rotated_bboxes(polys)
+            masks = [utils.rle_decode_original_image(rle_str, box, (img_height, img_width)) for rle_str, box in zip(rles_str, boxes_ltwh)]
+            masks = np.asarray(masks, dtype=np.uint8)
 
             cols = st.columns(2)
-
-            cols[0].markdown("#### Display instance segmentation result")
-            # Visualise instance segmentation on input image
-            img_draw = utils.draw_polygons(img, polys, thickness=2, color=(0,0,255))
-            cols[0].image(img_draw)
-
-            # Visualise rotated bounding boxes
-            cols[1].markdown("#### Convert to rotated bounding boxes")
+            # Visualize the input image
+            cols[0].markdown("#### Original image")
             texts = ["{} {:.0%}".format(category, score) for category, score in zip(categories, scores)]
-            img_draw = utils.draw_rotated_bboxes(img_draw, rotated_boxes, texts, thickness=2, color=(0,0,255))
+            cols[0].image(img)
+
+            cols[1].markdown("#### Instance segmentation")
+            # Visualize instance segmentation on input image
+            img_draw = utils.draw_instance_predictions(img, masks, np.asarray(boxes_ltwh, dtype=np.float32), texts)
             cols[1].image(img_draw)
 
-            # Stomata statistics
-            st.markdown(f"""
-            #### Stomata statistics
-
-            Detect **{len(rotated_boxes)}** stomata from `{filename}`.
-            """)
-
-
-
-            stats = np.zeros((len(rotated_boxes), 4))
-
-            for i, (rbox, score) in enumerate(zip(rotated_boxes, scores)):
-                _, (width, height), _ = rbox # (center(x,y), (width, height), angel of rotation)
-                long_axis = max(width, height)
-                short_axis = min(width, height)
-                ratio = short_axis/long_axis
-                stats[i] = [score, short_axis, long_axis, ratio]
-
-            df = pd.DataFrame(
-                stats,
-                columns=("score", "short axis", "long axis", "ratio = short / long axis"))
-
+            # Display instance segmentation in a table
             score_thres = 0.5
-            st.dataframe(df.style.highlight_between(subset="score", left=score_thres, right=1.0), use_container_width=True)
+            _, df = utils.generate_instance_prediction_table(categories, scores)
+            if len(df):
+                st.dataframe(df.style.highlight_between(subset="score", left=score_thres, right=1.0), use_container_width=True)
+                st.caption(
+                    "Note: highlight instances with score >= {}".format(score_thres))
 
-            st.caption(
-                "Note: highlight detections with score >= {}".format(score_thres))
-
+            display_trigger_request_code(pipeline_id)
+            # Show trigger pipeline response
+            with st.expander(f"POST /pipelines/{pipeline_id}/trigger response"):
+                    st.json(resp.json())
 
         else:
             st.error("Trigger pipeline {} inference error".format(pipeline_id))
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
-
 
     display_vdp_markdown()
