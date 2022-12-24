@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg" alt="Visual Data Preparation: open-source visual data ETL">
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg" alt="Versatile Data Pipeline: open-source unstructured data ETL">
 </h1>
 
 <h4 align="center">
@@ -15,7 +15,7 @@
 
 ---
 
-# Visual Data Preparation (VDP)  &nbsp; [![Twitter URL](https://img.shields.io/twitter/url?logo=twitter&style=social&url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp&via=instill_tech&text=Build%20end-to-end%20visual%20data%20processing%20pipelines%20with%20VDP%2C%2010x%20faster.&hashtags=ETL%2Cvdp%2Cdata%2Cai%2Cml%2Copensource)
+# Versatile Data Pipeline (VDP)  &nbsp; [![Twitter URL](https://img.shields.io/twitter/url?logo=twitter&style=social&url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp&via=instill_tech&text=Build%20end-to-end%20unstructured%20data%20processing%20pipelines%20with%20VDP%2C%2010x%20faster.&hashtags=ETL%2Cvdp%2Cdata%2Cai%2Cml%2Copensource)
 
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?&label=Release&color=blue&include_prereleases&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgOEg3VjRIMjNWMTdIMjFDMjEgMTguNjYgMTkuNjYgMjAgMTggMjBDMTYuMzQgMjAgMTUgMTguNjYgMTUgMTdIOUM5IDE4LjY2IDcuNjYgMjAgNiAyMEM0LjM0IDIwIDMgMTguNjYgMyAxN0gxVjEyTDQgOFpNMTggMThDMTguNTUgMTggMTkgMTcuNTUgMTkgMTdDMTkgMTYuNDUgMTguNTUgMTYgMTggMTZDMTcuNDUgMTYgMTcgMTYuNDUgMTcgMTdDMTcgMTcuNTUgMTcuNDUgMTggMTggMThaTTQuNSA5LjVMMi41NCAxMkg3VjkuNUg0LjVaTTYgMThDNi41NSAxOCA3IDE3LjU1IDcgMTdDNyAxNi40NSA2LjU1IDE2IDYgMTZDNS40NSAxNiA1IDE2LjQ1IDUgMTdDNSAxNy41NSA1LjQ1IDE4IDYgMThaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)](https://github.com/instill-ai/vdp/releases)
 [![License Apache-2.0](https://img.shields.io/crates/l/ap?label=License&color=blue&logo=apache)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
@@ -25,25 +25,25 @@
 [![Documentation deployment workflow](https://img.shields.io/github/actions/workflow/status/instill-ai/instill.tech/release.yml?branch=main&label=Docs&logoColor=fff&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNiAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wIDAuNzUwMDA0QzAgMC41NTEwOTEgMC4wNzkwMTc2IDAuMzYwMzI2IDAuMjE5NjcgMC4yMTk2NzRDMC4zNjAzMjIgMC4wNzkwMjEzIDAuNTUxMDg4IDMuNjgxOTFlLTA2IDAuNzUgMy42ODE5MWUtMDZINS4wMDNDNi4yMyAzLjY4MTkxZS0wNiA3LjMyIDAuNTkwMDA0IDguMDAzIDEuNTAxQzguMzUyMTggMS4wMzQzMyA4LjgwNTQ4IDAuNjU1NjI3IDkuMzI2ODMgMC4zOTUwNDJDOS44NDgxNyAwLjEzNDQ1NiAxMC40MjMyIC0wLjAwMDgxMzY0NiAxMS4wMDYgMy42ODE5MWUtMDZIMTUuMjUxQzE1LjQ0OTkgMy42ODE5MWUtMDYgMTUuNjQwNyAwLjA3OTAyMTMgMTUuNzgxMyAwLjIxOTY3NEMxNS45MjIgMC4zNjAzMjYgMTYuMDAxIDAuNTUxMDkxIDE2LjAwMSAwLjc1MDAwNFYxMS4yNUMxNi4wMDEgMTEuNDQ4OSAxNS45MjIgMTEuNjM5NyAxNS43ODEzIDExLjc4MDNDMTUuNjQwNyAxMS45MjEgMTUuNDQ5OSAxMiAxNS4yNTEgMTJIMTAuNzQ0QzEwLjQ0ODUgMTIgMTAuMTU1OSAxMi4wNTgyIDkuODgyOTYgMTIuMTcxM0M5LjYwOTk3IDEyLjI4NDMgOS4zNjE5MyAxMi40NTAxIDkuMTUzIDEyLjY1OUw4LjUzMSAxMy4yOEM4LjM5MDM3IDEzLjQyMDUgOC4xOTk3NSAxMy40OTkzIDguMDAxIDEzLjQ5OTNDNy44MDIyNSAxMy40OTkzIDcuNjExNjMgMTMuNDIwNSA3LjQ3MSAxMy4yOEw2Ljg0OSAxMi42NTlDNi42NDAwNyAxMi40NTAxIDYuMzkyMDMgMTIuMjg0MyA2LjExOTA0IDEyLjE3MTNDNS44NDYwNiAxMi4wNTgyIDUuNTUzNDggMTIgNS4yNTggMTJIMC43NUMwLjU1MTA4OCAxMiAwLjM2MDMyMiAxMS45MjEgMC4yMTk2NyAxMS43ODAzQzAuMDc5MDE3NiAxMS42Mzk3IDAgMTEuNDQ4OSAwIDExLjI1TDAgMC43NTAwMDRaTTguNzU1IDMuNzVDOC43NTUgMy4xNTMyNyA4Ljk5MjA1IDIuNTgwOTcgOS40MTQwMSAyLjE1OTAxQzkuODM1OTcgMS43MzcwNiAxMC40MDgzIDEuNSAxMS4wMDUgMS41SDE0LjVWMTAuNUgxMC43NDNDMTAuMDMzIDEwLjUgOS4zNDMgMTAuNzAxIDguNzUxIDExLjA3Mkw4Ljc1NSAzLjc1VjMuNzVaTTcuMjUxIDExLjA3NEw3LjI1NSA2LjAwMUw3LjI1MyAzLjc0OEM3LjI1MjQ3IDMuMTUxNjEgNy4wMTUxOCAyLjU3OTgzIDYuNTkzMjggMi4xNTgzMUM2LjE3MTM4IDEuNzM2NzggNS41OTkzOSAxLjUgNS4wMDMgMS41SDEuNVYxMC41SDUuMjU3QzUuOTYyNDIgMTAuNSA2LjY1MzU1IDEwLjY5ODkgNy4yNTEgMTEuMDc0VjExLjA3NFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=)](https://github.com/instill-ai/instill.tech/actions/workflows/deploy-prod.yml)
 
 
-**Visual Data Preparation (VDP)** is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline:
+**Versatile Data Pipeline (VDP)** is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline:
 
-- **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
+- **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
 
-- **Transform** it into analysable structured data by Vision AI models
+- **Transform** it into analysable or meaningful data representations by AI models
 
 - **Load** the transformed data into warehouses, applications, or other destinations
 
-![VDO Concept](https://artifacts.instill.tech/imgs/vdp-concept.png?id=1)
+![VDP Concept](https://artifacts.instill.tech/imgs/vdp-concept.png?id=1)
 
 ## Highlights
 
-- 🚀 **[The fastest way to build end-to-end visual data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
+- 🚀 **[The fastest way to build end-to-end unstructured data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
 
 - ⚡️ **[High-performing backends](https://www.instill.tech/docs/prepare-models/overview)** implemented in Go with Triton Inference Server for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
 
 - 🖱️ **[One-click import & deploy ML/DL models](https://www.instill.tech/docs/import-models/overview)** from GitHub, Hugging Face or cloud storage managed by version control tools like DVC or ArtiVC
 
-- 📦 **[Standardised CV Task](https://www.instill.tech/docs/core-concepts/cv-task)** structured output formats to streamline with data warehouse
+- 📦 **[Standardised AI Task](https://www.instill.tech/docs/core-concepts/ai-task)** output formats to streamline data integration or analysis
 
 - 🔌 **[Pre-built ETL data connectors](https://www.instill.tech/docs/core-concepts/connector)** for extensive data access integrated with Airbyte
 
@@ -51,7 +51,7 @@
 
 - 🧁 **[Scalable API-first microservice design for great developer experience](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
 
-- 🤠 **[Build for every Vision AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
+- 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
 ## Online demos
 
@@ -107,7 +107,7 @@ VDP is built with open heart and we expect VDP to be exposed to more MLOps integ
 
 - [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
 
-We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured visual data processing.
+We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured data processing.
 
 ## Documentation
 

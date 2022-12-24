@@ -75,11 +75,11 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     # 🥦 Identify stomata by triggering VDP pipeline
 
-    [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source visual data ETL tool to streamline the end-to-end visual data processing pipeline
+    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline end-to-end unstructured data processing
 
-    - 🚀 The fastest way to build end-to-end visual data pipelines
+    - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
-    - 🤠 Build for every Vision AI and Data practitioner
+    - 🤠 Built for every AI and Data practitioner
 
     Give us a ⭐ on [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/instill-ai/vdp) and join our [![Discord](https://img.shields.io/badge/Community-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/sevxWsqpGh)
 
@@ -102,15 +102,15 @@ def display_vdp_markdown():
     vdp_markdown = """
     # What's cool about VDP?
 
-    A VDP pipeline unlocks the value of unstructured visual data:
+    A VDP pipeline unlocks the value of unstructured data:
 
-    1. **Extract** unstructured visual data from pre-built data sources such as cloud/on-prem storage, or IoT devices
+    1. **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
 
-    2. **Transform** it into analysable structured data by Vision AI models
+    2. **Transform** it into meaningful data representations by AI models
 
     3. **Load** the transformed data into warehouses, applications, or other destinations
 
-    With the help of the VDP pipeline, you can start manipulating the data using other structured data tooling in the modern data stack.
+    With the help of the VDP pipeline, you can start manipulating the data using other data tooling in the modern data stack.
     """
     st.markdown(vdp_markdown)
 
