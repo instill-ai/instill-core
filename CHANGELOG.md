@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0-alpha](https://github.com/instill-ai/vdp/compare/v0.2.6-alpha...v0.3.0-alpha) (2022-12-24)
+
+
+### Features
+
+* add console e2e test into vdp ([#148](https://github.com/instill-ai/vdp/issues/148)) ([a779a11](https://github.com/instill-ai/vdp/commit/a779a11d42259923e09220df25d8006a7353026e))
+
+
+### Bug Fixes
+
+* error triton environment when deploying HuggingFace models ([#150](https://github.com/instill-ai/vdp/issues/150)) ([b2fda36](https://github.com/instill-ai/vdp/commit/b2fda36e687ed347e39d6c4e6f4448a289ca6acf))
+
 ## [0.2.6-alpha](https://github.com/instill-ai/vdp/compare/v0.2.5-alpha...v0.2.6-alpha) (2022-09-20)
 
 
