@@ -18,6 +18,11 @@ services:
   api_gateway:
     profiles:
       - all
+      - pipeline
+      - connector
+      - model
+      - mgmt
+      - console
     container_name: ${API_GATEWAY_HOST}
     image: instill/api-gateway:latest
     build:
@@ -26,7 +31,7 @@ services:
         - SERVICE_NAME=api-gateway
     restart: on-failure
     ports:
-      - ${API_GATEWAY_PORT}:8000
+      - ${API_GATEWAY_PORT}:8080
     environment:
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
@@ -37,19 +42,19 @@ services:
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
     depends_on:
-      - mgmt_backend
+      - pipeline_backend
       - connector_backend
       - model_backend
-      - pipeline_backend
+      - mgmt_backend
 
   pipeline_backend_migrate:
     profiles:
       - all
-      - mgmt
+      - gateway
       - connector
       - model
       - console
-      - api-gateway
+      - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/pipeline-backend:latest
     build:
@@ -70,11 +75,11 @@ services:
   pipeline_backend:
     profiles:
       - all
-      - mgmt
+      - gateway
       - connector
       - model
       - console
-      - api-gateway
+      - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/pipeline-backend:latest
     build:
@@ -112,11 +117,11 @@ services:
   connector_backend_migrate:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: instill/connector-backend:latest
     build:
@@ -137,11 +142,11 @@ services:
   connector_backend_init:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-init
     image: instill/connector-backend:latest
     build:
@@ -161,11 +166,11 @@ services:
   connector_backend_worker:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
     image: instill/connector-backend:latest
     build:
@@ -195,11 +200,11 @@ services:
   connector_backend:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${CONNECTOR_BACKEND_HOST}
     image: instill/connector-backend:latest
     build:
@@ -231,11 +236,11 @@ services:
   model_backend_migrate:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
+      - mgmt
       - console
-      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}-migrate
     image: instill/model-backend:latest
     build:
@@ -256,11 +261,11 @@ services:
   model_backend_init:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
+      - mgmt
       - console
-      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}-init
     image: instill/model-backend:latest
     build:
@@ -280,9 +285,10 @@ services:
   model_backend_worker:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
+      - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-worker
     image: instill/model-backend:latest
@@ -317,11 +323,11 @@ services:
   model_backend:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
+      - mgmt
       - console
-      - api-gateway
     container_name: ${MODEL_BACKEND_HOST}
     image: instill/model-backend:latest
     build:
@@ -361,11 +367,11 @@ services:
   mgmt_backend_migrate:
     profiles:
       - all
+      - gateway
       - pipeline
       - connector
       - model
       - console
-      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/mgmt-backend:latest
     build:
@@ -386,11 +392,11 @@ services:
   mgmt_backend_init:
     profiles:
       - all
+      - gateway
       - pipeline
       - connector
       - model
       - console
-      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}-init
     image: instill/mgmt-backend:latest
     build:
@@ -410,11 +416,11 @@ services:
   mgmt_backend:
     profiles:
       - all
+      - gateway
       - pipeline
       - connector
       - model
       - console
-      - api-gateway
     container_name: ${MGMT_BACKEND_HOST}
     image: instill/mgmt-backend:latest
     build:
@@ -438,15 +444,45 @@ services:
     depends_on:
       - mgmt_backend_init
 
-  triton_conda_env:
+  console:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
+    container_name: ${CONSOLE_HOST}
+    image: instill/console:latest
+    build:
+      context: ./dev/console
+    restart: unless-stopped
+    environment:
+      API_VERSION: v1alpha
+      DISABLE_USAGE_COLLECTION: "false"
+      CONSOLE_EDITION: local-ce:latest
+      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
+      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
+      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
+      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
+      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
+    ports:
+      - ${CONSOLE_PORT}:3000
+    depends_on:
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - pipeline_backend
+
+  triton_conda_env:
+    profiles:
+      - all
+      - gateway
+      - pipeline
+      - connector
+      - model
+      - mgmt
       - console
-      - api-gateway
     container_name: triton-conda-env
     image: ${TRITONCONDAENV_IMAGE_TAG}
     volumes:
@@ -455,12 +491,12 @@ services:
   triton_server:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${TRITON_SERVER_HOST}
     image: ${TRITONSERVER_IMAGE_TAG}
     restart: unless-stopped
@@ -488,12 +524,12 @@ services:
   pg_sql:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${POSTGRESQL_HOST}
     image: postgres:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
@@ -509,12 +545,13 @@ services:
   elasticsearch:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-    container_name: temporal-elasticsearch
+    container_name: ${ELASTICSEARCH_HOST}
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -525,19 +562,19 @@ services:
       - xpack.security.enabled=false
     image: elasticsearch:${ELASTICSEARCH_VERSION}
     ports:
-      - 9200:9200
+      - ${ELASTICSEARCH_PORT}:9200
     volumes:
       - /var/lib/elasticsearch/data
 
   temporal:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${TEMPORAL_HOST}
     image: temporalio/auto-setup:${TEMPORAL_VERSION}
     restart: unless-stopped
@@ -565,12 +602,12 @@ services:
   temporal_admin_tools:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${TEMPORAL_HOST}-admin-tools
     image: temporalio/admin-tools:${TEMPORAL_VERSION}
     restart: unless-stopped
@@ -585,12 +622,12 @@ services:
   temporal_ui:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${TEMPORAL_UI_HOST}
     image: temporalio/ui:${TEMPORAL_UI_VERSION}
     restart: unless-stopped
@@ -604,12 +641,12 @@ services:
   redis:
     profiles:
       - all
-      - mgmt
+      - gateway
       - pipeline
       - connector
       - model
+      - mgmt
       - console
-      - api-gateway
     container_name: ${REDIS_HOST}
     image: ${REDIS_IMAGE_TAG}
     restart: unless-stopped
@@ -625,29 +662,3 @@ services:
       SPEC_URL: https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
       - ${REDOC_OPENAPI_PORT}:80
-
-  console:
-    profiles:
-      - all
-      - model
-    container_name: ${CONSOLE_HOST}
-    image: instill/console:latest
-    build:
-      context: ./dev/console
-    restart: unless-stopped
-    environment:
-      API_VERSION: v1alpha
-      DISABLE_USAGE_COLLECTION: "false"
-      CONSOLE_EDITION: local-ce:latest
-      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
-      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
-      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
-      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
-      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
-    ports:
-      - ${CONSOLE_PORT}:3000
-    depends_on:
-      - mgmt_backend
-      - connector_backend
-      - model_backend
-      - pipeline_backend
