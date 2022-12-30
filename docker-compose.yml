@@ -179,10 +179,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - model_repository:/model-repository
-    entrypoint: ./model-backend-worker-init && ./model-backend-worker
+    entrypoint: ./model-backend-worker
     depends_on:
       - model_backend_init
-      - temporal_admin_tools 
+      - temporal_admin_tools
 
   model_backend:
     container_name: ${MODEL_BACKEND_HOST}
@@ -334,7 +334,7 @@ services:
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
       ENABLE_ES: "true"
       ES_SEEDS: elasticsearch
-      ES_VERSION: v7      
+      ES_VERSION: v7
     ports:
       - ${TEMPORAL_PORT}:7233
     healthcheck:
