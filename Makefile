@@ -98,5 +98,5 @@ integration-test:			## Run integration test for all dev repositories
 
 .PHONY: help
 help:       	## Show this help
-	@echo "\nMake Application wiht Docker Compose"
+	@echo "\nMake Application with Docker Compose"
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
