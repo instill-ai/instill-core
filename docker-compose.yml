@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8081
-      CFG_SERVER_DEBUG: false
+      CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
@@ -141,7 +141,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
-      CFG_SERVER_DEBUG: false
+      CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -192,7 +192,7 @@ services:
     image: instill/model-backend:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_DEBUG: false
+      CFG_SERVER_DEBUG: "false"
       CFG_SERVER_ITMODE: ${ITMODE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
@@ -215,7 +215,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
-      CFG_SERVER_DEBUG: false
+      CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
@@ -274,7 +274,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8084
-      CFG_SERVER_DEBUG: false
+      CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}

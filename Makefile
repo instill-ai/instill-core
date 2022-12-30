@@ -22,10 +22,12 @@ endif
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker-compose up -d
+	@docker-compose rm -f
 
 .PHONY: dev
 dev:			## Lunch all dependent services given the profile
 	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
+	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml rm -f
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
@@ -74,12 +76,12 @@ top:			## Display all running service processes
 
 .PHONY: build
 build:							## Build all dev docker images
+	@printf "set up latest api-gateway: " && [ ! -d "dev/api-gateway" ] && git clone https://github.com/instill-ai/api-gateway.git dev/api-gateway || git -C dev/api-gateway fetch && git -C dev/api-gateway reset --hard origin/main
 	@printf "set up latest pipeline-backend: " && [ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
 	@printf "set up latest connector-backend: " && [ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
 	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
 	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
 	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
-	@printf "set up latest api gateway: " && [ ! -d "dev/api-gateway" ] && git clone https://github.com/instill-ai/api-gateway.git dev/api-gateway || git -C dev/api-gateway fetch && git -C dev/api-gateway reset --hard origin/main
 	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
 
 .PHONY: doc
