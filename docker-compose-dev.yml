@@ -214,6 +214,7 @@ services:
       args:
         - SERVICE_NAME=model-backend
         - GOLANG_VERSION=${GOLANG_VERSION}
+        - UBUNTU_VERSION=${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -239,6 +240,7 @@ services:
       args:
         - SERVICE_NAME=model-backend
         - GOLANG_VERSION=${GOLANG_VERSION}
+        - UBUNTU_VERSION=${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -263,6 +265,7 @@ services:
       args:
         - SERVICE_NAME=model-backend
         - GOLANG_VERSION=${GOLANG_VERSION}
+        - UBUNTU_VERSION=${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -301,6 +304,7 @@ services:
       args:
         - SERVICE_NAME=model-backend
         - GOLANG_VERSION=${GOLANG_VERSION}
+        - UBUNTU_VERSION=${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
