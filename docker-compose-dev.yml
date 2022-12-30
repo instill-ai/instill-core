@@ -28,6 +28,7 @@ services:
       context: ./dev/pipeline-backend
       args:
         - SERVICE_NAME=pipeline-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -52,6 +53,7 @@ services:
       context: ./dev/pipeline-backend
       args:
         - SERVICE_NAME=pipeline-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8081
@@ -117,6 +119,7 @@ services:
       context: ./dev/connector-backend
       args:
         - SERVICE_NAME=connector-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -140,6 +143,7 @@ services:
       context: ./dev/connector-backend
       args:
         - SERVICE_NAME=connector-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
@@ -173,6 +177,7 @@ services:
       context: ./dev/connector-backend
       args:
         - SERVICE_NAME=connector-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
@@ -208,6 +213,7 @@ services:
       context: ./dev/model-backend
       args:
         - SERVICE_NAME=model-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -232,6 +238,7 @@ services:
       context: ./dev/model-backend
       args:
         - SERVICE_NAME=model-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -255,6 +262,7 @@ services:
       context: ./dev/model-backend
       args:
         - SERVICE_NAME=model-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -292,6 +300,7 @@ services:
       context: ./dev/model-backend
       args:
         - SERVICE_NAME=model-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
@@ -334,6 +343,7 @@ services:
       context: ./dev/mgmt-backend
       args:
         - SERVICE_NAME=mgmt-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -358,6 +368,7 @@ services:
       context: ./dev/mgmt-backend
       args:
         - SERVICE_NAME=mgmt-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -381,6 +392,7 @@ services:
       context: ./dev/mgmt-backend
       args:
         - SERVICE_NAME=mgmt-backend
+        - GOLANG_VERSION=${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8084
