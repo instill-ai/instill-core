@@ -15,6 +15,22 @@ volumes:
     name: model-repository
 
 services:
+  cert:
+    profiles:
+      - all
+      - api-gateway
+      - pipeline
+      - connector
+      - model
+      - mgmt
+      - console
+    container_name: cert
+    image: instill/cert:latest
+    restart: on-failure
+    volumes:
+      - vdp:/vdp
+    command: sh -c "cp -r /certs /vdp/certs"
+
   api_gateway:
     profiles:
       - all
@@ -28,11 +44,16 @@ services:
     build:
       context: ./dev/api-gateway
       args:
-        - SERVICE_NAME=api-gateway
-    restart: on-failure
+        SERVICE_NAME: ${API_GATEWAY_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
+    restart: unless-stopped
     ports:
       - ${API_GATEWAY_PORT}:8080
     environment:
+      API_GATEWAY_CERT_FILE: /vdp/certs/${API_GATEWAY_HOST}/cert.pem
+      API_GATEWAY_KEY_FILE: /vdp/certs/${API_GATEWAY_HOST}/key.pem
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
       CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
@@ -41,7 +62,11 @@ services:
       MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
+    volumes:
+      - vdp:/vdp
+    command: /bin/bash -c "make config && krakend run -c krakend.json"
     depends_on:
+      - cert
       - pipeline_backend
       - connector_backend
       - model_backend
@@ -56,18 +81,19 @@ services:
       - console
       - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: instill/pipeline-backend:latest
+    image: instill/${PIPELINE_BACKEND_HOST}:latest
     build:
-      context: ./dev/pipeline-backend
+      context: ./dev/${PIPELINE_BACKEND_HOST}
       args:
-        - SERVICE_NAME=pipeline-backend
+        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./pipeline-backend-migrate
+    entrypoint: ./${PIPELINE_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -81,11 +107,12 @@ services:
       - console
       - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}
-    image: instill/pipeline-backend:latest
+    image: instill/${PIPELINE_BACKEND_HOST}:latest
     build:
-      context: ./dev/pipeline-backend
+      context: ./dev/${PIPELINE_BACKEND_HOST}
       args:
-        - SERVICE_NAME=pipeline-backend
+        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8081
@@ -108,7 +135,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${PIPELINE_BACKEND_PORT}:8081
-    entrypoint: ./pipeline-backend
+    entrypoint: ./${PIPELINE_BACKEND_HOST}
     depends_on:
       - pipeline_backend_migrate
       - temporal
@@ -123,18 +150,19 @@ services:
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
-    image: instill/connector-backend:latest
+    image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/connector-backend
+      context: ./dev/${CONNECTOR_BACKEND_HOST}
       args:
-        - SERVICE_NAME=connector-backend
+        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./connector-backend-migrate
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -148,18 +176,19 @@ services:
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-init
-    image: instill/connector-backend:latest
+    image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/connector-backend
+      context: ./dev/${CONNECTOR_BACKEND_HOST}
       args:
-        - SERVICE_NAME=connector-backend
+        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./connector-backend-init
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-init
     depends_on:
       - connector_backend_migrate
 
@@ -172,11 +201,12 @@ services:
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
-    image: instill/connector-backend:latest
+    image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/connector-backend
+      context: ./dev/${CONNECTOR_BACKEND_HOST}
       args:
-        - SERVICE_NAME=connector-backend
+        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
@@ -190,7 +220,7 @@ services:
       - vdp:/vdp
       - airbyte:/airbyte
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: ./connector-backend-worker
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-worker
     depends_on:
       connector_backend_init:
         condition: service_completed_successfully
@@ -206,11 +236,12 @@ services:
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}
-    image: instill/connector-backend:latest
+    image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/connector-backend
+      context: ./dev/${CONNECTOR_BACKEND_HOST}
       args:
-        - SERVICE_NAME=connector-backend
+        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
@@ -229,7 +260,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${CONNECTOR_BACKEND_PORT}:8082
-    entrypoint: ./connector-backend
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}
     depends_on:
       - connector_backend_worker
 
@@ -242,18 +273,20 @@ services:
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/model-backend:latest
+    image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/model-backend
+      context: ./dev/${MODEL_BACKEND_HOST}
       args:
-        - SERVICE_NAME=model-backend
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./model-backend-migrate
+    entrypoint: ./${MODEL_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -267,18 +300,20 @@ services:
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-init
-    image: instill/model-backend:latest
+    image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/model-backend
+      context: ./dev/${MODEL_BACKEND_HOST}
       args:
-        - SERVICE_NAME=model-backend
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./model-backend-init
+    entrypoint: ./${MODEL_BACKEND_HOST}-init
     depends_on:
       - model_backend_migrate
 
@@ -291,11 +326,13 @@ services:
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-worker
-    image: instill/model-backend:latest
+    image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/model-backend
+      context: ./dev/${MODEL_BACKEND_HOST}
       args:
-        - SERVICE_NAME=model-backend
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -313,7 +350,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - model_repository:/model-repository
-    command: ./model-backend-worker
+    command: ./${MODEL_BACKEND_HOST}-worker
     depends_on:
       model_backend_init:
         condition: service_completed_successfully
@@ -329,11 +366,13 @@ services:
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}
-    image: instill/model-backend:latest
+    image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/model-backend
+      context: ./dev/${MODEL_BACKEND_HOST}
       args:
-        - SERVICE_NAME=model-backend
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
@@ -359,7 +398,7 @@ services:
       - ${MODEL_BACKEND_PORT}:8083
     volumes:
       - model_repository:/model-repository
-    entrypoint: ./model-backend
+    entrypoint: ./${MODEL_BACKEND_HOST}
     depends_on:
       - triton_server
       - model_backend_worker
@@ -373,18 +412,19 @@ services:
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}-migrate
-    image: instill/mgmt-backend:latest
+    image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/mgmt-backend
+      context: ./dev/${MGMT_BACKEND_HOST}
       args:
-        - SERVICE_NAME=mgmt-backend
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-    entrypoint: ./mgmt-backend-migrate
+    entrypoint: ./${MGMT_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -398,18 +438,19 @@ services:
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}-init
-    image: instill/mgmt-backend:latest
+    image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/mgmt-backend
+      context: ./dev/${MGMT_BACKEND_HOST}
       args:
-        - SERVICE_NAME=mgmt-backend
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./mgmt-backend-init
+    entrypoint: ./${MGMT_BACKEND_HOST}-init
     depends_on:
       - mgmt_backend_migrate
 
@@ -422,11 +463,12 @@ services:
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}
-    image: instill/mgmt-backend:latest
+    image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/mgmt-backend
+      context: ./dev/${MGMT_BACKEND_HOST}
       args:
-        - SERVICE_NAME=mgmt-backend
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8084
@@ -440,7 +482,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${MGMT_BACKEND_PORT}:8084
-    entrypoint: ./mgmt-backend
+    entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
 
