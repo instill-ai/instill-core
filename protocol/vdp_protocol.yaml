@@ -22,7 +22,7 @@ anyOf:
       - unspecified
 properties:
   classification:
-    description: "Classify into pre-defined categories"
+    description: "Classify an image into pre-defined categories"
     "$ref": "#/definitions/Classification"
   detection:
     description: "Detect and localise multiple objects"
@@ -34,10 +34,10 @@ properties:
     description: "Detect, localise and recognise texts"
     "$ref": "#/definitions/Ocr"
   instance_segmentation:
-    description: "Detect and delineate each distinct object of interest appearing in an image"
+    description: "Detect, localise and delineate multiple objects"
     "$ref": "#/definitions/InstanceSegmentation"
   semantic_segmentation:
-    description: "Label specific regions of an image according to what's being shown"
+    description: "Classify image pixels into predefined categories"
     "$ref": "#/definitions/SemanticSegmentation"
   unspecified:
     description: "Unspecified task with output in the free form"
