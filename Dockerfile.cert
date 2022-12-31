@@ -1,0 +1,31 @@
+ARG GOLANG_VERSION
+ARG ALPINE_VERSION
+FROM --platform=$BUILDPLATFORM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS build
+
+RUN apk add git
+
+RUN git clone https://github.com/FiloSottile/mkcert && \
+    cd mkcert && \
+    go build -ldflags "-X main.Version=$(git describe --tags)" && \
+    cp mkcert /usr/bin
+
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION}
+
+COPY --from=build /usr/bin/mkcert /usr/bin/mkcert
+
+RUN mkdir -p /certs/api-gateway
+RUN mkcert -client -key-file /certs/api-gateway/key.pem -cert-file /certs/api-gateway/cert.pem localhost api-gateway
+
+RUN mkdir /certs/pipeline
+RUN mkcert -client -key-file /certs/pipeline/key.pem -cert-file /certs/pipeline/cert.pem localhost pipeline-backend
+
+RUN mkdir /certs/connector
+RUN mkcert -client -key-file /certs/connector/key.pem -cert-file /certs/connector/cert.pem localhost connector-backend
+
+RUN mkdir /certs/model
+RUN mkcert -client -key-file /certs/model/key.pem -cert-file /certs/model/cert.pem localhost model-backend
+
+RUN mkdir /certs/mgmt
+RUN mkcert -client -key-file /certs/mgmt/key.pem -cert-file /certs/mgmt/cert.pem localhost mgmt-backend
+
+RUN cp "$(mkcert -CAROOT)/rootCA.pem" /certs

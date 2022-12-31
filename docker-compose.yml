@@ -15,23 +15,58 @@ volumes:
     name: model-repository
 
 services:
+  cert:
+    container_name: cert
+    image: instill/cert:latest
+    restart: on-failure
+    volumes:
+      - vdp:/vdp
+    command: sh -c "cp -r /certs /vdp/certs"
+
+  api_gateway:
+    container_name: ${API_GATEWAY_HOST}
+    image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
+    restart: unless-stopped
+    ports:
+      - ${API_GATEWAY_PORT}:8080
+    environment:
+      API_GATEWAY_CERT_FILE: /vdp/certs/${API_GATEWAY_HOST}/cert.pem
+      API_GATEWAY_KEY_FILE: /vdp/certs/${API_GATEWAY_HOST}/key.pem
+      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
+      CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CONNECTOR_BACKEND_PORT: ${CONNECTOR_BACKEND_PORT}
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
+      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
+    volumes:
+      - vdp:/vdp
+    command: /bin/sh -c "make config && krakend run -c krakend.json"
+    depends_on:
+      - cert
+      - pipeline_backend
+      - connector_backend
+      - model_backend
+      - mgmt_backend
+
   pipeline_backend_migrate:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./pipeline-backend-migrate
+    entrypoint: ./${PIPELINE_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
   pipeline_backend:
     container_name: ${PIPELINE_BACKEND_HOST}
-    image: instill/pipeline-backend:${PIPELINE_BACKEND_VERSION}
+    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8081
@@ -54,7 +89,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${PIPELINE_BACKEND_PORT}:8081
-    entrypoint: ./pipeline-backend
+    entrypoint: ./${PIPELINE_BACKEND_HOST}
     depends_on:
       - pipeline_backend_migrate
       - temporal
@@ -62,34 +97,34 @@ services:
 
   connector_backend_migrate:
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
-    image: instill/connector-backend:${CONNECTOR_BACKEND_VERSION}
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./connector-backend-migrate
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
   connector_backend_init:
     container_name: ${CONNECTOR_BACKEND_HOST}-init
-    image: instill/connector-backend:${CONNECTOR_BACKEND_VERSION}
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./connector-backend-init
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-init
     depends_on:
       - connector_backend_migrate
 
   connector_backend_worker:
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
-    image: instill/connector-backend:${CONNECTOR_BACKEND_VERSION}
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
@@ -103,7 +138,7 @@ services:
       - vdp:/vdp
       - airbyte:/airbyte
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: ./connector-backend-worker
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-worker
     depends_on:
       connector_backend_init:
         condition: service_completed_successfully
@@ -112,7 +147,7 @@ services:
 
   connector_backend:
     container_name: ${CONNECTOR_BACKEND_HOST}
-    image: instill/connector-backend:${CONNECTOR_BACKEND_VERSION}
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8082
@@ -131,40 +166,40 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${CONNECTOR_BACKEND_PORT}:8082
-    entrypoint: ./connector-backend
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}
     depends_on:
       - connector_backend_worker
 
   model_backend_migrate:
     container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/model-backend:${MODEL_BACKEND_VERSION}
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./model-backend-migrate
+    entrypoint: ./${MODEL_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
   model_backend_init:
     container_name: ${MODEL_BACKEND_HOST}-init
-    image: instill/model-backend:${MODEL_BACKEND_VERSION}
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./model-backend-init
+    entrypoint: ./${MODEL_BACKEND_HOST}-init
     depends_on:
       - model_backend_migrate
 
   model_backend_worker:
     container_name: ${MODEL_BACKEND_HOST}-worker
-    image: instill/model-backend:${MODEL_BACKEND_VERSION}
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
@@ -186,14 +221,14 @@ services:
 
   model_backend:
     container_name: ${MODEL_BACKEND_HOST}
-    image: instill/model-backend:${MODEL_BACKEND_VERSION}
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PORT: 8083
       CFG_SERVER_DEBUG: "false"
-      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
+      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -211,43 +246,44 @@ services:
       - ${MODEL_BACKEND_PORT}:8083
     volumes:
       - model_repository:/model-repository
-    entrypoint: ./model-backend
+    entrypoint: ./${MODEL_BACKEND_HOST}
     depends_on:
       - triton_server
       - model_backend_worker
 
   mgmt_backend_migrate:
     container_name: ${MGMT_BACKEND_HOST}-migrate
-    image: instill/mgmt-backend:${MGMT_BACKEND_VERSION}
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-    entrypoint: ./mgmt-backend-migrate
+    entrypoint: ./${MGMT_BACKEND_HOST}-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
 
   mgmt_backend_init:
-    container_name: mgmt-backend-init
-    image: instill/mgmt-backend:${MGMT_BACKEND_VERSION}
+    container_name: ${MGMT_BACKEND_HOST}-init
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./mgmt-backend-init
+    entrypoint: ./${MGMT_BACKEND_HOST}-init
     depends_on:
       - mgmt_backend_migrate
 
   mgmt_backend:
     container_name: ${MGMT_BACKEND_HOST}
-    image: instill/mgmt-backend:${MGMT_BACKEND_VERSION}
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
     environment:
+      CFG_SERVER_PORT: 8084
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
@@ -258,9 +294,30 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${MGMT_BACKEND_PORT}:8084
-    entrypoint: ./mgmt-backend
+    entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
+
+  console:
+    container_name: ${CONSOLE_HOST}
+    image: instill/console:${CONSOLE_VERSION}
+    restart: unless-stopped
+    environment:
+      API_VERSION: v1alpha
+      DISABLE_USAGE_COLLECTION: "false"
+      CONSOLE_EDITION: local-ce
+      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
+      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
+      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
+      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
+      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
+    ports:
+      - ${CONSOLE_PORT}:3000
+    depends_on:
+      - mgmt_backend
+      - connector_backend
+      - model_backend
+      - pipeline_backend
 
   triton_conda_env:
     container_name: triton-conda-env
@@ -306,7 +363,7 @@ services:
       retries: 10
 
   elasticsearch:
-    container_name: temporal-elasticsearch
+    container_name: ${ELASTICSEARCH_HOST}
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -317,7 +374,7 @@ services:
       - xpack.security.enabled=false
     image: elasticsearch:${ELASTICSEARCH_VERSION}
     ports:
-      - 9200:9200
+      - ${ELASTICSEARCH_PORT}:9200
     volumes:
       - /var/lib/elasticsearch/data
 
@@ -384,24 +441,3 @@ services:
       - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
       - ${REDOC_OPENAPI_PORT}:80
-
-  console:
-    container_name: ${CONSOLE_HOST}
-    image: instill/console:${CONSOLE_VERSION}
-    restart: unless-stopped
-    environment:
-      API_VERSION: v1alpha
-      DISABLE_USAGE_COLLECTION: "false"
-      CONSOLE_EDITION: local-ce
-      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
-      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
-      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
-      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
-      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
-    ports:
-      - ${CONSOLE_PORT}:3000
-    depends_on:
-      - mgmt_backend
-      - connector_backend
-      - model_backend
-      - pipeline_backend
