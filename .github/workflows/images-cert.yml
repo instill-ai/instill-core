@@ -1,0 +1,65 @@
+name: Build and Push Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Dockerfile.cert"
+
+jobs:
+  docker-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+          expand: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: dropletbot
+          password: ${{ secrets.botDockerHubPassword }}
+
+      - name: Build and push (latest)
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            SERVICE_NAME=cert
+            GOLANG_VERSION=${{ env.GOLANG_VERSION }}
+            ALPINE_VERSION=${{ env.ALPINE_VERSION }}
+          tags: instill/cert:latest
+          cache-from: type=registry,ref=instill/cert:buildcache
+          cache-to: type=registry,ref=instill/cert:buildcache,mode=max
+
+      - name: Set Versions
+        if: github.event_name == 'release'
+        uses: actions/github-script@v6
+        id: set_version
+        with:
+          script: |
+            const tag = '${{ github.ref_name }}'
+            const no_v_tag = tag.replace('v', '')
+            core.setOutput('tag', tag)
+            core.setOutput('no_v_tag', no_v_tag)
+
+      - name: Build and push (release)
+        if: github.event_name == 'release'
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            SERVICE_NAME=cert
+            GOLANG_VERSION=${{ env.GOLANG_VERSION }}
+            ALPINE_VERSION=${{ env.ALPINE_VERSION }}
+          tags: instill/cert:${{steps.set_version.outputs.no_v_tag}}
+          cache-from: type=registry,ref=instill/cert:buildcache
+          cache-to: type=registry,ref=instill/cert:buildcache,mode=max
