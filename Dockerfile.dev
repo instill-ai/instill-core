@@ -1,0 +1,37 @@
+ARG UBUNTU_VERSION
+FROM --platform=$BUILDPLATFORM ubuntu:${UBUNTU_VERSION}
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get -y install ca-certificates curl gnupg lsb-release
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+RUN echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+RUN apt-get install -y git bash make curl wget
+
+# Install console dependencies
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get update
+RUN apt-get install -y nodejs
+
+RUN rm -rf /var/lib/apt/lists/*
+
+# Install Go
+ARG TARGETARCH
+ARG GOLANG_VERSION
+RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-$TARGETARCH.tar.gz && tar -xzf go${GOLANG_VERSION}.linux-$TARGETARCH.tar.gz -C /usr/local/
+ENV PATH=$PATH:/usr/local/go/bin
+
+RUN GOBIN=/usr/local/bin go install go.k6.io/xk6/cmd/xk6@latest && xk6 build --with github.com/szkiba/xk6-jose@latest --output /usr/bin/k6
+
+WORKDIR /vdp/dev
+
+RUN git clone https://github.com/instill-ai/api-gateway.git api-gateway
+RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
+RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend
+RUN git clone https://github.com/instill-ai/model-backend.git model-backend
+RUN git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
+RUN git clone https://github.com/instill-ai/console.git console

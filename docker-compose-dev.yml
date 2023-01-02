@@ -42,7 +42,7 @@ services:
     container_name: ${API_GATEWAY_HOST}
     image: instill/api-gateway:latest
     build:
-      context: ./dev/api-gateway
+      context: ./api-gateway
       args:
         SERVICE_NAME: ${API_GATEWAY_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -83,7 +83,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/${PIPELINE_BACKEND_HOST}:latest
     build:
-      context: ./dev/${PIPELINE_BACKEND_HOST}
+      context: ./${PIPELINE_BACKEND_HOST}
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -109,7 +109,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/${PIPELINE_BACKEND_HOST}:latest
     build:
-      context: ./dev/${PIPELINE_BACKEND_HOST}
+      context: ./${PIPELINE_BACKEND_HOST}
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -152,7 +152,7 @@ services:
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
+      context: ./${CONNECTOR_BACKEND_HOST}
       args:
         SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -178,7 +178,7 @@ services:
     container_name: ${CONNECTOR_BACKEND_HOST}-init
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
+      context: ./${CONNECTOR_BACKEND_HOST}
       args:
         SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -203,7 +203,7 @@ services:
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
+      context: ./${CONNECTOR_BACKEND_HOST}
       args:
         SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -238,7 +238,7 @@ services:
     container_name: ${CONNECTOR_BACKEND_HOST}
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
+      context: ./${CONNECTOR_BACKEND_HOST}
       args:
         SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -275,7 +275,7 @@ services:
     container_name: ${MODEL_BACKEND_HOST}-migrate
     image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MODEL_BACKEND_HOST}
+      context: ./${MODEL_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -302,7 +302,7 @@ services:
     container_name: ${MODEL_BACKEND_HOST}-init
     image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MODEL_BACKEND_HOST}
+      context: ./${MODEL_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -328,7 +328,7 @@ services:
     container_name: ${MODEL_BACKEND_HOST}-worker
     image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MODEL_BACKEND_HOST}
+      context: ./${MODEL_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -368,7 +368,7 @@ services:
     container_name: ${MODEL_BACKEND_HOST}
     image: instill/${MODEL_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MODEL_BACKEND_HOST}
+      context: ./${MODEL_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -414,7 +414,7 @@ services:
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MGMT_BACKEND_HOST}
+      context: ./${MGMT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MGMT_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -440,7 +440,7 @@ services:
     container_name: ${MGMT_BACKEND_HOST}-init
     image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MGMT_BACKEND_HOST}
+      context: ./${MGMT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MGMT_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -465,7 +465,7 @@ services:
     container_name: ${MGMT_BACKEND_HOST}
     image: instill/${MGMT_BACKEND_HOST}:latest
     build:
-      context: ./dev/${MGMT_BACKEND_HOST}
+      context: ./${MGMT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MGMT_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
@@ -495,9 +495,9 @@ services:
       - model
       - mgmt
     container_name: ${CONSOLE_HOST}
-    image: instill/console:latest
+    image: instill/${CONSOLE_HOST}:latest
     build:
-      context: ./dev/console
+      context: ./${CONSOLE_HOST}
     restart: unless-stopped
     environment:
       API_VERSION: v1alpha
@@ -698,6 +698,14 @@ services:
       - ${REDIS_PORT}:6379
 
   redoc_openapi:
+    profiles:
+      - all
+      - gateway
+      - pipeline
+      - connector
+      - model
+      - mgmt
+      - console
     container_name: ${REDOC_OPENAPI_HOST}
     image: redocly/redoc:${REDOC_OPENAPI_VERSION}
     environment:

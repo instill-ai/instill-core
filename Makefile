@@ -21,13 +21,13 @@ endif
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose up -d
-	@docker-compose rm -f
+	@docker compose up -d
+	@docker compose rm -f
 
 .PHONY: dev
-dev:			## Lunch all dependent services given the profile
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml rm -f
+dev:			## Lunch all dependent services given a profile set
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml up -d
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml rm -f
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
@@ -75,14 +75,29 @@ top:			## Display all running service processes
 	@docker-compose top
 
 .PHONY: build
-build:							## Build all dev docker images
-	@printf "set up latest api-gateway: " && [ ! -d "dev/api-gateway" ] && git clone https://github.com/instill-ai/api-gateway.git dev/api-gateway || git -C dev/api-gateway fetch && git -C dev/api-gateway reset --hard origin/main
-	@printf "set up latest pipeline-backend: " && [ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
-	@printf "set up latest connector-backend: " && [ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
-	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
-	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
-	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
+build:							## Build latest images for all VDP components
+	@docker build -f Dockerfile.dev \
+		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+		-t instill/vdp:dev .
+	@docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ${PWD}/.env:/vdp/dev/.env \
+		-v ${PWD}/docker-compose-dev.yml:/vdp/dev/docker-compose-dev.yml \
+		-e TRITONSERVER_RUNTIME=${TRITONSERVER_RUNTIME} \
+		-e TRITONSERVER_IMAGE_TAG=${TRITONSERVER_IMAGE_TAG} \
+		-e TRITONCONDAENV_IMAGE_TAG=${TRITONCONDAENV_IMAGE_TAG} \
+		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
+		--name vdp-build \
+		instill/vdp:dev /bin/bash -c " \
+			git -C api-gateway fetch && git -C api-gateway reset --hard origin/main && \
+			git -C pipeline-backend fetch && git -C pipeline-backend reset --hard origin/main && \
+			git -C connector-backend fetch && git -C connector-backend reset --hard origin/main && \
+			git -C model-backend fetch && git -C model-backend reset --hard origin/main && \
+			git -C mgmt-backend fetch && git -C mgmt-backend reset --hard origin/main && \
+			git -C console fetch && git -C console reset --hard origin/main && \
+			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml build \
+		"
 
 .PHONY: doc
 doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
@@ -92,11 +107,14 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true
-	@cd dev/console && npm install && npx playwright install --with-deps && npx playwright test
-	@cd dev/pipeline-backend && make integration-test HOST=localhost
-	@cd dev/connector-backend && make integration-test HOST=localhost
-	@cd dev/model-backend && make integration-test HOST=localhost
-	@cd dev/mgmt-backend && make integration-test HOST=localhost
+	@docker rm -f vdp-integration-test >/dev/null 2>&1 | true
+	@docker run -d --rm --network host --name vdp-integration-test instill/vdp:dev tail -f /dev/null
+	@docker exec -it vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test"
+	@docker exec -it vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test HOST=localhost"
+	@docker exec -it vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test HOST=localhost"
+	@docker exec -it vdp-integration-test /bin/bash -c "cd model-backend && make integration-test HOST=localhost"
+	@docker exec -it vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test HOST=localhost"
+	@docker stop -t 1 vdp-integration-test
 	@make down
 
 .PHONY: help
