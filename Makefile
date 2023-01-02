@@ -80,7 +80,7 @@ build:							## Build latest images for all VDP components
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		-t instill/vdp:dev .
-	@docker run -it --rm \
+	@docker run -t --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/dev/.env \
 		-v ${PWD}/docker-compose-dev.yml:/vdp/dev/docker-compose-dev.yml \
@@ -109,11 +109,11 @@ integration-test:			## Run integration test for all dev repositories
 	@make dev PROFILE=all ITMODE=true
 	@docker rm -f vdp-integration-test >/dev/null 2>&1 | true
 	@docker run -d --rm --network host --name vdp-integration-test instill/vdp:dev tail -f /dev/null
-	@docker exec -it vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test"
-	@docker exec -it vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test HOST=localhost"
-	@docker exec -it vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test HOST=localhost"
-	@docker exec -it vdp-integration-test /bin/bash -c "cd model-backend && make integration-test HOST=localhost"
-	@docker exec -it vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test HOST=localhost"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test HOST=localhost"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test HOST=localhost"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test HOST=localhost"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test HOST=localhost"
 	@docker stop -t 1 vdp-integration-test
 	@make down
 
