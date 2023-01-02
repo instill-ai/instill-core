@@ -1,5 +1,5 @@
 ARG UBUNTU_VERSION
-FROM --platform=$BUILDPLATFORM ubuntu:${UBUNTU_VERSION}
+FROM --platform=${BUILDPLATFORM} ubuntu:${UBUNTU_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install ca-certificates curl gnupg lsb-release
@@ -22,8 +22,8 @@ RUN rm -rf /var/lib/apt/lists/*
 # Install Go
 ARG TARGETARCH
 ARG GOLANG_VERSION
-RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-$TARGETARCH.tar.gz && tar -xzf go${GOLANG_VERSION}.linux-$TARGETARCH.tar.gz -C /usr/local/
-ENV PATH=$PATH:/usr/local/go/bin
+RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz && tar -xzf go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz -C /usr/local/
+ENV PATH=${PATH}:/usr/local/go/bin
 
 RUN GOBIN=/usr/local/bin go install go.k6.io/xk6/cmd/xk6@latest && xk6 build --with github.com/szkiba/xk6-jose@latest --output /usr/bin/k6
 

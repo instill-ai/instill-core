@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.8-slim
+FROM --platform=${BUILDPLATFORM} python:3.8-slim
 EXPOSE 8501
 
 RUN apt-get update \
