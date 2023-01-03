@@ -133,6 +133,8 @@ We curate a list of ready-to-use models for VDP. These models are from different
 | [YOLOv7](https://github.com/WongKinYiu/yolov7)                                                                                                      | Object detection     | [GitHub-DVC](https://github.com/instill-ai/model-yolov7-dvc)                                                                 | ONNX      | ✅   | ✅   |       |
 | [Detectron2 Keypoint R-CNN R50-FPN](https://github.com/facebookresearch/detectron2/blob/main/configs/COCO-Keypoints/keypoint_rcnn_R_50_FPN_1x.yaml) | Keypoint detection   | [GitHub-DVC](https://github.com/instill-ai/model-keypoint-detection-dvc)                                                     | PyTorch   | ✅   | ✅   |       |
 | [PSNet](https://github.com/open-mmlab/mmocr/tree/main/configs/textdet/psenet) + [EasyOCR](https://github.com/JaidedAI/EasyOCR)                      | OCR                  | [GitHub-DVC](https://github.com/instill-ai/model-ocr-dvc)                                                                    | ONNX      | ✅   | ✅   |       |
+| [Mask RCNN](https://github.com/onnx/models/blob/main/vision/object_detection_segmentation/mask-rcnn/model/MaskRCNN-10.onnx)                                                                                                       | Instance segmentation     | [GitHub-DVC](https://github.com/instill-ai/model-instance-segmentation-dvc)                                                                 | PyTorch      | ✅   | ✅   |       |
+
 
 Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
 
