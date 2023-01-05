@@ -10,7 +10,7 @@ RUN echo \
     $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update
 RUN apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-RUN apt-get install -y git bash make curl wget
+RUN apt-get install -y git bash make curl wget vim
 
 # Install console dependencies
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
@@ -19,16 +19,17 @@ RUN apt-get install -y nodejs
 
 RUN rm -rf /var/lib/apt/lists/*
 
-# Install Go
-ARG TARGETARCH
-ARG GOLANG_VERSION
-RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz && tar -xzf go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz -C /usr/local/
-ENV PATH=${PATH}:/usr/local/go/bin
+# Install k6
+ARG TARGETARCH K6_VERSION
+ADD https://github.com/grafana/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz
+RUN tar -xf k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz --strip-components 1 -C /usr/bin
 
-RUN GOBIN=/usr/local/bin go install go.k6.io/xk6/cmd/xk6@latest && xk6 build --with github.com/szkiba/xk6-jose@latest --output /usr/bin/k6
+COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
 WORKDIR /vdp/dev
 
+ARG CACHE_DATE
+RUN echo "VDP codebase cloned on ${CACHE_DATE}: "
 RUN git clone https://github.com/instill-ai/api-gateway.git api-gateway
 RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
 RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend

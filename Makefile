@@ -26,8 +26,8 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: dev
 dev:			## Lunch all dependent services given a profile set
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml up -d
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml rm -f
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml rm -f
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
@@ -76,27 +76,23 @@ top:			## Display all running service processes
 
 .PHONY: build
 build:							## Build latest images for all VDP components
-	@docker build -f Dockerfile.dev \
-		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+	@docker build --progress plain -f Dockerfile.dev \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg CACHE_DATE="$(shell date)" \
 		-t instill/vdp:dev .
 	@docker run -t --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/dev/.env \
-		-v ${PWD}/docker-compose-dev.yml:/vdp/dev/docker-compose-dev.yml \
+		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
 		-e TRITONSERVER_RUNTIME=${TRITONSERVER_RUNTIME} \
 		-e TRITONSERVER_IMAGE_TAG=${TRITONSERVER_IMAGE_TAG} \
 		-e TRITONCONDAENV_IMAGE_TAG=${TRITONCONDAENV_IMAGE_TAG} \
 		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
-			git -C api-gateway fetch && git -C api-gateway reset --hard origin/main && \
-			git -C pipeline-backend fetch && git -C pipeline-backend reset --hard origin/main && \
-			git -C connector-backend fetch && git -C connector-backend reset --hard origin/main && \
-			git -C model-backend fetch && git -C model-backend reset --hard origin/main && \
-			git -C mgmt-backend fetch && git -C mgmt-backend reset --hard origin/main && \
-			git -C console fetch && git -C console reset --hard origin/main && \
-			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose-dev.yml build \
+			docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: doc
@@ -105,15 +101,17 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
-	@make build PROFILE=all
+	@make build
 	@make dev PROFILE=all ITMODE=true
-	@docker rm -f vdp-integration-test >/dev/null 2>&1 | true
-	@docker run -d --rm --network host --name vdp-integration-test instill/vdp:dev tail -f /dev/null
-	@docker exec -t vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test HOST=localhost"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test HOST=localhost"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test HOST=localhost"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test HOST=localhost"
+	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker run -d -t --rm \
+		--network instill-network \
+		--name vdp-integration-test instill/vdp:dev tail -f /dev/null >/dev/null 2>&1
+	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test MODE=api-gateway"
+	@[ "$(WITH_CONSOLE)" = "true" ] && docker exec -t vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test" || true
 	@docker stop -t 1 vdp-integration-test
 	@make down
 
