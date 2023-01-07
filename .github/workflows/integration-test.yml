@@ -11,12 +11,18 @@ jobs:
     steps:
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+          expand: true
 
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
@@ -24,5 +30,39 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Run integration test
-        run: make integration-test
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+
+      - name: Run latest VDP
+        run: make dev PROFILE=all ITMODE=true
+
+      - name: Run pipeline-backend integration test
+        run: |
+          git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
+          cd pipeline-backend
+          make integration-test MODE=localhost
+
+      - name: Run connector-backend integration test
+        run: |
+          git clone https://github.com/instill-ai/connector-backend.git connector-backend
+          cd connector-backend
+          make integration-test MODE=localhost
+
+      - name: Run model-backend integration test
+        run: |
+          git clone https://github.com/instill-ai/pipeline-backend.git model-backend
+          cd model-backend
+          make integration-test MODE=localhost
+
+      - name: Run mgmt-backend integration test
+        run: |
+          git clone https://github.com/instill-ai/pipeline-backend.git mgmt-backend
+          cd mgmt-backend
+          make integration-test MODE=localhost
+
+      - name: Run console integration test
+        run: |
+          git clone https://github.com/instill-ai/console.git console
+          cd console
+          npm install && npx playwright install --with-deps && npx playwright test

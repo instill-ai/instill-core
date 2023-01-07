@@ -15,22 +15,6 @@ volumes:
     name: model-repository
 
 services:
-  cert:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - mgmt
-      - console
-    container_name: cert
-    image: instill/cert:latest
-    restart: on-failure
-    volumes:
-      - vdp:/vdp
-    command: sh -c "cp -r /certs /vdp/certs"
-
   api_gateway:
     profiles:
       - all
@@ -40,20 +24,18 @@ services:
       - mgmt
       - console
     container_name: ${API_GATEWAY_HOST}
-    image: instill/api-gateway:latest
-    build:
-      context: ./dev/api-gateway
-      args:
-        SERVICE_NAME: ${API_GATEWAY_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        ALPINE_VERSION: ${ALPINE_VERSION}
-        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
+    image: instill/${API_GATEWAY_HOST}:latest
     restart: unless-stopped
     ports:
-      - ${API_GATEWAY_PORT}:8080
+      - ${API_GATEWAY_HTTPS_PORT}:${API_GATEWAY_HTTPS_PORT}
     environment:
-      API_GATEWAY_CERT_FILE: /vdp/certs/${API_GATEWAY_HOST}/cert.pem
-      API_GATEWAY_KEY_FILE: /vdp/certs/${API_GATEWAY_HOST}/key.pem
+      API_GATEWAY_HOST: ${API_GATEWAY_HOST}
+      API_GATEWAY_HTTPS_PORT: ${API_GATEWAY_HTTPS_PORT}
+      API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
+      API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
+      API_GATEWAY_CERT_FILE: cert/dev-cert.pem
+      API_GATEWAY_KEY_FILE: cert/dev-key.pem
+      API_GATEWAY_LOG_LEVEL: DEBUG
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
       CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
@@ -62,11 +44,12 @@ services:
       MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
-    volumes:
-      - vdp:/vdp
-    command: /bin/bash -c "make config && krakend run -c krakend.json"
+    command: /bin/bash -c "
+      mkcert -install && mkdir cert && mkcert -client -key-file cert/dev-key.pem -cert-file cert/dev-cert.pem localhost api-gateway &&
+      envsubst <config/.env.envsubst >config/.env &&
+      make config &&
+      krakend run -c krakend.json"
     depends_on:
-      - cert
       - pipeline_backend
       - connector_backend
       - model_backend
@@ -75,18 +58,13 @@ services:
   pipeline_backend_migrate:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - connector
       - model
       - console
       - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: instill/${PIPELINE_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${PIPELINE_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -101,21 +79,16 @@ services:
   pipeline_backend:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - connector
       - model
       - console
       - mgmt
     container_name: ${PIPELINE_BACKEND_HOST}
     image: instill/${PIPELINE_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${PIPELINE_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8081
+      CFG_SERVER_PORT: ${PIPELINE_BACKEND_PORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
@@ -134,7 +107,7 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${PIPELINE_BACKEND_PORT}:8081
+      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
     entrypoint: ./${PIPELINE_BACKEND_HOST}
     depends_on:
       - pipeline_backend_migrate
@@ -144,18 +117,13 @@ services:
   connector_backend_migrate:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - model
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -170,18 +138,13 @@ services:
   connector_backend_init:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - model
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-init
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -195,18 +158,13 @@ services:
   connector_backend_worker:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - model
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
@@ -230,21 +188,16 @@ services:
   connector_backend:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - model
       - mgmt
       - console
     container_name: ${CONNECTOR_BACKEND_HOST}
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${CONNECTOR_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8082
+      CFG_SERVER_PORT: ${CONNECTOR_BACKEND_PORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
@@ -259,7 +212,7 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${CONNECTOR_BACKEND_PORT}:8082
+      - ${CONNECTOR_BACKEND_PORT}:${CONNECTOR_BACKEND_PORT}
     entrypoint: ./${CONNECTOR_BACKEND_HOST}
     depends_on:
       - connector_backend_worker
@@ -267,19 +220,13 @@ services:
   model_backend_migrate:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-migrate
     image: instill/${MODEL_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MODEL_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -294,19 +241,13 @@ services:
   model_backend_init:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-init
     image: instill/${MODEL_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MODEL_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -320,19 +261,13 @@ services:
   model_backend_worker:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}-worker
     image: instill/${MODEL_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MODEL_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -360,22 +295,16 @@ services:
   model_backend:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - mgmt
       - console
     container_name: ${MODEL_BACKEND_HOST}
     image: instill/${MODEL_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MODEL_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8083
+      CFG_SERVER_PORT: ${MODEL_BACKEND_PORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_ITMODE: ${ITMODE}
@@ -395,7 +324,7 @@ services:
       CFG_TRITONSERVER_MODELSTORE: /model-repository
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${MODEL_BACKEND_PORT}:8083
+      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
     volumes:
       - model_repository:/model-repository
     entrypoint: ./${MODEL_BACKEND_HOST}
@@ -406,18 +335,13 @@ services:
   mgmt_backend_migrate:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: instill/${MGMT_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MGMT_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MGMT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -432,18 +356,13 @@ services:
   mgmt_backend_init:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}-init
     image: instill/${MGMT_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MGMT_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MGMT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -457,21 +376,16 @@ services:
   mgmt_backend:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
       - console
     container_name: ${MGMT_BACKEND_HOST}
     image: instill/${MGMT_BACKEND_HOST}:latest
-    build:
-      context: ./dev/${MGMT_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MGMT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8084
+      CFG_SERVER_PORT: ${MGMT_BACKEND_PORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce:latest
@@ -481,7 +395,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${MGMT_BACKEND_PORT}:8084
+      - ${MGMT_BACKEND_PORT}:${MGMT_BACKEND_PORT}
     entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
@@ -489,21 +403,19 @@ services:
   console:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
       - mgmt
     container_name: ${CONSOLE_HOST}
-    image: instill/console:latest
-    build:
-      context: ./dev/console
+    image: instill/${CONSOLE_HOST}:latest
     restart: unless-stopped
     environment:
       API_VERSION: v1alpha
       DISABLE_USAGE_COLLECTION: "false"
       CONSOLE_EDITION: local-ce:latest
-      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
+      CONSOLE_BASE_URL: http://${DOMAIN:-localhost}:3000
       PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
       CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
       MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
@@ -519,7 +431,7 @@ services:
   triton_conda_env:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -533,7 +445,7 @@ services:
   triton_server:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -566,7 +478,7 @@ services:
   pg_sql:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -587,7 +499,7 @@ services:
   elasticsearch:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -611,7 +523,7 @@ services:
   temporal:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -644,7 +556,7 @@ services:
   temporal_admin_tools:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -664,7 +576,7 @@ services:
   temporal_ui:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -683,7 +595,7 @@ services:
   redis:
     profiles:
       - all
-      - gateway
+      - api-gateway
       - pipeline
       - connector
       - model
@@ -698,6 +610,14 @@ services:
       - ${REDIS_PORT}:6379
 
   redoc_openapi:
+    profiles:
+      - all
+      - api-gateway
+      - pipeline
+      - connector
+      - model
+      - mgmt
+      - console
     container_name: ${REDOC_OPENAPI_HOST}
     image: redocly/redoc:${REDOC_OPENAPI_VERSION}
     environment:

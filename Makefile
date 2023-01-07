@@ -21,82 +21,98 @@ endif
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose up -d
-	@docker-compose rm -f
+	@docker compose up -d
+	@docker compose rm -f
 
 .PHONY: dev
-dev:			## Lunch all dependent services given the profile
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml up -d
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml rm -f
+dev:			## Lunch all dependent services given a profile set
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml rm -f
 
 .PHONY: temporal
 temporal:		## Launch Temporal services
-	@docker-compose up -d temporal temporal_admin_tools temporal_ui
+	@docker compose up -d temporal temporal_admin_tools temporal_ui
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
-	@docker-compose logs --follow --tail=10
+	@docker compose logs --follow --tail=10
 
 .PHONY: pull
 pull:			## Pull all service images
 	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker-compose pull
+	@docker compose pull
 
 .PHONY: stop
 stop:			## Stop all components
-	@docker-compose stop
+	@docker compose stop
 
 .PHONY: start
 start:			## Start all stopped services
-	@docker-compose start
+	@docker compose start
 
 .PHONY: restart
 restart:		## Restart all services
-	@docker-compose restart
+	@docker compose restart
 
 .PHONY: rm
 rm:				## Remove all stopped service containers
-	@docker-compose rm -f
+	@docker compose rm -f
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
-	@docker-compose down -v
+	@docker compose down -v
 
 .PHONY: images
 images:			## List all container images
-	@docker-compose images
+	@docker compose images
 
 .PHONY: ps
 ps:				## List all service containers
-	@docker-compose ps
+	@docker compose ps
 
 .PHONY: top
 top:			## Display all running service processes
-	@docker-compose top
+	@docker compose top
 
 .PHONY: build
-build:							## Build all dev docker images
-	@printf "set up latest api-gateway: " && [ ! -d "dev/api-gateway" ] && git clone https://github.com/instill-ai/api-gateway.git dev/api-gateway || git -C dev/api-gateway fetch && git -C dev/api-gateway reset --hard origin/main
-	@printf "set up latest pipeline-backend: " && [ ! -d "dev/pipeline-backend" ] && git clone https://github.com/instill-ai/pipeline-backend.git dev/pipeline-backend || git -C dev/pipeline-backend fetch && git -C dev/pipeline-backend reset --hard origin/main
-	@printf "set up latest connector-backend: " && [ ! -d "dev/connector-backend" ] && git clone https://github.com/instill-ai/connector-backend.git dev/connector-backend || git -C dev/connector-backend fetch && git -C dev/connector-backend reset --hard origin/main
-	@printf "set up latest model-backend: " && [ ! -d "dev/model-backend" ] && git clone https://github.com/instill-ai/model-backend.git dev/model-backend || git -C dev/model-backend fetch && git -C dev/model-backend reset --hard origin/main
-	@printf "set up latest mgmt-backend: " && [ ! -d "dev/mgmt-backend" ] && git clone https://github.com/instill-ai/mgmt-backend.git dev/mgmt-backend || git -C dev/mgmt-backend fetch && git -C dev/mgmt-backend reset --hard origin/main
-	@printf "set up latest console: " && [ ! -d "dev/console" ] && git clone https://github.com/instill-ai/console.git dev/console || git -C dev/console fetch && git -C dev/console reset --hard origin/main
-	@COMPOSE_PROFILES=$(PROFILE) docker-compose -f docker-compose-dev.yml build
+build:							## Build latest images for all VDP components
+	@docker build --progress plain -f Dockerfile.dev \
+		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg CACHE_DATE="$(shell date)" \
+		-t instill/vdp:dev .
+	@docker run -t --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ${PWD}/.env:/vdp/dev/.env \
+		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
+		-e TRITONSERVER_RUNTIME=${TRITONSERVER_RUNTIME} \
+		-e TRITONSERVER_IMAGE_TAG=${TRITONSERVER_IMAGE_TAG} \
+		-e TRITONCONDAENV_IMAGE_TAG=${TRITONCONDAENV_IMAGE_TAG} \
+		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
+		--name vdp-build \
+		instill/vdp:dev /bin/bash -c " \
+			docker compose -f docker-compose.build.yml build --progress plain \
+		"
 
 .PHONY: doc
 doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
-	@docker-compose up -d redoc_openapi
+	@docker compose up -d redoc_openapi
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
-	@make build PROFILE=all
+	@make build
 	@make dev PROFILE=all ITMODE=true
-	@cd dev/console && npm install && npx playwright install --with-deps && npx playwright test
-	@cd dev/pipeline-backend && make integration-test HOST=localhost
-	@cd dev/connector-backend && make integration-test HOST=localhost
-	@cd dev/model-backend && make integration-test HOST=localhost
-	@cd dev/mgmt-backend && make integration-test HOST=localhost
+	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker run -d -t --rm \
+		--network instill-network \
+		--name vdp-integration-test instill/vdp:dev tail -f /dev/null >/dev/null 2>&1
+	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test MODE=api-gateway"
+	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test MODE=api-gateway"
+	@[ "$(WITH_CONSOLE)" = "true" ] && docker exec -t vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test" || true
+	@docker stop -t 1 vdp-integration-test
 	@make down
 
 .PHONY: help
