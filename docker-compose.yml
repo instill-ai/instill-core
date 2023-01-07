@@ -28,10 +28,15 @@ services:
     image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
     restart: unless-stopped
     ports:
-      - ${API_GATEWAY_PORT}:8080
+      - ${API_GATEWAY_HTTPS_PORT}:${API_GATEWAY_HTTPS_PORT}
     environment:
+      API_GATEWAY_HOST: ${API_GATEWAY_HOST}
+      API_GATEWAY_HTTPS_PORT: ${API_GATEWAY_HTTPS_PORT}
+      API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
+      API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
       API_GATEWAY_CERT_FILE: /vdp/certs/${API_GATEWAY_HOST}/cert.pem
       API_GATEWAY_KEY_FILE: /vdp/certs/${API_GATEWAY_HOST}/key.pem
+      API_GATEWAY_LOG_LEVEL: INFO
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
       CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
@@ -42,7 +47,10 @@ services:
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
     volumes:
       - vdp:/vdp
-    command: /bin/sh -c "make config && krakend run -c krakend.json"
+    command: /bin/bash -c "
+      envsubst <config/.env.envsubst >config/.env &&
+      make config &&
+      krakend run -c krakend.json"
     depends_on:
       - cert
       - pipeline_backend
@@ -69,7 +77,7 @@ services:
     image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8081
+      CFG_SERVER_PORT: ${PIPELINE_BACKEND_PORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
@@ -88,7 +96,7 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${PIPELINE_BACKEND_PORT}:8081
+      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
     entrypoint: ./${PIPELINE_BACKEND_HOST}
     depends_on:
       - pipeline_backend_migrate
@@ -150,7 +158,7 @@ services:
     image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8082
+      CFG_SERVER_PORT: ${CONNECTOR_BACKEND_PORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
@@ -165,7 +173,7 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${CONNECTOR_BACKEND_PORT}:8082
+      - ${CONNECTOR_BACKEND_PORT}:${CONNECTOR_BACKEND_PORT}
     entrypoint: ./${CONNECTOR_BACKEND_HOST}
     depends_on:
       - connector_backend_worker
@@ -224,7 +232,7 @@ services:
     image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8083
+      CFG_SERVER_PORT: ${MODEL_BACKEND_PORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
@@ -243,7 +251,7 @@ services:
       CFG_TRITONSERVER_MODELSTORE: /model-repository
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${MODEL_BACKEND_PORT}:8083
+      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
     volumes:
       - model_repository:/model-repository
     entrypoint: ./${MODEL_BACKEND_HOST}
@@ -283,7 +291,7 @@ services:
     image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      CFG_SERVER_PORT: 8084
+      CFG_SERVER_PORT: ${MGMT_BACKEND_PORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
@@ -293,24 +301,24 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
-      - ${MGMT_BACKEND_PORT}:8084
+      - ${MGMT_BACKEND_PORT}:${MGMT_BACKEND_PORT}
     entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
 
   console:
     container_name: ${CONSOLE_HOST}
-    image: instill/console:${CONSOLE_VERSION}
+    image: instill/${CONSOLE_HOST}:${CONSOLE_VERSION}
     restart: unless-stopped
     environment:
       API_VERSION: v1alpha
       DISABLE_USAGE_COLLECTION: "false"
       CONSOLE_EDITION: local-ce
-      CONSOLE_BASE_URL: ${DOMAIN:-localhost}
-      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
-      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
-      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
-      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
+      CONSOLE_BASE_URL: http://${DOMAIN:-console}:3000
+      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-pipeline-backend}:8081
+      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-connector-backend}:8082
+      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-model-backend}:8083
+      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-mgmt-backend}:8084
     ports:
       - ${CONSOLE_PORT}:3000
     depends_on:

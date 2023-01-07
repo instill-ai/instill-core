@@ -13,19 +13,21 @@ FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION}
 
 COPY --from=build /usr/bin/mkcert /usr/bin/mkcert
 
+RUN mkcert -install
+
 RUN mkdir -p /certs/api-gateway
 RUN mkcert -client -key-file /certs/api-gateway/key.pem -cert-file /certs/api-gateway/cert.pem localhost api-gateway
 
-RUN mkdir /certs/pipeline
+RUN mkdir -p /certs/pipeline
 RUN mkcert -client -key-file /certs/pipeline/key.pem -cert-file /certs/pipeline/cert.pem localhost pipeline-backend
 
-RUN mkdir /certs/connector
+RUN mkdir -p /certs/connector
 RUN mkcert -client -key-file /certs/connector/key.pem -cert-file /certs/connector/cert.pem localhost connector-backend
 
-RUN mkdir /certs/model
+RUN mkdir -p /certs/model
 RUN mkcert -client -key-file /certs/model/key.pem -cert-file /certs/model/cert.pem localhost model-backend
 
-RUN mkdir /certs/mgmt
+RUN mkdir -p /certs/mgmt
 RUN mkcert -client -key-file /certs/mgmt/key.pem -cert-file /certs/mgmt/cert.pem localhost mgmt-backend
 
-RUN cp "$(mkcert -CAROOT)/rootCA.pem" /certs
+RUN cp "$(mkcert -CAROOT)/rootCA.pem" /certs/vdp-root-ca.pem
