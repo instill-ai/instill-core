@@ -412,14 +412,11 @@ services:
     image: instill/${CONSOLE_HOST}:latest
     restart: unless-stopped
     environment:
-      API_VERSION: v1alpha
-      DISABLE_USAGE_COLLECTION: "false"
-      CONSOLE_EDITION: local-ce:latest
-      CONSOLE_BASE_URL: http://${DOMAIN:-localhost}:3000
-      PIPELINE_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8081
-      CONNECTOR_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8082
-      MODEL_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8083
-      MGMT_BACKEND_BASE_URL: http://${DOMAIN:-localhost}:8084
+      NEXT_PUBLIC_API_VERSION: v1alpha
+      NEXT_PUBLIC_DISABLE_USAGE_COLLECTION: "false"
+      NEXT_PUBLIC_CONSOLE_EDITION: local-ce:latest
+      NEXT_PUBLIC_CONSOLE_BASE_URL: http://${DOMAIN:-localhost}:3000
+      NEXT_PUBLIC_API_GATEWAY_BASE_URL: https://${DOMAIN:-localhost}:8080
     ports:
       - ${CONSOLE_PORT}:3000
     depends_on:
