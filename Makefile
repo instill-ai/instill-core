@@ -21,11 +21,11 @@ endif
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker compose up -d
+	@docker compose up -d --quiet-pull
 	@docker compose rm -f
 
 .PHONY: dev
-dev:			## Lunch all dependent services given a profile set
+dev:			## Lunch all dependent services (param: PROFILE=<profile-name>)
 	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml rm -f
 
@@ -75,7 +75,7 @@ top:			## Display all running service processes
 	@docker compose top
 
 .PHONY: build
-build:							## Build latest images for all VDP components
+build:							## Build latest images for VDP components (param: PROFILE=<profile-name>)
 	@docker build --progress plain -f Dockerfile.dev \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -92,7 +92,7 @@ build:							## Build latest images for all VDP components
 		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
-			docker compose -f docker-compose.build.yml build --progress plain \
+			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: doc
