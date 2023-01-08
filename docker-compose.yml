@@ -27,8 +27,6 @@ services:
     container_name: ${API_GATEWAY_HOST}
     image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
     restart: unless-stopped
-    ports:
-      - ${API_GATEWAY_HTTPS_PORT}:${API_GATEWAY_HTTPS_PORT}
     environment:
       API_GATEWAY_HOST: ${API_GATEWAY_HOST}
       API_GATEWAY_HTTPS_PORT: ${API_GATEWAY_HTTPS_PORT}
@@ -45,6 +43,8 @@ services:
       MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
+    ports:
+      - ${API_GATEWAY_HTTPS_PORT}:${API_GATEWAY_HTTPS_PORT}
     volumes:
       - vdp:/vdp
     command: /bin/bash -c "
@@ -95,8 +95,6 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    ports:
-      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
     entrypoint: ./${PIPELINE_BACKEND_HOST}
     depends_on:
       - pipeline_backend_migrate
@@ -172,8 +170,6 @@ services:
       CFG_PIPELINEBACKEND_PORT: ${PIPELINE_BACKEND_PORT}
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    ports:
-      - ${CONNECTOR_BACKEND_PORT}:${CONNECTOR_BACKEND_PORT}
     entrypoint: ./${CONNECTOR_BACKEND_HOST}
     depends_on:
       - connector_backend_worker
@@ -250,8 +246,6 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_TRITONSERVER_MODELSTORE: /model-repository
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    ports:
-      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
     volumes:
       - model_repository:/model-repository
     entrypoint: ./${MODEL_BACKEND_HOST}
@@ -300,8 +294,6 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    ports:
-      - ${MGMT_BACKEND_PORT}:${MGMT_BACKEND_PORT}
     entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
