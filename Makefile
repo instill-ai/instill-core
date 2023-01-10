@@ -102,7 +102,7 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
-	@make dev PROFILE=all ITMODE=true CONSOLE_HOST=console CONSOLE_API_GATEWAY_HOST=api-gateway
+	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker rm -f vdp-integration-test >/dev/null 2>&1
 	@docker rm -f console-integration-test >/dev/null 2>&1
 	@docker run -d -t --rm \
