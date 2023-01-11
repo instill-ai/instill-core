@@ -92,7 +92,8 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
-			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
+			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain && \
+			cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright . \
 		"
 
 .PHONY: doc
@@ -101,9 +102,9 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
-	@make build
-	@make dev PROFILE=all ITMODE=true
+	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker rm -f console-integration-test >/dev/null 2>&1
 	@docker run -d -t --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp:dev tail -f /dev/null >/dev/null 2>&1
@@ -111,8 +112,16 @@ integration-test:			## Run integration test for all dev repositories
 	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test MODE=api-gateway"
 	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test MODE=api-gateway"
 	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test MODE=api-gateway"
-	@[ "$(WITH_CONSOLE)" = "true" ] && docker exec -t vdp-integration-test /bin/bash -c "cd console && npm install && npx playwright install --with-deps && npx playwright test" || true
 	@docker stop -t 1 vdp-integration-test
+	@docker run -t --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=https://api-gateway:8080 \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=true \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		--network instill-network \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name console-integration-test console-playwright
 	@make down
 
 .PHONY: help
