@@ -19,6 +19,8 @@ anyOf:
   - required:
       - semantic_segmentation
   - required:
+      - text_to_image
+  - required:
       - unspecified
 properties:
   classification:
@@ -39,6 +41,9 @@ properties:
   semantic_segmentation:
     description: "Classify image pixels into predefined categories"
     "$ref": "#/definitions/SemanticSegmentation"
+  text_to_image:
+    description: "Generates images from input text"
+    "$ref": "#/definitions/TextToImage"    
   unspecified:
     description: "Unspecified task with output in the free form"
     "$ref": "#/definitions/Unspecified"
@@ -190,6 +195,18 @@ definitions:
             category:
               description: "Category text string corresponding to each stuff mask"
               type: string
+  TextToImage:
+    type: object
+    additionalProperties: false
+    required:
+      - images
+    properties:
+      objects:
+        description: "A list of generated images"
+        type: array
+        items:
+          description: "Generated image string in base64 format"
+          type: string              
   Unspecified:
     type: object
     additionalProperties: false
