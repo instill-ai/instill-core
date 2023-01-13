@@ -33,8 +33,6 @@ services:
       API_GATEWAY_HTTPS_PORT: ${API_GATEWAY_HTTPS_PORT}
       API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
       API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
-      API_GATEWAY_CERT_FILE: cert/dev-cert.pem
-      API_GATEWAY_KEY_FILE: cert/dev-key.pem
       API_GATEWAY_LOG_LEVEL: DEBUG
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
@@ -45,7 +43,6 @@ services:
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PORT: ${MGMT_BACKEND_PORT}
     command: /bin/bash -c "
-      mkcert -install && mkdir cert && mkcert -client -key-file cert/dev-key.pem -cert-file cert/dev-cert.pem localhost api-gateway &&
       envsubst <config/.env.envsubst >config/.env &&
       make config &&
       krakend run -c krakend.json"
