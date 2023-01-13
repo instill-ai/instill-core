@@ -60,6 +60,9 @@ rm:				## Remove all stopped service containers
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
+	@docker rm -f vdp-build >/dev/null 2>&1
+	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker rm -f console-integration-test >/dev/null 2>&1
 	@docker compose down -v
 
 .PHONY: images
@@ -82,7 +85,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		-t instill/vdp:dev .
-	@docker run -t --rm \
+	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/dev/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
@@ -105,7 +108,7 @@ integration-test:			## Run integration test for all dev repositories
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker rm -f vdp-integration-test >/dev/null 2>&1
 	@docker rm -f console-integration-test >/dev/null 2>&1
-	@docker run -d -t --rm \
+	@docker run -d -it --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp:dev tail -f /dev/null >/dev/null 2>&1
 	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test MODE=api-gateway"
@@ -113,7 +116,7 @@ integration-test:			## Run integration test for all dev repositories
 	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test MODE=api-gateway"
 	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test MODE=api-gateway"
 	@docker stop -t 1 vdp-integration-test
-	@docker run -t --rm \
+	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
 		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=https://api-gateway:8080 \
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
