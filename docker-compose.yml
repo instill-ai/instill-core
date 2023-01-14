@@ -15,14 +15,6 @@ volumes:
     name: model-repository
 
 services:
-  cert:
-    container_name: cert
-    image: instill/cert:latest
-    restart: on-failure
-    volumes:
-      - vdp:/vdp
-    command: sh -c "cp -r /certs /vdp/certs"
-
   api_gateway:
     container_name: ${API_GATEWAY_HOST}
     image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
@@ -32,8 +24,6 @@ services:
       API_GATEWAY_HTTPS_PORT: ${API_GATEWAY_HTTPS_PORT}
       API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
       API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
-      API_GATEWAY_CERT_FILE: /vdp/certs/${API_GATEWAY_HOST}/cert.pem
-      API_GATEWAY_KEY_FILE: /vdp/certs/${API_GATEWAY_HOST}/key.pem
       API_GATEWAY_LOG_LEVEL: INFO
       PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       PIPELINE_BACKEND_PORT: ${PIPELINE_BACKEND_PORT}
@@ -52,7 +42,6 @@ services:
       make config &&
       krakend run -c krakend.json"
     depends_on:
-      - cert
       - pipeline_backend
       - connector_backend
       - model_backend
@@ -233,6 +222,7 @@ services:
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
       CFG_SERVER_EDITION: local-ce
       CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
+      CFG_SERVER_ITMODE: ${ITMODE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -309,7 +299,7 @@ services:
       NEXT_PUBLIC_CONSOLE_BASE_URL: http://${CONSOLE_BASE_URL_HOST}:${CONSOLE_PORT}
       NEXT_PUBLIC_API_GATEWAY_BASE_URL: https://${CONSOLE_BASE_API_GATEWAY_URL_HOST}:${API_GATEWAY_HTTPS_PORT}
       NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME: instill-ai-user
-      NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION: true
+      NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION: false
       NODE_ENV: production
     ports:
       - ${CONSOLE_PORT}:${CONSOLE_PORT}
@@ -339,6 +329,7 @@ services:
     volumes:
       - model_repository:/model-repository
       - conda_pack:/conda-pack
+      - ./asset/lib/libgomp-d22c30c5.so.1:/opt/tritonserver/lib/libgomp-d22c30c5.so.1
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
       timeout: 20s
@@ -410,10 +401,9 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    stdin_open: true
-    tty: true
     depends_on:
-      - temporal
+      temporal:
+        condition: service_healthy
 
   temporal_ui:
     container_name: ${TEMPORAL_UI_HOST}

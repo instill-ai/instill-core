@@ -60,6 +60,9 @@ rm:				## Remove all stopped service containers
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
+	@docker rm -f vdp-build >/dev/null 2>&1
+	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker rm -f console-integration-test >/dev/null 2>&1
 	@docker compose down -v
 
 .PHONY: images
@@ -80,9 +83,10 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg PROFILE=$(PROFILE) \
 		--build-arg CACHE_DATE="$(shell date)" \
 		-t instill/vdp:dev .
-	@docker run -t --rm \
+	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/dev/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
@@ -92,8 +96,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
-			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain && \
-			cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright . \
+			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: doc
@@ -102,26 +105,26 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test
 integration-test:			## Run integration test for all dev repositories
+	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
-	@docker rm -f vdp-integration-test >/dev/null 2>&1
-	@docker rm -f console-integration-test >/dev/null 2>&1
-	@docker run -d -t --rm \
+	@sleep 60
+	@docker run -it --rm \
 		--network instill-network \
-		--name vdp-integration-test instill/vdp:dev tail -f /dev/null >/dev/null 2>&1
-	@docker exec -t vdp-integration-test /bin/bash -c "cd pipeline-backend && make integration-test MODE=api-gateway"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd connector-backend && make integration-test MODE=api-gateway"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd model-backend && make integration-test MODE=api-gateway"
-	@docker exec -t vdp-integration-test /bin/bash -c "cd mgmt-backend && make integration-test MODE=api-gateway"
-	@docker stop -t 1 vdp-integration-test
-	@docker run -t --rm \
+		--name vdp-integration-test instill/vdp:dev /bin/bash -c " \
+			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
+		"
+	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=https://api-gateway:8080 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=true \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
 		--network instill-network \
 		--entrypoint ./entrypoint-playwright.sh \
-		--name console-integration-test console-playwright
+		--name console-integration-test instill/console-playwright
 	@make down
 
 .PHONY: help
