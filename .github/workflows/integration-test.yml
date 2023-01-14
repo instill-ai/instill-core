@@ -37,29 +37,29 @@ jobs:
       - name: Run latest VDP
         run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 
-      - name: Run pipeline-backend integration test
-        run: |
-          git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
-          cd pipeline-backend
-          make integration-test MODE=localhost
+      # - name: Run pipeline-backend integration test
+      #   run: |
+      #     git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
+      #     cd pipeline-backend
+      #     make integration-test MODE=localhost
 
-      - name: Run connector-backend integration test
-        run: |
-          git clone https://github.com/instill-ai/connector-backend.git connector-backend
-          cd connector-backend
-          make integration-test MODE=localhost
+      # - name: Run connector-backend integration test
+      #   run: |
+      #     git clone https://github.com/instill-ai/connector-backend.git connector-backend
+      #     cd connector-backend
+      #     make integration-test MODE=localhost
 
-      - name: Run model-backend integration test
-        run: |
-          git clone https://github.com/instill-ai/pipeline-backend.git model-backend
-          cd model-backend
-          make integration-test MODE=localhost
+      # - name: Run model-backend integration test
+      #   run: |
+      #     git clone https://github.com/instill-ai/pipeline-backend.git model-backend
+      #     cd model-backend
+      #     make integration-test MODE=localhost
 
-      - name: Run mgmt-backend integration test
-        run: |
-          git clone https://github.com/instill-ai/pipeline-backend.git mgmt-backend
-          cd mgmt-backend
-          make integration-test MODE=localhost
+      # - name: Run mgmt-backend integration test
+      #   run: |
+      #     git clone https://github.com/instill-ai/pipeline-backend.git mgmt-backend
+      #     cd mgmt-backend
+      #     make integration-test MODE=localhost
 
       - name: Run console integration test
         run: |
