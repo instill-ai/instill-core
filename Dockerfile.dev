@@ -28,6 +28,9 @@ COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
 WORKDIR /vdp/dev
 
+ARG CACHE_DATE
+RUN echo "VDP codebase cloned on ${CACHE_DATE}"
+
 ARG PROFILE
 RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "api-gateway" ]; then git clone https://github.com/instill-ai/api-gateway.git api-gateway; fi
 RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "pipeline" ]; then git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend; fi

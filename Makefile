@@ -84,6 +84,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg PROFILE=$(PROFILE) \
+		--build-arg CACHE_DATE="$(shell date)" \
 		-t instill/vdp:dev .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -107,14 +108,14 @@ integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@sleep 60
-	# @docker run -it --rm \
-	# 	--network instill-network \
-	# 	--name vdp-integration-test instill/vdp:dev /bin/bash -c " \
-	# 		cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
-	# 		cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
-	# 		cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
-	# 		cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
-	# 	"
+	@docker run -it --rm \
+		--network instill-network \
+		--name vdp-integration-test instill/vdp:dev /bin/bash -c " \
+			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
+		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
 		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
