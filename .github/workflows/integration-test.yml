@@ -35,7 +35,7 @@ jobs:
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
       - name: Run latest VDP
-        run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+        run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway && sleep 60
 
       - name: Run pipeline-backend integration test
         run: |
@@ -51,13 +51,13 @@ jobs:
 
       - name: Run model-backend integration test
         run: |
-          git clone https://github.com/instill-ai/pipeline-backend.git model-backend
+          git clone https://github.com/instill-ai/model-backend.git model-backend
           cd model-backend
           make integration-test MODE=localhost
 
       - name: Run mgmt-backend integration test
         run: |
-          git clone https://github.com/instill-ai/pipeline-backend.git mgmt-backend
+          git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
           cd mgmt-backend
           make integration-test MODE=localhost
 
