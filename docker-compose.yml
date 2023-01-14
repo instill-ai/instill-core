@@ -399,10 +399,9 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    stdin_open: true
-    tty: true
     depends_on:
-      - temporal
+      temporal:
+        condition: service_healthy
 
   temporal_ui:
     container_name: ${TEMPORAL_UI_HOST}

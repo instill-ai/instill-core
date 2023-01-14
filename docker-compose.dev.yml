@@ -503,7 +503,7 @@ services:
     ports:
       - ${TEMPORAL_PORT}:7233
     healthcheck:
-      test: ["CMD", "tctl", "--address", "temporal:7233", "workflow", "list"]
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
       interval: 10s
       timeout: 1m
       retries: 10
@@ -517,8 +517,6 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    stdin_open: true
-    tty: true
     depends_on:
       temporal:
         condition: service_healthy
