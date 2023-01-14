@@ -329,6 +329,7 @@ services:
     volumes:
       - model_repository:/model-repository
       - conda_pack:/conda-pack
+      - ./asset/lib/libgomp-d22c30c5.so.1:/opt/tritonserver/lib/libgomp-d22c30c5.so.1
     healthcheck:
       test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
       timeout: 20s
