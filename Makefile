@@ -123,7 +123,7 @@ integration-test:			## Run integration test for all dev repositories
 	# 	-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
 	# 	--network instill-network \
 	# 	--entrypoint ./entrypoint-playwright.sh \
-	# 	--name console-integration-test console-playwright
+	# 	--name console-integration-test instill/console-playwright
 	@make down
 
 .PHONY: help
