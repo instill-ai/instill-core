@@ -83,7 +83,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
-		--build-arg CACHE_DATE="$(shell date)" \
+		--build-arg PROFILE=$(PROFILE) \
 		-t instill/vdp:dev .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -95,8 +95,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
-			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain && \
-			cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright . \
+			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: doc
