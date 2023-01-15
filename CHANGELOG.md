@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0-alpha](https://github.com/instill-ai/vdp/compare/v0.3.0-alpha...v0.4.0-alpha) (2023-01-15)
+
+
+### Features
+
+* enable h2c for api-gateway to handle both http and https ([#183](https://github.com/instill-ai/vdp/issues/183)) ([c4115f6](https://github.com/instill-ai/vdp/commit/c4115f6b722738d581830490c29647654777fed8))
+
 ## [0.3.0-alpha](https://github.com/instill-ai/vdp/compare/v0.2.6-alpha...v0.3.0-alpha) (2022-12-24)
 
 
