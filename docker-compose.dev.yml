@@ -444,7 +444,7 @@ services:
 
   triton_server:
     container_name: ${TRITON_SERVER_HOST}
-    image: ${TRITONSERVER_IMAGE_TAG}
+    image: nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3
     restart: unless-stopped
     environment:
       NVIDIA_VISIBLE_DEVICES: 0
@@ -544,7 +544,7 @@ services:
 
   redis:
     container_name: ${REDIS_HOST}
-    image: ${REDIS_IMAGE_TAG}
+    image: redis:${REDIS_VERSION}-alpine${ALPINE_VERSION}
     restart: unless-stopped
     environment:
       ALLOW_EMPTY_PASSWORD: "true"

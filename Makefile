@@ -6,9 +6,7 @@
 include .env
 export
 
-TRITONSERVER_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/tritonserver:${TRITON_SERVER_VERSION}-py3-cpu-arm64,nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3)
 TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-m1,instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu)
-REDIS_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),arm64v8/redis:${REDIS_VERSION}-alpine,amd64/redis:${REDIS_VERSION}-alpine)
 
 NVIDIA_SMI := $(shell nvidia-smi 2>/dev/null 1>&2; echo $$?)
 ifeq ($(NVIDIA_SMI),0)
@@ -20,7 +18,7 @@ endif
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3 >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker compose up -d --quiet-pull
 	@docker compose rm -f
 
@@ -39,7 +37,7 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image ${TRITONSERVER_IMAGE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3 >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker compose pull
 
 .PHONY: stop
@@ -91,9 +89,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-v ${PWD}/.env:/vdp/dev/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
 		-e TRITONSERVER_RUNTIME=${TRITONSERVER_RUNTIME} \
-		-e TRITONSERVER_IMAGE_TAG=${TRITONSERVER_IMAGE_TAG} \
 		-e TRITONCONDAENV_IMAGE_TAG=${TRITONCONDAENV_IMAGE_TAG} \
-		-e REDIS_IMAGE_TAG=${REDIS_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
 			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
