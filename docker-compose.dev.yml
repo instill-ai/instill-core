@@ -47,10 +47,14 @@ services:
       make config &&
       krakend run -c krakend.json"
     depends_on:
-      - pipeline_backend
-      - connector_backend
-      - model_backend
-      - mgmt_backend
+      pipeline_backend:
+        condition: service_started
+      connector_backend:
+        condition: service_started
+      model_backend:
+        condition: service_healthy
+      mgmt_backend:
+        condition: service_started
 
   pipeline_backend_migrate:
     profiles:
@@ -324,6 +328,15 @@ services:
       - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
     volumes:
       - model_repository:/model-repository
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "http://localhost:${MODEL_BACKEND_PORT}/v1alpha/ready/model",
+        ]
+      timeout: 20s
+      retries: 10
     entrypoint: ./${MODEL_BACKEND_HOST}
     depends_on:
       - triton_server
@@ -421,10 +434,7 @@ services:
       - ${CONSOLE_PORT}:${CONSOLE_PORT}
     entrypoint: ./entrypoint.sh
     depends_on:
-      - mgmt_backend
-      - connector_backend
-      - model_backend
-      - pipeline_backend
+      - api_gateway
 
   triton_conda_env:
     container_name: triton-conda-env
@@ -447,7 +457,7 @@ services:
       - conda_pack:/conda-pack
       - ./asset/lib/libgomp-d22c30c5.so.1:/opt/tritonserver/lib/libgomp-d22c30c5.so.1
     healthcheck:
-      test: ["CMD-SHELL", "curl localhost:8000/v2/health/ready"]
+      test: ["CMD", "curl", "localhost:8000/v2/health/ready"]
       timeout: 20s
       retries: 10
     shm_size: 2gb

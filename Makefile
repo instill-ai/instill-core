@@ -107,7 +107,6 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 integration-test:			## Run integration test for all dev repositories
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
-	@sleep 60
 	@docker run -it --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp:dev /bin/bash -c " \
