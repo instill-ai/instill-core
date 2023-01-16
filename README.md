@@ -68,6 +68,7 @@ Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud.
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
+- **(Optional)Nvidia Docker** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install nvidia-docker2 package (and dependencies).
 
 ## Quick start
 
