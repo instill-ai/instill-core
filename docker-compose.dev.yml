@@ -443,6 +443,7 @@ services:
       - conda_pack:/conda-pack
 
   triton_server:
+    runtime: ${TRITONSERVER_RUNTIME:-}
     container_name: ${TRITON_SERVER_HOST}
     image: nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3
     restart: unless-stopped

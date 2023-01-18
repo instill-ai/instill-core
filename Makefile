@@ -88,8 +88,6 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/dev/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
-		-e TRITONSERVER_RUNTIME=${TRITONSERVER_RUNTIME} \
-		-e TRITONCONDAENV_IMAGE_TAG=${TRITONCONDAENV_IMAGE_TAG} \
 		--name vdp-build \
 		instill/vdp:dev /bin/bash -c " \
 			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
