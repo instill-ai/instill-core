@@ -1,0 +1,21 @@
+name: Integration Test (latest)
+
+on:
+  push:
+    branches-ignore:
+      - release-please--branches--main
+
+jobs:
+  backend:
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [pipeline, connector, model, mgmt]
+    uses: instill-ai/vdp/.github/workflows/integration-test-backend.yml@main
+    with:
+      component: ${{ matrix.component }}
+      target: latest
+  console:
+    uses: instill-ai/vdp/.github/workflows/integration-test-console.yml@main
+    with:
+      target: latest

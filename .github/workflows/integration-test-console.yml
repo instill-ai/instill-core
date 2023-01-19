@@ -1,0 +1,52 @@
+name: Integration Test Reusable (console)
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+          expand: true
+
+      # mono occupies port 8084 which conflicts with mgmt-backend
+      - name: Stop mono service
+        run: |
+          sudo kill -9 `sudo lsof -t -i:8084`
+          sudo lsof -i -P -n | grep LISTEN
+
+      - name: Launch VDP (latest)
+        if: inputs.target == 'latest'
+        run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+
+      - name: Run console integration test (latest)
+        if: inputs.target == 'latest'
+        run: |
+          git clone https://github.com/instill-ai/console.git console
+          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright .
+          docker run -t --rm \
+            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+            -e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+            -e NEXT_PUBLIC_API_VERSION=v1alpha \
+            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+            --network instill-network \
+            --entrypoint ./entrypoint-playwright.sh \
+            --name console-integration-test console-playwright
