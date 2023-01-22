@@ -272,10 +272,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_MAXIMAGESIZE: ${MAX_IMAGE_SIZE}
       CFG_SERVER_ITMODE: ${ITMODE}
-      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
-      CFG_SERVER_EDITION: local-ce:latest
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
