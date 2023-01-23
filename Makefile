@@ -83,13 +83,14 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg PROFILE=$(PROFILE) \
 		--build-arg CACHE_DATE="$(shell date)" \
-		-t instill/vdp:dev .
+		--target latest \
+		-t instill/vdp:latest .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v ${PWD}/.env:/vdp/dev/.env \
-		-v ${PWD}/docker-compose.build.yml:/vdp/dev/docker-compose.build.yml \
+		-v ${PWD}/.env:/vdp/.env \
+		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build \
-		instill/vdp:dev /bin/bash -c " \
+		instill/vdp:latest /bin/bash -c " \
 			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
@@ -97,13 +98,13 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 	@docker compose up -d redoc_openapi
 
-.PHONY: integration-test
-integration-test:			## Run integration test for all dev repositories
+.PHONY: integration-test-latest
+integration-test-latest:			## Run integration test for the latest VDP codebases
 	@make build PROFILE=all
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker run -it --rm \
 		--network instill-network \
-		--name vdp-integration-test instill/vdp:dev /bin/bash -c " \
+		--name vdp-integration-test instill/vdp:latest /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
@@ -118,6 +119,32 @@ integration-test:			## Run integration test for all dev repositories
 		--network instill-network \
 		--entrypoint ./entrypoint-playwright.sh \
 		--name console-integration-test instill/console-playwright
+	@make down
+
+.PHONY: integration-test-release
+integration-test-release:			## Run integration test for the release VDP codebases
+	@docker build --progress plain -f Dockerfile.dev \
+		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg CACHE_DATE="$(shell date)" \
+		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
+		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
+		--target release \
+		-t instill/vdp:release .
+	@make all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+	@docker run -it --rm \
+		--network instill-network \
+		--name vdp-integration-test instill/vdp:release /bin/bash -c " \
+			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
+			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
+		"
 	@make down
 
 .PHONY: help
