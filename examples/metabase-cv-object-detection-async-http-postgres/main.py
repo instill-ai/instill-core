@@ -5,7 +5,7 @@ import pathlib
 import argparse
 import time
 import shutil
-from os import listdir
+from os import listdir, path
 from os.path import isfile, join
 from typing import Final, Any, List, Dict, Tuple
 
@@ -59,12 +59,15 @@ def extract_frames_from_video(image_dir: str, filename: str, framerate: int=30) 
         a flag to indicate whether the extraction is successful
 
     """
+    print(join(image_dir, 'frame.png'))
     if os.path.exists(image_dir) and os.path.isdir(image_dir):
         shutil.rmtree(image_dir)
 
     print("\n===== Extract frames from the video {} into {} ...".format(filename, image_dir))
 
     pathlib.Path(image_dir).mkdir(parents=True, exist_ok=True)
+    print('File location: ' + filename)
+    print("If file exist: " + str(path.isfile(filename)))
     try:
         (
             ffmpeg.input(filename)
@@ -76,6 +79,7 @@ def extract_frames_from_video(image_dir: str, filename: str, framerate: int=30) 
         print("Done!\n")
         return True
     except ffmpeg.Error as error:
+        print('EEEEEEEERRRRRRR')
         print('stdout:', error.stdout.decode('utf8'))
         print('stderr:', error.stderr.decode('utf8'))
         shutil.rmtree(image_dir)
