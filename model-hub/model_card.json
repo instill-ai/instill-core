@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/instill-ai/vdp/blob/main/model-hub/model_card.json",
+    "title": "Model card",
+    "type": "object",
+    "description": "model struct that is supported in Instill Cloud Alpha",
+    "additionalProperties": true,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$",
+        "description": "ID of the model"
+      },
+      "description": {
+        "type": "string",
+        "description": "Long text description of the model",
+        "maxLength": 1024
+      },
+      "task": {
+        "type": "string",
+        "description": "Task of the model",
+        "enum": [
+          "classification",
+          "detection",
+          "keypoint",
+          "ocr",
+          "instance_segmentation",
+          "semantic_segmentation",
+          "text_to_image",
+          "text_generation"
+        ]
+      },
+      "model_definition": {
+        "type": "string",
+        "enum": [
+          "model-definitions/local",
+          "model-definitions/github",
+          "model-definitions/artivc",
+          "model-definitions/huggingface"
+        ],
+        "description": "Where to import the model"
+      },
+      "configuration": {
+        "type": "object",
+        "description": "Model configuration to describe how to import the model",
+      }
+    },
+    "required": [
+      "id",
+      "description",
+      "task",
+      "model_definition",
+      "configuration"
+    ]
+  }
