@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.pipeline" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    component: pipeline
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.pipeline.autoscaling.enabled }}
+  replicas: {{ .Values.pipeline.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      component: pipeline
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        component: pipeline
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/pipeline/configmap.yaml") . | sha256sum }}
+        {{- with .Values.mgmt.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 10000
+        fsGroup: 10000
+      {{- if .Values.pipeline.serviceAccountName }}
+      serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.pipeline.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+      {{- if eq .Values.database.type "internal" }}
+      - name: wait-for-db
+        image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+        command: ['sh', '-c', "until pg_isready -U ${DB_USERNAME} -h ${DB_SERVICE_NAME}.${POD_NAMESPACE}.svc.cluster.local; do echo waiting for db; sleep 2; done"]
+        env:
+        - name: DB_SERVICE_NAME
+          value: {{ template "vdp.database" . }}
+        - name: DB_USERNAME
+          value: {{ template "vdp.database.username" . }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      {{- end }}
+      - name: pipeline-backend-migration
+        image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if .Values.pipeline.resources }}
+        resources:
+          {{- toYaml .Values.pipeline.resources | nindent 12 }}
+        {{- end }}
+        command: ["./pipeline-backend-migrate"]
+        volumeMounts:
+          - name: config
+            mountPath: /pipeline-backend/config/config.yaml
+            subPath: config.yaml
+      - name: wait-for-mgmt
+        image: busybox
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        {{- if .Values.pipeline.resources }}
+        resources:
+          {{- toYaml .Values.pipeline.resources | nindent 12 }}
+        {{- end }}
+        command:  ["sh", "-c", "until nc ${MGMT_SERVICE_NAME}.${POD_NAMESPACE}.svc.cluster.local ${MGMT_PORT}; do echo waiting for mgmt-backend; sleep 2; done;"]
+        env:
+        - name: MGMT_SERVICE_NAME
+          value: {{ template "vdp.mgmt" . }}
+        - name: MGMT_PORT
+          value: "{{ template "vdp.mgmt.port" . }}"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      containers:
+        - name: pipeline-backend
+          image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ include "vdp.component.scheme" . | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ include "vdp.component.scheme" . | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.pipeline.resources }}
+          resources:
+            {{- toYaml .Values.pipeline.resources | nindent 12 }}
+          {{- end }}
+          command: ["./pipeline-backend"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.pipeline.port" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /pipeline-backend/config/config.yaml
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: pipeline-internal-certs
+              mountPath: "/etc/vdp/ssl/pipeline"
+            {{- end }}
+            {{- if .Values.pipeline.extraVolumeMounts }}
+            {{- toYaml .Values.pipeline.extraVolumeMounts | indent 12 }}
+            {{- end }}
+        {{- if .Values.pipeline.extraEnv }}
+        env:
+        {{- toYaml .Values.pipeline.extraEnv | nindent 8 }}
+        {{- end }}
+        {{- if .Values.pipeline.sidecarContainers }}
+        {{- toYaml .Values.pipeline.sidecarContainers | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.pipeline" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: pipeline-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.pipeline.secretName" . }}
+        {{- end }}
+        {{- if .Values.pipeline.extraVolumes }}
+        {{- toYaml .Values.pipeline.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.pipeline.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipeline.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipeline.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

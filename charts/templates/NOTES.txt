@@ -1,0 +1,26 @@
+You have installed/deployed:
+
+  Chart name: {{ .Chart.Name }}
+  Release name: {{ .Release.Name }}
+  Fullname of k8s objects: {{ include "vdp.fullname" . }}
+
+Get the application URL by running these commands:
+{{- if eq .Values.expose.type "ingress" }}
+{{- range $key, $value := .Values.expose.ingress.hosts }}
+  http{{ if $.Values.internalTLS.enabled }}s{{ end }}://{{ $value }}
+{{- end }}
+{{- else if eq .Values.expose.type "nodePort" }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "pipeline-backend.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+  {{- else if eq .Values.expose.type "loadBalancer" }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "pipeline-backend.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "pipeline-backend.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+  {{- else if eq .Values.expose.type "clusterIP" }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "pipeline-backend.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}

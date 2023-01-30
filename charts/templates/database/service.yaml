@@ -1,0 +1,14 @@
+{{- if eq .Values.database.type "internal" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vdp.database" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 5432
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    component: database
+{{- end -}}

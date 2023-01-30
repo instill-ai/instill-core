@@ -1,0 +1,111 @@
+{{- if eq .Values.redis.type "internal" -}}
+{{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "vdp.redis" . }}
+  labels:
+{{ include "vdp.labels" . | indent 4 }}
+    component: redis
+spec:
+  replicas: 1
+  serviceName: {{ template "vdp.redis" . }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      component: redis
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.labels" . | nindent 8 }}
+        component: redis
+      {{- if .Values.redis.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.redis.internal.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      # alpine already has a gid 999, so group is assigned as 1000 and user remains as 999
+      # https://github.com/docker-library/redis/blob/787f47c4bda6943e29d85fa45e080bd55b2c08fa/7.0/alpine/Dockerfile#L3-L5
+      securityContext:
+        runAsUser: 999
+        fsGroup: 1000
+      {{- if .Values.redis.internal.serviceAccountName }}
+      serviceAccountName: {{ .Values.redis.internal.serviceAccountName }}
+      {{- end -}}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.redis.internal.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      containers:
+      - name: redis
+        image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 300
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 1
+          periodSeconds: 10
+        {{- if .Values.redis.internal.resources }}
+        resources:
+          {{ toYaml .Values.redis.internal.resources | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/redis
+          subPath: {{ $redis.subPath }}
+      {{- if not .Values.persistence.enabled }}
+      volumes:
+      - name: data
+        emptyDir: {}
+      {{- else if $redis.existingClaim }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ $redis.existingClaim }}
+      {{- end -}}
+    {{- with .Values.redis.internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.redis.internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.redis.internal.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if .Values.redis.internal.priorityClassName }}
+      priorityClassName: {{ .Values.redis.internal.priorityClassName }}
+    {{- end }}
+  {{- if and .Values.persistence.enabled (not $redis.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        {{- include "vdp.labels" . | nindent 8 }}
+      annotations:
+      {{- range $key, $value := $redis.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      accessModes: [{{ $redis.accessMode | quote }}]
+      {{- if $redis.storageClass }}
+      {{- if (eq "-" $redis.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ $redis.storageClass }}"
+      {{- end }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $redis.size | quote }}
+{{- end -}}
+{{- end -}}
