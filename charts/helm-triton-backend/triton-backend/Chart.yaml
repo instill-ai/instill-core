@@ -1,6 +1,0 @@
-apiVersion: v2
-name: triton-backend
-version: 1.3.0
-description: Triton Inference Server
-type: application
-appVersion: 1.4.0

@@ -1,6 +1,0 @@
-apiVersion: v2
-name: api-gateway
-description: A Helm chart to deploy the Krakend API Gateway
-type: application
-version: 1.5.2
-appVersion: 1.15.2
