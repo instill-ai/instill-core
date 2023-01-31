@@ -26,7 +26,7 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         component: mgmt
       annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
         {{- with .Values.mgmt.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -86,16 +86,16 @@ spec:
         - name: mgmt-backend
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-          livenessProbe:
+          readinessProbe:
             httpGet:
-              path: /v1alpha/__liveness
+              path: /v1alpha/__readiness
               scheme: {{ include "vdp.component.scheme" . | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
-          readinessProbe:
+          livenessProbe:
             httpGet:
-              path: /v1alpha/__readiness
+              path: /v1alpha/__liveness
               scheme: {{ include "vdp.component.scheme" . | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
@@ -120,10 +120,10 @@ spec:
             {{- if .Values.mgmt.extraVolumeMounts }}
             {{- toYaml .Values.mgmt.extraVolumeMounts | indent 12 }}
             {{- end }}
-        {{- if .Values.mgmt.extraEnv }}
-        env:
-        {{- toYaml .Values.mgmt.extraEnv | nindent 8 }}
-        {{- end }}
+          {{- if .Values.mgmt.extraEnv }}
+          env:
+            {{- toYaml .Values.mgmt.extraEnv | nindent 12 }}
+          {{- end }}
         {{- if .Values.mgmt.sidecarContainers }}
         {{- toYaml .Values.mgmt.sidecarContainers | nindent 8 }}
         {{- end }}

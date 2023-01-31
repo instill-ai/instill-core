@@ -225,6 +225,16 @@ app: {{ template "vdp.name" . }}
   {{- printf "8080" -}}
 {{- end -}}
 
+{{/* api-gateway service and container stats port */}}
+{{- define "vdp.apigateway.stats.port" -}}
+  {{- printf "8090" -}}
+{{- end -}}
+
+{{/* api-gateway service and container metrics port */}}
+{{- define "vdp.apigateway.metrics.port" -}}
+  {{- printf "9000" -}}
+{{- end -}}
+
 {{/* pipeline service and container port */}}
 {{- define "vdp.pipeline.port" -}}
   {{- printf "8081" -}}

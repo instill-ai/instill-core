@@ -11,7 +11,7 @@ namespaceOverride: ""
 fullnameOverride: ""
 
 expose:
-  # Set how to expose the service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
+  # Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
   type: ingress
   tls:
@@ -36,7 +36,7 @@ expose:
       secretName: ""
   ingress:
     hosts:
-      api: api.instill.tech
+      gateway: api.instill.tech
       console: console.instill.tech
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
@@ -48,40 +48,63 @@ expose:
     annotations: {}
   clusterIP:
     # The name of ClusterIP service
-    name: vdp
+    name:
     # Annotations on the ClusterIP service
     annotations: {}
     ports:
-      # The service port VDP listens on when serving HTTP
-      http: 80
-      # The service port VDP listens on when serving HTTPS
-      https: 443
+      # The service port api-gateway listens on
+      gateway:
+      # The service port api-gateway stats listens on
+      stats:
+      # The service port api-gateway metrics listens on
+      metrics:
   nodePort:
     # The name of NodePort service
-    name: vdp
+    name:
     ports:
-      http:
-        # The service port VDP listens on when serving HTTP
-        port: 80
-        # The node port VDP listens on when serving HTTP
-        nodePort: 31000
-      https:
-        # The service port VDP listens on when serving HTTPS
-        port: 443
-        # The node port VDP listens on when serving HTTPS
-        nodePort: 31000
+      gateway:
+        # The service port api-gateway listens on
+        port:
+        # The node port api-gateway listens on
+        nodePort: 30000
+      stats:
+        # The service port api-gateway stats listens
+        port:
+        # The node port api-gateway stats listens on
+        nodePort: 30001
+      metrics:
+        # The service port api-gateway metrics listens on
+        port:
+        # The node port api-gateway metrics listens on
+        nodePort: 30002
   loadBalancer:
     # The name of LoadBalancer service
-    name: vdp
+    name:
     # Set the IP if the LoadBalancer supports assigning IP
     IP: ""
     ports:
-      # The service port VDP listens on when serving HTTP
-      http: 80
-      # The service port VDP listens on when serving HTTPS
-      https: 443
+      # The service port api-gateway listens on
+      gateway:
+      # The service port api-gateway stats listens on
+      stats:
+      # The service port api-gateway metrics listens on
+      metrics:
     annotations: {}
     sourceRanges: []
+
+# The external URL for VDP core service. It is used to
+# populate the API endpoints showed on Console
+#
+# Format: protocol://domain[:port]. Usually:
+# 1) if "expose.type" is "ingress", the "domain" should be
+# the value of "expose.ingress.hosts.gateway"
+# 2) if "expose.type" is "clusterIP", the "domain" should be
+# the value of "expose.clusterIP.name"
+# 3) if "expose.type" is "nodePort", the "domain" should be
+# the IP address of Kubernetes node
+#
+# If VDP is deployed behind the proxy, set it as the URL of proxy
+externalURL: https://api.instill.tech
 
 # The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
@@ -205,7 +228,7 @@ updateStrategy:
   type: RollingUpdate
 
 # Logging level: debug, info, warning, error or fatal
-logLevel: info
+logLevel: debug
 
 # The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
@@ -217,7 +240,7 @@ apigateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.2.0-alpha
+    tag: latest
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -275,7 +298,7 @@ pipeline:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.9.5-alpha
+    tag: latest
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""

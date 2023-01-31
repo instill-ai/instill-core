@@ -8,7 +8,7 @@ data:
       port: {{ template "vdp.pipeline.port" . }}
       edition: {{ template "vdp.edition" . }}
       disableusage: {{ .Values.disableUsage }}
-      debug: {{ ternary "ture" "false" (eq .Values.logLevel "debug") }}
+      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
       maximagesize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:

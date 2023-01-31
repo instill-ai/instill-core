@@ -27,7 +27,7 @@ spec:
         component: pipeline
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/pipeline/configmap.yaml") . | sha256sum }}
-        {{- with .Values.mgmt.podAnnotations }}
+        {{- with .Values.pipeline.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -70,37 +70,20 @@ spec:
           - name: config
             mountPath: /pipeline-backend/config/config.yaml
             subPath: config.yaml
-      - name: wait-for-mgmt
-        image: busybox
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
-        {{- if .Values.pipeline.resources }}
-        resources:
-          {{- toYaml .Values.pipeline.resources | nindent 12 }}
-        {{- end }}
-        command:  ["sh", "-c", "until nc ${MGMT_SERVICE_NAME}.${POD_NAMESPACE}.svc.cluster.local ${MGMT_PORT}; do echo waiting for mgmt-backend; sleep 2; done;"]
-        env:
-        - name: MGMT_SERVICE_NAME
-          value: {{ template "vdp.mgmt" . }}
-        - name: MGMT_PORT
-          value: "{{ template "vdp.mgmt.port" . }}"
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
       containers:
         - name: pipeline-backend
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-          livenessProbe:
+          readinessProbe:
             httpGet:
-              path: /v1alpha/__liveness
+              path: /v1alpha/__readiness
               scheme: {{ include "vdp.component.scheme" . | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
-          readinessProbe:
+          livenessProbe:
             httpGet:
-              path: /v1alpha/__readiness
+              path: /v1alpha/__liveness
               scheme: {{ include "vdp.component.scheme" . | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
@@ -125,10 +108,10 @@ spec:
             {{- if .Values.pipeline.extraVolumeMounts }}
             {{- toYaml .Values.pipeline.extraVolumeMounts | indent 12 }}
             {{- end }}
-        {{- if .Values.pipeline.extraEnv }}
-        env:
-        {{- toYaml .Values.pipeline.extraEnv | nindent 8 }}
-        {{- end }}
+          {{- if .Values.pipeline.extraEnv }}
+          env:
+            {{- toYaml .Values.pipeline.extraEnv | nindent 12 }}
+          {{- end }}
         {{- if .Values.pipeline.sidecarContainers }}
         {{- toYaml .Values.pipeline.sidecarContainers | nindent 8 }}
         {{- end }}

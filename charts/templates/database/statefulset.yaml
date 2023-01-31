@@ -7,8 +7,6 @@ metadata:
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
     component: database
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   replicas: 1
   serviceName: "{{ template "vdp.database" . }}"
