@@ -1,19 +1,16 @@
-## Provide a name in place of vdp for `app:` labels
-##
+## -- Provide a name in place of vdp
 nameOverride: ""
 
-## Override the deployment namespace
-##
+## -- Override the deployment namespace
 namespaceOverride: ""
 
-## Provide a name to substitute for the full names of resources
-##
+## -- Provide a name to substitute for the full names of resources
 fullnameOverride: ""
 
 expose:
-  # Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
+  # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
-  type: ingress
+  type: clusterIP
   tls:
     # Enable TLS or not.
     enabled: true
@@ -45,12 +42,9 @@ expose:
     ## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress
     kubeVersionOverride: ""
     className: ""
+    # Annotations on the Ingress
     annotations: {}
   clusterIP:
-    # The name of ClusterIP service
-    name:
-    # Annotations on the ClusterIP service
-    annotations: {}
     ports:
       # The service port api-gateway listens on
       gateway:
@@ -58,30 +52,38 @@ expose:
       stats:
       # The service port api-gateway metrics listens on
       metrics:
+      # The service port temporal web listens on
+      temporal:
+    # Annotations on the ClusterIP service
+    annotations: {}
   nodePort:
-    # The name of NodePort service
-    name:
     ports:
       gateway:
         # The service port api-gateway listens on
         port:
         # The node port api-gateway listens on
-        nodePort: 30000
+        nodePort: 30010
       stats:
         # The service port api-gateway stats listens
         port:
         # The node port api-gateway stats listens on
-        nodePort: 30001
+        nodePort: 30011
       metrics:
         # The service port api-gateway metrics listens on
         port:
         # The node port api-gateway metrics listens on
-        nodePort: 30002
+        nodePort: 30012
+      temporal:
+        # The service port temporal web listens on
+        port:
+        # The node port temporal web listens on
+        nodePort: 30017
+    # Annotations on the NodePort service
+    annotations: {}
   loadBalancer:
-    # The name of LoadBalancer service
-    name:
     # Set the IP if the LoadBalancer supports assigning IP
     IP: ""
+    sourceRanges: []
     ports:
       # The service port api-gateway listens on
       gateway:
@@ -89,10 +91,12 @@ expose:
       stats:
       # The service port api-gateway metrics listens on
       metrics:
+      # The service port temporal web listens on
+      temporal:
+    # Annotations on the LoadBalancer service
     annotations: {}
-    sourceRanges: []
 
-# The external URL for VDP core service. It is used to
+# -- The external URL for VDP core service. It is used to
 # populate the API endpoints showed on Console
 #
 # Format: protocol://domain[:port]. Usually:
@@ -106,7 +110,7 @@ expose:
 # If VDP is deployed behind the proxy, set it as the URL of proxy
 externalURL: https://api.instill.tech
 
-# The internal TLS used for VDP components secure communicating. In order to enable https
+# -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
   # If internal TLS enabled
@@ -167,7 +171,7 @@ internalTLS:
     # Content of console's TLS key file, only available when `certSource` is "manual"
     key: ""
 
-# The persistence is enabled by default and a default StorageClass
+# -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
 # if you already have existing persistent volumes to use
@@ -204,7 +208,7 @@ persistence:
       existingClaim: ""
       storageClass: ""
       subPath: ""
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce
       size: 1Gi
       annotations: {}
     # If external Redis is used, the following settings for Redis will
@@ -219,21 +223,21 @@ persistence:
 
 imagePullPolicy: IfNotPresent
 
-# Use this set to assign a list of default pullSecrets
+# -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 
-# The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
+# -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
   type: RollingUpdate
 
-# Logging level: debug, info, warning, error or fatal
+# -- Logging level: debug, info, warning, error or fatal
 logLevel: debug
 
-# The maximum data payload to VDP cluster (MB)
+# -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
 
-# Disable usage collection
+# -- Disable usage collection
 disableUsage: false
 
 apigateway:
@@ -274,20 +278,15 @@ apigateway:
   serviceAnnotations: {}
 
   resources: {}
-
   autoscaling:
     enabled: false
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetMemoryUtilizationPercentage:
-
   nodeSelector: {}
-
   tolerations: []
-
   affinity: {}
-
   podDisruptionBudget:
     enabled: false
     spec:
@@ -299,7 +298,6 @@ pipeline:
   image:
     repository: instill/pipeline-backend
     tag: latest
-    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -332,20 +330,15 @@ pipeline:
   serviceAnnotations: {}
 
   resources: {}
-
   autoscaling:
     enabled: false
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetMemoryUtilizationPercentage:
-
   nodeSelector: {}
-
   tolerations: []
-
   affinity: {}
-
   podDisruptionBudget:
     enabled: false
     spec:
@@ -357,7 +350,6 @@ mgmt:
   image:
     repository: instill/mgmt-backend
     tag: 0.2.9-alpha
-    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -388,22 +380,18 @@ mgmt:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
+  # -- The pod resource
   resources: {}
 
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   autoscaling:
     enabled: false
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetMemoryUtilizationPercentage:
-
-  nodeSelector: {}
-
-  tolerations: []
-
-  affinity: {}
-
   podDisruptionBudget:
     enabled: false
     spec:
@@ -420,23 +408,20 @@ database:
   # and fill the connection informations in "external" section
   type: internal
   internal:
+    # -- The image of postgresql
+    image:
+      repository: postgres
+      tag: 15-alpine
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
     # -- Mount the service account token
     automountServiceAccountToken: false
-    image:
-      repository: postgres
-      tag: 15-alpine
     # -- The initial superuser password for internal database
     password: "password"
     # -- The size limit for Shared memory, pgSQL use it for shared_buffer
-    # More details see:
-    # https://github.com/goharbor/harbor/issues/15034
     shmSizeLimit: 512Mi
+    # -- The pod resource
     resources: {}
-    #  requests:
-    #    memory: 256Mi
-    #    cpu: 100m
     # -- The timeout used in livenessProbe; 1 to 5 seconds
     livenessProbe:
       timeoutSeconds: 1
@@ -447,20 +432,11 @@ database:
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
+
     nodeSelector: {}
     tolerations: []
     affinity: {}
-    initContainer:
-      migrator:
-        resources: {}
-      #  requests:
-      #    memory: 128Mi
-      #    cpu: 100m
-      permissions:
-        resources: {}
-      #  requests:
-      #    memory: 128Mi
-      #    cpu: 100m
+
   external:
     host:
     port:
@@ -477,13 +453,12 @@ database:
     # server was signed by a trusted CA and the server host name matches the one
     # in the certificate)
     sslmode: "disable"
-  # -- The maximum number of connections in the idle connection pool per pod (core+exporter).
+  # -- The maximum number of connections in the idle connection pool per pod.
   # If it <=0, no idle connections are retained.
   maxIdleConns: 100
-  # -- The maximum number of open connections to the database per pod (core+exporter).
+  # -- The maximum number of open connections to the database per pod.
   # If it <= 0, then there is no limit on the number of open connections.
-  # Note: the default number of connections is 1024 for postgre of harbor.
-  maxOpenConns: 900
+  maxOpenConns: 1024
   # -- The maximum amount of time in minutes a connection may be reused.
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
@@ -494,37 +469,27 @@ redis:
   # and fill the connection informations in "external" section
   type: internal
   internal:
+    # -- The image of redis
+    image:
+      repository: redis
+      tag: 7.0-alpine3.16
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
     # -- Mount the service account token
     automountServiceAccountToken: false
-    image:
-      repository: redis
-      tag: 7.0-alpine3.16
+    # -- The pod resource
     resources: {}
-    #  requests:
-    #    memory: 256Mi
-    #    cpu: 100m
     ## -- The priority class to run the pod as
     priorityClassName:
     # -- Additional deployment annotations
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
+
     nodeSelector: {}
     tolerations: []
     affinity: {}
-    initContainer:
-      migrator:
-        resources: {}
-      #  requests:
-      #    memory: 128Mi
-      #    cpu: 100m
-      permissions:
-        resources: {}
-      #  requests:
-      #    memory: 128Mi
-      #    cpu: 100m
+
   external:
     # -- Support redis, redis+sentinel
     # addr for redis: <host_redis>:<port_redis>
@@ -536,9 +501,322 @@ redis:
     # -- If using existingSecret, the key must be REDIS_PASSWORD
     existingSecret: ""
 
-#######################
-# Temporal
-#######################
 temporal:
-  clientoptions:
-    hostport: temporal:7233
+  # -- If external Temporal is used, set "type" to "external"
+  # and fill the connection informations in "external" section
+  type: internal
+  internal:
+    server:
+      # -- Enable Temporal server
+      enabled: true
+      # -- The image of Temporal server
+      image:
+        repository: temporalio/server
+        tag: 1.19.1
+
+      dynamicConfig: {}
+      # matching.numTaskqueueReadPartitions:
+      #   - value: 5
+      #     constraints: {}
+      # matching.numTaskqueueWritePartitions:
+      #   - value: 5
+      #     constraints: {}
+
+      config:
+        logLevel: "debug,info"
+
+        # IMPORTANT: This value cannot be changed, once it's set.
+        numHistoryShards: 512
+
+        persistence:
+          defaultStore: default
+          additionalStores: {}
+
+          default:
+            driver: "sql"
+            sql:
+              driver: "postgres"
+              host:
+              port: 5432
+              database: "temporal"
+              existingSecret: ""
+              secretName: ""
+              maxConns: 20
+              maxConnLifetime: "1h"
+              # connectAttributes:
+              # tx_isolation: 'READ-COMMITTED'
+
+          visibility:
+            driver: "sql"
+            sql:
+              driver: "postgres"
+              host:
+              port: 5432
+              database: "temporal_visibility"
+              existingSecret: ""
+              secretName: ""
+              maxConns: 20
+              maxConnLifetime: "1h"
+              # connectAttributes:
+              #   tx_isolation: 'READ-COMMITTED'
+
+      metrics:
+        # Annotate pods directly with Prometheus annotations.
+        # Use this if you installed Prometheus from a Helm chart.
+        annotations:
+          enabled: true
+        # Enable Prometheus ServiceMonitor
+        # Use this if you installed the Prometheus Operator (https://github.com/coreos/prometheus-operator).
+        serviceMonitor:
+          enabled: false
+          interval: 30s
+          # Set additional lables to all the ServiceMonitor resources
+          additionalLabels: {}
+          #  label1: value1
+          #  label2: value2
+          # Set Prometheus metric_relabel_configs via ServiceMonitor
+          # Use metricRelabelings to adjust metric and label names as needed
+          metricRelabelings: []
+          # - action: replace
+          #   sourceLabels:
+          #   - exported_namespace
+          #   targetLabel: temporal_namespace
+          # - action: replace
+          #   regex: service_errors_(.+)
+          #   replacement: ${1}
+          #   sourceLabels:
+          #   - __name__
+          #   targetLabel: temporal_error_kind
+          # - action: replace
+          #   regex: service_errors_.+
+          #   replacement: temporal_service_errors
+          #   sourceLabels:
+          #   - __name__
+          #   targetLabel: __name__
+        prometheus:
+          timerType: histogram
+      frontend:
+        replicaCount: 1
+        service:
+          annotations: {}
+          type: ClusterIP
+          port: 7233
+        metrics:
+          annotations:
+            enabled: true
+          serviceMonitor: {}
+          # enabled: false
+          prometheus: {}
+          # timerType: histogram
+        podAnnotations: {}
+        resources: {}
+        nodeSelector: {}
+        tolerations: []
+        affinity: {}
+        autoscaling:
+          enabled: false
+          minReplicas:
+          maxReplicas:
+          targetCPUUtilizationPercentage:
+          targetMemoryUtilizationPercentage:
+        podDisruptionBudget:
+          enabled: false
+          spec:
+            minAvailable:
+            maxUnavailable:
+
+      history:
+        replicaCount: 1
+        service:
+          # type: ClusterIP
+          port: 7234
+        metrics:
+          annotations:
+            enabled: true
+          serviceMonitor: {}
+          # enabled: false
+          prometheus: {}
+          # timerType: histogram
+        podAnnotations: {}
+        resources: {}
+        nodeSelector: {}
+        tolerations: []
+        affinity: {}
+        autoscaling:
+          enabled: false
+          minReplicas:
+          maxReplicas:
+          targetCPUUtilizationPercentage:
+          targetMemoryUtilizationPercentage:
+        podDisruptionBudget:
+          enabled: false
+          spec:
+            minAvailable:
+            maxUnavailable:
+
+      matching:
+        replicaCount: 1
+        service:
+          # type: ClusterIP
+          port: 7235
+        metrics:
+          annotations:
+            enabled: false
+          serviceMonitor: {}
+          # enabled: false
+          prometheus: {}
+          # timerType: histogram
+        podAnnotations: {}
+        resources: {}
+        nodeSelector: {}
+        tolerations: []
+        affinity: {}
+        autoscaling:
+          enabled: false
+          minReplicas:
+          maxReplicas:
+          targetCPUUtilizationPercentage:
+          targetMemoryUtilizationPercentage:
+        podDisruptionBudget:
+          enabled: false
+          spec:
+            minAvailable:
+            maxUnavailable:
+
+      worker:
+        replicaCount: 1
+        service:
+          # type: ClusterIP
+          port: 7239
+        metrics:
+          annotations:
+            enabled: true
+          serviceMonitor: {}
+          # enabled: false
+          prometheus: {}
+          # timerType: histogram
+        podAnnotations: {}
+        resources: {}
+        nodeSelector: {}
+        tolerations: []
+        affinity: {}
+        autoscaling:
+          enabled: false
+          minReplicas:
+          maxReplicas:
+          targetCPUUtilizationPercentage:
+          targetMemoryUtilizationPercentage:
+        podDisruptionBudget:
+          enabled: false
+          spec:
+            minAvailable:
+            maxUnavailable:
+
+      # -- Set the service account to be used, default if left empty
+      serviceAccountName: ""
+      # -- Mount the service account token
+      automountServiceAccountToken: false
+      # -- The number of replica for pipeline-backend
+      replicaCount: 1
+      # -- Add extra env variables
+      extraEnv: []
+      # -- Mount external volumes
+      # For example, mount a secret containing Certificate root CA to verify database
+      # TLS connection.
+      extraVolumes: []
+      # - name: my-volume
+      #   secret:
+      #     secretName: my-secret
+      extraVolumeMounts: []
+      # - name: my-volume
+      #   mountPath: /etc/secrets/my-secret
+      #   readOnly: true
+      # -- Add extra init containers
+      extraInitContainers: []
+      # extraInitContainers:
+      #  - name: ...
+      #    image: ...
+      # -- Add extra sidecar containers
+      sidecarContainers: {}
+      # -- Additional deployment annotations
+      podAnnotations: {}
+      # -- Additional service annotations
+      serviceAnnotations: {}
+      # -- The pod resource
+      resources: {}
+
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+
+    admintools:
+      # -- Enable Temporal admin-tools
+      enabled: true
+      # -- The image of Temporal admin-tools
+      image:
+        repository: temporalio/admin-tools
+        tag: 1.19.1
+      # -- Set the service account to be used, default if left empty
+      serviceAccountName: ""
+      # -- Mount the service account token
+      automountServiceAccountToken: false
+      # -- The number of replica for pipeline-backend
+      replicaCount: 1
+      # -- The pod resource
+      resources: {}
+      ## -- The priority class to run the pod as
+      priorityClassName:
+      # -- Additional deployment annotations
+      podAnnotations: {}
+      # -- Additional service annotations
+      serviceAnnotations: {}
+
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+
+    ui:
+      # -- Enable Temporal UI
+      enabled: true
+      # -- The image of Temporal UI
+      image:
+        repository: temporalio/ui
+        tag: 2.9.0
+      # -- Set the service account to be used, default if left empty
+      serviceAccountName: ""
+      # -- Mount the service account token
+      automountServiceAccountToken: false
+      # -- The number of replica for pipeline-backend
+      replicaCount: 1
+      # -- The pod resource
+      resources: {}
+      ## -- The priority class to run the pod as
+      priorityClassName:
+      # -- Additional deployment annotations
+      podAnnotations: {}
+      # -- Additional service annotations
+      serviceAnnotations: {}
+
+      nodeSelector: {}
+      tolerations: []
+      affinity: {}
+
+      config:
+        # server/config.yml file content
+        auth:
+          enabled: false
+        routing:
+          default_to_namespace: # internal use only
+          issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
+
+  external:
+
+elasticsearch:
+  enabled: false
+
+  # -- If external Elasticsearch is used, set "type" to "external"
+  # and fill the connection informations in "external" section
+  type: internal
+  internal:
+
+  external:

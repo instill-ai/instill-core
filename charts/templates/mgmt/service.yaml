@@ -4,6 +4,7 @@ metadata:
   name: {{ template "vdp.mgmt" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt
   {{- with .Values.mgmt.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -18,4 +19,4 @@ spec:
       targetPort: {{ template "vdp.mgmt.port" . }}
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
-    component: mgmt
+    app.kubernetes.io/component: mgmt

@@ -4,7 +4,7 @@ metadata:
   name: {{ template "vdp.mgmt" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
-    component: mgmt
+    app.kubernetes.io/component: mgmt
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
@@ -19,12 +19,12 @@ spec:
   selector:
     matchLabels:
       {{- include "vdp.matchLabels" . | nindent 6 }}
-      component: mgmt
+      app.kubernetes.io/component: mgmt
   template:
     metadata:
       labels:
         {{- include "vdp.matchLabels" . | nindent 8 }}
-        component: mgmt
+        app.kubernetes.io/component: mgmt
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
         {{- with .Values.mgmt.podAnnotations }}
@@ -37,26 +37,22 @@ spec:
       {{- if .Values.mgmt.serviceAccountName }}
       serviceAccountName: {{ .Values.mgmt.serviceAccountName }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.mgmt.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.mgmt.automountServiceAccountToken | default false }}
-      terminationGracePeriodSeconds: 120
       initContainers:
       {{- if eq .Values.database.type "internal" }}
       - name: wait-for-db
         image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-        command: ['sh', '-c', "until pg_isready -U ${DB_USERNAME} -h ${DB_SERVICE_NAME}.${POD_NAMESPACE}.svc.cluster.local; do echo waiting for db; sleep 2; done"]
+        command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
         env:
-        - name: DB_SERVICE_NAME
-          value: {{ template "vdp.database" . }}
-        - name: DB_USERNAME
-          value: {{ template "vdp.database.username" . }}
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
+          - name: PGHOST
+            value: {{ template "vdp.database" . }}
+          - name: PGUSER
+            value: {{ template "vdp.database.username" . }}
       {{- end }}
       - name: mgmt-backend-migration
         image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
@@ -89,14 +85,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /v1alpha/__readiness
-              scheme: {{ include "vdp.component.scheme" . | upper }}
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /v1alpha/__liveness
-              scheme: {{ include "vdp.component.scheme" . | upper }}
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -117,15 +113,15 @@ spec:
             - name: mgmt-internal-certs
               mountPath: "/etc/vdp/ssl/mgmt"
             {{- end }}
-            {{- if .Values.mgmt.extraVolumeMounts }}
-            {{- toYaml .Values.mgmt.extraVolumeMounts | indent 12 }}
+            {{- with .Values.mgmt.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
             {{- end }}
-          {{- if .Values.mgmt.extraEnv }}
+          {{- with .Values.mgmt.extraEnv }}
           env:
-            {{- toYaml .Values.mgmt.extraEnv | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-        {{- if .Values.mgmt.sidecarContainers }}
-        {{- toYaml .Values.mgmt.sidecarContainers | nindent 8 }}
+        {{- with .Values.mgmt.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
         - name: config

@@ -3,7 +3,7 @@ kind: Service
 metadata:
 {{- if eq .Values.expose.type "clusterIP" }}
 {{- $clusterIP := .Values.expose.clusterIP }}
-  name: {{ default (include "vdp.apigateway" .) .Values.expose.clusterIP.name }}
+  name: {{ include "vdp.apigateway" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
   {{- with $clusterIP.annotations }}
@@ -14,13 +14,13 @@ spec:
   type: ClusterIP
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ .Values.expose.clusterIP.ports.gateway }}
+      port: {{ default (include "vdp.apigateway.port" .) $clusterIP.ports.gateway }}
       targetPort: {{ template "vdp.apigateway.port" . }}
     - name: stats
-      port: {{ .Values.expose.clusterIP.ports.stats }}
+      port: {{ default (include "vdp.apigateway.stats.port" .) $clusterIP.ports.stats }}
       targetPort: {{ template "vdp.apigateway.stats.port" . }}
     - name: metrics
-      port: {{ .Values.expose.clusterIP.ports.metrics }}
+      port: {{ default (include "vdp.apigateway.metrics.port" .) $clusterIP.ports.metrics }}
       targetPort: {{ template "vdp.apigateway.metrics.port" . }}
 {{- else if or (eq .Values.expose.type "ingress") (eq .Values.expose.type "nodePort")}}
 {{- $nodePort := .Values.expose.nodePort }}
@@ -54,7 +54,7 @@ spec:
       {{- end }}
 {{- else if eq .Values.expose.type "loadBalancer" }}
 {{- $loadBalancer := .Values.expose.loadBalancer }}
-  name: {{ default (include "vdp.apigateway" .) .Values.expose.loadBalancer.name }}
+  name: {{ include "vdp.apigateway" . }}
   labels:
     {{- include "vdp.labels" . | indent 4 }}
   {{- with $loadBalancer.annotations }}
@@ -72,15 +72,15 @@ spec:
   {{- end }}
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ .Values.expose.loadBalancer.ports.gateway }}
+      port: {{ default (include "vdp.apigateway.port" .) $loadBalancer.ports.gateway }}
       targetPort: {{ template "vdp.apigateway.port" . }}
     - name: stats
-      port: {{ .Values.expose.loadBalancer.ports.stats }}
+      port: {{ default (include "vdp.apigateway.stats.port" .) $loadBalancer.ports.stats }}
       targetPort: {{ template "vdp.apigateway.stats.port" . }}
     - name: metrics
-      port: {{ .Values.expose.loadBalancer.ports.metrics }}
+      port: {{ default (include "vdp.apigateway.metrics.port" .) $loadBalancer.ports.metrics }}
       targetPort: {{ template "vdp.apigateway.metrics.port" . }}
 {{- end }}
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
-    component: apigateway
+    app.kubernetes.io/component: api-gateway

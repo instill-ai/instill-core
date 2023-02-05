@@ -36,6 +36,3 @@ dev
 
 # Python
 __pycache__
-
-helm-temporal
-temporal

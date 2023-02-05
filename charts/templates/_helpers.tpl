@@ -37,32 +37,28 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "vdp.chart.version" -}}
-{{- printf "%s" .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "vdp.app.version" -}}
-{{- printf "%s" .Chart.AppVersion | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- define "vdp.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
 {{- define "vdp.labels" -}}
-release: {{ .Release.Name }}
-chart: {{ .Chart.Name }}
-app: {{ template "vdp.name" . }}
+app.kubernetes.io/name: {{ include "vdp.name" . }}
+helm.sh/chart: {{ include "vdp.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
+app.kubernetes.io/part-of: {{ .Chart.Name }}
 {{- end -}}
 
 {{/*
 MatchLabels
 */}}
 {{- define "vdp.matchLabels" -}}
-release: {{ .Release.Name }}
-app: {{ template "vdp.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.edition" -}}
@@ -211,13 +207,16 @@ app: {{ template "vdp.name" . }}
   {{- printf "%s-redis" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-{{/* scheme for all components */}}
-{{- define "vdp.component.scheme" -}}
-  {{- if .Values.internalTLS.enabled -}}
-    {{- printf "https" -}}
-  {{- else -}}
-    {{- printf "http" -}}
-  {{- end -}}
+{{- define "vdp.temporal" -}}
+  {{- printf "%s-temporal" (include "vdp.fullname" .) -}}
+{{- end -}}
+
+{{- define "vdp.temporal.admintools" -}}
+  {{- printf "%s-temporal-admintools" (include "vdp.fullname" .) -}}
+{{- end -}}
+
+{{- define "vdp.temporal.ui" -}}
+  {{- printf "%s-temporal-ui" (include "vdp.fullname" .) -}}
 {{- end -}}
 
 {{/* api-gateway service and container port */}}
@@ -258,6 +257,51 @@ app: {{ template "vdp.name" . }}
 {{/* console service and container port */}}
 {{- define "vdp.console.port" -}}
   {{- printf "3000" -}}
+{{- end -}}
+
+{{/* temporal container frontend gRPC port */}}
+{{- define "vdp.temporal.frontend.grpcPort" -}}
+  {{- printf "7233" -}}
+{{- end -}}
+
+{{/* temporal container frontend membership port */}}
+{{- define "vdp.temporal.frontend.membershipPort" -}}
+  {{- printf "6933" -}}
+{{- end -}}
+
+{{/* temporal container history gRPC port */}}
+{{- define "vdp.temporal.history.grpcPort" -}}
+  {{- printf "7234" -}}
+{{- end -}}
+
+{{/* temporal container history membership port */}}
+{{- define "vdp.temporal.history.membershipPort" -}}
+  {{- printf "6934" -}}
+{{- end -}}
+
+{{/* temporal container matching gRPC port */}}
+{{- define "vdp.temporal.matching.grpcPort" -}}
+  {{- printf "7235" -}}
+{{- end -}}
+
+{{/* temporal container matching membership port */}}
+{{- define "vdp.temporal.matching.membershipPort" -}}
+  {{- printf "6935" -}}
+{{- end -}}
+
+{{/* temporal container worker gRPC port */}}
+{{- define "vdp.temporal.worker.grpcPort" -}}
+  {{- printf "7239" -}}
+{{- end -}}
+
+{{/* temporal container worker membership port */}}
+{{- define "vdp.temporal.worker.membershipPort" -}}
+  {{- printf "6939" -}}
+{{- end -}}
+
+{{/* temporal web container port */}}
+{{- define "vdp.temporal.ui.port" -}}
+  {{- printf "8080" -}}
 {{- end -}}
 
 {{- define "vdp.internalTLS.apigateway.secretName" -}}

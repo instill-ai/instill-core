@@ -10,9 +10,18 @@ version: 0.0.0
 
 appVersion: 0.4.1-alpha
 
-keywords: ["unstructured data", "pipeline", "ETL", ELT", "AI", "connector"]
+keywords:
+  - unstructured data
+  - pipeline
+  - ETL/ELT
+  - AI
+  - Data
 
-home: "https://github.com/instill-ai/vdp"
+sources:
+  - https://github.com/instill-ai/vdp
+  - https://github.com/instill-ai/vdp/charts
+
+home: "https://www.instill.tech"
 
 icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/instill-logo.png
 

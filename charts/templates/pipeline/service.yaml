@@ -4,6 +4,7 @@ metadata:
   name: {{ template "vdp.pipeline" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline
   {{- with .Values.pipeline.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -18,4 +19,4 @@ spec:
       targetPort: {{ template "vdp.pipeline.port" . }}
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
-    component: pipeline
+    app.kubernetes.io/component: pipeline

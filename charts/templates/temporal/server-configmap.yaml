@@ -1,0 +1,135 @@
+{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
+{{- range $service := (list "frontend" "history" "matching" "worker") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" (include "vdp.temporal" $) $service }}-config
+  labels:
+    {{- include "vdp.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ printf "temporal-%s" $service }}
+data:
+  config_template.yaml: |-
+    log:
+      stdout: true
+      level: {{ $.Values.temporal.internal.server.config.logLevel | quote }}
+
+    persistence:
+      defaultStore: {{ $.Values.temporal.internal.server.config.persistence.defaultStore }}
+      visibilityStore: visibility
+    {{- if $.Values.elasticsearch.enabled }}
+      advancedVisibilityStore: es-visibility
+    {{- end }}
+      numHistoryShards: {{ $.Values.temporal.internal.server.config.numHistoryShards }}
+      datastores:
+        {{- with $.Values.temporal.internal.server.config.persistence.additionalStores }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        default:
+          sql:
+            pluginName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.driver }}
+            driverName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.driver }}
+            databaseName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.database }}
+            connectAddr: {{ include "vdp.database" $ }}:{{ include "vdp.database.port" $ }}
+            connectProtocol: "tcp"
+            user: {{ template "vdp.database.username" $ }}
+            password: "{{ `{{ .Env.TEMPORAL_STORE_PASSWORD }}` }}"
+            {{- with (omit $.Values.temporal.internal.server.config.persistence.default.sql "driver" "driverName" "host" "port" "connectAddr" "connectProtocol" "database" "databaseName" "user" "password") }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        visibility:
+          sql:
+            pluginName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.driver }}
+            driverName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.driver }}
+            databaseName: {{ $.Values.temporal.internal.server.config.persistence.default.sql.database }}
+            connectAddr: {{ include "vdp.database" $ }}:{{ include "vdp.database.port" $ }}
+            connectProtocol: "tcp"
+            user: {{ template "vdp.database.username" $ }}
+            password: "{{ `{{ .Env.TEMPORAL_VISIBILITY_STORE_PASSWORD }}` }}"
+            {{- with (omit $.Values.temporal.internal.server.config.persistence.visibility.sql "driver" "driverName" "host" "port" "connectAddr" "connectProtocol" "database" "databaseName" "user" "password") }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+
+        {{- if $.Values.elasticsearch.enabled }}
+        es-visibility:
+          elasticsearch:
+            version: "{{ $.Values.elasticsearch.internal.version }}"
+            url:
+              scheme: "{{ $.Values.elasticsearch.internal.scheme }}"
+              host: "{{ $.Values.elasticsearch.internal.host }}:{{ $.Values.elasticsearch.internal.port }}"
+            username: "{{ $.Values.elasticsearch.internal.username }}"
+            password: "{{ $.Values.elasticsearch.internal.password }}"
+            logLevel: "{{ $.Values.elasticsearch.internal.logLevel }}"
+            indices:
+              visibility: "{{ $.Values.elasticsearch.internal.visibilityIndex }}"
+        {{- end }}
+
+    global:
+      membership:
+        name: temporal
+        maxJoinDuration: 30s
+        broadcastAddress: {{ `{{ default .Env.POD_IP "0.0.0.0" }}` }}
+
+      pprof:
+        port: 7936
+
+      metrics:
+        tags:
+          type: {{ $service }}
+        prometheus:
+          timerType: histogram
+          listenAddress: "0.0.0.0:9090"
+
+    services:
+      frontend:
+        rpc:
+          grpcPort: {{ include "vdp.temporal.frontend.grpcPort" $ }}
+          membershipPort: {{ include "vdp.temporal.frontend.membershipPort" $ }}
+          bindOnIP: "0.0.0.0"
+
+      history:
+        rpc:
+          grpcPort: {{ include "vdp.temporal.history.grpcPort" $ }}
+          membershipPort: {{ include "vdp.temporal.history.membershipPort" $ }}
+          bindOnIP: "0.0.0.0"
+
+      matching:
+        rpc:
+          grpcPort: {{ include "vdp.temporal.matching.grpcPort" $ }}
+          membershipPort: {{ include "vdp.temporal.matching.membershipPort" $ }}
+          bindOnIP: "0.0.0.0"
+
+      worker:
+        rpc:
+          grpcPort: {{ include "vdp.temporal.worker.grpcPort" $ }}
+          membershipPort: {{ include "vdp.temporal.worker.membershipPort" $ }}
+          bindOnIP: "0.0.0.0"
+
+    clusterMetadata:
+      enableGlobalDomain: false
+      failoverVersionIncrement: 10
+      masterClusterName: "active"
+      currentClusterName: "active"
+      clusterInformation:
+        active:
+          enabled: true
+          initialFailoverVersion: 1
+          rpcName: "temporal-frontend"
+          rpcAddress: "127.0.0.1:7933"
+
+    dcRedirectionPolicy:
+      policy: "noop"
+      toDC: ""
+
+    archival:
+      status: "disabled"
+
+    publicClient:
+      hostPort: {{ printf "%s-frontend" (include "vdp.temporal" $) }}:{{ include "vdp.temporal.frontend.grpcPort" $ }}
+
+    dynamicConfigClient:
+      filepath: "/etc/temporal/dynamic_config/dynamic_config.yaml"
+      pollInterval: "10s"
+---
+
+{{- end }}
+{{- end }}

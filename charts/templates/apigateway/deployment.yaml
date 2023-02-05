@@ -4,7 +4,7 @@ metadata:
   name: {{ template "vdp.apigateway" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
-    component: apigateway
+    app.kubernetes.io/component: api-gateway
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
@@ -19,12 +19,12 @@ spec:
   selector:
     matchLabels:
       {{- include "vdp.matchLabels" . | nindent 6 }}
-      component: apigateway
+      app.kubernetes.io/component: api-gateway
   template:
     metadata:
       labels:
         {{- include "vdp.matchLabels" . | nindent 8 }}
-        component: apigateway
+        app.kubernetes.io/component: api-gateway
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/apigateway/configmap.yaml") . | sha256sum }}
         {{- with .Values.apigateway.podAnnotations }}
@@ -37,12 +37,12 @@ spec:
       {{- if .Values.apigateway.serviceAccountName }}
       serviceAccountName: {{ .Values.apigateway.serviceAccountName }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.apigateway.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.apigateway.automountServiceAccountToken | default false }}
-      terminationGracePeriodSeconds: 120
       containers:
         - name: api-gateway
           image: {{ .Values.apigateway.image.repository }}:{{ .Values.apigateway.image.tag }}
@@ -92,15 +92,15 @@ spec:
             - name: apigateway-internal-certs
               mountPath: "/etc/vdp/ssl/apigateway"
             {{- end }}
-            {{- if .Values.apigateway.extraVolumeMounts }}
-            {{- toYaml .Values.apigateway.extraVolumeMounts | indent 12 }}
+            {{- with .Values.apigateway.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
             {{- end }}
-          {{- if .Values.apigateway.extraEnv }}
+          {{- with .Values.apigateway.extraEnv }}
           env:
-            {{- toYaml .Values.apigateway.extraEnv | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-        {{- if .Values.apigateway.sidecarContainers }}
-        {{- toYaml .Values.apigateway.sidecarContainers | nindent 8 }}
+        {{- with .Values.apigateway.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
         - name: config

@@ -1,0 +1,178 @@
+{{- if and (eq $.Values.temporal.type "internal") $.Values.temporal.internal.ui.enabled -}}
+{{- range $service := (list "frontend" "history" "matching" "worker") -}}
+{{- $serviceValues := index $.Values.temporal.internal.server $service -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  {{ include "vdp.temporal" $ }}-{{ $service }}
+  labels:
+    {{- include "vdp.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: temporal-{{ $service }}
+spec:
+  strategy:
+    type: {{ $.Values.updateStrategy.type }}
+    {{- if eq $.Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not $serviceValues.autoscaling.enabled }}
+  replicas: {{ $serviceValues.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: temporal-{{ $service }}
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: temporal-{{ $service }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/temporal/server-configmap.yaml") $ | sha256sum }}
+        {{- if (default $.Values.temporal.internal.server.metrics.annotations.enabled $serviceValues.metrics.annotations.enabled) }}
+        prometheus.io/job: {{ $.Chart.Name }}-{{ $service }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        {{- end }}
+        {{- with $serviceValues.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000 #temporal user
+        fsGroup: 1000 #temporal group
+      {{- if $.Values.pipeline.serviceAccountName }}
+      serviceAccountName: {{ $.Values.pipeline.serviceAccountName }}
+      {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ $.Values.pipeline.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+      {{- if $.Values.elasticsearch.enabled }}
+        - name: check-elasticsearch-index
+          image: "{{ $.Values.admintools.image.repository }}:{{ $.Values.admintools.image.tag }}"
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          command: ['sh', '-c', 'until curl --silent --fail --user {{ $.Values.elasticsearch.username }}:{{ $.Values.elasticsearch.password }} {{ $.Values.elasticsearch.scheme }}://{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;']
+      {{- end }}
+      {{- if eq $.Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ $.Values.database.internal.image.repository }}:{{ $.Values.database.internal.image.tag }}
+          command: ['sh', '-c']
+          args:
+            - >
+              until pg_isready; do echo waiting for db; sleep 2; done &&
+              sleep 2 &&
+              until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; do echo waiting for db; sleep 2; done &&
+              until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal_visibility'" | grep -q "1 row"; do echo waiting for db; sleep 2; done
+            {{- if ne $service "frontend"}}
+              && until nc -z ${TEMPORAL_FRONTEND_HOST} ${TEMPORAL_FRONTEND_GRPCPORT}; do echo waiting for ${TEMPORAL_FRONTEND_HOST}:${TEMPORAL_FRONTEND_GRPCPORT}; sleep 2; done
+            {{- end }}
+          env:
+          - name: PGHOST
+            value: {{ template "vdp.database" $ }}
+          - name: PGPORT
+            value: "{{ template "vdp.database.port" $ }}"
+          - name: PGUSER
+            value: {{ template "vdp.database.username" $ }}
+          - name: PGPASSWORD
+            value: {{ template "vdp.database.rawPassword" $ }}
+          - name: TEMPORAL_FRONTEND_HOST
+            value: {{ template "vdp.temporal" $ }}-frontend
+          - name: TEMPORAL_FRONTEND_GRPCPORT
+            value: "{{ template "vdp.temporal.frontend.grpcPort" $ }}"
+      {{- end }}
+      containers:
+        - name: temporal-{{ $service }}
+          image: {{ $.Values.temporal.internal.server.image.repository }}:{{ $.Values.temporal.internal.server.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 150
+            tcpSocket:
+              port: rpc
+          resources:
+            {{- toYaml (default $.Values.temporal.internal.server.resources $serviceValues.resources) | nindent 12 }}
+          ports:
+            - name: rpc
+              containerPort: {{ include (printf "vdp.temporal.%s.grpcPort" $service) $ }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+            {{- with $.Values.temporal.internal.server.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: ENABLE_ES
+              value: "{{ or $.Values.elasticsearch.enabled $.Values.elasticsearch.external }}"
+            - name: ES_SEEDS
+              value: "{{ $.Values.elasticsearch.host }}"
+            - name: ES_PORT
+              value: "{{ $.Values.elasticsearch.port }}"
+            - name: ES_VERSION
+              value: "{{ $.Values.elasticsearch.version }}"
+            - name: ES_SCHEME
+              value: "{{ $.Values.elasticsearch.scheme }}"
+            - name: ES_VIS_INDEX
+              value: "{{ $.Values.elasticsearch.visibilityIndex }}"
+            - name: ES_USER
+              value: "{{ $.Values.elasticsearch.username }}"
+            - name: ES_PWD
+              value: "{{ $.Values.elasticsearch.password }}"
+            - name: SERVICES
+              value: {{ $service }}
+            - name: TEMPORAL_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vdp.temporal" $ }}-default-store
+                  key: password
+            - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vdp.temporal" $ }}-visibility-store
+                  key: password
+            {{- with $.Values.temporal.internal.server.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- with $.Values.temporal.internal.server.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ printf "%s-%s" (include "vdp.temporal" $) $service }}-config
+        - name: dynamic-config
+          configMap:
+            name: {{ include "vdp.temporal" $ }}-dynamic-config
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+        {{- with $.Values.temporal.internal.server.extraVolumes }}
+        {{- toYaml $ | nindent 8}}
+        {{- end }}
+      {{- with (default $.Values.temporal.internal.server.nodeSelector $serviceValues.nodeSelector) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (default $.Values.temporal.internal.server.affinity $serviceValues.affinity) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (default $.Values.temporal.internal.server.tolerations $serviceValues.tolerations) }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}

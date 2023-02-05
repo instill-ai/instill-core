@@ -6,23 +6,23 @@ metadata:
   name: {{ template "vdp.database" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
-    component: database
+    app.kubernetes.io/component: database
 spec:
   replicas: 1
   serviceName: "{{ template "vdp.database" . }}"
   selector:
     matchLabels:
       {{- include "vdp.matchLabels" . | nindent 6 }}
-      component: database
+      app.kubernetes.io/component: database
   template:
     metadata:
       labels:
         {{- include "vdp.labels" . | nindent 8 }}
-        component: database
+        app.kubernetes.io/component: database
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/database/secret.yaml") . | sha256sum }}
-        {{- if .Values.database.internal.podAnnotations }}
-        {{- toYaml .Values.database.internal.podAnnotations | nindent 8 }}
+        {{- with .Values.database.internal.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       # 70 is the standard uid/gid for "postgres" in Alpine
@@ -33,12 +33,12 @@ spec:
       {{- if .Values.database.internal.serviceAccountName }}
       serviceAccountName: {{ .Values.database.internal.serviceAccountName }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.database.internal.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.database.internal.automountServiceAccountToken | default false }}
-      terminationGracePeriodSeconds: 120
       containers:
       - name: database
         image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}

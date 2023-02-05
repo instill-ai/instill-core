@@ -4,7 +4,7 @@ metadata:
   name: {{ template "vdp.pipeline" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
-    component: pipeline
+    app.kubernetes.io/component: pipeline
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
@@ -19,12 +19,12 @@ spec:
   selector:
     matchLabels:
       {{- include "vdp.matchLabels" . | nindent 6 }}
-      component: pipeline
+      app.kubernetes.io/component: pipeline
   template:
     metadata:
       labels:
         {{- include "vdp.matchLabels" . | nindent 8 }}
-        component: pipeline
+        app.kubernetes.io/component: pipeline
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/pipeline/configmap.yaml") . | sha256sum }}
         {{- with .Values.pipeline.podAnnotations }}
@@ -47,16 +47,12 @@ spec:
       {{- if eq .Values.database.type "internal" }}
       - name: wait-for-db
         image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-        command: ['sh', '-c', "until pg_isready -U ${DB_USERNAME} -h ${DB_SERVICE_NAME}.${POD_NAMESPACE}.svc.cluster.local; do echo waiting for db; sleep 2; done"]
+        command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
         env:
-        - name: DB_SERVICE_NAME
-          value: {{ template "vdp.database" . }}
-        - name: DB_USERNAME
-          value: {{ template "vdp.database.username" . }}
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
+          - name: PGHOST
+            value: {{ template "vdp.database" . }}
+          - name: PGUSER
+            value: {{ template "vdp.database.username" . }}
       {{- end }}
       - name: pipeline-backend-migration
         image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
@@ -77,14 +73,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /v1alpha/__readiness
-              scheme: {{ include "vdp.component.scheme" . | upper }}
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /v1alpha/__liveness
-              scheme: {{ include "vdp.component.scheme" . | upper }}
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -105,15 +101,15 @@ spec:
             - name: pipeline-internal-certs
               mountPath: "/etc/vdp/ssl/pipeline"
             {{- end }}
-            {{- if .Values.pipeline.extraVolumeMounts }}
-            {{- toYaml .Values.pipeline.extraVolumeMounts | indent 12 }}
+            {{- with .Values.pipeline.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
             {{- end }}
           {{- if .Values.pipeline.extraEnv }}
           env:
             {{- toYaml .Values.pipeline.extraEnv | nindent 12 }}
           {{- end }}
-        {{- if .Values.pipeline.sidecarContainers }}
-        {{- toYaml .Values.pipeline.sidecarContainers | nindent 8 }}
+        {{- with .Values.pipeline.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
         - name: config
