@@ -1,6 +1,7 @@
 name: Build and Push Images
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -46,8 +47,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-yolov7:latest
-          cache-from: type=registry,ref=instill/streamlit-yolov7:buildcache
-          cache-to: type=registry,ref=instill/streamlit-yolov7:buildcache,mode=max
+          no-cache: true
 
       # Run only if some file in 'examples/streamlit/instance_segmentation' folder was changed
       - name: Build and push (latest)
@@ -58,5 +58,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-instance-segmentation:latest
-          cache-from: type=registry,ref=instill/streamlit-instance-segmentation:buildcache
-          cache-to: type=registry,ref=instill/streamlit-instance-segmentation:buildcache,mode=max
+          no-cache: true
