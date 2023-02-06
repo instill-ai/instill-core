@@ -345,16 +345,68 @@ pipeline:
       minAvailable:
       maxUnavailable:
 
-mgmt:
-  # -- The image of pipeline-backend
+model:
+  # -- The image of model-backend
   image:
-    repository: instill/mgmt-backend
-    tag: 0.2.9-alpha
+    repository: instill/model-backend
+    tag: latest
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
   automountServiceAccountToken: false
-  # -- The number of replica for pipeline-backend
+  # -- The number of replica for model-backend
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+
+  resources: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+
+mgmt:
+  # -- The image of mgmt-backend
+  image:
+    repository: instill/mgmt-backend
+    tag: latest
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for mgmt-backend
   replicaCount: 1
   # -- Add extra env variables
   extraEnv: []
@@ -716,8 +768,6 @@ temporal:
       serviceAccountName: ""
       # -- Mount the service account token
       automountServiceAccountToken: false
-      # -- The number of replica for pipeline-backend
-      replicaCount: 1
       # -- Add extra env variables
       extraEnv: []
       # -- Mount external volumes
@@ -760,7 +810,7 @@ temporal:
       serviceAccountName: ""
       # -- Mount the service account token
       automountServiceAccountToken: false
-      # -- The number of replica for pipeline-backend
+      # -- The number of replica for temporal admin-tools
       replicaCount: 1
       # -- The pod resource
       resources: {}
@@ -786,7 +836,7 @@ temporal:
       serviceAccountName: ""
       # -- Mount the service account token
       automountServiceAccountToken: false
-      # -- The number of replica for pipeline-backend
+      # -- The number of replica for temporal ui
       replicaCount: 1
       # -- The pod resource
       resources: {}

@@ -1,0 +1,167 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.model" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.model.autoscaling.enabled }}
+  replicas: {{ .Values.model.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: model
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: model
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/model/configmap.yaml") . | sha256sum }}
+        {{- with .Values.model.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 10000
+        fsGroup: 10000
+      {{- if .Values.model.serviceAccountName }}
+      serviceAccountName: {{ .Values.model.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.model.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        {{- if eq .Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "vdp.database" . }}
+            - name: PGUSER
+              value: {{ template "vdp.database.username" . }}
+        {{- end }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            fsGroup: 0
+          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+        - name: model-backend-migration
+          image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.model.resources }}
+          resources:
+            {{- toYaml .Values.model.resources | nindent 12 }}
+          {{- end }}
+          command: ["./model-backend-migrate"]
+          volumeMounts:
+            - name: config
+              mountPath: /model-backend/config/config.yaml
+              subPath: config.yaml
+      containers:
+        - name: model-backend-worker
+          image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 150
+            tcpSocket:
+              port: rpc
+          {{- if .Values.model.resources }}
+          resources:
+            {{- toYaml .Values.model.resources | nindent 12 }}
+          {{- end }}
+          command: ["./model-backend-worker"]
+          volumeMounts:
+            - name: config
+              mountPath: /model-backend/config/config.yaml
+              subPath: config.yaml
+        - name: model-backend
+          image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.model.resources }}
+          resources:
+            {{- toYaml .Values.model.resources | nindent 12 }}
+          {{- end }}
+          command: ["./model-backend"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.model.port" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /model-backend/config/config.yaml
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: model-internal-certs
+              mountPath: "/etc/vdp/ssl/model"
+            {{- end }}
+            {{- with .Values.model.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          {{- if .Values.model.extraEnv }}
+          env:
+            {{- toYaml .Values.model.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.model.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.model" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: model-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.model.secretName" . }}
+        {{- end }}
+        {{- if .Values.model.extraVolumes }}
+        {{- toYaml .Values.model.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.model.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

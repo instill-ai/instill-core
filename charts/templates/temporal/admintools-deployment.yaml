@@ -44,7 +44,7 @@ spec:
             value: {{ template "vdp.database.username" . }}
       {{- end }}
       containers:
-        - name: admin-tools
+        - name: temporal-admin-tools
           image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           livenessProbe:
@@ -75,7 +75,7 @@ spec:
               protocol: TCP
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "temporal-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+              value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
             - name:  SQL_PLUGIN
               value: "postgres"
             - name:  SQL_HOST
