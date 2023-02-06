@@ -52,15 +52,15 @@ data:
         {{- if $.Values.elasticsearch.enabled }}
         es-visibility:
           elasticsearch:
-            version: "{{ $.Values.elasticsearch.internal.version }}"
+            version: "{{ $.Values.elasticsearch.version }}"
             url:
-              scheme: "{{ $.Values.elasticsearch.internal.scheme }}"
-              host: "{{ $.Values.elasticsearch.internal.host }}:{{ $.Values.elasticsearch.internal.port }}"
-            username: "{{ $.Values.elasticsearch.internal.username }}"
-            password: "{{ $.Values.elasticsearch.internal.password }}"
-            logLevel: "{{ $.Values.elasticsearch.internal.logLevel }}"
+              scheme: "{{ $.Values.elasticsearch.protocol }}"
+              host: "{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}"
+            username: "{{ $.Values.elasticsearch.username }}"
+            password: "{{ $.Values.elasticsearch.password }}"
+            logLevel: "{{ $.Values.elasticsearch.logLevel }}"
             indices:
-              visibility: "{{ $.Values.elasticsearch.internal.visibilityIndex }}"
+              visibility: "{{ $.Values.elasticsearch.visibilityIndex }}"
         {{- end }}
 
     global:

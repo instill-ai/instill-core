@@ -1,4 +1,4 @@
-{{- if and (eq $.Values.temporal.type "internal") $.Values.temporal.internal.ui.enabled -}}
+{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
 {{- range $service := (list "frontend" "history" "matching" "worker") -}}
 {{- $serviceValues := index $.Values.temporal.internal.server $service -}}
 apiVersion: apps/v1
@@ -40,25 +40,40 @@ spec:
       securityContext:
         runAsUser: 1000 #temporal user
         fsGroup: 1000 #temporal group
-      {{- if $.Values.pipeline.serviceAccountName }}
-      serviceAccountName: {{ $.Values.pipeline.serviceAccountName }}
+      {{- with $.Values.temporal.internal.server.serviceAccountName }}
+      serviceAccountName: {{- toYaml . }}
       {{- end }}
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ $.Values.pipeline.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ $.Values.temporal.internal.server.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       initContainers:
       {{- if $.Values.elasticsearch.enabled }}
         - name: check-elasticsearch-index
-          image: "{{ $.Values.admintools.image.repository }}:{{ $.Values.admintools.image.tag }}"
+          image: {{ $.Values.temporal.internal.admintools.image.repository }}:{{ $.Values.temporal.internal.admintools.image.tag }}
           imagePullPolicy: {{ $.Values.imagePullPolicy }}
-          command: ['sh', '-c', 'until curl --silent --fail --user {{ $.Values.elasticsearch.username }}:{{ $.Values.elasticsearch.password }} {{ $.Values.elasticsearch.scheme }}://{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;']
+          command: ['sh', '-c']
+          args:
+            - >
+              until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k https://{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;
+          env:
+            - name: ELASTIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-master-credentials
+                  key: username
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-master-credentials
+                  key: password
       {{- end }}
       {{- if eq $.Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ $.Values.database.internal.image.repository }}:{{ $.Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
           command: ['sh', '-c']
           args:
             - >
@@ -66,22 +81,22 @@ spec:
               sleep 2 &&
               until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; do echo waiting for db; sleep 2; done &&
               until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal_visibility'" | grep -q "1 row"; do echo waiting for db; sleep 2; done
-            {{- if ne $service "frontend"}}
+            {{- if ne $service "frontend" }}
               && until nc -z ${TEMPORAL_FRONTEND_HOST} ${TEMPORAL_FRONTEND_GRPCPORT}; do echo waiting for ${TEMPORAL_FRONTEND_HOST}:${TEMPORAL_FRONTEND_GRPCPORT}; sleep 2; done
             {{- end }}
           env:
-          - name: PGHOST
-            value: {{ template "vdp.database" $ }}
-          - name: PGPORT
-            value: "{{ template "vdp.database.port" $ }}"
-          - name: PGUSER
-            value: {{ template "vdp.database.username" $ }}
-          - name: PGPASSWORD
-            value: {{ template "vdp.database.rawPassword" $ }}
-          - name: TEMPORAL_FRONTEND_HOST
-            value: {{ template "vdp.temporal" $ }}-frontend
-          - name: TEMPORAL_FRONTEND_GRPCPORT
-            value: "{{ template "vdp.temporal.frontend.grpcPort" $ }}"
+            - name: PGHOST
+              value: "{{ template "vdp.database" $ }}"
+            - name: PGPORT
+              value: "{{ template "vdp.database.port" $ }}"
+            - name: PGUSER
+              value: "{{ template "vdp.database.username" $ }}"
+            - name: PGPASSWORD
+              value: "{{ template "vdp.database.rawPassword" $ }}"
+            - name: TEMPORAL_FRONTEND_HOST
+              value: "{{ template "vdp.temporal" $ }}-frontend"
+            - name: TEMPORAL_FRONTEND_GRPCPORT
+              value: "{{ template "vdp.temporal.frontend.grpcPort" $ }}"
       {{- end }}
       containers:
         - name: temporal-{{ $service }}
@@ -114,24 +129,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: ENABLE_ES
-              value: "{{ or $.Values.elasticsearch.enabled $.Values.elasticsearch.external }}"
-            - name: ES_SEEDS
-              value: "{{ $.Values.elasticsearch.host }}"
-            - name: ES_PORT
-              value: "{{ $.Values.elasticsearch.port }}"
-            - name: ES_VERSION
-              value: "{{ $.Values.elasticsearch.version }}"
-            - name: ES_SCHEME
-              value: "{{ $.Values.elasticsearch.scheme }}"
-            - name: ES_VIS_INDEX
-              value: "{{ $.Values.elasticsearch.visibilityIndex }}"
-            - name: ES_USER
-              value: "{{ $.Values.elasticsearch.username }}"
-            - name: ES_PWD
-              value: "{{ $.Values.elasticsearch.password }}"
-            - name: SERVICES
-              value: {{ $service }}
+            - name: ELASTIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-master-credentials
+                  key: username
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-master-credentials
+                  key: password
             - name: TEMPORAL_STORE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -142,6 +149,24 @@ spec:
                 secretKeyRef:
                   name: {{ include "vdp.temporal" $ }}-visibility-store
                   key: password
+            - name: ENABLE_ES
+              value: "{{ $.Values.elasticsearch.enabled }}"
+            - name: ES_SEEDS
+              value: "{{ $.Values.elasticsearch.host }}"
+            - name: ES_PORT
+              value: "{{ $.Values.elasticsearch.port }}"
+            - name: ES_VERSION
+              value: "{{ $.Values.elasticsearch.version }}"
+            - name: ES_SCHEME
+              value: "{{ $.Values.elasticsearch.protocol }}"
+            - name: ES_VIS_INDEX
+              value: "{{ $.Values.elasticsearch.visibilityIndex }}"
+            - name: ES_USER
+              value: $(ELASTIC_USERNAME)
+            - name: ES_PWD
+              value: $(ELASTIC_PASSWORD)
+            - name: SERVICES
+              value: "{{ $service }}"
             {{- with $.Values.temporal.internal.server.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

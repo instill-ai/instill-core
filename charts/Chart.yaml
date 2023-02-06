@@ -28,3 +28,9 @@ icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/instil
 maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai
+
+dependencies:
+  - name: elasticsearch
+    repository: https://helm.elastic.co
+    version: 8.5.1
+    condition: elasticsearch.internal.enabled

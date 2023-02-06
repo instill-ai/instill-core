@@ -44,28 +44,29 @@ spec:
       automountServiceAccountToken: {{ .Values.pipeline.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       initContainers:
-      {{- if eq .Values.database.type "internal" }}
-      - name: wait-for-db
-        image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-        command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
-        env:
-          - name: PGHOST
-            value: {{ template "vdp.database" . }}
-          - name: PGUSER
-            value: {{ template "vdp.database.username" . }}
-      {{- end }}
-      - name: pipeline-backend-migration
-        image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
-        {{- if .Values.pipeline.resources }}
-        resources:
-          {{- toYaml .Values.pipeline.resources | nindent 12 }}
+        {{- if eq .Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "vdp.database" . }}
+            - name: PGUSER
+              value: {{ template "vdp.database.username" . }}
         {{- end }}
-        command: ["./pipeline-backend-migrate"]
-        volumeMounts:
-          - name: config
-            mountPath: /pipeline-backend/config/config.yaml
-            subPath: config.yaml
+        - name: pipeline-backend-migration
+          image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.pipeline.resources }}
+          resources:
+            {{- toYaml .Values.pipeline.resources | nindent 12 }}
+          {{- end }}
+          command: ["./pipeline-backend-migrate"]
+          volumeMounts:
+            - name: config
+              mountPath: /pipeline-backend/config/config.yaml
+              subPath: config.yaml
       containers:
         - name: pipeline-backend
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}

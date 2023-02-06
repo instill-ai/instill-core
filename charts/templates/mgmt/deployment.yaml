@@ -44,40 +44,41 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
-      {{- if eq .Values.database.type "internal" }}
-      - name: wait-for-db
-        image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-        command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
-        env:
-          - name: PGHOST
-            value: {{ template "vdp.database" . }}
-          - name: PGUSER
-            value: {{ template "vdp.database.username" . }}
-      {{- end }}
-      - name: mgmt-backend-migration
-        image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
-        {{- if .Values.mgmt.resources }}
-        resources:
-          {{- toYaml .Values.mgmt.resources | nindent 12 }}
+        {{- if eq .Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "vdp.database" . }}
+            - name: PGUSER
+              value: {{ template "vdp.database.username" . }}
         {{- end }}
-        command: ["./mgmt-backend-migrate"]
-        volumeMounts:
-          - name: config
-            mountPath: /mgmt-backend/config/config.yaml
-            subPath: config.yaml
-      - name: mgmt-backend-init
-        image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
-        {{- if .Values.mgmt.resources }}
-        resources:
-          {{- toYaml .Values.mgmt.resources | nindent 12 }}
-        {{- end }}
-        command: ["./mgmt-backend-init"]
-        volumeMounts:
-          - name: config
-            mountPath: /mgmt-backend/config/config.yaml
-            subPath: config.yaml
+        - name: mgmt-backend-migration
+          image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.mgmt.resources }}
+          resources:
+            {{- toYaml .Values.mgmt.resources | nindent 12 }}
+          {{- end }}
+          command: ["./mgmt-backend-migrate"]
+          volumeMounts:
+            - name: config
+              mountPath: /mgmt-backend/config/config.yaml
+              subPath: config.yaml
+        - name: mgmt-backend-init
+          image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.mgmt.resources }}
+          resources:
+            {{- toYaml .Values.mgmt.resources | nindent 12 }}
+          {{- end }}
+          command: ["./mgmt-backend-init"]
+          volumeMounts:
+            - name: config
+              mountPath: /mgmt-backend/config/config.yaml
+              subPath: config.yaml
       containers:
         - name: mgmt-backend
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}

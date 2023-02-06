@@ -39,36 +39,36 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-      - name: redis
-        image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
-        livenessProbe:
-          tcpSocket:
-            port: 6379
-          initialDelaySeconds: 300
-          periodSeconds: 10
-        readinessProbe:
-          tcpSocket:
-            port: 6379
-          initialDelaySeconds: 1
-          periodSeconds: 10
-        {{- if .Values.redis.internal.resources }}
-        resources:
-          {{ toYaml .Values.redis.internal.resources | nindent 10 }}
-        {{- end }}
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/redis
-          subPath: {{ $redis.subPath }}
+        - name: redis
+          image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 300
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 1
+            periodSeconds: 10
+          {{- if .Values.redis.internal.resources }}
+          resources:
+            {{ toYaml .Values.redis.internal.resources | nindent 10 }}
+          {{- end }}
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/redis
+            subPath: {{ $redis.subPath }}
       {{- if not .Values.persistence.enabled }}
       volumes:
-      - name: data
-        emptyDir: {}
+        - name: data
+          emptyDir: {}
       {{- else if $redis.existingClaim }}
       volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: {{ $redis.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ $redis.existingClaim }}
       {{- end -}}
     {{- with .Values.redis.internal.nodeSelector }}
       nodeSelector:

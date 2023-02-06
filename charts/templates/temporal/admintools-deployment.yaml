@@ -35,6 +35,7 @@ spec:
       {{- if eq .Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
           - name: PGHOST

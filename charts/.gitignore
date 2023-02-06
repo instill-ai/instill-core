@@ -36,3 +36,6 @@ dev
 
 # Python
 __pycache__
+
+# Helm dependent charts
+charts

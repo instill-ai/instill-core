@@ -812,11 +812,23 @@ temporal:
   external:
 
 elasticsearch:
-  enabled: false
-
+  enabled: true
   # -- If external Elasticsearch is used, set "type" to "external"
   # and fill the connection informations in "external" section
   type: internal
-  internal:
-
-  external:
+  replicas: 1
+  imageTag: 8.5.1
+  version: v7
+  protocol: https
+  host: elasticsearch-master-headless
+  port: 9200
+  visibilityIndex: "temporal_visibility_v1_dev"
+  secret:
+    enabled: true
+    password:
+  volumeClaimTemplate:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: "hostpath"
+    resources:
+      requests:
+        storage: 100M

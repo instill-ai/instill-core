@@ -61,4 +61,3 @@ data:
         redisoptions:
           addr: {{ template "vdp.redis.addr" . }}
     temporal:
-      {{- toYaml .Values.temporal | nindent 6 }}
