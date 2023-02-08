@@ -392,7 +392,7 @@ services:
     image: instill/${MGMT_BACKEND_HOST}:latest
     restart: unless-stopped
     environment:
-      CFG_SERVER_PUBLICPORT: ${MGMT_SERVER_PUBLICPORT}
+      CFG_SERVER_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
       CFG_SERVER_ADMINPORT: ${MGMT_BACKEND_ADMINPORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
@@ -404,6 +404,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     ports:
       - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
+      - ${MGMT_BACKEND_ADMINPORT}:${MGMT_BACKEND_ADMINPORT}
     entrypoint: ./${MGMT_BACKEND_HOST}
     depends_on:
       - mgmt_backend_init
