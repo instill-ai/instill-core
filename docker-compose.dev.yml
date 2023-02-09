@@ -525,6 +525,7 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: /bin/bash -c `tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text && tail -f /dev/null`
     depends_on:
       temporal:
         condition: service_healthy
