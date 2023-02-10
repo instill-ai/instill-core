@@ -32,7 +32,7 @@ services:
       MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
       MODEL_BACKEND_PORT: ${MODEL_BACKEND_PORT}
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
-      MGMT_BACKEND_PORT: ${MGMT_BACKEND_PUBLICPORT}
+      MGMT_BACKEND_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
     command: /bin/bash -c "
@@ -334,6 +334,7 @@ services:
     restart: unless-stopped
     environment:
       NVIDIA_VISIBLE_DEVICES: 0
+      LD_PRELOAD: /opt/tritonserver/lib/libgomp-d22c30c5.so.1
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     volumes:
       - model_repository:/model-repository
@@ -408,6 +409,7 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: /bin/bash -c `tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text && tail -f /dev/null`
     depends_on:
       temporal:
         condition: service_healthy
