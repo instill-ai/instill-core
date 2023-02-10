@@ -168,6 +168,7 @@ services:
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     restart: unless-stopped
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_WORKER_MOUNTSOURCE_VDP: vdp
       CFG_WORKER_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -178,7 +179,6 @@ services:
     volumes:
       - vdp:/vdp
       - airbyte:/airbyte
-      - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: ./${CONNECTOR_BACKEND_HOST}-worker
     depends_on:
       connector_backend_init:
@@ -271,6 +271,7 @@ services:
     image: instill/${MODEL_BACKEND_HOST}:latest
     restart: unless-stopped
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_ITMODE: ${ITMODE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -281,7 +282,6 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - model_repository:/model-repository
     command: ./${MODEL_BACKEND_HOST}-worker
     depends_on:
@@ -559,3 +559,15 @@ services:
       SPEC_URL: https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
       - ${REDOC_OPENAPI_PORT}:80
+
+  socat:
+    container_name: ${SOCAT_HOST}
+    image: alpine/${SOCAT_HOST}:${SOCAT_VERSION}
+    environment:
+      - SOCAT_PORT=${SOCAT_PORT}
+    command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
+    user: root
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock

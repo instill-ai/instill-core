@@ -41,13 +41,12 @@ WORKDIR /vdp
 ARG CACHE_DATE
 RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
 
-ARG PROFILE
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "api-gateway" ]; then git clone https://github.com/instill-ai/api-gateway.git api-gateway; fi
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "pipeline" ]; then git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend; fi
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "connector" ]; then git clone https://github.com/instill-ai/connector-backend.git connector-backend; fi
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "model" ]; then git clone https://github.com/instill-ai/model-backend.git model-backend; fi
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "mgmt" ]; then git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend; fi
-RUN if [ "${PROFILE}" = "all" ] || [ "${PROFILE}" = "console" ]; then git clone https://github.com/instill-ai/console.git console; fi
+RUN git clone https://github.com/instill-ai/api-gateway.git api-gateway
+RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
+RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend
+RUN git clone https://github.com/instill-ai/model-backend.git model-backend
+RUN git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
+RUN git clone https://github.com/instill-ai/console.git console
 
 FROM ubuntu:${UBUNTU_VERSION} AS release
 
