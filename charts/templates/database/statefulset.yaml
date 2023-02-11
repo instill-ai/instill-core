@@ -69,7 +69,7 @@ spec:
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
           volumeMounts:
-          - name: database-data
+          - name: data
             mountPath: /var/lib/postgresql/data
             subPath: {{ $database.subPath }}
           - name: shm-volume
@@ -80,10 +80,10 @@ spec:
             medium: Memory
             sizeLimit: {{ .Values.database.internal.shmSizeLimit }}
         {{- if not .Values.persistence.enabled }}
-        - name: "database-data"
+        - name: data
           emptyDir: {}
         {{- else if $database.existingClaim }}
-        - name: "database-data"
+        - name: data
           persistentVolumeClaim:
             claimName: {{ $database.existingClaim }}
         {{- end }}
@@ -102,7 +102,7 @@ spec:
   {{- if and .Values.persistence.enabled (not $database.existingClaim) }}
   volumeClaimTemplates:
   - metadata:
-      name: "database-data"
+      name: data
       labels:
         {{- include "vdp.labels" . | nindent 8 }}
       annotations:

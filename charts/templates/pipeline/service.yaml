@@ -10,9 +10,6 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if (eq .Values.expose.ingress.controller "gce") }}
-  type: NodePort
-  {{- end }}
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
       port: {{ template "vdp.pipeline.port" . }}

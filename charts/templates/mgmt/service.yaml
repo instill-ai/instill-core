@@ -10,13 +10,10 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if (eq .Values.expose.ingress.controller "gce") }}
-  type: NodePort
-  {{- end }}
   ports:
-    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ template "vdp.mgmt.port" . }}
-      targetPort: {{ template "vdp.mgmt.port" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+      port: {{ template "vdp.mgmt.publicPort" . }}
+      targetPort: {{ template "vdp.mgmt.publicPort" . }}
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt

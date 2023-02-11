@@ -1,0 +1,133 @@
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+{{- $condaPack := .Values.persistence.persistentVolumeClaim.condaPack -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.triton" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: triton-inference-server
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.pipeline.autoscaling.enabled }}
+  replicas: {{ .Values.pipeline.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: triton-inference-server
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: triton-inference-server
+      annotations:
+        {{- with .Values.triton.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      {{- if .Values.pipeline.serviceAccountName }}
+      serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.pipeline.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: triton-conda-env
+          image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          volumeMounts:
+            - name: conda-pack
+              mountPath: /conda-pack
+      containers:
+        - name: triton-inference-server
+          image: {{ .Values.triton.image.repository }}:{{ .Values.triton.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            httpGet:
+              path: /v2/health/live
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.triton.gpu.enabled }}
+          resources:
+            limits:
+              nvidia.com/gpu: {{ .Values.triton.gpu.num }}
+          {{- end }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.triton.httpPort" . }}
+              protocol: TCP
+            - name: grpc
+              containerPort: {{ template "vdp.triton.grpcPort" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ template "vdp.triton.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: shm-volume
+            - name: conda-pack
+              mountPath: /conda-pack/python-3-8.tar.gz
+              subPath: python-3-8.tar.gz
+            - name: model-repository
+              mountPath: /model-repository
+      volumes:
+        - name: shm-volume
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.triton.shmSizeLimit }}
+        - name: conda-pack
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $condaPack.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $condaPack.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: conda-pack
+        {{- end }}
+        - name: model-repository
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $modelRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $modelRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: model-repository
+        {{- end }}
+      {{- with .Values.model.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -55,10 +55,10 @@ data:
             version: "{{ $.Values.elasticsearch.version }}"
             url:
               scheme: "{{ $.Values.elasticsearch.protocol }}"
-              host: "{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}"
-            username: "{{ $.Values.elasticsearch.username }}"
-            password: "{{ $.Values.elasticsearch.password }}"
-            logLevel: "{{ $.Values.elasticsearch.logLevel }}"
+              host: "{{ $.Values.elasticsearch.clusterName }}-master:{{ $.Values.elasticsearch.httpPort }}"
+            username: "elastic"
+            password: "password"
+            logLevel: "debug"
             indices:
               visibility: "{{ $.Values.elasticsearch.visibilityIndex }}"
         {{- end }}
@@ -113,7 +113,7 @@ data:
         active:
           enabled: true
           initialFailoverVersion: 1
-          rpcName: "temporal-frontend"
+          rpcName: "{{ include "vdp.temporal" $ }}-frontend"
           rpcAddress: "127.0.0.1:7933"
 
     dcRedirectionPolicy:

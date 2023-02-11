@@ -127,7 +127,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- define "vdp.redis.addr" -}}
   {{- with .Values.redis -}}
     {{- ternary (printf "%s:6379" (include "vdp.redis" $ )) .external.addr (eq .type "internal") -}}
-  {{- end }}
+  {{- end -}}
 {{- end -}}
 
 {{- define "vdp.redis.masterSet" -}}
@@ -199,6 +199,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-console" (include "vdp.fullname" .) -}}
 {{- end -}}
 
+{{- define "vdp.triton" -}}
+  {{- printf "%s-triton-inference-server" (include "vdp.fullname" .) -}}
+{{- end -}}
+
 {{- define "vdp.database" -}}
   {{- printf "%s-database" (include "vdp.fullname" .) -}}
 {{- end -}}
@@ -220,17 +224,17 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{/* api-gateway service and container port */}}
-{{- define "vdp.apigateway.port" -}}
+{{- define "vdp.apigateway.httpPort" -}}
   {{- printf "8080" -}}
 {{- end -}}
 
 {{/* api-gateway service and container stats port */}}
-{{- define "vdp.apigateway.stats.port" -}}
+{{- define "vdp.apigateway.statsPort" -}}
   {{- printf "8090" -}}
 {{- end -}}
 
 {{/* api-gateway service and container metrics port */}}
-{{- define "vdp.apigateway.metrics.port" -}}
+{{- define "vdp.apigateway.metricsPort" -}}
   {{- printf "9000" -}}
 {{- end -}}
 
@@ -249,14 +253,31 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "8083" -}}
 {{- end -}}
 
-{{/* mgmt service and container port */}}
-{{- define "vdp.mgmt.port" -}}
+{{/* mgmt service and container public port */}}
+{{- define "vdp.mgmt.publicPort" -}}
   {{- printf "8084" -}}
+{{- end -}}
+
+{{/* mgmt service and container admin port */}}
+{{- define "vdp.mgmt.adminPort" -}}
+  {{- printf "3084" -}}
 {{- end -}}
 
 {{/* console service and container port */}}
 {{- define "vdp.console.port" -}}
   {{- printf "3000" -}}
+{{- end -}}
+
+{{- define "vdp.triton.httpPort" -}}
+  {{- printf "8000" -}}
+{{- end -}}
+
+{{- define "vdp.triton.grpcPort" -}}
+  {{- printf "8001" -}}
+{{- end -}}
+
+{{- define "vdp.triton.metricsPort" -}}
+  {{- printf "8002" -}}
 {{- end -}}
 
 {{/* temporal container frontend gRPC port */}}

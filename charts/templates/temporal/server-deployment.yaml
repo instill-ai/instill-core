@@ -39,6 +39,7 @@ spec:
     spec:
       securityContext:
         runAsUser: 1000 #temporal user
+        runAsGroup: 1000 #temporal group
         fsGroup: 1000 #temporal group
       {{- with $.Values.temporal.internal.server.serviceAccountName }}
       serviceAccountName: {{- toYaml . }}
@@ -57,17 +58,17 @@ spec:
           command: ['sh', '-c']
           args:
             - >
-              until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k https://{{ $.Values.elasticsearch.host }}:{{ $.Values.elasticsearch.port }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;
+              until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ $.Values.elasticsearch.clusterName }}-master:{{ $.Values.elasticsearch.httpPort }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;
           env:
             - name: ELASTIC_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: elasticsearch-master-credentials
+                  name: {{ $.Values.elasticsearch.clusterName }}-master-credentials
                   key: username
             - name: ELASTIC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: elasticsearch-master-credentials
+                  name: {{ $.Values.elasticsearch.clusterName }}-master-credentials
                   key: password
       {{- end }}
       {{- if eq $.Values.database.type "internal" }}
@@ -102,10 +103,12 @@ spec:
         - name: temporal-{{ $service }}
           image: {{ $.Values.temporal.internal.server.image.repository }}:{{ $.Values.temporal.internal.server.image.tag }}
           imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          {{- if ne $service "worker"}}
           livenessProbe:
-            initialDelaySeconds: 150
+            initialDelaySeconds: 120
             tcpSocket:
               port: rpc
+          {{- end }}
           resources:
             {{- toYaml (default $.Values.temporal.internal.server.resources $serviceValues.resources) | nindent 12 }}
           ports:
@@ -132,12 +135,12 @@ spec:
             - name: ELASTIC_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: elasticsearch-master-credentials
+                  name: {{ $.Values.elasticsearch.clusterName }}-master-credentials
                   key: username
             - name: ELASTIC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: elasticsearch-master-credentials
+                  name: {{ $.Values.elasticsearch.clusterName }}-master-credentials
                   key: password
             - name: TEMPORAL_STORE_PASSWORD
               valueFrom:
@@ -152,9 +155,9 @@ spec:
             - name: ENABLE_ES
               value: "{{ $.Values.elasticsearch.enabled }}"
             - name: ES_SEEDS
-              value: "{{ $.Values.elasticsearch.host }}"
+              value: "{{ $.Values.elasticsearch.clusterName }}-master"
             - name: ES_PORT
-              value: "{{ $.Values.elasticsearch.port }}"
+              value: "{{ $.Values.elasticsearch.httpPort }}"
             - name: ES_VERSION
               value: "{{ $.Values.elasticsearch.version }}"
             - name: ES_SCHEME

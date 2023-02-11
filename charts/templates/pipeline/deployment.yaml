@@ -31,9 +31,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      # Distroless nonroot:nonroot is 65532:65532
       securityContext:
-        runAsUser: 10000
-        fsGroup: 10000
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
       {{- if .Values.pipeline.serviceAccountName }}
       serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
       {{- end }}

@@ -1,0 +1,239 @@
+{{- $connectorRepository := .Values.persistence.persistentVolumeClaim.connectorRepository -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.connector" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: connector
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.connector.autoscaling.enabled }}
+  replicas: {{ .Values.connector.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: connector
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: connector
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/connector/configmap.yaml") . | sha256sum }}
+        {{- with .Values.connector.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+      {{- if .Values.connector.serviceAccountName }}
+      serviceAccountName: {{ .Values.connector.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.connector.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        {{- if eq .Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "vdp.database" . }}
+            - name: PGUSER
+              value: {{ template "vdp.database.username" . }}
+        {{- end }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
+          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+        - name: connector-backend-migration
+          image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.connector.resources }}
+          resources:
+            {{- toYaml .Values.connector.resources | nindent 12 }}
+          {{- end }}
+          command: ["./connector-backend-migrate"]
+          volumeMounts:
+            - name: config
+              mountPath: /connector-backend/config/config.yaml
+              subPath: config.yaml
+        - name: connector-backend-init
+          image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{- if .Values.connector.resources }}
+          resources:
+            {{- toYaml .Values.connector.resources | nindent 12 }}
+          {{- end }}
+          command: ["./connector-backend-init"]
+          volumeMounts:
+            - name: config
+              mountPath: /connector-backend/config/config.yaml
+              subPath: config.yaml
+      containers:
+        - name: socat
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
+          image: alpine/socat:1.7.4.4-r0
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 120
+            tcpSocket:
+              port: rpc
+          {{- if .Values.connector.resources }}
+          resources:
+            {{- toYaml .Values.connector.resources | nindent 12 }}
+          {{- end }}
+          args:
+            - tcp-listen:2375,fork,reuseaddr
+            - unix-connect:/var/run/docker.sock
+          ports:
+            - name: socat-docker
+              containerPort: 2375
+              protocol: TCP
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+        - name: connector-backend-worker
+          image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 120
+            tcpSocket:
+              port: rpc
+          {{- if .Values.connector.resources }}
+          resources:
+            {{- toYaml .Values.connector.resources | nindent 12 }}
+          {{- end }}
+          command: ["./connector-backend-worker"]
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          volumeMounts:
+            - name: config
+              mountPath: /connector-backend/config/config.yaml
+              subPath: config.yaml
+        - name: connector-backend
+          image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.connector.resources }}
+          resources:
+            {{- toYaml .Values.connector.resources | nindent 12 }}
+          {{- end }}
+          command: ["./connector-backend"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.connector.port" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /connector-backend/config/config.yaml
+              subPath: config.yaml
+            - name: data-vdp
+              mountPath: /vdp
+            - name: data-airbyte
+              mountPath: /airbyte
+            {{- if .Values.internalTLS.enabled }}
+            - name: connector-internal-certs
+              mountPath: "/etc/vdp/ssl/connector"
+            {{- end }}
+            {{- with .Values.connector.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          {{- if .Values.connector.extraEnv }}
+          env:
+            {{- toYaml .Values.connector.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.connector.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.connector" . }}
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        - name: data-vdp
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $connectorRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $connectorRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: data-vdp
+        {{- end }}
+        - name: data-airbyte
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $connectorRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $connectorRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: data-airbyte
+        {{- end }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: connector-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.connector.secretName" . }}
+        {{- end }}
+        {{- if .Values.connector.extraVolumes }}
+        {{- toYaml .Values.connector.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.connector.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connector.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connector.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -44,7 +44,7 @@ spec:
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           env:
             - name: TEMPORAL_ADDRESS
-              value: temporal-frontend.{{ .Release.Namespace }}.svc:{{ template "vdp.temporal.frontend.grpcPort" . }}
+              value: {{ include "vdp.temporal" . }}-frontend.{{ .Release.Namespace }}.svc:{{ template "vdp.temporal.frontend.grpcPort" . }}
           ports:
             - name: http
               containerPort: 8080

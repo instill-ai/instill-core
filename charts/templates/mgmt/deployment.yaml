@@ -31,9 +31,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      # Distroless nonroot:nonroot is 65532:65532
       securityContext:
-        runAsUser: 10000
-        fsGroup: 10000
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
       {{- if .Values.mgmt.serviceAccountName }}
       serviceAccountName: {{ .Values.mgmt.serviceAccountName }}
       {{- end }}
@@ -87,14 +89,14 @@ spec:
             httpGet:
               path: /v1alpha/__readiness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /v1alpha/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
           {{- if .Values.mgmt.resources }}
@@ -103,8 +105,11 @@ spec:
           {{- end }}
           command: ["./mgmt-backend"]
           ports:
-            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "vdp.mgmt.port" . }}
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+              containerPort: {{ template "vdp.mgmt.adminPort" . }}
+              protocol: TCP
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "vdp.mgmt.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

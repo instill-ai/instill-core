@@ -28,6 +28,7 @@ spec:
       # https://github.com/docker-library/redis/blob/787f47c4bda6943e29d85fa45e080bd55b2c08fa/7.0/alpine/Dockerfile#L3-L5
       securityContext:
         runAsUser: 999
+        runAsGroup: 1000
         fsGroup: 1000
       {{- if .Values.redis.internal.serviceAccountName }}
       serviceAccountName: {{ .Values.redis.internal.serviceAccountName }}

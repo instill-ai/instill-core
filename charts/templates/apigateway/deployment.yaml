@@ -32,8 +32,9 @@ spec:
         {{- end }}
     spec:
       securityContext:
-        runAsUser: 10000
-        fsGroup: 10000
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       {{- if .Values.apigateway.serviceAccountName }}
       serviceAccountName: {{ .Values.apigateway.serviceAccountName }}
       {{- end }}
@@ -76,13 +77,13 @@ spec:
               --config krakend.json
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "vdp.apigateway.port" . }}
+              containerPort: {{ template "vdp.apigateway.httpPort" . }}
               protocol: TCP
             - name: stats
-              containerPort: {{ template "vdp.apigateway.stats.port" . }}
+              containerPort: {{ template "vdp.apigateway.statsPort" . }}
               protocol: TCP
             - name: metrics
-              containerPort: {{ template "vdp.apigateway.metrics.port" . }}
+              containerPort: {{ template "vdp.apigateway.metricsPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

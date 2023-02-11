@@ -170,6 +170,14 @@ internalTLS:
     crt: ""
     # Content of console's TLS key file, only available when `certSource` is "manual"
     key: ""
+  # triton related cert configuration
+  triton:
+    # secret name for triton's tls certs, only available when `certSource` is "secret"
+    secretName: ""
+    # Content of triton's TLS key file, only available when `certSource` is "manual"
+    crt: ""
+    # Content of triton's TLS key file, only available when `certSource` is "manual"
+    key: ""
 
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
@@ -193,14 +201,28 @@ persistence:
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 5Gi
+      size: 2Gi
       annotations: {}
     airbyte:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 5Gi
+      size: 2Gi
+      annotations: {}
+    modelRepository:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 4Gi
+      annotations: {}
+    condaPack:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 4Gi
       annotations: {}
     # If external database is used, the following settings for database will
     # be ignored
@@ -209,7 +231,7 @@ persistence:
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 1Gi
+      size: 512Mi
       annotations: {}
     # If external Redis is used, the following settings for Redis will
     # be ignored
@@ -218,7 +240,7 @@ persistence:
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 1Gi
+      size: 512Mi
       annotations: {}
 
 imagePullPolicy: IfNotPresent
@@ -233,6 +255,9 @@ updateStrategy:
 
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: debug
+
+# -- Enable integration test mode
+enableTestMode: true
 
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
@@ -303,6 +328,58 @@ pipeline:
   # -- Mount the service account token
   automountServiceAccountToken: false
   # -- The number of replica for pipeline-backend
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+
+  resources: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+
+connector:
+  # -- The image of connector-backend
+  image:
+    repository: instill/connector-backend
+    tag: latest
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for connector-backend
   replicaCount: 1
   # -- Add extra env variables
   extraEnv: []
@@ -454,6 +531,70 @@ usageServer:
   tlsenabled: true
   host: usage.instill.tech
   port: 443
+
+triton:
+  # -- The image of Triton
+  image:
+    repository: nvcr.io/nvidia/tritonserver
+    tag: 22.05-py3
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for Triton
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  # -- The pod resource
+  resources: {}
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+
+  condaEnv:
+    image:
+      repository: instill/triton-conda-env
+      tag: 0.2.6-alpha-m1
+
+  shmSizeLimit: 2Gi
+
+  gpu:
+    enabled: false
+    num:
 
 database:
   # -- If external database is used, set "type" to "external"
@@ -856,7 +997,7 @@ temporal:
         auth:
           enabled: false
         routing:
-          default_to_namespace: # internal use only
+          default_to_namespace: default
           issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
 
   external:
@@ -866,19 +1007,23 @@ elasticsearch:
   # -- If external Elasticsearch is used, set "type" to "external"
   # and fill the connection informations in "external" section
   type: internal
+  clusterName: vdp-elasticsearch
   replicas: 1
   imageTag: 8.5.1
   version: v7
-  protocol: https
-  host: elasticsearch-master-headless
-  port: 9200
+  protocol: http
+  httpPort: 9200
+  createCert: false
   visibilityIndex: "temporal_visibility_v1_dev"
   secret:
     enabled: true
-    password:
+    password: password
   volumeClaimTemplate:
     accessModes: ["ReadWriteOnce"]
     storageClassName: "hostpath"
     resources:
       requests:
-        storage: 100M
+        storage: 100Mi
+  esConfig:
+    elasticsearch.yml: |
+      xpack.security.enabled: false

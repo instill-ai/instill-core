@@ -6,9 +6,9 @@ data:
   .env: |-
     # api-gateway
     API_GATEWAY_HOST={{ template "vdp.apigateway" . }}
-    API_GATEWAY_PORT={{ template "vdp.apigateway.port" . }}
-    API_GATEWAY_STATS_PORT={{ template "vdp.apigateway.stats.port" . }}
-    API_GATEWAY_METRICS_PORT={{ template "vdp.apigateway.metrics.port" . }}
+    API_GATEWAY_PORT={{ template "vdp.apigateway.httpPort" . }}
+    API_GATEWAY_STATS_PORT={{ template "vdp.apigateway.statsPort" . }}
+    API_GATEWAY_METRICS_PORT={{ template "vdp.apigateway.metricsPort" . }}
     API_GATEWAY_LOG_LEVEL={{ upper .Values.logLevel }}
     {{- if .Values.internalTLS.enabled }}
     API_GATEWAY_CERT_FILE=/etc/vdp/ssl/apigateway/tls.cert
@@ -29,4 +29,4 @@ data:
 
     # mgmt-backend
     MGMT_BACKEND_HOST={{ template "vdp.mgmt" . }}
-    MGMT_BACKEND_PORT={{ template "vdp.mgmt.port" . }}
+    MGMT_BACKEND_PORT={{ template "vdp.mgmt.publicPort" . }}
