@@ -197,7 +197,6 @@ services:
     image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_ITMODE: ${ITMODE}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -355,8 +354,6 @@ services:
     container_name: ${POSTGRESQL_HOST}
     image: postgres:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
-    ports:
-      - ${POSTGRESQL_PORT}:5432
     environment:
       POSTGRES_PASSWORD: password
     healthcheck:
@@ -374,9 +371,7 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
       - xpack.security.enabled=false
-    image: elasticsearch:${ELASTICSEARCH_VERSION}
-    ports:
-      - ${ELASTICSEARCH_PORT}:9200
+    image: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_VERSION}
     volumes:
       - /var/lib/elasticsearch/data
 
@@ -426,13 +421,11 @@ services:
       - temporal
 
   redis:
-    container_name: redis
-    image: redis:${REDIS_VERSION}-alpine${ALPINE_VERSION}
+    container_name: ${REDIS_HOST}
+    image: ${REDIS_HOST}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
     restart: unless-stopped
     environment:
       ALLOW_EMPTY_PASSWORD: "true"
-    ports:
-      - ${REDIS_PORT}:6379
 
   redoc_openapi:
     container_name: redoc-openapi
@@ -444,7 +437,7 @@ services:
 
   socat:
     container_name: ${SOCAT_HOST}
-    image: alpine/socat:${SOCAT_VERSION}
+    image: alpine/${SOCAT_HOST}:${SOCAT_VERSION}
     command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
     user: root
     volumes:

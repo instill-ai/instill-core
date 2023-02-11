@@ -24,8 +24,8 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: dev
 dev:			## Lunch all dependent services (param: PROFILE=<profile-name>)
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.dev.yml rm -f
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
 
 .PHONY: temporal
 temporal:		## Launch Temporal services

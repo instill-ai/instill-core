@@ -41,7 +41,7 @@ jobs:
 
       - name: Launch VDP (latest)
         if: inputs.target == 'latest'
-        run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+        run: make dev PROFILE=all ITMODE=true
 
       - name: Run ${{ inputs.component }}-backend integration test (latest)
         if: inputs.target == 'latest'
