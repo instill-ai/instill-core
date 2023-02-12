@@ -1,4 +1,5 @@
-{{- $connectorRepository := .Values.persistence.persistentVolumeClaim.connectorRepository -}}
+{{- $dataVDP := .Values.persistence.persistentVolumeClaim.vdp -}}
+{{- $dataAirbyte := .Values.persistence.persistentVolumeClaim.airbyte -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -203,9 +204,9 @@ spec:
         - name: data-vdp
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
-        {{- else if $connectorRepository.existingClaim }}
+        {{- else if $dataVDP.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ $connectorRepository.existingClaim }}
+            claimName: {{ $dataVDP.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
             claimName: data-vdp
@@ -213,9 +214,9 @@ spec:
         - name: data-airbyte
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
-        {{- else if $connectorRepository.existingClaim }}
+        {{- else if $dataAirbyte.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ $connectorRepository.existingClaim }}
+            claimName: {{ $dataAirbyte.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
             claimName: data-airbyte
