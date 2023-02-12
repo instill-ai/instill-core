@@ -44,14 +44,14 @@ spec:
       {{- with $.Values.temporal.internal.server.serviceAccountName }}
       serviceAccountName: {{- toYaml . }}
       {{- end }}
+      automountServiceAccountToken: {{ $.Values.temporal.internal.server.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ $.Values.temporal.internal.server.automountServiceAccountToken | default false }}
-      terminationGracePeriodSeconds: 120
       initContainers:
-      {{- if $.Values.elasticsearch.enabled }}
+        {{- if $.Values.elasticsearch.enabled }}
         - name: check-elasticsearch-index
           image: {{ $.Values.temporal.internal.admintools.image.repository }}:{{ $.Values.temporal.internal.admintools.image.tag }}
           imagePullPolicy: {{ $.Values.imagePullPolicy }}
@@ -70,8 +70,8 @@ spec:
                 secretKeyRef:
                   name: {{ $.Values.elasticsearch.clusterName }}-master-credentials
                   key: password
-      {{- end }}
-      {{- if eq $.Values.database.type "internal" }}
+        {{- end }}
+        {{- if eq $.Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ $.Values.database.internal.image.repository }}:{{ $.Values.database.internal.image.tag }}
           imagePullPolicy: {{ $.Values.imagePullPolicy }}
@@ -98,7 +98,10 @@ spec:
               value: "{{ template "vdp.temporal" $ }}-frontend"
             - name: TEMPORAL_FRONTEND_GRPCPORT
               value: "{{ template "vdp.temporal.frontend.grpcPort" $ }}"
-      {{- end }}
+        {{- end }}
+        {{- with $.Values.temporal.internal.server.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
       containers:
         - name: temporal-{{ $service }}
           image: {{ $.Values.temporal.internal.server.image.repository }}:{{ $.Values.temporal.internal.server.image.tag }}

@@ -29,4 +29,4 @@ data:
 
     # mgmt-backend
     MGMT_BACKEND_HOST={{ template "vdp.mgmt" . }}
-    MGMT_BACKEND_PORT={{ template "vdp.mgmt.publicPort" . }}
+    MGMT_BACKEND_PUBLICPORT={{ template "vdp.mgmt.publicPort" . }}

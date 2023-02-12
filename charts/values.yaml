@@ -33,7 +33,7 @@ expose:
       secretName: ""
   ingress:
     hosts:
-      gateway: api.instill.tech
+      apigateway: api.instill.tech
       console: console.instill.tech
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
@@ -46,29 +46,29 @@ expose:
     annotations: {}
   clusterIP:
     ports:
-      # The service port api-gateway listens on
-      gateway:
+      # The service port api-gateway http listens on
+      apigatewayHttp:
       # The service port api-gateway stats listens on
-      stats:
+      apigatewayStats:
       # The service port api-gateway metrics listens on
-      metrics:
+      apigatewayMetrics:
       # The service port temporal web listens on
       temporal:
     # Annotations on the ClusterIP service
     annotations: {}
   nodePort:
     ports:
-      gateway:
-        # The service port api-gateway listens on
+      apigatewayHttp:
+        # The service port api-gateway http listens on
         port:
         # The node port api-gateway listens on
         nodePort: 30010
-      stats:
+      apigatewayStats:
         # The service port api-gateway stats listens
         port:
         # The node port api-gateway stats listens on
         nodePort: 30011
-      metrics:
+      apigatewayMetrics:
         # The service port api-gateway metrics listens on
         port:
         # The node port api-gateway metrics listens on
@@ -85,12 +85,12 @@ expose:
     IP: ""
     sourceRanges: []
     ports:
-      # The service port api-gateway listens on
-      gateway:
+      # The service port api-gateway http listens on
+      apigatewayHttp:
       # The service port api-gateway stats listens on
-      stats:
+      apigatewayStats:
       # The service port api-gateway metrics listens on
-      metrics:
+      apigatewayMetrics:
       # The service port temporal web listens on
       temporal:
     # Annotations on the LoadBalancer service
@@ -107,8 +107,9 @@ expose:
 # 3) if "expose.type" is "nodePort", the "domain" should be
 # the IP address of Kubernetes node
 #
-# If VDP is deployed behind the proxy, set it as the URL of proxy
-externalURL: https://api.instill.tech
+# If VDP is deployed behind the proxy, set it as the URL of the proxy (without protocol and port)
+apigatewayURL: http://localhost:8080
+consoleURL: http://localhost:3000
 
 # -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
@@ -257,6 +258,7 @@ updateStrategy:
 logLevel: debug
 
 # -- Enable integration test mode
+# if true, console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 enableTestMode: true
 
 # -- The maximum data payload to VDP cluster (MB)
@@ -521,6 +523,59 @@ mgmt:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetMemoryUtilizationPercentage:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+
+console:
+  # -- The image of console
+  image:
+    repository: instill/console
+    tag: latest
+    pullPolicy: IfNotPresent
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for console
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volume
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+
+  resources: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   podDisruptionBudget:
     enabled: false
     spec:

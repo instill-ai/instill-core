@@ -38,12 +38,16 @@ spec:
       {{- if .Values.apigateway.serviceAccountName }}
       serviceAccountName: {{ .Values.apigateway.serviceAccountName }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.apigateway.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ .Values.console.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        {{- with .Values.apigateway.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
       containers:
         - name: api-gateway
           image: {{ .Values.apigateway.image.repository }}:{{ .Values.apigateway.image.tag }}

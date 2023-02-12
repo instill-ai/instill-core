@@ -62,7 +62,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.edition" -}}
-{{- printf "kubernetes-ce" -}}
+{{- printf "k8s-ce:dev" -}}
 {{- end -}}
 
 {{- define "vdp.autoGenCert" -}}

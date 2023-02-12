@@ -37,12 +37,12 @@ spec:
       {{- if .Values.pipeline.serviceAccountName }}
       serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.pipeline.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.pipeline.automountServiceAccountToken | default false }}
-      terminationGracePeriodSeconds: 120
       initContainers:
         - name: triton-conda-env
           image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}
@@ -50,6 +50,9 @@ spec:
           volumeMounts:
             - name: conda-pack
               mountPath: /conda-pack
+        {{- with .Values.triton.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
       containers:
         - name: triton-inference-server
           image: {{ .Values.triton.image.repository }}:{{ .Values.triton.image.tag }}

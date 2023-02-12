@@ -81,6 +81,9 @@ spec:
             - name: config
               mountPath: /mgmt-backend/config/config.yaml
               subPath: config.yaml
+        {{- with .Values.mgmt.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
       containers:
         - name: mgmt-backend
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}

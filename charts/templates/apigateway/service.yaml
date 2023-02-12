@@ -14,13 +14,13 @@ spec:
   type: ClusterIP
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ default (include "vdp.apigateway.httpPort" .) $clusterIP.ports.gateway }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $clusterIP.ports.apigatewayHttp }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
     - name: stats
-      port: {{ default (include "vdp.apigateway.statsPort" .) $clusterIP.ports.stats }}
+      port: {{ default (include "vdp.apigateway.statsPort" .) $clusterIP.ports.apigatewayStats }}
       targetPort: {{ template "vdp.apigateway.statsPort" . }}
     - name: metrics
-      port: {{ default (include "vdp.apigateway.metricsPort" .) $clusterIP.ports.metrics }}
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $clusterIP.ports.apigatewayMetrics }}
       targetPort: {{ template "vdp.apigateway.metricsPort" . }}
 {{- else if or (eq .Values.expose.type "ingress") (eq .Values.expose.type "nodePort")}}
 {{- $nodePort := .Values.expose.nodePort }}
@@ -35,22 +35,22 @@ spec:
   type: NodePort
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ default (include "vdp.apigateway.httpPort" .) $nodePort.ports.gateway.port }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $nodePort.ports.apigatewayHttp.port }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
-      {{- if and (ge ($nodePort.ports.gateway.nodePort | int) (30000 | int)) (le ($nodePort.ports.gateway.nodePort | int) (32767 | int)) }}
-      nodePort: {{ $nodePort.ports.gateway.nodePort }}
+      {{- if and (ge ($nodePort.ports.apigatewayHttp.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayHttp.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayHttp.nodePort }}
       {{- end }}
     - name: stats
-      port: {{ default (include "vdp.apigateway.statsPort" .) $nodePort.ports.stats.port }}
+      port: {{ default (include "vdp.apigateway.statsPort" .) $nodePort.ports.apigatewayStats.port }}
       targetPort: {{ template "vdp.apigateway.statsPort" . }}
-      {{- if and (ge ($nodePort.ports.stats.nodePort | int) (30000 | int)) (le ($nodePort.ports.stats.nodePort | int) (32767 | int)) }}
-      nodePort: {{ $nodePort.ports.stats.nodePort }}
+      {{- if and (ge ($nodePort.ports.apigatewayStats.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayStats.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayStats.nodePort }}
       {{- end }}
     - name: metrics
-      port: {{ default (include "vdp.apigateway.metricsPort" .) $nodePort.ports.metrics.port }}
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $nodePort.ports.apigatewayMetrics.port }}
       targetPort: {{ template "vdp.apigateway.metricsPort" . }}
-      {{- if and (ge ($nodePort.ports.metrics.nodePort | int) (30000 | int)) (le ($nodePort.ports.metrics.nodePort | int) (32767 | int)) }}
-      nodePort: {{ $nodePort.ports.metrics.nodePort }}
+      {{- if and (ge ($nodePort.ports.apigatewayMetrics.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayMetrics.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayMetrics.nodePort }}
       {{- end }}
 {{- else if eq .Values.expose.type "loadBalancer" }}
 {{- $loadBalancer := .Values.expose.loadBalancer }}
@@ -72,13 +72,13 @@ spec:
   {{- end }}
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ default (include "vdp.apigateway.httpPort" .) $loadBalancer.ports.gateway }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $loadBalancer.ports.apigatewayHttp }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
     - name: stats
-      port: {{ default (include "vdp.apigateway.statsPort" .) $loadBalancer.ports.stats }}
+      port: {{ default (include "vdp.apigateway.statsPort" .) $loadBalancer.ports.apigatewayStats }}
       targetPort: {{ template "vdp.apigateway.statsPort" . }}
     - name: metrics
-      port: {{ default (include "vdp.apigateway.metricsPort" .) $loadBalancer.ports.metrics }}
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $loadBalancer.ports.apigatewayMetrics }}
       targetPort: {{ template "vdp.apigateway.metricsPort" . }}
 {{- end }}
   selector:
