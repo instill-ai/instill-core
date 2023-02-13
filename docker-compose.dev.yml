@@ -181,6 +181,9 @@ services:
     ports:
       - ${CONSOLE_PORT}:${CONSOLE_PORT}
 
+  triton_conda_env:
+    image: instill/triton-conda-env:latest-${TRITON_CONDA_ENV_PLATFORM}
+
   triton_server:
     ports:
       - ${TRITON_SERVER_PORT}:8001

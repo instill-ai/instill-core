@@ -6,24 +6,23 @@
 include .env
 export
 
-TRITONCONDAENV_IMAGE_TAG := $(if $(filter arm64,$(shell uname -m)),instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-m1,instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-cpu)
-
-NVIDIA_SMI := $(shell nvidia-smi 2>/dev/null 1>&2; echo $$?)
-ifeq ($(NVIDIA_SMI),0)
+TRITON_CONDA_ENV_PLATFORM := $(if $(filter arm64,$(shell uname -m)),m1,cpu)
+ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 	TRITONSERVER_RUNTIME := nvidia
-	TRITONCONDAENV_IMAGE_TAG := instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-gpu
+	TRITON_CONDA_ENV_PLATFORM := gpu
 endif
 
 #============================================================================
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3 >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker compose up -d --quiet-pull
 	@docker compose rm -f
 
 .PHONY: dev
 dev:			## Lunch all dependent services (param: PROFILE=<profile-name>)
+	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
 
@@ -37,7 +36,7 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3 >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker compose pull
 
 .PHONY: stop
