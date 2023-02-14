@@ -23,7 +23,7 @@ $ pip install -r requirements.txt
 #   --pipeline-backend-base-url=< pipeline backend base URL >
 #   --yolov4=< YOLOv4 pipeline ID >
 #   --yolov7=< YOLOv7 pipeline ID >
-$ streamlit run main.py -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://localhost:8081 --yolov4=yolov4 --yolov7=yolov7
+$ streamlit run main.py -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://localhost:8080 --yolov4=yolov4 --yolov7=yolov7
 ```
 Now go to `http://localhost:8501/` 🎉
 
@@ -34,7 +34,7 @@ $ docker build -t streamlit-yolov7 .
 ```
 Run the Docker container and connect to VDP 
 ```bash
-$ docker run -p 8501:8501 --network instill-network streamlit-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://pipeline-backend:8081 --yolov4=yolov4 --yolov7=yolov7
+$ docker run -p 8501:8501 --network instill-network streamlit-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://api-gateway:8080 --yolov4=yolov4 --yolov7=yolov7
 
 You can now view your Streamlit app in your browser.
 

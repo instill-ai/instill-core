@@ -73,7 +73,7 @@ $ pip install -r requirements.txt
 #   --demo-url=< demo URL >
 #   --pipeline-backend-base-url=< pipeline backend base URL >
 #   --pipeline-id=< Pipeline ID >
-$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8081 --pipeline-id=inst
+$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8080 --pipeline-id=inst
 ```
 
 Now go to `http://localhost:8501/` 🎉
@@ -94,7 +94,7 @@ $ docker build -t streamlit-instance-segmentation .
 ```
 Run the Docker container and connect to VDP
 ```bash
-$ docker run -p 8501:8501 --network instill-network streamlit-instance-segmentation -- --pipeline-backend-base-url=http://pipeline-backend:8081 --pipeline-id=inst
+$ docker run -p 8501:8501 --network instill-network streamlit-instance-segmentation -- --pipeline-backend-base-url=http://api-gateway:8080 --pipeline-id=inst
 
 You can now view your Streamlit app in your browser.
 

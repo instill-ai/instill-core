@@ -139,7 +139,7 @@ def display_trigger_request_code(pipeline_id):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline-backend-base-url', type=str,
-                        default='http://localhost:8081', help='pipeline backend base URL')
+                        default='http://localhost:8080', help='pipeline backend base URL')
     parser.add_argument('--pipeline-id', type=str,
                         default='inst', help='Instance segmentation pipeline ID on VDP')
     opt = parser.parse_args()
