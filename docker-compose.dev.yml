@@ -182,10 +182,7 @@ services:
       - ${CONSOLE_PORT}:${CONSOLE_PORT}
 
   triton_conda_env:
-    container_name: triton-conda-env
-    image: ${TRITONCONDAENV_IMAGE_TAG}
-    volumes:
-      - conda_pack:/conda-pack
+    image: instill/triton-conda-env:latest-${TRITON_CONDA_ENV_PLATFORM}
 
   triton_server:
     ports:

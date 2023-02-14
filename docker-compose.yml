@@ -322,23 +322,19 @@ services:
 
   triton_conda_env:
     container_name: triton-conda-env
-    image: ${TRITONCONDAENV_IMAGE_TAG}
+    image: instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-${TRITON_CONDA_ENV_PLATFORM}
     volumes:
       - conda_pack:/conda-pack
 
   triton_server:
     runtime: ${TRITONSERVER_RUNTIME:-}
     container_name: ${TRITON_SERVER_HOST}
-    image: nvcr.io/nvidia/tritonserver:${TRITON_SERVER_VERSION}-py3
+    image: instill/tritonserver:${TRITON_SERVER_VERSION}
     restart: unless-stopped
-    environment:
-      NVIDIA_VISIBLE_DEVICES: 0
-      LD_PRELOAD: /opt/tritonserver/lib/libgomp-d22c30c5.so.1
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     volumes:
       - model_repository:/model-repository
       - conda_pack:/conda-pack
-      - ./asset/lib/libgomp-d22c30c5.so.1:/opt/tritonserver/lib/libgomp-d22c30c5.so.1
     healthcheck:
       test: ["CMD", "curl", "localhost:8000/v2/health/ready"]
       timeout: 20s
