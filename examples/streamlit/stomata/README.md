@@ -74,7 +74,7 @@ $ pip install -r requirements.txt
 #   --demo-url=< demo URL >
 #   --pipeline-backend-base-url=< pipeline backend base URL >
 #   --pipeline-id=< Stomata pipeline ID >
-$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8081 --pipeline-id=stomata
+$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8080 --pipeline-id=stomata
 ```
 
 Now go to `http://localhost:8501/` 🎉
