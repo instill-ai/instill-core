@@ -58,9 +58,11 @@ def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url
 
     """
     body = {
-        "inputs": [
+        "task_inputs": [
             {
-                'image_url': image_url
+                "instance_segmentation": {
+                    'image_url': image_url
+                }
             }
         ]
     }
@@ -126,9 +128,11 @@ def display_trigger_request_code(pipeline_id):
         curl -X POST '{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
-            "inputs": [
+            "task_inputs": [
                 {{
-                    "image_url": "{image_url}"
+                    "instance_segmentation": {{
+                        "image_url": "{image_url}"
+                    }}
                 }}
             ]
         }}'

@@ -58,9 +58,11 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
 
     """
     body = {
-        "inputs": [
+        "task_inputs": [
             {
-                'image_url': image_url
+                "detection": {
+                    'image_url': image_url
+                }
             }
         ]
     }
@@ -132,9 +134,11 @@ def display_trigger_request_code():
         curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
-            "inputs": [
+            "task_inputs": [
                 {{
-                    "image_url": "{image_url}"
+                    "detection": {{
+                        "image_url": "{image_url}"
+                    }}
                 }}
             ]
         }}'
