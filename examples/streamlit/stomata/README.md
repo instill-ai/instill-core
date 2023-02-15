@@ -73,8 +73,8 @@ $ pip install -r requirements.txt
 # Run the demo
 #   --demo-url=< demo URL >
 #   --pipeline-backend-base-url=< pipeline backend base URL >
-#   --stomata=< Stomata pipeline ID >
-$ streamlit run streamlit_main.py -- --pipeline-backend-base-url=http://localhost:8081 --stomata=stomata
+#   --pipeline-id=< Stomata pipeline ID >
+$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8080 --pipeline-id=stomata
 ```
 
 Now go to `http://localhost:8501/` 🎉
@@ -86,3 +86,20 @@ To shut down all running services:
 ```
 $ make down
 ```
+
+## Deploy the demo using Docker
+
+Build a Docker image
+```bash
+$ docker build -t streamlit-stomata .
+```
+Run the Docker container and connect to VDP
+```bash
+$ docker run --rm --name streamlit-stomata -p 8501:8501 --network instill-network streamlit-stomata -- --pipeline-backend-base-url=http://api-gateway:8080 --pipeline-id=stomata
+
+You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:8501
+
+```
+

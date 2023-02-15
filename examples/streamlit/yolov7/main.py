@@ -58,9 +58,11 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
 
     """
     body = {
-        "inputs": [
+        "task_inputs": [
             {
-                'image_url': image_url
+                "detection": {
+                    'image_url': image_url
+                }
             }
         ]
     }
@@ -132,9 +134,11 @@ def display_trigger_request_code():
         curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
-            "inputs": [
+            "task_inputs": [
                 {{
-                    "image_url": "{image_url}"
+                    "detection": {{
+                        "image_url": "{image_url}"
+                    }}
                 }}
             ]
         }}'
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('--demo-url', type=str,
                         default='https://demo.instill.tech/yolov4-vs-yolov7', help='demo URL')
     parser.add_argument('--pipeline-backend-base-url', type=str,
-                        default='http://localhost:8081', help='pipeline backend base URL')
+                        default='http://localhost:8080', help='pipeline backend base URL')
     parser.add_argument('--yolov4', type=str,
                         default='yolov4', help='YOLOv4 pipeline ID on VDP')
     parser.add_argument('--yolov7', type=str,

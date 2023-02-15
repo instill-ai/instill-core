@@ -58,9 +58,11 @@ def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url
 
     """
     body = {
-        "inputs": [
+        "task_inputs": [
             {
-                'image_url': image_url
+                "instance_segmentation": {
+                    'image_url': image_url
+                }
             }
         ]
     }
@@ -126,9 +128,11 @@ def display_trigger_request_code(pipeline_id):
         curl -X POST '{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
-            "inputs": [
+            "task_inputs": [
                 {{
-                    "image_url": "{image_url}"
+                    "instance_segmentation": {{
+                        "image_url": "{image_url}"
+                    }}
                 }}
             ]
         }}'
@@ -139,7 +143,7 @@ def display_trigger_request_code(pipeline_id):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline-backend-base-url', type=str,
-                        default='http://localhost:8081', help='pipeline backend base URL')
+                        default='http://localhost:8080', help='pipeline backend base URL')
     parser.add_argument('--pipeline-id', type=str,
                         default='inst', help='Instance segmentation pipeline ID on VDP')
     opt = parser.parse_args()
