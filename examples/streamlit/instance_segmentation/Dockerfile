@@ -1,5 +1,4 @@
 FROM --platform=$BUILDPLATFORM python:3.8-slim
-EXPOSE 8501
 
 RUN apt-get update \
     && apt-get install -y build-essential
