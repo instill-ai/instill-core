@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
 
         else:
-            st.error("Trigger pipeline {} inference error".format(pipeline_id))
+            st.error("Trigger pipeline {} inference error: {}".format(pipeline_id, resp.text))
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
