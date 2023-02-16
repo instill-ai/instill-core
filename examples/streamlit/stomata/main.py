@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
 
-    display_intro_markdown()
+    display_intro_markdown(opt.pipeline_id)
 
     st.markdown("We provide an sample image below:")
     filename = "sample.jpg"

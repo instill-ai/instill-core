@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
 
-    display_intro_markdown()
+    display_intro_markdown(opt.pipeline_id)
 
     # Use image remote URL to fetch an image in input
     image_url = st.text_input(
@@ -202,7 +202,7 @@ if __name__ == "__main__":
                     st.json(resp.json())
 
         else:
-            st.error("Trigger pipeline {} inference error".format(pipeline_id))
+            st.error("Trigger pipeline {} inference error: {}".format(pipeline_id, resp.text))
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
