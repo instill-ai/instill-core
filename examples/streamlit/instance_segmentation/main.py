@@ -45,6 +45,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
 
     return boxes_ltwh, rles, categories, scores
 
+@st.cache_data(max_entries=10)
 def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url: str) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
 

@@ -2,6 +2,7 @@ import cv2
 import random
 import numpy as np
 import pandas as pd
+import streamlit as st
 from itertools import groupby
 from typing import List, Tuple
 from pycocotools import mask as cocomask
@@ -85,6 +86,7 @@ def rle_decode_original_image(rle_str: str, bbox_ltwh: Tuple[float], image_size:
     img_mask[y1:y2, x1:x2] = mask[0:y2-y1, 0:x2-x1]
     return img_mask
 
+@st.cache_data(max_entries=10)
 def draw_instance_predictions(img: np.ndarray, masks: np.ndarray, boxes: np.ndarray, texts: List[str]):
     r""" Draw instance segmentation results on the original image
 
