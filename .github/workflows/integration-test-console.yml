@@ -26,23 +26,12 @@ jobs:
           envFile: .env
           expand: true
 
-      - name: Clean up space
+      - name: Clean up disk space
         run: |
-          echo "Listing 100 largest packages"
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
-          df -h
-          echo "Removing large packages"
-          sudo apt-get remove -y '^ghc-8.*'
-          sudo apt-get remove -y '^dotnet-.*'
-          sudo apt-get remove -y '^llvm-.*'
-          sudo apt-get remove -y 'php.*'
-          sudo apt-get remove -y google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel
-          sudo apt-get autoremove -y
-          sudo apt-get clean
-          df -h
-          echo "Removing large directories"
-          rm -rf /usr/share/dotnet/
-          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"usr/share/dotnet/
 
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
