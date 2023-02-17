@@ -12,7 +12,7 @@ from io import BytesIO
 from urllib.error import HTTPError
 
 
-def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List[Tuple[float]], List[str], List[str], List[float]]:
+def parse_instance_segmentation_response(resp: requests.Response) -> Tuple[List[Tuple[float]], List[str], List[str], List[float]]:
     r""" Parse an instance segmentation response in to bounding boxes, RLEs, categories and scores
 
     Args:
@@ -47,6 +47,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
 
     return boxes_ltwh, rles, categories, scores
 
+
 @st.cache_data(max_entries=10)
 def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, file: BytesIO, filename: str) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
@@ -62,7 +63,8 @@ def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, file: Byt
 
     """
     return requests.post("{}/pipelines/{}/trigger-multipart".format(pipeline_backend_base_url, pipeline_id),
-                        files=[("file", (filename, file))])
+                         files=[("file", (filename, file))])
+
 
 def display_intro_markdown(pipeline_id="stomata"):
     r""" Display Markdown about demo introduction
@@ -97,6 +99,7 @@ def display_intro_markdown(pipeline_id="stomata"):
     """.format(pipeline_id)
     st.markdown(intro_markdown)
 
+
 def display_vdp_markdown():
     r""" Display Markdown about "What's cool about VDP"
     """
@@ -126,6 +129,7 @@ def display_trigger_request_code(pipeline_id, filename):
     with st.expander(f"cURL"):
         st.code(request_code, language="bash")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline-backend-base-url', type=str,
@@ -146,7 +150,8 @@ if __name__ == "__main__":
         image_bytes = buf.getvalue()
 
     # Drag and drop an image as input
-    uploaded_file = st.file_uploader("Upload an image", type=([".png", ".jpg", ".jpeg", ".tif", ".tiff"]))
+    uploaded_file = st.file_uploader("Upload an image", type=(
+        [".png", ".jpg", ".jpeg", ".tif", ".tiff"]))
     if uploaded_file is not None:
         filename = uploaded_file.name
         image_bytes = uploaded_file.getvalue()
@@ -169,29 +174,35 @@ if __name__ == "__main__":
         if resp.status_code == 200:
             # Show trigger pipeline response
             with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
-                    st.json(resp.json())
+                st.json(resp.json())
 
-            boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(resp)
+            boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(
+                resp)
             # Convert RLE from string "n1,n2,n3,..." to COCO RLE
             #   {
             #       'counts': [n1, n2, n3, ...],
             #       'size': [height, width] of the mask
             #   }
-            rles = [{'counts': rle_str.split(","), 'size': [bbox_ltwh[3], bbox_ltwh[2]]} for rle_str, bbox_ltwh in zip(rles_str, boxes_ltwh)]
-            polys = [utils.rle_to_polygon(rle, box) for rle, box in zip(rles, boxes_ltwh)]
+            rles = [{'counts': rle_str.split(","), 'size': [
+                bbox_ltwh[3], bbox_ltwh[2]]} for rle_str, bbox_ltwh in zip(rles_str, boxes_ltwh)]
+            polys = [utils.rle_to_polygon(rle, box)
+                     for rle, box in zip(rles, boxes_ltwh)]
             rotated_boxes = utils.fit_polygens_to_rotated_bboxes(polys)
 
             cols = st.columns(2)
 
             cols[0].markdown("#### Display instance segmentation result")
             # Visualise instance segmentation on input image
-            img_draw = utils.draw_polygons(img, polys, thickness=2, color=(0,0,255))
+            img_draw = utils.draw_polygons(
+                img, polys, thickness=2, color=(0, 0, 255))
             cols[0].image(img_draw)
 
             # Visualise rotated bounding boxes
             cols[1].markdown("#### Convert to rotated bounding boxes")
-            texts = ["{} {:.0%}".format(category, score) for category, score in zip(categories, scores)]
-            img_draw = utils.draw_rotated_bboxes(img_draw, rotated_boxes, texts, thickness=2, color=(0,0,255))
+            texts = ["{} {:.0%}".format(category, score)
+                     for category, score in zip(categories, scores)]
+            img_draw = utils.draw_rotated_bboxes(
+                img_draw, rotated_boxes, texts, thickness=2, color=(0, 0, 255))
             cols[1].image(img_draw)
 
             # Stomata statistics
@@ -201,12 +212,11 @@ if __name__ == "__main__":
             Detect **{len(rotated_boxes)}** stomata from `{filename}`.
             """)
 
-
-
             stats = np.zeros((len(rotated_boxes), 4))
 
             for i, (rbox, score) in enumerate(zip(rotated_boxes, scores)):
-                _, (width, height), _ = rbox # (center(x,y), (width, height), angel of rotation)
+                # (center(x,y), (width, height), angel of rotation)
+                _, (width, height), _ = rbox
                 long_axis = max(width, height)
                 short_axis = min(width, height)
                 ratio = short_axis/long_axis
@@ -217,17 +227,17 @@ if __name__ == "__main__":
                 columns=("score", "short axis", "long axis", "ratio = short / long axis"))
 
             score_thres = 0.5
-            st.dataframe(df.style.highlight_between(subset="score", left=score_thres, right=1.0), use_container_width=True)
+            st.dataframe(df.style.highlight_between(
+                subset="score", left=score_thres, right=1.0), use_container_width=True)
 
             st.caption(
                 "Note: highlight detections with score >= {}".format(score_thres))
 
-
         else:
-            st.error("Trigger pipeline {} inference error: {}".format(pipeline_id, resp.text))
+            st.error("Trigger pipeline {} inference error: {}".format(
+                pipeline_id, resp.text))
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
-
 
     display_vdp_markdown()

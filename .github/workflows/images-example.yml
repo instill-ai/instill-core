@@ -27,7 +27,7 @@ jobs:
             streamlit-yolov7:
               - 'examples/streamlit/yolov7/**'
             streamlit-instance-segmentation:
-              - 'examples/streamlit/instance_segmentation/**'
+              - 'examples/streamlit/instance-segmentation/**'
             streamlit-stomata:
               - 'examples/streamlit/stomata/**'
 
@@ -51,12 +51,12 @@ jobs:
           tags: instill/streamlit-yolov7:latest
           no-cache: true
 
-      # Run only if some file in 'examples/streamlit/instance_segmentation' folder was changed
+      # Run only if some file in 'examples/streamlit/instancesegmentation' folder was changed
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
         if: steps.filter.outputs.streamlit-instance-segmentation == 'true'
         with:
-          context: "{{defaultContext}}:examples/streamlit/instance_segmentation"
+          context: "{{defaultContext}}:examples/streamlit/instance-segmentation"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-instance-segmentation:latest
