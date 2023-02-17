@@ -6,7 +6,7 @@
 include .env
 export
 
-TRITON_CONDA_ENV_PLATFORM := $(if $(filter arm64,$(shell uname -m)),m1,cpu)
+TRITON_CONDA_ENV_PLATFORM := cpu
 ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 	TRITONSERVER_RUNTIME := nvidia
 	TRITON_CONDA_ENV_PLATFORM := gpu
