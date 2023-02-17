@@ -26,13 +26,6 @@ jobs:
           envFile: .env
           expand: true
 
-      - name: Clean up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"usr/share/dotnet/
-
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
         run: |
@@ -46,6 +39,10 @@ jobs:
       - name: Run console integration test (latest)
         if: inputs.target == 'latest'
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"usr/share/dotnet/
           git clone https://github.com/instill-ai/console.git console
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright .
           docker run -t --rm \
