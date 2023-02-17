@@ -21,6 +21,8 @@ anyOf:
   - required:
       - text_to_image
   - required:
+      - text_generation
+  - required:
       - unspecified
 properties:
   classification:
@@ -43,7 +45,10 @@ properties:
     "$ref": "#/definitions/SemanticSegmentation"
   text_to_image:
     description: "Generates images from input text"
-    "$ref": "#/definitions/TextToImage"    
+    "$ref": "#/definitions/TextToImage"
+  text_generation:
+    description: "Generate new texts from input text"
+    "$ref": "#/definitions/TextGeneration"
   unspecified:
     description: "Unspecified task with output in the free form"
     "$ref": "#/definitions/Unspecified"
@@ -206,7 +211,16 @@ definitions:
         type: array
         items:
           description: "Generated image string in base64 format"
-          type: string              
+          type: string
+  TextGeneration:
+    type: object
+    additionalProperties: false
+    required:
+      - text
+    properties:
+      text:
+        description: "Generated text string"
+        type: string
   Unspecified:
     type: object
     additionalProperties: false
