@@ -46,6 +46,7 @@ jobs:
       - name: Run console integration test (latest)
         if: inputs.target == 'latest'
         run: |
+          df -h
           git clone https://github.com/instill-ai/console.git console
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright .
           docker run -t --rm \

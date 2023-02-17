@@ -16,6 +16,6 @@ jobs:
       component: ${{ matrix.component }}
       target: latest
   console:
-    uses: instill-ai/vdp/.github/workflows/integration-test-console.yml@main
+    uses: instill-ai/vdp/.github/workflows/integration-test-console.yml@fix-console-disk-space-issue
     with:
       target: latest
