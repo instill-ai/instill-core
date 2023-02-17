@@ -75,7 +75,7 @@ top:			## Display all running service processes
 	@docker compose top
 
 .PHONY: build
-build:							## Build latest images for VDP components (param: PROFILE=<profile-name>)
+build:							## Build latest images for all VDP components
 	@docker build --progress plain \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -90,7 +90,7 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build \
 		instill/vdp-test:latest /bin/bash -c " \
-			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
+			docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: doc
@@ -99,11 +99,11 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test for the latest VDP codebases
-	@make build PROFILE=all
+	@make build
 	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker run -it --rm \
 		--network instill-network \
-		--name vdp-integration-test instill/vdp:latest /bin/bash -c " \
+		--name vdp-integration-test instill/vdp-test:latest /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \

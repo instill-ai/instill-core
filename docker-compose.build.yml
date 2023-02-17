@@ -2,9 +2,6 @@ version: "3.9"
 
 services:
   api_gateway:
-    profiles:
-      - all
-      - api-gateway
     image: instill/${API_GATEWAY_HOST}:latest
     build:
       context: ./${API_GATEWAY_HOST}
@@ -15,9 +12,6 @@ services:
         KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
 
   pipeline_backend:
-    profiles:
-      - all
-      - pipeline
     image: instill/${PIPELINE_BACKEND_HOST}:latest
     build:
       context: ./${PIPELINE_BACKEND_HOST}
@@ -27,9 +21,6 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   connector_backend:
-    profiles:
-      - all
-      - connector
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     build:
       context: ./${CONNECTOR_BACKEND_HOST}
@@ -39,9 +30,6 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   model_backend:
-    profiles:
-      - all
-      - model
     image: instill/${MODEL_BACKEND_HOST}:latest
     build:
       context: ./${MODEL_BACKEND_HOST}
@@ -53,9 +41,6 @@ services:
         ARTIVC_VERSION: ${ARTIVC_VERSION}
 
   mgmt_backend:
-    profiles:
-      - all
-      - mgmt
     image: instill/${MGMT_BACKEND_HOST}:latest
     build:
       context: ./${MGMT_BACKEND_HOST}
@@ -65,17 +50,11 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   console:
-    profiles:
-      - all
-      - console
     image: instill/${CONSOLE_HOST}:latest
     build:
       context: ./${CONSOLE_HOST}
 
   console_playwright:
-    profiles:
-      - all
-      - console
     image: instill/${CONSOLE_HOST}-playwright:latest
     build:
       context: ./${CONSOLE_HOST}
