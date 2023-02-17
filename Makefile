@@ -83,13 +83,13 @@ build:							## Build latest images for VDP components (param: PROFILE=<profile-
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
 		-f Dockerfile.dev \
-		-t instill/vdp:latest .
+		-t instill/vdp-test:latest .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build \
-		instill/vdp:latest /bin/bash -c " \
+		instill/vdp-test:latest /bin/bash -c " \
 			COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
@@ -122,7 +122,7 @@ integration-test-latest:			## Run integration test for the latest VDP codebases
 
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test for the release VDP codebases
-	@docker build --progress plain -f Dockerfile.dev \
+	@docker build --progress plain \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
@@ -134,11 +134,12 @@ integration-test-release:			## Run integration test for the release VDP codebase
 		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
 		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 		--target release \
-		-t instill/vdp:release .
-	@make all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+		-f Dockerfile.dev \
+		-t instill/vdp-test:release .
+	@make all CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker run -it --rm \
 		--network instill-network \
-		--name vdp-integration-test instill/vdp:release /bin/bash -c " \
+		--name vdp-integration-test instill/vdp-test:release /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
