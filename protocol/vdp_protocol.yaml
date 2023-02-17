@@ -185,7 +185,7 @@ definitions:
     required:
       - stuffs
     properties:
-      objects:
+      stuffs:
         description: "A list of RLE binary masks"
         type: array
         items:
@@ -206,7 +206,7 @@ definitions:
     required:
       - images
     properties:
-      objects:
+      images:
         description: "A list of generated images"
         type: array
         items:
