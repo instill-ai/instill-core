@@ -39,6 +39,14 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+          docker rmi $(docker image ls --all --quiet)
+          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
+          df --human-readable
+
       - name: Launch VDP (latest)
         if: inputs.target == 'latest'
         run: make dev PROFILE=all ITMODE=true

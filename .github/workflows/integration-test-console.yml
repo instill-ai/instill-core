@@ -32,17 +32,22 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+          docker rmi $(docker image ls --all --quiet)
+          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
+          df --human-readable
+
       - name: Launch VDP (latest)
         if: inputs.target == 'latest'
-        run: make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+        run: |
+          make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 
       - name: Run console integration test (latest)
         if: inputs.target == 'latest'
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"usr/share/dotnet/
           git clone https://github.com/instill-ai/console.git console
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright .
           docker run -t --rm \
