@@ -67,8 +67,7 @@ Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud.
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
-- **(Optional)NVIDIA Container Toolkit** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install NVIDIA Container Toolkit.
-  - If you meet the requirements to enable GPU support, you can set the GPU IDs you'd like to expose to VDP in the [.env](https://github.com/instill-ai/vdp/blob/main/.env) with [NVIDIA_VISIBLE_DEVICES](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#gpu-enumeration)
+- **(Optional) NVIDIA Container Toolkit** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install NVIDIA Container Toolkit. If you'd like to specifically allot GPUs to VDP, you can set the environment variable [NVIDIA_VISIBLE_DEVICES](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#gpu-enumeration) in the [.env](https://github.com/instill-ai/vdp/blob/main/.env) file.
 ## Quick start
 
 Execute the following commands to start pre-built images with all the dependencies:
@@ -134,7 +133,8 @@ We curate a list of ready-to-use models for VDP. These models are from different
 | [Detectron2 Keypoint R-CNN R50-FPN](https://github.com/facebookresearch/detectron2/blob/main/configs/COCO-Keypoints/keypoint_rcnn_R_50_FPN_1x.yaml) | Keypoint detection    | [GitHub-DVC](https://github.com/instill-ai/model-keypoint-detection-dvc)                                                     | PyTorch            | ✅   | ✅   |       |
 | [PSNet](https://github.com/open-mmlab/mmocr/tree/main/configs/textdet/psenet) + [EasyOCR](https://github.com/JaidedAI/EasyOCR)                      | OCR                   | [GitHub-DVC](https://github.com/instill-ai/model-ocr-dvc)                                                                    | ONNX               | ✅   | ✅   |       |
 | [Mask RCNN](https://github.com/onnx/models/blob/main/vision/object_detection_segmentation/mask-rcnn/model/MaskRCNN-10.onnx)                         | Instance segmentation | [GitHub-DVC](https://github.com/instill-ai/model-instance-segmentation-dvc)                                                  | PyTorch            | ✅   | ✅   |       |
-| [Megatron-GPT-2](https://catalog.ngc.nvidia.com/orgs/nvidia/models/megatron_lm_345m)                                                                | Text Generation       | [GitHub-DVC](https://github.com/instill-ai/model-gpt2-megatron-dvc)                                                          | FasterTransformer  | ❌   | ✅   |       |
+| [Stable diffusion v2.1](https://huggingface.co/stabilityai/stable-diffusion-2-1)  | Text to Image | [GitHub-DVC](https://github.com/instill-ai/model-diffusion-dvc) | ONNX | ✅ | ✅ |  |
+| [Megatron GPT2](https://catalog.ngc.nvidia.com/orgs/nvidia/models/megatron_lm_345m)                                                                | Text Generation       | [GitHub-DVC](https://github.com/instill-ai/model-gpt2-megatron-dvc)                                                          | FasterTransformer  | ❌   | ✅   |       |
 
 
 Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
