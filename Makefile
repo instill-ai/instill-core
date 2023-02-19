@@ -111,7 +111,7 @@ integration-test-latest:			## Run integration test for the latest VDP codebases
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL_FOR_CLIENT=http://api-gateway:8080 \
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
