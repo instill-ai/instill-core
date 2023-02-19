@@ -332,6 +332,8 @@ services:
     container_name: ${TRITON_SERVER_HOST}
     image: instill/tritonserver:${TRITON_SERVER_VERSION}
     restart: unless-stopped
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
     command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
     volumes:
       - model_repository:/model-repository
