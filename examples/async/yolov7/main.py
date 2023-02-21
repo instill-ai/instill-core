@@ -116,7 +116,7 @@ def parse_detection_from_database(detection_ls: List[Dict[str, Any]]) -> Tuple[L
     r""" Parse the raw detection output from the database
 
     Args:
-        detection_ls: a list of detection outputs for standardised VDP object detection task
+        detection_ls: a list of detection outputs for standardised VDP Object Detection task
         [
             {
                 "bounding_box": {

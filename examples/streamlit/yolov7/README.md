@@ -1,6 +1,6 @@
 # YOLOv7 demo
 
-This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [YOLOv7](https://github.com/WongKinYiu/yolov7) object detection pipeline. It also uses [Streamlit](https://streamlit.io) to qualitatively compare the detection results with a [YOLOv4](https://github.com/AlexeyAB/darknet) pipeline.
+This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [YOLOv7](https://github.com/WongKinYiu/yolov7) Object Detection pipeline. It also uses [Streamlit](https://streamlit.io) to qualitatively compare the detection results with a [YOLOv4](https://github.com/AlexeyAB/darknet) pipeline.
 
 ## Preparation
 Run VDP locally

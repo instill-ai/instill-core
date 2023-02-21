@@ -13,10 +13,10 @@ from urllib.error import HTTPError
 
 
 def parse_instance_segmentation_response(resp: requests.Response) -> Tuple[List[Tuple[float]], List[str], List[str], List[float]]:
-    r""" Parse an instance segmentation response in to bounding boxes, RLEs, categories and scores
+    r""" Parse an Instance Segmentation response in to bounding boxes, RLEs, categories and scores
 
     Args:
-        resp (`requests.Response`): response for standardised instance segmentation task
+        resp (`requests.Response`): response for standardised Instance Segmentation task
 
     Returns: parsed outputs, a tuple of
         List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
@@ -70,7 +70,7 @@ def display_intro_markdown(pipeline_id="stomata"):
     r""" Display Markdown about demo introduction
     """
 
-    st.set_page_config(page_title="VDP - Stomata instance segmentation",
+    st.set_page_config(page_title="VDP - Stomata Instance Segmentation",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
 
@@ -91,7 +91,7 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     # Demo
 
-    We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [instance segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
+    We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [Instance Segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
 
     VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger:multipart`
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     parser.add_argument('--pipeline-backend-base-url', type=str,
                         default='http://localhost:8080', help='pipeline backend base URL')
     parser.add_argument('--pipeline-id', type=str,
-                        default='stomata', help='Stomata instance segmentation pipeline ID on VDP')
+                        default='stomata', help='Stomata Instance Segmentation pipeline ID on VDP')
     opt = parser.parse_args()
     print(opt)
 
@@ -191,8 +191,8 @@ if __name__ == "__main__":
 
             cols = st.columns(2)
 
-            cols[0].markdown("#### Display instance segmentation result")
-            # Visualise instance segmentation on input image
+            cols[0].markdown("#### Display Instance Segmentation result")
+            # Visualise Instance Segmentation on input image
             img_draw = utils.draw_polygons(
                 img, polys, thickness=2, color=(0, 0, 255))
             cols[0].image(img_draw)

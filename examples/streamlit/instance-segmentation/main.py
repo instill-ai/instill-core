@@ -12,10 +12,10 @@ from urllib.error import HTTPError
 
 
 def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List[Tuple[float]], List[str], List[str], List[float]]:
-    r""" Parse an instance segmentation response in to bounding boxes, RLEs, categories and scores
+    r""" Parse an Instance Segmentation response in to bounding boxes, RLEs, categories and scores
 
     Args:
-        resp (`requests.Response`): response for standardised instance segmentation task
+        resp (`requests.Response`): response for standardised Instance Segmentation task
 
     Returns: parsed outputs, a tuple of
         List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
@@ -74,13 +74,13 @@ def display_intro_markdown(pipeline_id="inst"):
     r""" Display Markdown about demo introduction
     """
 
-    st.set_page_config(page_title="VDP - Instance segmentation",
+    st.set_page_config(page_title="VDP - Instance Segmentation",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
 
     intro_markdown = """
 
-    # Instance segmentation by triggering VDP pipeline
+    # Instance Segmentation by triggering VDP pipeline
 
     [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     parser.add_argument('--pipeline-backend-base-url', type=str,
                         default='http://localhost:8080', help='pipeline backend base URL')
     parser.add_argument('--pipeline-id', type=str,
-                        default='inst', help='Instance segmentation pipeline ID on VDP')
+                        default='inst', help='Instance Segmentation pipeline ID on VDP')
     opt = parser.parse_args()
     print(opt)
 
@@ -184,12 +184,12 @@ if __name__ == "__main__":
             texts = ["{} {:.0%}".format(category, score) for category, score in zip(categories, scores)]
             cols[0].image(img)
 
-            cols[1].markdown("#### Instance segmentation")
-            # Visualize instance segmentation on input image
+            cols[1].markdown("#### Instance Segmentation")
+            # Visualize Instance Segmentation on input image
             img_draw = utils.draw_instance_predictions(img, masks, np.asarray(boxes_ltwh, dtype=np.float32), texts)
             cols[1].image(img_draw)
 
-            # Display instance segmentation in a table
+            # Display Instance Segmentation in a table
             score_thres = 0.5
             _, df = utils.generate_instance_prediction_table(categories, scores)
             if len(df):

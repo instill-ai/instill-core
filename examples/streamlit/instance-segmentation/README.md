@@ -1,6 +1,6 @@
-# Instance segmentation demo
+# Instance Segmentation demo
 
-This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [Instance segmentation](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) pipeline and [Streamlit](https://streamlit.io) to visualise the instance segmentation results.
+This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [Instance Segmentation](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) pipeline and [Streamlit](https://streamlit.io) to visualise the Instance Segmentation results.
 
 ## Preparation
 Run VDP locally

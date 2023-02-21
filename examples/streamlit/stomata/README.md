@@ -1,6 +1,6 @@
-# Stomata instance segmentation demo
+# Stomata Instance Segmentation demo
 
-This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [Instance segmentation](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) pipeline for identifying stomata.
+This demo is to showcase using [VDP](https://github.com/instill-ai/vdp) to quickly set up a [Instance Segmentation](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) pipeline for identifying stomata.
 It also uses [Streamlit](https://streamlit.io) to show the stomata segmentation results and calculated statistics by triggering the VDP pipeline.
 
 ## Preparation

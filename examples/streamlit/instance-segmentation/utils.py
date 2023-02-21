@@ -60,7 +60,7 @@ def rle_decode(uncompressed_rle: dict):
     return cocomask.decode(compressed_rle)
 
 def rle_decode_original_image(rle_str: str, bbox_ltwh: Tuple[float], image_size: Tuple[int]):
-    r""" Decode VDP standardized instance segmentation result into a binary mask of the original image shape
+    r""" Decode VDP standardized Instance Segmentation result into a binary mask of the original image shape
 
     Args:
         rle_str (str): uncompressed Run-length Encoding (RLE), a variable-length comma-delimited string "n1,n2,n3,..."
@@ -88,7 +88,7 @@ def rle_decode_original_image(rle_str: str, bbox_ltwh: Tuple[float], image_size:
 
 @st.cache_data(max_entries=10)
 def draw_instance_predictions(img: np.ndarray, masks: np.ndarray, boxes: np.ndarray, texts: List[str]):
-    r""" Draw instance segmentation results on the original image
+    r""" Draw Instance Segmentation results on the original image
 
     Args:
         img (np.ndarray): image to be drawn
@@ -96,7 +96,7 @@ def draw_instance_predictions(img: np.ndarray, masks: np.ndarray, boxes: np.ndar
         boxes (np.ndarray): detected bounding boxes with shape (num_instances, ) and bounding box format (left, top, width, height)
         texts (List[str]): a list of texts displayed with the corresponding bounding boxes
 
-    Returns np.ndarray instance segmentation results drawn on the image
+    Returns np.ndarray Instance Segmentation results drawn on the image
     """
     num_instances = len(masks)
     assert len(boxes) == num_instances and len(texts) == num_instances
