@@ -29,7 +29,7 @@ spec:
       # https://github.com/docker-library/postgres/blob/master/11/alpine/Dockerfile#L9-L15
       securityContext:
         runAsUser: 70
-        fsGroup: 70
+        runAsGroup: 70
       {{- if .Values.database.internal.serviceAccountName }}
       serviceAccountName: {{ .Values.database.internal.serviceAccountName }}
       {{- end }}
@@ -42,7 +42,7 @@ spec:
       containers:
         - name: database
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.database.internal.image.pullPolicy }}
           livenessProbe:
             exec:
               command:

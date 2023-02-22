@@ -12,7 +12,7 @@ data:
       edition: {{ template "vdp.edition" . }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
-      maximagesize: {{ .Values.maxDataSizeMB }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/pipeline/tls.crt
@@ -36,7 +36,7 @@ data:
       {{- end }}
     mgmtbackend:
       host: {{ template "vdp.mgmt" . }}
-      port: {{ template "vdp.mgmt.adminPort" . }}
+      adminport: {{ template "vdp.mgmt.adminPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/mgmt/tls.crt

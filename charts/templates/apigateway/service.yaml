@@ -6,6 +6,7 @@ metadata:
   name: {{ include "vdp.apigateway" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: apigateway
   {{- with $clusterIP.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -31,6 +32,11 @@ spec:
   {{- end }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: apigateway
+  {{- with $nodePort.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: NodePort
   ports:
@@ -57,6 +63,7 @@ spec:
   name: {{ include "vdp.apigateway" . }}
   labels:
     {{- include "vdp.labels" . | indent 4 }}
+    app.kubernetes.io/component: apigateway
   {{- with $loadBalancer.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

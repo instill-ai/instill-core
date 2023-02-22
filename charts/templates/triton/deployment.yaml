@@ -33,7 +33,6 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
-        fsGroup: 1000
       {{- if .Values.pipeline.serviceAccountName }}
       serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
       {{- end }}
@@ -45,24 +44,28 @@ spec:
       {{- end }}
       initContainers:
         - name: triton-conda-env
-          image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}-{{ ternary "cpu" "gpu" (kindIs "invalid" .Values.triton.nvidiaVisibleDevices) }}
+          imagePullPolicy: {{ .Values.triton.condaEnv.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - cp -r /conda-pack/* /shared-volume
           volumeMounts:
             - name: conda-pack
-              mountPath: /conda-pack
+              mountPath: /shared-volume
         {{- with .Values.triton.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
         - name: triton-inference-server
           image: {{ .Values.triton.image.repository }}:{{ .Values.triton.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.triton.image.pullPolicy }}
           livenessProbe:
             httpGet:
               path: /v2/health/live
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
+            failureThreshold: 1
             periodSeconds: 10
           readinessProbe:
             httpGet:
@@ -70,6 +73,7 @@ spec:
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             initialDelaySeconds: 5
+            failureThreshold: 1
             periodSeconds: 10
           {{- if .Values.triton.gpu.enabled }}
           resources:
@@ -78,7 +82,7 @@ spec:
           {{- end }}
           command: ["/bin/bash", "-c"]
           args:
-            - tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
+            - tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --disable-auto-complete-config
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
               containerPort: {{ template "vdp.triton.httpPort" . }}
@@ -93,10 +97,18 @@ spec:
             - mountPath: /dev/shm
               name: shm-volume
             - name: conda-pack
-              mountPath: /conda-pack/python-3-8.tar.gz
-              subPath: python-3-8.tar.gz
+              mountPath: /conda-pack
             - name: model-repository
               mountPath: /model-repository
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: {{ .Values.triton.nvidiaVisibleDevices }}
+            {{- if .Values.triton.extraEnv }}
+            {{- toYaml .Values.triton.extraEnv | nindent 12 }}
+            {{- end }}
+        {{- with $.Values.temporal.internal.server.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
         - name: shm-volume
           emptyDir:

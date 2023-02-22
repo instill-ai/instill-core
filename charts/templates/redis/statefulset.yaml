@@ -29,7 +29,6 @@ spec:
       securityContext:
         runAsUser: 999
         runAsGroup: 1000
-        fsGroup: 1000
       {{- if .Values.redis.internal.serviceAccountName }}
       serviceAccountName: {{ .Values.redis.internal.serviceAccountName }}
       {{- end -}}
@@ -42,11 +41,11 @@ spec:
       containers:
         - name: redis
           image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.redis.internal.image.pullPolicy }}
           livenessProbe:
             tcpSocket:
               port: 6379
-            initialDelaySeconds: 300
+            initialDelaySeconds: 1
             periodSeconds: 10
           readinessProbe:
             tcpSocket:

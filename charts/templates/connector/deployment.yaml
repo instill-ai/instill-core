@@ -1,5 +1,3 @@
-{{- $dataVDP := .Values.persistence.persistentVolumeClaim.vdp -}}
-{{- $dataAirbyte := .Values.persistence.persistentVolumeClaim.airbyte -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,7 +35,6 @@ spec:
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
-        fsGroup: 65532
       {{- if .Values.connector.serviceAccountName }}
       serviceAccountName: {{ .Values.connector.serviceAccountName }}
       {{- end }}
@@ -51,7 +48,7 @@ spec:
         {{- if eq .Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
@@ -63,9 +60,8 @@ spec:
           securityContext:
             runAsUser: 0
             runAsGroup: 0
-            fsGroup: 0
           image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
           command: ["/bin/bash", "-c"]
           args:
             - >
@@ -75,7 +71,7 @@ spec:
               value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
         - name: connector-backend-migration
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
           {{- if .Values.connector.resources }}
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
@@ -87,7 +83,7 @@ spec:
               subPath: config.yaml
         - name: connector-backend-init
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
           {{- if .Values.connector.resources }}
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
@@ -101,34 +97,28 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
-        - name: socat
+        - name: dind-daemon
+          image: docker:dind
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+                cpu: 20m
+                memory: 512Mi
           securityContext:
             runAsUser: 0
             runAsGroup: 0
-            fsGroup: 0
-          image: alpine/socat:1.7.4.4-r0
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
-          livenessProbe:
-            initialDelaySeconds: 120
-            tcpSocket:
-              port: rpc
-          {{- if .Values.connector.resources }}
-          resources:
-            {{- toYaml .Values.connector.resources | nindent 12 }}
-          {{- end }}
-          args:
-            - tcp-listen:2375,fork,reuseaddr
-            - unix-connect:/var/run/docker.sock
-          ports:
-            - name: socat-docker
-              containerPort: 2375
-              protocol: TCP
+            privileged: true
+          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
           volumeMounts:
-            - name: docker-socket
-              mountPath: /var/run/docker.sock
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
         - name: connector-backend-worker
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
           livenessProbe:
             initialDelaySeconds: 120
             tcpSocket:
@@ -145,9 +135,13 @@ spec:
             - name: config
               mountPath: /connector-backend/config/config.yaml
               subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
         - name: connector-backend
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
           readinessProbe:
             httpGet:
               path: /v1alpha/__readiness
@@ -175,10 +169,6 @@ spec:
             - name: config
               mountPath: /connector-backend/config/config.yaml
               subPath: config.yaml
-            - name: data-vdp
-              mountPath: /vdp
-            - name: data-airbyte
-              mountPath: /airbyte
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/vdp/ssl/connector"
@@ -197,30 +187,12 @@ spec:
         - name: config
           configMap:
             name: {{ template "vdp.connector" . }}
-        - name: docker-socket
-          hostPath:
-            path: /var/run/docker.sock
-            type: Socket
-        - name: data-vdp
-        {{- if not .Values.persistence.enabled }}
+        - name: docker-volume
           emptyDir: {}
-        {{- else if $dataVDP.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $dataVDP.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: data-vdp
-        {{- end }}
-        - name: data-airbyte
-        {{- if not .Values.persistence.enabled }}
+        - name: vdp
           emptyDir: {}
-        {{- else if $dataAirbyte.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $dataAirbyte.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: data-airbyte
-        {{- end }}
+        - name: airbyte
+          emptyDir: {}
         {{- if .Values.internalTLS.enabled }}
         - name: connector-internal-certs
           secret:

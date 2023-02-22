@@ -41,7 +41,7 @@ spec:
       containers:
         - name: temporal-web
           image: {{ .Values.temporal.internal.ui.image.repository }}:{{ .Values.temporal.internal.ui.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.temporal.internal.ui.image.pullPolicy }}
           env:
             - name: TEMPORAL_ADDRESS
               value: {{ include "vdp.temporal" . }}-frontend.{{ .Release.Namespace }}.svc:{{ template "vdp.temporal.frontend.grpcPort" . }}

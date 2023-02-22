@@ -52,6 +52,8 @@ expose:
       apigatewayStats:
       # The service port api-gateway metrics listens on
       apigatewayMetrics:
+      # The service port console web listens on
+      console:
       # The service port temporal web listens on
       temporal:
     # Annotations on the ClusterIP service
@@ -73,11 +75,16 @@ expose:
         port:
         # The node port api-gateway metrics listens on
         nodePort: 30012
+      console:
+        # The service port console web listens on
+        port:
+        # The node port console web listens on
+        nodePort: 30020
       temporal:
         # The service port temporal web listens on
         port:
         # The node port temporal web listens on
-        nodePort: 30017
+        nodePort: 30030
     # Annotations on the NodePort service
     annotations: {}
   loadBalancer:
@@ -91,6 +98,8 @@ expose:
       apigatewayStats:
       # The service port api-gateway metrics listens on
       apigatewayMetrics:
+      # The service port console web listens on
+      console:
       # The service port temporal web listens on
       temporal:
     # Annotations on the LoadBalancer service
@@ -192,38 +201,19 @@ persistence:
   # and redis components, i.e. they are never deleted automatically)
   resourcePolicy: "keep"
   persistentVolumeClaim:
-    vdp:
-      # Use the existing PVC which must be created manually before bound,
-      # and specify the "subPath" if the PVC is shared with other components
-      existingClaim: ""
-      # Specify the "storageClass" used to provision the volume. Or the default
-      # StorageClass will be used (the default).
-      # Set it to "-" to disable dynamic provisioning
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 2Gi
-      annotations: {}
-    airbyte:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 2Gi
-      annotations: {}
     modelRepository:
       existingClaim: ""
       storageClass: ""
       subPath: ""
-      accessMode: ReadWriteOnce
-      size: 4Gi
+      accessMode: ReadWriteMany
+      size: 10Gi
       annotations: {}
     condaPack:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 4Gi
+      size: 2Gi
       annotations: {}
     # If external database is used, the following settings for database will
     # be ignored
@@ -243,8 +233,6 @@ persistence:
       accessMode: ReadWriteOnce
       size: 512Mi
       annotations: {}
-
-imagePullPolicy: IfNotPresent
 
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
@@ -325,6 +313,7 @@ pipeline:
   image:
     repository: instill/pipeline-backend
     tag: latest
+    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -377,6 +366,7 @@ connector:
   image:
     repository: instill/connector-backend
     tag: latest
+    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -429,6 +419,7 @@ model:
   image:
     repository: instill/model-backend
     tag: latest
+    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -481,6 +472,7 @@ mgmt:
   image:
     repository: instill/mgmt-backend
     tag: latest
+    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -590,8 +582,9 @@ usageServer:
 triton:
   # -- The image of Triton
   image:
-    repository: nvcr.io/nvidia/tritonserver
-    tag: 22.05-py3
+    repository: instill/tritonserver
+    tag: 22.12
+    pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -640,10 +633,13 @@ triton:
       minAvailable:
       maxUnavailable:
 
+  nvidiaVisibleDevices:
+
   condaEnv:
     image:
       repository: instill/triton-conda-env
-      tag: 0.2.6-alpha-m1
+      tag: latest
+      pullPolicy: IfNotPresent
 
   shmSizeLimit: 2Gi
 
@@ -660,6 +656,7 @@ database:
     image:
       repository: postgres
       tag: 15-alpine
+      pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
     # -- Mount the service account token
@@ -721,6 +718,7 @@ redis:
     image:
       repository: redis
       tag: 7.0-alpine3.16
+      pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
     # -- Mount the service account token
@@ -761,6 +759,7 @@ temporal:
       image:
         repository: temporalio/server
         tag: 1.19.1
+        pullPolicy: IfNotPresent
 
       dynamicConfig: {}
       # matching.numTaskqueueReadPartitions:
@@ -1002,6 +1001,7 @@ temporal:
       image:
         repository: temporalio/admin-tools
         tag: 1.19.1
+        pullPolicy: IfNotPresent
       # -- Set the service account to be used, default if left empty
       serviceAccountName: ""
       # -- Mount the service account token
@@ -1028,6 +1028,7 @@ temporal:
       image:
         repository: temporalio/ui
         tag: 2.9.0
+        pullPolicy: IfNotPresent
       # -- Set the service account to be used, default if left empty
       serviceAccountName: ""
       # -- Mount the service account token

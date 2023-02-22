@@ -40,7 +40,6 @@ spec:
       securityContext:
         runAsUser: 1000 #temporal user
         runAsGroup: 1000 #temporal group
-        fsGroup: 1000 #temporal group
       {{- with $.Values.temporal.internal.server.serviceAccountName }}
       serviceAccountName: {{- toYaml . }}
       {{- end }}
@@ -54,7 +53,7 @@ spec:
         {{- if $.Values.elasticsearch.enabled }}
         - name: check-elasticsearch-index
           image: {{ $.Values.temporal.internal.admintools.image.repository }}:{{ $.Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.temporal.internal.admintools.image.pullPolicy }}
           command: ['sh', '-c']
           args:
             - >
@@ -74,7 +73,7 @@ spec:
         {{- if eq $.Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ $.Values.database.internal.image.repository }}:{{ $.Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
           command: ['sh', '-c']
           args:
             - >
@@ -105,7 +104,7 @@ spec:
       containers:
         - name: temporal-{{ $service }}
           image: {{ $.Values.temporal.internal.server.image.repository }}:{{ $.Values.temporal.internal.server.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.temporal.internal.server.image.pullPolicy }}
           {{- if ne $service "worker"}}
           livenessProbe:
             initialDelaySeconds: 120

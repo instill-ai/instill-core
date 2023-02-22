@@ -22,7 +22,7 @@ spec:
       initContainers:
         - name: check-elasticsearch
           image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
           command: ['sh', '-c', 'until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }} 2>&1 > /dev/null; do echo waiting for elasticsearch to start; sleep 1; done;']
           env:
             - name: ELASTIC_USERNAME
@@ -38,7 +38,7 @@ spec:
       containers:
         - name: create-elasticsearch-index
           image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
           command: ['sh', '-c']
           args:
             - >

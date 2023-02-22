@@ -34,7 +34,6 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
-        fsGroup: 1000
       {{- if .Values.apigateway.serviceAccountName }}
       serviceAccountName: {{ .Values.apigateway.serviceAccountName }}
       {{- end }}
@@ -51,7 +50,7 @@ spec:
       containers:
         - name: api-gateway
           image: {{ .Values.apigateway.image.repository }}:{{ .Values.apigateway.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.apigateway.image.pullPolicy }}
           readinessProbe:
             httpGet:
               path: /__health
@@ -64,7 +63,7 @@ spec:
               path: /__health
               scheme: {{ upper (ternary "https" "http" .Values.internalTLS.enabled) }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-            initialDelaySeconds: 30
+            initialDelaySeconds: 5
             periodSeconds: 10
           {{- if .Values.apigateway.resources }}
           resources:

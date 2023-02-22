@@ -35,7 +35,7 @@ spec:
       {{- if eq .Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
           - name: PGHOST
@@ -46,7 +46,7 @@ spec:
       containers:
         - name: temporal-admin-tools
           image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
           livenessProbe:
             exec:
               command:

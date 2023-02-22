@@ -34,7 +34,6 @@ spec:
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
-        fsGroup: 1001
       {{- if .Values.console.serviceAccountName }}
       serviceAccountName: {{ .Values.console.serviceAccountName }}
       {{- end }}
@@ -51,7 +50,7 @@ spec:
       containers:
         - name: console
           image: {{ .Values.console.image.repository }}:{{ .Values.console.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.console.image.pullPolicy }}
           readinessProbe:
             httpGet:
               path: /api/health
@@ -94,6 +93,8 @@ spec:
               value: "{{ .Values.consoleURL }}"
             - name: NEXT_PUBLIC_API_GATEWAY_BASE_URL
               value: "{{ .Values.apigatewayURL }}"
+            - name: NEXT_SERVER_API_GATEWAY_BASE_URL
+              value: http://{{ template "vdp.apigateway" . }}:{{ template "vdp.apigateway.httpPort" . }}
             - name: NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME
               value: "instill-ai-user"
             - name: NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION

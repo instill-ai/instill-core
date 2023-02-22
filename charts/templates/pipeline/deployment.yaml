@@ -35,7 +35,6 @@ spec:
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
-        fsGroup: 65532
       {{- if .Values.pipeline.serviceAccountName }}
       serviceAccountName: {{ .Values.pipeline.serviceAccountName }}
       {{- end }}
@@ -49,7 +48,7 @@ spec:
         {{- if eq .Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
@@ -59,7 +58,7 @@ spec:
         {{- end }}
         - name: pipeline-backend-migration
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.pipeline.image.pullPolicy }}
           {{- if .Values.pipeline.resources }}
           resources:
             {{- toYaml .Values.pipeline.resources | nindent 12 }}
@@ -75,7 +74,7 @@ spec:
       containers:
         - name: pipeline-backend
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.pipeline.image.pullPolicy }}
           readinessProbe:
             httpGet:
               path: /v1alpha/__readiness

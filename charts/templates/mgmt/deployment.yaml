@@ -35,7 +35,6 @@ spec:
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
-        fsGroup: 65532
       {{- if .Values.mgmt.serviceAccountName }}
       serviceAccountName: {{ .Values.mgmt.serviceAccountName }}
       {{- end }}
@@ -49,7 +48,7 @@ spec:
         {{- if eq .Values.database.type "internal" }}
         - name: wait-for-db
           image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
@@ -59,7 +58,7 @@ spec:
         {{- end }}
         - name: mgmt-backend-migration
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
           {{- if .Values.mgmt.resources }}
           resources:
             {{- toYaml .Values.mgmt.resources | nindent 12 }}
@@ -71,7 +70,7 @@ spec:
               subPath: config.yaml
         - name: mgmt-backend-init
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
           {{- if .Values.mgmt.resources }}
           resources:
             {{- toYaml .Values.mgmt.resources | nindent 12 }}
@@ -87,7 +86,7 @@ spec:
       containers:
         - name: mgmt-backend
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
           readinessProbe:
             httpGet:
               path: /v1alpha/__readiness

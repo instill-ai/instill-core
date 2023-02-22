@@ -11,6 +11,9 @@ metadata:
   {{- end }}
 spec:
   ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+      port: {{ template "vdp.mgmt.adminPort" . }}
+      targetPort: {{ template "vdp.mgmt.adminPort" . }}
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
       port: {{ template "vdp.mgmt.publicPort" . }}
       targetPort: {{ template "vdp.mgmt.publicPort" . }}

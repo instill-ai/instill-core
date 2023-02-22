@@ -1,45 +1,24 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "vdp.connector" . }}
+  name: {{ template "vdp.model" . }}
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
-    app.kubernetes.io/component: connector
+    app.kubernetes.io/component: model
 data:
   config.yaml: |+
     server:
-      port: {{ template "vdp.connector.port" . }}
+      port: {{ template "vdp.model.port" . }}
       edition: {{ template "vdp.edition" . }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      itmode: {{ .Values.enableTestMode }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/vdp/ssl/connector/tls.crt
-        key: /etc/vdp/ssl/connector/tls.key
+        cert: /etc/vdp/ssl/model/tls.crt
+        key: /etc/vdp/ssl/model/tls.key
       {{- end }}
-    worker:
-      mountsource:
-        vdp: vdp
-        airbyte: airbyte
-    database:
-      username: {{ template "vdp.database.username" . }}
-      password: {{ template "vdp.database.rawPassword" . }}
-      host: {{ template "vdp.database.host" . }}
-      port: {{ template "vdp.database.port" . }}
-      name: connector
-      version: 1
-      timezone: Etc/UTC
-      pool:
-        idleconnections: {{ .Values.database.maxIdleConns }}
-        maxconnections: {{ .Values.database.maxOpenConns }}
-        connlifetime: {{ .Values.database.maxConnLifeTime }}
-    cache:
-      redis:
-        redisoptions:
-          addr: {{ template "vdp.redis.addr" . }}
-    temporal:
-      clientoptions:
-        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
     pipelinebackend:
       host: {{ template "vdp.pipeline" . }}
       port: {{ template "vdp.pipeline.port" . }}
@@ -50,7 +29,7 @@ data:
       {{- end }}
     mgmtbackend:
       host: {{ template "vdp.mgmt" . }}
-      port: {{ template "vdp.mgmt.adminPort" . }}
+      adminport: {{ template "vdp.mgmt.adminPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/mgmt/tls.crt
@@ -58,3 +37,34 @@ data:
       {{- end }}
     usageserver:
       {{- toYaml .Values.usageServer | nindent 6 }}
+    tritonserver:
+      grpcuri: {{ include "vdp.triton" . }}:{{ include "vdp.triton.grpcPort" . }}
+      modelstore: /model-repository
+    database:
+      username: {{ template "vdp.database.username" . }}
+      password: {{ template "vdp.database.rawPassword" . }}
+      host: {{ template "vdp.database.host" . }}
+      port: {{ template "vdp.database.port" . }}
+      name: model
+      version: 1
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ template "vdp.redis.addr" . }}
+    maxbatchsizelimitation:
+      unspecified: 2
+      classification: 16
+      detection: 8
+      keypoint: 8
+      ocr: 2
+      instancesegmentation: 8
+      semanticsegmentation: 8
+      textgeneration: 1
+    temporal:
+      clientoptions:
+        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
