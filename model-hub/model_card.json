@@ -20,14 +20,14 @@
         "type": "string",
         "description": "Task of the model",
         "enum": [
-          "classification",
-          "detection",
-          "keypoint",
-          "ocr",
-          "instance_segmentation",
-          "semantic_segmentation",
-          "text_to_image",
-          "text_generation"
+          "TASK_CLASSIFICATION",
+          "TASK_DETECTION",
+          "TASK_KEYPOINT",
+          "TASK_OCR",
+          "TASK_INSTANCE_SEGMENTATION",
+          "TASK_SEMANTIC_SEGMENTATION",
+          "TASK_TEXT_TO_IMAGE",
+          "TASK_TEXT_GENERATION"
         ]
       },
       "model_definition": {
