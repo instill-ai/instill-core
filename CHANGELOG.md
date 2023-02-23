@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0-alpha](https://github.com/instill-ai/vdp/compare/v0.5.0-alpha...v0.6.0-alpha) (2023-02-23)
+
+
+### Features
+
+* add helm charts ([#155](https://github.com/instill-ai/vdp/issues/155)) ([eaa78cb](https://github.com/instill-ai/vdp/commit/eaa78cbedbceb5237d051f5a31c577cafe603cd5))
+* update console env ([#201](https://github.com/instill-ai/vdp/issues/201)) ([e832b74](https://github.com/instill-ai/vdp/commit/e832b74c654f612b7df64872744fe9abde42bf67))
+
+
+### Bug Fixes
+
+* fix console e2e config ([#203](https://github.com/instill-ai/vdp/issues/203)) ([3d7038f](https://github.com/instill-ai/vdp/commit/3d7038fd018b72d0823f55fa66fe1f0a4f393fa5))
+
 ## [0.5.0-alpha](https://github.com/instill-ai/vdp/compare/v0.4.1-alpha...v0.5.0-alpha) (2023-02-10)
 
 
