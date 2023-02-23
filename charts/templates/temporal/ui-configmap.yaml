@@ -1,0 +1,12 @@
+{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.ui.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.temporal" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: temporal-ui
+data:
+  config.yml: |
+    {{- toYaml .Values.temporal.internal.ui.config | nindent 4  }}
+{{- end -}}

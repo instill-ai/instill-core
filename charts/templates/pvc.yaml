@@ -1,0 +1,63 @@
+{{- if .Values.persistence.enabled }}
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+{{- if not $modelRepository.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: model-repository
+  annotations:
+  {{- range $key, $value := $modelRepository.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model
+spec:
+  accessModes:
+    - {{ $modelRepository.accessMode }}
+  resources:
+    requests:
+      storage: {{ $modelRepository.size }}
+  {{- if $modelRepository.storageClass }}
+    {{- if eq "-" $modelRepository.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $modelRepository.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $condaPack := .Values.persistence.persistentVolumeClaim.condaPack -}}
+{{- if not $condaPack.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: conda-pack
+  annotations:
+  {{- range $key, $value := $condaPack.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model
+spec:
+  accessModes:
+    - {{ $condaPack.accessMode }}
+  resources:
+    requests:
+      storage: {{ $condaPack.size }}
+  {{- if $condaPack.storageClass }}
+    {{- if eq "-" $condaPack.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $condaPack.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

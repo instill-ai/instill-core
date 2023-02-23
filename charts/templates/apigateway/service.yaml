@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+{{- if eq .Values.expose.type "clusterIP" }}
+{{- $clusterIP := .Values.expose.clusterIP }}
+  name: {{ include "vdp.apigateway" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: apigateway
+  {{- with $clusterIP.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $clusterIP.ports.apigatewayHttp }}
+      targetPort: {{ template "vdp.apigateway.httpPort" . }}
+    - name: stats
+      port: {{ default (include "vdp.apigateway.statsPort" .) $clusterIP.ports.apigatewayStats }}
+      targetPort: {{ template "vdp.apigateway.statsPort" . }}
+    - name: metrics
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $clusterIP.ports.apigatewayMetrics }}
+      targetPort: {{ template "vdp.apigateway.metricsPort" . }}
+{{- else if or (eq .Values.expose.type "ingress") (eq .Values.expose.type "nodePort")}}
+{{- $nodePort := .Values.expose.nodePort }}
+  {{- if (eq .Values.expose.type "ingress") }}
+  name: {{ template "vdp.apigateway" .  }}
+  {{- else if (eq .Values.expose.type "nodePort") }}
+  name: {{ default (include "vdp.apigateway" .) $nodePort.name }}
+  {{- end }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: apigateway
+  {{- with $nodePort.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: NodePort
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $nodePort.ports.apigatewayHttp.port }}
+      targetPort: {{ template "vdp.apigateway.httpPort" . }}
+      {{- if and (ge ($nodePort.ports.apigatewayHttp.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayHttp.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayHttp.nodePort }}
+      {{- end }}
+    - name: stats
+      port: {{ default (include "vdp.apigateway.statsPort" .) $nodePort.ports.apigatewayStats.port }}
+      targetPort: {{ template "vdp.apigateway.statsPort" . }}
+      {{- if and (ge ($nodePort.ports.apigatewayStats.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayStats.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayStats.nodePort }}
+      {{- end }}
+    - name: metrics
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $nodePort.ports.apigatewayMetrics.port }}
+      targetPort: {{ template "vdp.apigateway.metricsPort" . }}
+      {{- if and (ge ($nodePort.ports.apigatewayMetrics.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayMetrics.nodePort | int) (32767 | int)) }}
+      nodePort: {{ $nodePort.ports.apigatewayMetrics.nodePort }}
+      {{- end }}
+{{- else if eq .Values.expose.type "loadBalancer" }}
+{{- $loadBalancer := .Values.expose.loadBalancer }}
+  name: {{ include "vdp.apigateway" . }}
+  labels:
+    {{- include "vdp.labels" . | indent 4 }}
+    app.kubernetes.io/component: apigateway
+  {{- with $loadBalancer.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: LoadBalancer
+  {{- with $loadBalancer.sourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if $loadBalancer.IP }}
+  loadBalancerIP: {{ $loadBalancer.IP }}
+  {{- end }}
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ default (include "vdp.apigateway.httpPort" .) $loadBalancer.ports.apigatewayHttp }}
+      targetPort: {{ template "vdp.apigateway.httpPort" . }}
+    - name: stats
+      port: {{ default (include "vdp.apigateway.statsPort" .) $loadBalancer.ports.apigatewayStats }}
+      targetPort: {{ template "vdp.apigateway.statsPort" . }}
+    - name: metrics
+      port: {{ default (include "vdp.apigateway.metricsPort" .) $loadBalancer.ports.apigatewayMetrics }}
+      targetPort: {{ template "vdp.apigateway.metricsPort" . }}
+{{- end }}
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway

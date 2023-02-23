@@ -1,0 +1,31 @@
+You have installed/deployed:
+
+  Chart name: {{ .Chart.Name }}
+  Release name: {{ .Release.Name }}
+  Fullname of k8s objects: {{ include "vdp.fullname" . }}
+
+Get the application URL by running these commands:
+{{- if eq .Values.expose.type "ingress" }}
+{{- range $key, $value := .Values.expose.ingress.hosts }}
+  http{{ if $.Values.internalTLS.enabled }}s{{ end }}://{{ $value }}
+{{- end }}
+{{- else if eq .Values.expose.type "nodePort" }}
+  export APIGATEWAY_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "vdp.apigateway" . }})
+  export CONSOLE_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "vdp.console" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$APIGATEWAY_NODE_PORT
+  echo http://$NODE_IP:$CONSOLE_NODE_PORT
+  {{- else if eq .Values.expose.type "loadBalancer" }}
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "vdp.apigateway" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "vdp.apigateway" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+  {{- else if eq .Values.expose.type "clusterIP" }}
+  export APIGATEWAY_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export APIGATEWAY_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export CONSOLE_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONSOLE_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit the api-gateway http://localhost:8080 and console http://localhost:3000 by:"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $APIGATEWAY_POD_NAME 8080:${APIGATEWAY_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $CONSOLE_POD_NAME 3000:${CONSOLE_CONTAINER_PORT}"
+{{- end }}

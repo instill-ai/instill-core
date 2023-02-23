@@ -1,0 +1,125 @@
+{{- if eq .Values.database.type "internal" -}}
+{{- $database := .Values.persistence.persistentVolumeClaim.database -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "vdp.database" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  serviceName: "{{ template "vdp.database" . }}"
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.labels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/database/secret.yaml") . | sha256sum }}
+        {{- with .Values.database.internal.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # 70 is the standard uid/gid for "postgres" in Alpine
+      # https://github.com/docker-library/postgres/blob/master/11/alpine/Dockerfile#L9-L15
+      securityContext:
+        runAsUser: 70
+        runAsGroup: 70
+      {{- if .Values.database.internal.serviceAccountName }}
+      serviceAccountName: {{ .Values.database.internal.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.database.internal.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: database
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ .Values.database.internal.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            timeoutSeconds: {{ .Values.database.internal.livenessProbe.timeoutSeconds }}
+          readinessProbe:
+            exec:
+              command:
+              - pg_isready
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: {{ .Values.database.internal.readinessProbe.timeoutSeconds }}
+          {{- if .Values.database.internal.resources }}
+          resources:
+            {{- toYaml .Values.database.internal.resources | nindent 10 }}
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ template "vdp.database" . }}
+          env:
+            # put the data into a sub directory to avoid the permission issue in k8s with restricted psp enabled
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+            subPath: {{ $database.subPath }}
+          - name: shm-volume
+            mountPath: /dev/shm
+      volumes:
+        - name: shm-volume
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.database.internal.shmSizeLimit }}
+        {{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- else if $database.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ $database.existingClaim }}
+        {{- end }}
+      {{- with .Values.database.internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.database.internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.database.internal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if and .Values.persistence.enabled (not $database.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        {{- include "vdp.labels" . | nindent 8 }}
+      annotations:
+      {{- range $key, $value := $database.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      accessModes: [{{ $database.accessMode | quote }}]
+      {{- if $database.storageClass }}
+      {{- if (eq "-" $database.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ $database.storageClass }}"
+      {{- end }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $database.size | quote }}
+{{- end -}}
+{{- end -}}

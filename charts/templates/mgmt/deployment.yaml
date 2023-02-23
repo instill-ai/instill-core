@@ -1,0 +1,157 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.mgmt" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.mgmt.autoscaling.enabled }}
+  replicas: {{ .Values.mgmt.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: mgmt
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: mgmt
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
+        {{- with .Values.mgmt.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.mgmt.serviceAccountName }}
+      serviceAccountName: {{ .Values.mgmt.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.mgmt.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if eq .Values.database.type "internal" }}
+        - name: wait-for-db
+          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "vdp.database" . }}
+            - name: PGUSER
+              value: {{ template "vdp.database.username" . }}
+        {{- end }}
+        - name: mgmt-backend-migration
+          image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
+          {{- if .Values.mgmt.resources }}
+          resources:
+            {{- toYaml .Values.mgmt.resources | nindent 12 }}
+          {{- end }}
+          command: ["./mgmt-backend-migrate"]
+          volumeMounts:
+            - name: config
+              mountPath: /mgmt-backend/config/config.yaml
+              subPath: config.yaml
+        - name: mgmt-backend-init
+          image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
+          {{- if .Values.mgmt.resources }}
+          resources:
+            {{- toYaml .Values.mgmt.resources | nindent 12 }}
+          {{- end }}
+          command: ["./mgmt-backend-init"]
+          volumeMounts:
+            - name: config
+              mountPath: /mgmt-backend/config/config.yaml
+              subPath: config.yaml
+        {{- with .Values.mgmt.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: mgmt-backend
+          image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
+          imagePullPolicy: {{ .Values.mgmt.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.mgmt.resources }}
+          resources:
+            {{- toYaml .Values.mgmt.resources | nindent 12 }}
+          {{- end }}
+          command: ["./mgmt-backend"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+              containerPort: {{ template "vdp.mgmt.adminPort" . }}
+              protocol: TCP
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "vdp.mgmt.publicPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /mgmt-backend/config/config.yaml
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: mgmt-internal-certs
+              mountPath: "/etc/vdp/ssl/mgmt"
+            {{- end }}
+            {{- with .Values.mgmt.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          {{- with .Values.mgmt.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.mgmt.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.mgmt" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: mgmt-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.mgmt.secretName" . }}
+        {{- end }}
+        {{- if .Values.mgmt.extraVolumes }}
+        {{- toYaml .Values.mgmt.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.mgmt.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mgmt.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mgmt.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,63 @@
+{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vdp.temporal" . }}-frontend
+  labels:
+    {{- include "vdp.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: temporal-frontend
+  {{- with .Values.temporal.internal.server.frontend.service.annotations }}
+  annotations:
+      {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.temporal.internal.server.frontend.service.type }}
+  ports:
+    - port: {{ default (include "vdp.temporal.frontend.grpcPort" $) .Values.temporal.internal.server.frontend.service.port }}
+      targetPort: rpc
+      protocol: TCP
+      name: grpc-rpc
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: temporal-frontend
+---
+{{- range $service := (list "frontend" "matching" "history" "worker") }}
+{{- $serviceValues := index $.Values.temporal.internal.server $service -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vdp.temporal" $ }}-{{ $service }}-headless
+  labels:
+    {{- include "vdp.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: temporal-{{ $service }}
+    app.kubernetes.io/headless: 'true'
+    prometheus.io/job: {{ $.Chart.Name }}-temporal-{{ $service }}
+    prometheus.io/scrape: 'true'
+    prometheus.io/scheme: http
+    prometheus.io/port: "9090"
+
+  annotations:
+    # Use this annotation in addition to the actual field below because the
+    # annotation will stop being respected soon but the field is broken in
+    # some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - port: {{ $serviceValues.service.port }}
+      targetPort: rpc
+      protocol: TCP
+      name: grpc-rpc
+    - port: 9090
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "vdp.matchLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: temporal-{{ $service }}
+---
+{{- end }}
+{{- end }}

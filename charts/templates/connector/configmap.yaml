@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.connector" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: connector
+data:
+  config.yaml: |+
+    server:
+      port: {{ template "vdp.connector.port" . }}
+      edition: {{ template "vdp.edition" . }}
+      disableusage: {{ .Values.disableUsage }}
+      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/connector/tls.crt
+        key: /etc/vdp/ssl/connector/tls.key
+      {{- end }}
+    worker:
+      mountsource:
+        vdp: /vdp
+        airbyte: /airbyte
+      mounttarget:
+        vdp: /vdp
+        airbyte: /local
+    database:
+      username: {{ template "vdp.database.username" . }}
+      password: {{ template "vdp.database.rawPassword" . }}
+      host: {{ template "vdp.database.host" . }}
+      port: {{ template "vdp.database.port" . }}
+      name: connector
+      version: 1
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ template "vdp.redis.addr" . }}
+    temporal:
+      clientoptions:
+        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+    pipelinebackend:
+      host: {{ template "vdp.pipeline" . }}
+      port: {{ template "vdp.pipeline.port" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/pipeline/tls.crt
+        key: /etc/vdp/ssl/pipeline/tls.key
+      {{- end }}
+    mgmtbackend:
+      host: {{ template "vdp.mgmt" . }}
+      adminport: {{ template "vdp.mgmt.adminPort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/mgmt/tls.crt
+        key: /etc/vdp/ssl/mgmt/tls.key
+      {{- end }}
+    usageserver:
+      {{- toYaml .Values.usageServer | nindent 6 }}

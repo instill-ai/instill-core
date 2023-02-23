@@ -1,0 +1,13 @@
+{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vdp.temporal" . }}-dynamic-config
+  labels:
+    {{- include "vdp.labels" $ | nindent 4 }}
+data:
+  dynamic_config.yaml: |-
+  {{- if $.Values.temporal.internal.server.dynamicConfig }}
+    {{- toYaml .Values.temporal.internal.server.dynamicConfig | nindent 4 }}
+  {{- end }}
+{{- end }}

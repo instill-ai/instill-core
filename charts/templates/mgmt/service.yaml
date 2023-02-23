@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vdp.mgmt" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt
+  {{- with .Values.mgmt.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+      port: {{ template "vdp.mgmt.adminPort" . }}
+      targetPort: {{ template "vdp.mgmt.adminPort" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+      port: {{ template "vdp.mgmt.publicPort" . }}
+      targetPort: {{ template "vdp.mgmt.publicPort" . }}
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt

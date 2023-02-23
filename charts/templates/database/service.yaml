@@ -1,0 +1,19 @@
+{{- if eq .Values.database.type "internal" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vdp.database" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  {{- with .Values.database.internal.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - port: 5432
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+{{- end -}}
