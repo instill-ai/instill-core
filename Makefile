@@ -136,7 +136,7 @@ integration-test-release:			## Run integration test for the release VDP codebase
 		--target release \
 		-f Dockerfile.dev \
 		-t instill/vdp-test:release .
-	@make all CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+	@make all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
 	@docker run -it --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp-test:release /bin/bash -c " \
