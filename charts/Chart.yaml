@@ -6,9 +6,9 @@ description: Versatile Data Pipeline (VDP) is an open-source tool to seamlessly 
 
 type: application
 
-version: 0.0.0
+version: 0.1.0
 
-appVersion: 0.4.1-alpha
+appVersion: 0.6.0-alpha
 
 keywords:
   - unstructured data
@@ -19,7 +19,6 @@ keywords:
 
 sources:
   - https://github.com/instill-ai/vdp
-  - https://github.com/instill-ai/vdp/charts
 
 home: "https://www.instill.tech"
 
