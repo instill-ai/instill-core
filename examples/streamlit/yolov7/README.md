@@ -32,7 +32,7 @@ Build a Docker image
 ```bash
 $ docker build -t streamlit-yolov7 .
 ```
-Run the Docker container and connect to VDP 
+Run the Docker container and connect to VDP
 ```bash
 $ docker run -p 8501:8501 --network instill-network streamlit-yolov7 -- --demo-url=http://localhost:8501 --pipeline-backend-base-url=http://api-gateway:8080 --yolov4=yolov4 --yolov7=yolov7
 

@@ -2,11 +2,11 @@ apiVersion: v2
 
 name: vdp
 
-description: Versatile Data Pipeline (VDP) is an open-source tool to seamlessly integrate AI for unstructured data into the modern data stack
+description: Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
 
 type: application
 
-version: 0.1.0
+version: 0.1.0-alpha
 
 appVersion: 0.6.0-alpha
 
@@ -22,7 +22,7 @@ sources:
 
 home: "https://www.instill.tech"
 
-icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/instill-logo.png
+icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/vdp-logo.png
 
 maintainers:
   - name: Instill AI LTD

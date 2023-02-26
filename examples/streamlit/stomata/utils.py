@@ -82,7 +82,7 @@ def rle_encode(binary_mask):
     r"""
     Args:
         binary_mask: a binary mask with the shape of `mask_shape`
-    
+
     Returns uncompressed Run-length Encoding (RLE) in COCO format
             Link: https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
             {
@@ -97,7 +97,7 @@ def rle_encode(binary_mask):
         if i == 0 and value == 1:
             counts.append(0)    # Add 0 if the mask starts with one, since the odd counts are always the number of zeros
         counts.append(len(list(elements)))
-    
+
     return uncompressed_rle
 
 def rle_decode(uncompressed_rle):
@@ -115,7 +115,7 @@ def rle_decode(uncompressed_rle):
     """
     if len(uncompressed_rle.get('size')) != 2:
         return None
-    
+
     height, width = uncompressed_rle.get('size')
     compressed_rle = cocomask.frPyObjects(uncompressed_rle, height, width)
     return cocomask.decode(compressed_rle)

@@ -51,7 +51,7 @@ jobs:
           tags: instill/streamlit-yolov7:latest
           no-cache: true
 
-      # Run only if some file in 'examples/streamlit/instancesegmentation' folder was changed
+      # Run only if some file in 'examples/streamlit/instance-segmentation' folder was changed
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
         if: steps.filter.outputs.streamlit-instance-segmentation == 'true'

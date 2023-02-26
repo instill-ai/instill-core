@@ -22,7 +22,7 @@ spec:
     app.kubernetes.io/component: temporal-frontend
 ---
 {{- range $service := (list "frontend" "matching" "history" "worker") }}
-{{- $serviceValues := index $.Values.temporal.internal.server $service -}}
+{{ $serviceValues := index $.Values.temporal.internal.server $service }}
 apiVersion: v1
 kind: Service
 metadata:
