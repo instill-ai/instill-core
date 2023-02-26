@@ -1,5 +1,4 @@
 {{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
-{{- if or .Values.elasticsearch.enabled (eq .Values.elasticsearch.type "external") }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -67,5 +66,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- end }}
 {{- end }}

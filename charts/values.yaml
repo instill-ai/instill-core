@@ -7,6 +7,27 @@ namespaceOverride: ""
 ## -- Provide a name to substitute for the full names of resources
 fullnameOverride: ""
 
+# -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
+# Set it as "Recreate" when "RWM" for volumes isn't supported
+updateStrategy:
+  type: RollingUpdate
+
+# -- Logging level: debug, info, warning, error or fatal
+logLevel: info
+
+# -- Enable integration test mode
+# if true, console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
+enableTestMode: false
+
+# -- The maximum data payload to VDP cluster (MB)
+maxDataSizeMB: 12
+
+# -- Disable usage collection
+disableUsage: false
+
+# -- Use this set to assign a list of default pullSecrets
+imagePullSecrets:
+
 expose:
   # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
@@ -205,7 +226,7 @@ persistence:
       existingClaim: ""
       storageClass: ""
       subPath: ""
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce
       size: 10Gi
       annotations: {}
     condaPack:
@@ -233,27 +254,6 @@ persistence:
       accessMode: ReadWriteOnce
       size: 512Mi
       annotations: {}
-
-# -- Use this set to assign a list of default pullSecrets
-imagePullSecrets:
-
-# -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
-# Set it as "Recreate" when "RWM" for volumes isn't supported
-updateStrategy:
-  type: RollingUpdate
-
-# -- Logging level: debug, info, warning, error or fatal
-logLevel: debug
-
-# -- Enable integration test mode
-# if true, console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
-enableTestMode: true
-
-# -- The maximum data payload to VDP cluster (MB)
-maxDataSizeMB: 12
-
-# -- Disable usage collection
-disableUsage: false
 
 apigateway:
   # -- The image of api-gateway
@@ -1059,10 +1059,9 @@ temporal:
   external:
 
 elasticsearch:
-  enabled: true
-  # -- If external Elasticsearch is used, set "type" to "external"
+  # -- If external Elasticsearch is used, set "enabled" to false
   # and fill the connection informations in "external" section
-  type: internal
+  enabled: true
   clusterName: vdp-elasticsearch
   replicas: 1
   imageTag: 8.5.1
@@ -1076,10 +1075,10 @@ elasticsearch:
     password: password
   volumeClaimTemplate:
     accessModes: ["ReadWriteOnce"]
-    storageClassName: "hostpath"
     resources:
       requests:
         storage: 100Mi
   esConfig:
     elasticsearch.yml: |
       xpack.security.enabled: false
+  external:

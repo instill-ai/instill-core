@@ -33,4 +33,4 @@ dependencies:
   - name: elasticsearch
     repository: https://helm.elastic.co
     version: 8.5.1
-    condition: elasticsearch.internal.enabled
+    condition: elasticsearch.enabled
