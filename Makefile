@@ -17,18 +17,14 @@ endif
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@docker compose up -d --quiet-pull
+	@EDITION=local-ce docker compose up -d --quiet-pull
 	@docker compose rm -f
 
 .PHONY: dev
 dev:			## Lunch all dependent services (param: PROFILE=<profile-name>)
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
-
-.PHONY: temporal
-temporal:		## Launch Temporal services
-	@docker compose up -d temporal temporal_admin_tools temporal_ui
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -100,7 +96,9 @@ doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test for the latest VDP codebases
 	@make build
-	@make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+		docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=all docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
 	@docker run -it --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp-test:latest /bin/bash -c " \
@@ -136,7 +134,8 @@ integration-test-release:			## Run integration test for the release VDP codebase
 		--target release \
 		-f Dockerfile.dev \
 		-t instill/vdp-test:release .
-	@make all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
+	@EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway docker compose up -d --quiet-pull
+	@docker compose rm -f
 	@docker run -it --rm \
 		--network instill-network \
 		--name vdp-integration-test instill/vdp-test:release /bin/bash -c " \

@@ -43,8 +43,15 @@ jobs:
       - name: Launch VDP (latest)
         if: inputs.target == 'latest'
         run: |
-          make dev PROFILE=all ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway
-
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          ITMODE=true \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          CONSOLE_BASE_URL_HOST=console \
+          CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
       - name: Run console integration test (latest)
         if: inputs.target == 'latest'
         run: |

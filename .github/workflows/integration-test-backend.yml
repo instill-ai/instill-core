@@ -49,7 +49,14 @@ jobs:
 
       - name: Launch VDP (latest)
         if: inputs.target == 'latest'
-        run: make dev PROFILE=all ITMODE=true
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          ITMODE=true \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
 
       - name: Run ${{ inputs.component }}-backend integration test (latest)
         if: inputs.target == 'latest'
@@ -66,7 +73,12 @@ jobs:
 
       - name: Launch VDP (release)
         if: inputs.target == 'release'
-        run: make all ITMODE=true
+        run: |
+          EDITION=local-ce:test \
+          ITMODE=true \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          docker compose up -d --quiet-pull
+          docker compose rm -f
 
       - name: Run ${{ inputs.component }}-backend integration test (release)
         if: inputs.target == 'release'
