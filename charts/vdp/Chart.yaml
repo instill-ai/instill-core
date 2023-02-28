@@ -6,7 +6,7 @@ description: Versatile Data Pipeline (VDP) empowers the modern data stack to pro
 
 type: application
 
-version: 0.1.0-alpha
+version: 0.0.0-alpha
 
 appVersion: 0.6.0-alpha # x-release-please-version
 

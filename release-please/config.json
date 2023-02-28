@@ -1,11 +1,15 @@
 {
   "packages": {
     ".": {
-      "release-type": "go",
+      "component": "vdp",
+      "release-type": "simple",
       "draft": false,
       "prerelease": true,
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "extra-files": [
+        "charts/vdp/Chart.yaml"
+      ]
     }
   }
 }
