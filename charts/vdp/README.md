@@ -1,6 +1,6 @@
 # vdp
 
-![Version: 0.1.0-alpha](https://img.shields.io/badge/Version-0.1.0--alpha-informational?style=flat-square) ![AppVersion: 0.6.0-alpha](https://img.shields.io/badge/AppVersion-0.6.0--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.0-alpha](https://img.shields.io/badge/Version-0.1.0--alpha-informational?style=flat-square) ![AppVersion: 0.7.0-alpha](https://img.shields.io/badge/AppVersion-0.7.0--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
 
@@ -19,7 +19,7 @@ helm repo add instill https://helm.instill.tech
 ```
 
 If you had already added this repo earlier, run `helm repo update` to retrieve
-the latest versions of the packages.  You can then run `helm search repo vdp` to see the charts.
+the latest versions of the packages.  You can then run `helm search repo vdp --devel` to see the charts.
 
 To install the chart (alpha version):
 

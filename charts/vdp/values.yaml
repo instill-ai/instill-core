@@ -1,36 +1,26 @@
 ## -- Provide a name in place of vdp
 nameOverride: ""
-
 ## -- Override the deployment namespace
 namespaceOverride: ""
-
 ## -- Provide a name to substitute for the full names of resources
 fullnameOverride: ""
-
 # -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
   type: RollingUpdate
-
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
-
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
-
 # -- Enable integration test mode, making the model-backend use dummy models for tests
 enableITMode: false
-
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
-
 # -- Disable usage collection
 disableUsage: false
-
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
-
 expose:
   # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
@@ -128,7 +118,6 @@ expose:
       temporal:
     # Annotations on the LoadBalancer service
     annotations: {}
-
 # -- The external URL for VDP core service. It is used to
 # populate the API endpoints showed on Console
 #
@@ -143,7 +132,6 @@ expose:
 # If VDP is deployed behind the proxy, set it as the URL of the proxy (without protocol and port)
 apigatewayURL: http://localhost:8080
 consoleURL: http://localhost:3000
-
 # -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -212,7 +200,6 @@ internalTLS:
     crt: ""
     # Content of triton's TLS key file, only available when `certSource` is "manual"
     key: ""
-
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
@@ -257,7 +244,6 @@ persistence:
       accessMode: ReadWriteOnce
       size: 512Mi
       annotations: {}
-
 apigateway:
   # -- The image of api-gateway
   image:
@@ -294,7 +280,6 @@ apigateway:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
   resources: {}
   autoscaling:
     enabled: false
@@ -310,7 +295,6 @@ apigateway:
     spec:
       minAvailable:
       maxUnavailable:
-
 pipeline:
   # -- The image of pipeline-backend
   image:
@@ -347,7 +331,6 @@ pipeline:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
   resources: {}
   autoscaling:
     enabled: false
@@ -363,7 +346,6 @@ pipeline:
     spec:
       minAvailable:
       maxUnavailable:
-
 connector:
   # -- The image of connector-backend
   image:
@@ -400,7 +382,6 @@ connector:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
   resources: {}
   autoscaling:
     enabled: false
@@ -416,7 +397,6 @@ connector:
     spec:
       minAvailable:
       maxUnavailable:
-
 model:
   # -- The image of model-backend
   image:
@@ -453,7 +433,6 @@ model:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
   resources: {}
   autoscaling:
     enabled: false
@@ -469,7 +448,6 @@ model:
     spec:
       minAvailable:
       maxUnavailable:
-
 mgmt:
   # -- The image of mgmt-backend
   image:
@@ -508,7 +486,6 @@ mgmt:
   serviceAnnotations: {}
   # -- The pod resource
   resources: {}
-
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -523,7 +500,6 @@ mgmt:
     spec:
       minAvailable:
       maxUnavailable:
-
 console:
   # -- The image of console
   image:
@@ -560,7 +536,6 @@ console:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-
   resources: {}
   autoscaling:
     enabled: false
@@ -576,12 +551,10 @@ console:
     spec:
       minAvailable:
       maxUnavailable:
-
 usageServer:
   tlsenabled: true
   host: usage.instill.tech
   port: 443
-
 triton:
   # -- The image of Triton
   image:
@@ -620,7 +593,6 @@ triton:
   serviceAnnotations: {}
   # -- The pod resource
   resources: {}
-
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -635,21 +607,16 @@ triton:
     spec:
       minAvailable:
       maxUnavailable:
-
   nvidiaVisibleDevices:
-
   condaEnv:
     image:
       repository: instill/triton-conda-env
       tag: latest
       pullPolicy: IfNotPresent
-
   shmSizeLimit: 2Gi
-
   gpu:
     enabled: false
     num:
-
 database:
   # -- If external database is used, set "type" to "external"
   # and fill the connection informations in "external" section
@@ -680,11 +647,9 @@ database:
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
-
     nodeSelector: {}
     tolerations: []
     affinity: {}
-
   external:
     host:
     port:
@@ -711,7 +676,6 @@ database:
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
   maxConnLifeTime: 30m
-
 redis:
   # -- If external Redis is used, set "type" to "external"
   # and fill the connection informations in "external" section
@@ -734,11 +698,9 @@ redis:
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
-
     nodeSelector: {}
     tolerations: []
     affinity: {}
-
   external:
     # -- Support redis, redis+sentinel
     # addr for redis: <host_redis>:<port_redis>
@@ -749,7 +711,6 @@ redis:
     password: ""
     # -- If using existingSecret, the key must be REDIS_PASSWORD
     existingSecret: ""
-
 temporal:
   # -- If external Temporal is used, set "type" to "external"
   # and fill the connection informations in "external" section
@@ -763,7 +724,6 @@ temporal:
         repository: temporalio/server
         tag: 1.19.1
         pullPolicy: IfNotPresent
-
       dynamicConfig: {}
       # matching.numTaskqueueReadPartitions:
       #   - value: 5
@@ -774,14 +734,11 @@ temporal:
 
       config:
         logLevel: "debug,info"
-
         # IMPORTANT: This value cannot be changed, once it's set.
         numHistoryShards: 512
-
         persistence:
           defaultStore: default
           additionalStores: {}
-
           default:
             driver: "sql"
             sql:
@@ -795,7 +752,6 @@ temporal:
               maxConnLifetime: "1h"
               # connectAttributes:
               # tx_isolation: 'READ-COMMITTED'
-
           visibility:
             driver: "sql"
             sql:
@@ -809,7 +765,6 @@ temporal:
               maxConnLifetime: "1h"
               # connectAttributes:
               #   tx_isolation: 'READ-COMMITTED'
-
       metrics:
         # Annotate pods directly with Prometheus annotations.
         # Use this if you installed Prometheus from a Helm chart.
@@ -874,7 +829,6 @@ temporal:
           spec:
             minAvailable:
             maxUnavailable:
-
       history:
         replicaCount: 1
         service:
@@ -903,7 +857,6 @@ temporal:
           spec:
             minAvailable:
             maxUnavailable:
-
       matching:
         replicaCount: 1
         service:
@@ -932,7 +885,6 @@ temporal:
           spec:
             minAvailable:
             maxUnavailable:
-
       worker:
         replicaCount: 1
         service:
@@ -961,7 +913,6 @@ temporal:
           spec:
             minAvailable:
             maxUnavailable:
-
       # -- Set the service account to be used, default if left empty
       serviceAccountName: ""
       # -- Mount the service account token
@@ -992,11 +943,9 @@ temporal:
       serviceAnnotations: {}
       # -- The pod resource
       resources: {}
-
       nodeSelector: {}
       tolerations: []
       affinity: {}
-
     admintools:
       # -- Enable Temporal admin-tools
       enabled: true
@@ -1019,11 +968,9 @@ temporal:
       podAnnotations: {}
       # -- Additional service annotations
       serviceAnnotations: {}
-
       nodeSelector: {}
       tolerations: []
       affinity: {}
-
     ui:
       # -- Enable Temporal UI
       enabled: true
@@ -1046,11 +993,9 @@ temporal:
       podAnnotations: {}
       # -- Additional service annotations
       serviceAnnotations: {}
-
       nodeSelector: {}
       tolerations: []
       affinity: {}
-
       config:
         # server/config.yml file content
         auth:
@@ -1058,9 +1003,7 @@ temporal:
         routing:
           default_to_namespace: default
           issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
-
   external:
-
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
   # and fill the connection informations in "external" section
