@@ -8,7 +8,7 @@ type: application
 
 version: 0.1.0-alpha
 
-appVersion: 0.6.0-alpha # x-release-please-version
+appVersion: 0.6.0-alpha
 
 keywords:
   - unstructured data
