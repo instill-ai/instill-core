@@ -1,11 +1,26 @@
 {
+  "last-release-sha": "be1ec2ebf616ed7fd0c14e72187fb2aa6c666f67",
   "packages": {
     ".": {
-      "release-type": "go",
+      "component": "vdp",
+      "release-type": "simple",
       "draft": false,
       "prerelease": true,
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "release-as": "v0.8.0-alpha",
+      "extra-files": [
+        "charts/vdp/README.md"
+      ]
+    },
+    "charts/vdp": {
+      "component": "vdp-helm",
+      "release-type": "helm",
+      "draft": false,
+      "prerelease": true,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "release-as": "v0.1.0-alpha"
     }
   }
 }
