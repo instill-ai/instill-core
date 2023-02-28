@@ -7,7 +7,6 @@ on:
       - main
     paths:
       - charts/**
-      - .github/workflows/release-helm-charts.yaml
 
 jobs:
   release-helm-charts:
@@ -115,10 +114,9 @@ jobs:
           set -ex
           git config --local user.email "droplet-bot@users.noreply.github.com"
           git config --local user.name "droplet-bot"
-          rm -rf .cr-index && mkdir .cr-index
           owner=$(cut -d '/' -f 1 <<< '${{ env.CHART_REPO }}')
           repo=$(cut -d '/' -f 2 <<< '${{ env.CHART_REPO }}')
-          cr index --git-repo "$repo" --owner "$owner" --token '${{ secrets.botGitHubToken }}' \
+          cr index --git-repo "$repo" --owner "$owner" \
             --pages-branch '${{ env.CHART_REPO_BRANCH }}' \
             --package-path '../${{ steps.package.outputs.dir }}' \
-            --index-path .cr-index --push
+            --index-path index.yaml --push
