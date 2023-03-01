@@ -1,33 +1,25 @@
 apiVersion: v2
-
 name: vdp
-
-description: Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
-
+description: >-
+  Versatile Data Pipeline (VDP) empowers the modern data stack to process
+  unstructured data.
 type: application
-
-version: 0.0.0-alpha
-
+version: 0.1.0-alpha
 appVersion: 0.6.0-alpha
-
 keywords:
   - unstructured data
   - pipeline
   - ETL/ELT
   - AI
   - Data
-
 sources:
   - https://github.com/instill-ai/vdp
-
-home: "https://www.instill.tech"
-
-icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/vdp-logo.png
-
+home: https://www.instill.tech
+icon: >-
+  https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/vdp-logo.png
 maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai
-
 dependencies:
   - name: elasticsearch
     repository: https://helm.elastic.co
