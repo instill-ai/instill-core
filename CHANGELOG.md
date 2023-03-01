@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0-alpha](https://github.com/instill-ai/vdp/compare/v0.7.0-alpha...v0.8.0-alpha) (2023-03-01)
+
+
+### Continuous Integration
+
+* **helm:** version chart in release-please ([c1d47ab](https://github.com/instill-ai/vdp/commit/c1d47abfb47b0137942bfaea80822fb8597202b1))
+
 ## [0.7.0-alpha](https://github.com/instill-ai/vdp/compare/v0.6.0-alpha...v0.7.0-alpha) (2023-02-28)
 
 
