@@ -1,6 +1,6 @@
 # vdp
 
-![Version: 0.1.0-alpha](https://img.shields.io/badge/Version-0.1.0--alpha-informational?style=flat-square) ![AppVersion: 0.7.0-alpha](https://img.shields.io/badge/AppVersion-0.7.0--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.1-alpha](https://img.shields.io/badge/Version-0.1.1--alpha-informational?style=flat-square) ![AppVersion: 0.8.0-alpha](https://img.shields.io/badge/AppVersion-0.8.0--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
 

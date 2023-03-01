@@ -504,7 +504,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.18.0-alpha
+    tag: 0.19.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
