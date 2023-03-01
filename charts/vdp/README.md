@@ -32,5 +32,5 @@ helm install <release-name> instill/vdp --devel
 To uninstall the chart:
 
 ```bash
-helm delete <release-name>
+helm uninstall <release-name>
 ```

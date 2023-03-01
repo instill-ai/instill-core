@@ -88,7 +88,7 @@ spec:
             - name: NEXT_PUBLIC_DISABLE_USAGE_COLLECTION
               value: "{{ .Values.disableUsage }}"
             - name: NEXT_PUBLIC_CONSOLE_EDITION
-              value: "{{ template "vdp.edition" . }}"
+              value: "{{ .Values.edition }}"
             - name: NEXT_PUBLIC_CONSOLE_BASE_URL
               value: "{{ .Values.consoleURL }}"
             - name: NEXT_PUBLIC_API_GATEWAY_BASE_URL
@@ -100,7 +100,11 @@ spec:
             - name: NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION
               value: "{{ .Values.internalTLS.enabled }}"
             - name: NODE_ENV
-              value: "{{ ternary "development" "production" .Values.enableTestMode }}"
+              {{- if eq .Values.edition "k8s-ce" }}
+              value: "production"
+              {{- else if eq .Values.edition "k8s-ce:dev" }}
+              value: "development"
+              {{- end }}
             {{- if .Values.console.extraEnv }}
             {{- toYaml .Values.console.extraEnv | nindent 12 }}
             {{- end }}

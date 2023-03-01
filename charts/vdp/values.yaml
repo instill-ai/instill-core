@@ -15,9 +15,12 @@ updateStrategy:
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
 
-# -- Enable integration test mode
-# if true, console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
-enableTestMode: false
+# -- Enable development mode
+# if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
+edition: k8s-ce
+
+# -- Enable integration test mode, making the model-backend use dummy models for tests
+enableITMode: false
 
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
@@ -259,7 +262,7 @@ apigateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: latest
+    tag: 0.2.2-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -312,7 +315,7 @@ pipeline:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: latest
+    tag: 0.9.8-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -365,7 +368,7 @@ connector:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: latest
+    tag: 0.7.6-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -418,7 +421,7 @@ model:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: latest
+    tag: 0.13.1-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -471,7 +474,7 @@ mgmt:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: latest
+    tag: 0.3.1-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -525,7 +528,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: latest
+    tag: 0.18.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""

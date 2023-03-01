@@ -9,10 +9,10 @@ data:
   config.yaml: |+
     server:
       port: {{ template "vdp.model.port" . }}
-      edition: {{ template "vdp.edition" . }}
+      edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
-      itmode: {{ .Values.enableTestMode }}
+      itmode: {{ .Values.enableITMode }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:

@@ -61,10 +61,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
-{{- define "vdp.edition" -}}
-{{- printf "k8s-ce:dev" -}}
-{{- end -}}
-
 {{- define "vdp.autoGenCert" -}}
   {{- if and .Values.expose.tls.enabled (eq .Values.expose.tls.certSource "auto") -}}
     {{- printf "true" -}}

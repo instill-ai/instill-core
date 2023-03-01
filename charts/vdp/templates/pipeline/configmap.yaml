@@ -9,7 +9,7 @@ data:
   config.yaml: |+
     server:
       port: {{ template "vdp.pipeline.port" . }}
-      edition: {{ template "vdp.edition" . }}
+      edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
