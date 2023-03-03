@@ -1,0 +1,35 @@
+name: e2e-test
+
+on:
+  # schedule:
+  # # * run the job everyday at 2AM
+  # - cron:  '* 2 * * *'
+  # - timezone: 'Europe/London'
+
+  push:
+    branches:
+      - add-real-models-test # for testing
+
+jobs:
+  pipeline-demo:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        model: ["mobilenetv2", "yolov7", "yolov7-pose", "gpt2", "stable-diffusion"]
+    steps:
+      - name: Checkout (latest)
+        uses: actions/checkout@v2
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+          expand: true          
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+      
+      - name: Inference ${{ matrix.model }} model
+        run: |
+          cd ./test; make pipeline-${{ matrix.model }} HOST=https://demo.instill.tech

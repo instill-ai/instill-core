@@ -5,6 +5,7 @@ on:
   push:
     branches-ignore:
       - release-please--branches--main
+      - add-real-models-test
 
 jobs:
   backend:
