@@ -66,28 +66,17 @@ def trigger_pipeline(pipeline_backend_base_url: str, pipeline_id: str, file: Byt
                          files=[("file", (filename, file))])
 
 
-def display_setup():
-   st.set_page_config(page_title="VDP - Stomata instance segmentation",
-                      page_icon="https://www.instill.tech/favicon-32x32.png",
-                      layout="centered",
-                      initial_sidebar_state="auto")
-
-def display_intro(pipeline_id="stomata"):
+def display_intro_markdown(pipeline_id="stomata"):
     r""" Display Markdown about demo introduction
     """
-<<<<<<<< HEAD:examples/instill/stomata/main.py
 
     st.set_page_config(page_title="VDP - Stomata Instance Segmentation",
                        page_icon="https://www.instill.tech/favicon-32x32.png", layout="centered", initial_sidebar_state="auto")
-========
- 
->>>>>>>> 86c80ba (refactor: update example directory with new names.):examples/instill/stomata/streamlit_main.py
     st.image("https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg")
 
-    # Define content
     intro_markdown = """
 
-    # 🥦 Identify stomata by triggering VDP pipeline 🥦
+    # 🥦 Identify stomata by triggering VDP pipeline
 
     [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline end-to-end unstructured data processing
 
@@ -108,11 +97,8 @@ def display_intro(pipeline_id="stomata"):
 
 
     """.format(pipeline_id)
-    
-    # Plot
     st.markdown(intro_markdown)
 
-<<<<<<<< HEAD:examples/instill/stomata/main.py
 
 def display_vdp_markdown():
     r""" Display Markdown about "What's cool about VDP"
@@ -158,15 +144,6 @@ if __name__ == "__main__":
     display_intro_markdown(opt.pipeline_id)
 
     st.markdown("We provide an sample image below:")
-========
-def display_main(opt, pipeline_backend_base_url):
-    r"""
-    This is to plot the main data processing section.
-    """
-    
-    # Demonstrate sample example
-    st.markdown("We provide a cool sample below:")
->>>>>>>> 86c80ba (refactor: update example directory with new names.):examples/instill/stomata/streamlit_main.py
     filename = "sample.jpg"
     with open(filename, "rb") as f:
         buf = BytesIO(f.read())
@@ -190,24 +167,17 @@ def display_main(opt, pipeline_backend_base_url):
         pipeline_id = opt.pipeline_id
         pipeline_results = []
         display_trigger_request_code(pipeline_id, filename)
-
         # Trigger VDP pipelines
         resp = trigger_pipeline(
             pipeline_backend_base_url, pipeline_id, image_bytes, filename)
 
         if resp.status_code == 200:
-
             # Show trigger pipeline response
             with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
                 st.json(resp.json())
 
-<<<<<<<< HEAD:examples/instill/stomata/main.py
             boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(
                 resp)
-========
-            boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(resp)
-
->>>>>>>> 86c80ba (refactor: update example directory with new names.):examples/instill/stomata/streamlit_main.py
             # Convert RLE from string "n1,n2,n3,..." to COCO RLE
             #   {
             #       'counts': [n1, n2, n3, ...],
@@ -221,17 +191,10 @@ def display_main(opt, pipeline_backend_base_url):
 
             cols = st.columns(2)
 
-<<<<<<<< HEAD:examples/instill/stomata/main.py
             cols[0].markdown("#### Display Instance Segmentation result")
             # Visualise Instance Segmentation on input image
             img_draw = utils.draw_polygons(
                 img, polys, thickness=2, color=(0, 0, 255))
-========
-            cols[0].markdown("#### Display instance segmentation result")
-
-            # Visualise instance segmentation on input image
-            img_draw = utils.draw_polygons(img, polys, thickness=2, color=(0,0,255))
->>>>>>>> 86c80ba (refactor: update example directory with new names.):examples/instill/stomata/streamlit_main.py
             cols[0].image(img_draw)
 
             # Visualise rotated bounding boxes
@@ -277,55 +240,4 @@ def display_main(opt, pipeline_backend_base_url):
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         st.error("Something wrong with the demo: {}".format(err))
 
-<<<<<<<< HEAD:examples/instill/stomata/main.py
     display_vdp_markdown()
-========
-def display_vdp():
-    r""" Display Markdown about "What's cool about VDP"
-    """
-    vdp_markdown = """
-    # What's cool about VDP?
-
-    A VDP pipeline unlocks the value of unstructured data:
-
-    1. **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
-
-    2. **Transform** it into meaningful data representations by AI models
-
-    3. **Load** the transformed data into warehouses, applications, or other destinations
-
-    With the help of the VDP pipeline, you can start manipulating the data using other data tooling in the modern data stack.
-    """
-    st.markdown(vdp_markdown)
-
-
-def display_trigger_request_code(pipeline_id, filename):
-    r""" Display Trigger request code block
-    """
-    request_code = f"""
-        curl -X POST '{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger:multipart' \\
-        --form 'file=@"{filename}"'
-        """
-    with st.expander(f"cURL"):
-        st.code(request_code, language="bash")
-
-## -------------------------- ##
-## ---------- Main ---------- ##
-## -------------------------- ##
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--pipeline-backend-base-url', type=str,
-                        default='http://localhost:8081', help='pipeline backend base URL')
-    parser.add_argument('--stomata', type=str,
-                        default='stomata', help='Stomata instance segmentation pipeline ID on VDP')
-    opt = parser.parse_args()
-    print(opt)
-
-    pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
-
-    display_setup()
-    display_intro()
-    display_main(opt, pipeline_backend_base_url)
-    display_vdp()
->>>>>>>> 86c80ba (refactor: update example directory with new names.):examples/instill/stomata/streamlit_main.py
