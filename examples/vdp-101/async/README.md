@@ -1,9 +1,9 @@
 # VDP 101 ASYNC Pipeline Example - Object detection
 
-This example supports [VDP 101 [7/7] Create, Trigger, and Parse an ASYNC Pipeline](https://www.instill.tech/tutorials/vdp-101-7-create-trigger-parse-a-async-pipeline).
+This example supports [VDP 101 [7/7] Create, trigger, and parse an ASYNC pipeline](https://www.instill.tech/tutorials/vdp-101-7-create-trigger-parse-an-async-pipeline).
 
 ## Prerequisites
-Please follow the [VDP 101 [7/7] Create, Trigger, and Parse an ASYNC Pipeline](https://www.instill.tech/tutorials/vdp-101-7-create-trigger-parse-a-async-pipeline) to build the ASYNC Object Detection pipeline `vdp-101-async` before running the examples.
+Please follow the [VDP 101 [7/7] Create, trigger, and parse an ASYNC pipeline](https://www.instill.tech/tutorials/vdp-101-7-create-trigger-parse-an-async-pipeline) to build the ASYNC Object Detection pipeline `vdp-101-async` before running the examples.
 
 ## How to run the examples
 This example consists of two Python scripts:

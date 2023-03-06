@@ -1,10 +1,10 @@
 # VDP 101 Example for `SYNC` Pipelines
 
-This example supports [VDP 101 [4/7] How to Trigger a SYNC Pipeline](https://www.instill.tech/tutorials/vdp-101-4-how-to-trigger-a-sync-pipeline) and [VDP 101 [5/7] How to Parse Responses from SYNC Pipelines](https://www.instill.tech/tutorials/vdp-101-5-how-to-parse-vdp-responses). It showcases using [VDP](https://github.com/instill-ai/vdp) to quickly set up a `SYNC` **object detection (in computer vision)** pipeline with [**YOLOv7**](https://github.com/WongKinYiu/yolov7).
+This example supports [VDP 101 [4/7] How to trigger a SYNC pipeline](https://www.instill.tech/tutorials/vdp-101-4-how-to-trigger-a-sync-pipeline) and [VDP 101 [5/7] How to parse responses from SYNC pipelines](https://www.instill.tech/tutorials/vdp-101-5-how-to-parse-vdp-responses). It showcases using [VDP](https://github.com/instill-ai/vdp) to quickly set up a `SYNC` **object detection (in computer vision)** pipeline with [**YOLOv7**](https://github.com/WongKinYiu/yolov7).
 
 ## Prerequisites
 
-1. Install and run VDP on your local machine (skip this if VDP is currently running on your device). Follow this tutorial [VDP 101 [2/7] Install VDP on Your Local Machine](https://www.instill.tech/tutorials/vdp-101-2-installation) for more details.
+1. Install and run VDP on your local machine (skip this if VDP is currently running on your device). Follow this tutorial [VDP 101 [2/7] Install VDP on Your local machine](https://www.instill.tech/tutorials/vdp-101-2-installation) for more details.
 
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
@@ -66,4 +66,4 @@ $ python sync-http-base64.py --api-gateway-url=http://localhost:8080 --pipeline-
 $ python sync-http-multipart.py --api-gateway-url=http://localhost:8080 --pipeline-id=vdp-101-sync --image-file=dog.jpg
 ```
 
-For further details about this example, please read [VDP 101 [4/7] How to Trigger a SYNC Pipeline](https://www.instill.tech/tutorials/vdp-101-4-how-to-trigger-a-sync-pipeline) and [VDP 101 [5/7] How to Parse Responses from SYNC Pipelines](https://www.instill.tech/tutorials/vdp-101-5-how-to-parse-vdp-responses).
+For further details about this example, please read [VDP 101 [4/7] How to trigger a SYNC pipeline](https://www.instill.tech/tutorials/vdp-101-4-how-to-trigger-a-sync-pipeline) and [VDP 101 [5/7] How to parse responses from SYNC pipelines](https://www.instill.tech/tutorials/vdp-101-5-how-to-parse-vdp-responses).
