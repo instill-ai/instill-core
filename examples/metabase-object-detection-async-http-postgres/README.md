@@ -34,7 +34,7 @@ $ docker run -d -p 3100:3000 --name metabase metabase/metabase-m1
 > **Note**
 > The downloaded 1-minute video used in the demo is sampled from a public video `cows dornick.mp4` from [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/YFDJRO).
 
-**Step 1**: Create an ASYNC pipeline `detection` by following the [tutorial](https://www.instill.tech/docs/tutorials/build-an-async-det-pipeline)
+**Step 1**: Create an ASYNC pipeline `detection` by following the [tutorial](https://www.instill.tech/tutorials/vdp-cow-counter)
    - data source: HTTP
    - model: [YOLOv7](https://github.com/instill-ai/model-yolov7-dvc)
    - data destination: Postgres database `tutorial`
@@ -46,11 +46,17 @@ $ docker run -d -p 3100:3000 --name metabase metabase/metabase-m1
 $ pip install -r requirements.txt
 
 # Run the demo
+#   --api-gateway-url=< VDP API base URL >
 #   --pipeline-id=< pipeline ID >
-#   --output-dir=< output image directory >
+#   --pq-host=< database host >
+#   --pq-port=< database port >
+#   --pq-database=< database name >
+#   --pq-username=< database username >
+#   --pq-password=< database password >
+#   --output-filename=< output image directory >
 #   --framerate=< frame rate of the video file >
 #   --skip-draw
-$ python main.py
+$ python main.py --api-gateway-url=http://localhost:8080 --pipeline-id=detection --pq-host=< database host > --pq-port=< database port > --pq-database=tutorial --pq-username=< database username > --pq-password=< database password > --skip-draw
 ```
 
 **Step 3**: Add the Postgres database `tutorial` used by the ASYNC pipeline to Metabase and start exploring the structured data.
@@ -63,4 +69,11 @@ FROM "public"."_airbyte_raw_vdp" CROSS JOIN LATERAL jsonb_to_recordset("public".
 WHERE x.category = 'cow'
 ORDER BY "processed_at" ASC
 LIMIT 1048575
+```
+
+## Shut down VDP
+
+To shut down all running VDP services:
+```
+$ make down
 ```
