@@ -59,8 +59,6 @@ if __name__ == "__main__":
     # Post HTTP request to the SYNC pipeline
     resp = trigger_pipeline_base64(api_gateway_url, opt.pipeline_id, img_string)
 
-    print(resp.text)
-
     # Parse results from the SYNC pipeline
     boxes_ltwh, categories, scores = parse_detection_response(resp)
 
