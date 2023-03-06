@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - "examples/streamlit/**"
+      - "examples/**"
 
 jobs:
   docker-hub:
@@ -24,12 +24,12 @@ jobs:
         id: filter
         with:
           filters: |
-            streamlit-yolov7:
-              - 'examples/streamlit/yolov7/**'
-            streamlit-instance-segmentation:
-              - 'examples/streamlit/instance-segmentation/**'
-            streamlit-stomata:
-              - 'examples/streamlit/stomata/**'
+            streamlit-object-detection-sync-http-http:
+              - 'examples/streamlit-object-detection-sync-http-http/**'
+            streamlit-instance-segmentation-sync-http-http:
+              - 'examples/streamlit-instance-segmentation-sync-http-http/**'
+            streamlit-instance-segmentation-sync-http-http-stomata:
+              - 'examples/instill/streamlit-instance-segmentation-sync-http-http-stomata/**'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -43,9 +43,9 @@ jobs:
       # Run only if some file in 'examples/streamlit/yolov7' folder was changed
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
-        if: steps.filter.outputs.streamlit-yolov7 == 'true'
+        if: steps.filter.outputs.streamlit-object-detection-sync-http-http == 'true'
         with:
-          context: "{{defaultContext}}:examples/streamlit/yolov7"
+          context: "{{defaultContext}}:examples/streamlit-object-detection-sync-http-http"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-yolov7:latest
@@ -54,9 +54,9 @@ jobs:
       # Run only if some file in 'examples/streamlit/instance-segmentation' folder was changed
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
-        if: steps.filter.outputs.streamlit-instance-segmentation == 'true'
+        if: steps.filter.outputs.streamlit-instance-segmentation-sync-http-http == 'true'
         with:
-          context: "{{defaultContext}}:examples/streamlit/instance-segmentation"
+          context: "{{defaultContext}}:examples/streamlit-instance-segmentation-sync-http-http"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-instance-segmentation:latest
@@ -65,9 +65,9 @@ jobs:
       # Run only if some file in 'examples/streamlit/yolov7' folder was changed
       - name: Build and push (latest)
         uses: docker/build-push-action@v3
-        if: steps.filter.outputs.streamlit-stomata == 'true'
+        if: steps.filter.outputs.streamlit-instance-segmentation-sync-http-http-stomata == 'true'
         with:
-          context: "{{defaultContext}}:examples/streamlit/stomata"
+          context: "{{defaultContext}}:examples/instill/streamlit-instance-segmentation-sync-http-http-stomata"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: instill/streamlit-stomata:latest
