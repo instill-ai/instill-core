@@ -1,9 +1,10 @@
 
 import random
 import cv2
-import pandas as pd
-import numpy as np
+import requests
+import json
 from enum import Enum
+from types import SimpleNamespace
 from typing import List, Tuple
 
 
@@ -107,6 +108,37 @@ def get_label_color(label: str) -> List[int]:
     category_idx = COCOLabels[label.upper()].value - 1
     return COLORS[category_idx]
 
+def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]], List[str], List[float]]:
+    r""" Parse a detection response in to bounding boxes, categories and scores
+
+    Args:
+        resp (`requests.Response`): response for standardised object Detection task
+
+    Returns: parsed outputs, a tuple of
+        List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
+        List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
+        List[float]: a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
+
+    """
+    if resp.status_code != 200:
+        return [], [], []
+    else:
+        # Parse JSON into an object with attributes corresponding to dict keys.
+        r = json.loads(resp.text, object_hook=lambda d: SimpleNamespace(**d))
+
+        boxes_ltwh = []
+        categories = []
+        scores = []
+        for v in r.model_instance_outputs[0].task_outputs[0].detection.objects:
+            boxes_ltwh.append((
+                v.bounding_box.left,
+                v.bounding_box.top,
+                v.bounding_box.width,
+                v.bounding_box.height))
+            categories.append(v.category)
+            scores.append(v.score)
+
+        return boxes_ltwh, categories, scores
 
 def draw_detection(img: cv2.Mat, boxes_ltwh: List[Tuple[float]], categories: List[str], scores: List[float], line_thickness=3) -> cv2.Mat:
     r""" Draw detection results on an image
@@ -146,40 +178,3 @@ def draw_detection(img: cv2.Mat, boxes_ltwh: List[Tuple[float]], categories: Lis
             [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
 
     return img_draw
-
-
-def gen_detection_table(boxes_ltwh: List[Tuple[float]], categories: List[str], scores: List[float]) -> Tuple[bool, pd.DataFrame]:
-    r""" Generate detection data frame
-
-    Args:
-        boxes_ltwh (List[Tuple[float]]): a list of detected bounding boxes in the format of (left, top, width, height)
-        categories (List[str]): a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
-        scores (List[float]]): a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
-
-    Returns: a tuple of
-        bool: flag to indicate whether the inputs are valid
-        pd.DataFrame: generated data frame
-
-    """
-    data = {
-        "Label": [],
-        "Left": [],
-        "Top": [],
-        "Width": [],
-        "Height": [],
-        "Score": []
-    }
-
-    if len(boxes_ltwh) != len(categories) or len(boxes_ltwh) != len(scores):
-        return False, pd.DataFrame(data)
-
-    for box_ltwh, category, score in zip(boxes_ltwh, categories, scores):
-        left, top, width, height = box_ltwh
-        data["Label"].append(category)
-        data["Left"].append(int(left))
-        data["Top"].append(int(top))
-        data["Width"].append(int(width))
-        data["Height"].append(int(height))
-        data["Score"].append(score)
-
-    return True, pd.DataFrame(data)

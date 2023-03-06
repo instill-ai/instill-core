@@ -149,44 +149,26 @@ def parse_detection_from_database(detection_ls: List[Dict[str, Any]]) -> Tuple[L
 
     return boxes_ltwh, categories, scores
 
-###############################################################################
-# VDP backends
-###############################################################################
-
-# TODO: replace with future api-gateway
-ver: Final[str] = "v1alpha"
-backend: typing.Dict[str, str] = {
-    "pipeline": "localhost:8081",
-    "connector": "localhost:8082",
-    "model": "localhost:8083",
-}
-
-###############################################################################
-# PostgreSQL
-###############################################################################
-
-# Create PostgreSQL database
-pq_cfg: typing.Dict[str, Any] = {
-    "host": "100.113.68.102",
-    "port": 5432,
-    "database": "tutorial",
-    "schema": "public",
-    "username": "postgres",
-    "password": "password",
-    "ssl": False
-}
 
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description='Trigger VDP pipeline')
-    parser.add_argument("--pipeline", dest = 'pipeline', help =
-                        "VDP pipeline ID",
-                        default = "detection", type = str)
+    parser.add_argument('--api-gateway-url', type=str,
+                        default='http://localhost:8080', help='VDP API base URL')
+    parser.add_argument("--pipeline-id", dest = 'pipeline_id', help =
+                        "VDP pipeline ID", default = "detection", type = str)
+    parser.add_argument("--pq-host", dest="pq_host", help = "PostgreSQL database host", type=str)
+    parser.add_argument("--pq-port", dest="pq_port", help =
+                        "PostgreSQL database port", default = 5432, type=int)
+    parser.add_argument("--pq-database", dest="pq_database", help =
+                        "PostgreSQL database name", default = "tutorial", type=str)
+    parser.add_argument("--pq-username", dest="pq_username", help =
+                        "PostgreSQL database username", default = "postgres", type=str)
+    parser.add_argument("--pq-password", dest="pq_password", help =
+                        "PostgreSQL database password", default = "password", type=str)
     parser.add_argument("--output-filename", dest = 'output_filename', help =
-                        "Output video file name",
-                        default = "output.mp4", type = str)
+                        "Output video file name", default = "output.mp4", type = str)
     parser.add_argument("--framerate", dest = 'framerate', help =
-                        "Frame rate of the video",
-                        default = 30, type = int)
+                        "Frame rate of the video", default = 30, type = int)
     parser.add_argument("--skip-draw", dest="draw", action="store_false", help =
                         "Skip draw detections on images")
 
@@ -237,9 +219,9 @@ if __name__ ==  '__main__':
     filenames = [file for files in img_batch for file in files]
     data_mapping_indices = []
 
-    print("\n=====Trigger {} pipeline to process images in '{}'\n".format(opt.pipeline, image_dir))
+    print("\n=====Trigger {} pipeline to process images in '{}'\n".format(opt.pipeline_id, image_dir))
     for files in tqdm(img_batch):
-        resp = requests.post(f'http://{backend["pipeline"]}/{ver}/pipelines/{opt.pipeline}/trigger-multipart',
+        resp = requests.post(f'{opt.api_gateway_url}/v1alpha/pipelines/{opt.pipeline_id}/trigger-multipart',
                         files=[("file", (filename, open(join(image_dir, filename), 'rb'))) for filename in files])
         if resp.status_code == 200:
             data_mapping_indices += resp.json()['data_mapping_indices']
@@ -264,7 +246,7 @@ if __name__ ==  '__main__':
             # Fetch detections from destination PostgreSQL database
             try:
                 conn = psycopg2.connect(
-                    user=pq_cfg["username"], password=pq_cfg["password"], host=pq_cfg["host"], port=pq_cfg["port"], database=pq_cfg["database"])
+                    user=opt.pq_username, password=opt.pq_password, host=opt.pq_host, port=opt.pq_port, database=opt.pq_database)
                 cur = conn.cursor()
                 cur.execute("""SELECT _airbyte_raw_vdp._airbyte_data->'detection'->'objects' AS "objects" from _airbyte_raw_vdp WHERE _airbyte_raw_vdp._airbyte_data->>'index' = '{}'""".format(mapping_index))
                 row = cur.fetchone()[0]

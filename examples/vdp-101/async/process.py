@@ -2,19 +2,14 @@ import os
 import typing
 import pathlib
 import argparse
-import shutil
-from os import listdir, path
-from os.path import isfile, join
-from typing import Final, Any, List, Dict, Tuple
-
 import cv2
 import ffmpeg
 import psycopg2
-import requests
 import numpy as np
-from tqdm import tqdm
+from os import listdir
+from os.path import isfile, join
+from typing import Final, Any, List, Dict, Tuple
 from tqdm.contrib import tzip
-from google.cloud import storage
 
 from utils import draw_detection
 
@@ -90,46 +85,23 @@ def parse_detection_from_database(detection_ls: List[Dict[str, Any]]) -> Tuple[L
 
     return boxes_ltwh, categories, scores
 
-############################################################################
-# Settings: PostgreSQL
-############################################################################
-
-# Log-in Information for accessing the PostgreSQL database
-pq_cfg: typing.Dict[str, Any] = {
-    "host": "100.66.239.106", # This should be the IP address of your local machine
-    "port": 5432,
-    "database": "tutorial",
-    "schema": "public",
-    "username": "postgres",
-    "password": "password",
-    "ssl": False
-}
-
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description='Download data from Postgres DB')
-    parser.add_argument("--host", dest = 'host', help = "IP address of the Postgres host",
-                        default = pq_cfg['host'], type = str)
-    parser.add_argument("--port", dest = 'port', help = "Postgres service port",
-                        default = pq_cfg['port'], type = int)
-    parser.add_argument("--database", dest = 'database', help = "Name of the databased on Postgres DB",
-                        default = pq_cfg['database'], type = str)
-    parser.add_argument("--username", dest="username", help = "Login username",
-                        default = pq_cfg['username'], type = str)
-    parser.add_argument("--password", dest="password", help = "Login password",
-                        default = pq_cfg['password'], type = str)
-    parser.add_argument("--output", dest = 'output_filename', help = "Output video file name",
+    parser.add_argument("--pq-host", dest="pq_host", help = "PostgreSQL database host", type=str)
+    parser.add_argument("--pq-port", dest="pq_port", help =
+                        "PostgreSQL database port", default = 5432, type=int)
+    parser.add_argument("--pq-database", dest="pq_database", help =
+                        "PostgreSQL database name", default = "tutorial", type=str)
+    parser.add_argument("--pq-username", dest="pq_username", help =
+                        "PostgreSQL database username", default = "postgres", type=str)
+    parser.add_argument("--pq-password", dest="pq_password", help =
+                        "PostgreSQL database password", default = "password", type=str)
+    parser.add_argument("--output-filename", dest = 'output_filename', help = "Output video file name",
                         default = "output.mp4", type = str)
     parser.add_argument("--framerate", dest = 'framerate', help = "Frame rate of the video",
                         default = 30, type = int)
 
     opt = parser.parse_args()
-
-    # Update Log-in information for PostgresSQL database.
-    pq_cfg['host'] = opt.host
-    pq_cfg['port'] = opt.port
-    pq_cfg['database'] = opt.database
-    pq_cfg['username'] = opt.username
-    pq_cfg['password'] = opt.password
 
     #########################################################################
     # Draw detections on video frames
@@ -137,11 +109,8 @@ if __name__ ==  '__main__':
 
     print("\n===== Start extracting results from postgres-db")
     image_dir = join(os.path.dirname(os.path.realpath(__file__)), "inputs")
-    batch_size = 2
-    img_files = [filename for filename in sorted(listdir(image_dir)) if isfile(
+    filenames = [filename for filename in sorted(listdir(image_dir)) if isfile(
         join(image_dir, filename)) and not filename.startswith(".")]
-    img_batch = [img_files[i:i+batch_size]  for i in range(0, len(img_files), batch_size)]
-    filenames = [file for files in img_batch for file in files]
 
     ## write path
     output_file = join(os.path.dirname(os.path.realpath(__file__)), "data-mapping-indices.txt")
@@ -163,7 +132,7 @@ if __name__ ==  '__main__':
             # Fetch detections from destination PostgreSQL database
             try:
                 conn = psycopg2.connect(
-                    user=pq_cfg["username"], password=pq_cfg["password"], host=pq_cfg["host"], port=pq_cfg["port"], database=pq_cfg["database"])
+                    user=opt.pq_username, password=opt.pq_password, host=opt.pq_host, port=opt.pq_port, database=opt.pq_database)
                 cur = conn.cursor()
                 cur.execute("""SELECT _airbyte_raw_vdp._airbyte_data->'detection'->'objects' AS "objects" from _airbyte_raw_vdp WHERE _airbyte_raw_vdp._airbyte_data->>'index' = '{}'""".format(mapping_index))
                 row = cur.fetchone()[0]

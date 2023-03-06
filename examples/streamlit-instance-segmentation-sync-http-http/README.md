@@ -14,7 +14,7 @@ If this is your first time setting up VDP, access the Console (http://localhost:
 
 After onboarding, you will be redirected to the **Pipeline** page on the left sidebar, where you can build your first VDP pipeline by clicking **Set up your first pipeline** and forever change the way you approach visual data processing workflow development.
 
-#### Create a SYNC pipeline `stomata`
+#### Create a SYNC pipeline `instance-segmentation`
 
 **Step 1: Add a HTTP source**
 A HTTP source accepts HTTP requests with image payloads to be processed by a pipeline.
@@ -57,11 +57,11 @@ Just click **Next**.
 
 Almost done! Just
 
-1. give your pipeline a unique ID `inst`,
+1. give your pipeline a unique ID `instance-segmentation`,
 2. [optional] add description, and
 3. click **Set up**.
 
-Now you should see the newly created SYNC pipeline `inst` on the Pipeline page 🎉
+Now you should see the newly created SYNC pipeline `instance-segmentation` on the Pipeline page 🎉
 
 ## How to run the demo
 Run the following command
@@ -71,33 +71,34 @@ $ pip install -r requirements.txt
 
 # Run the demo
 #   --demo-url=< demo URL >
-#   --pipeline-backend-base-url=< pipeline backend base URL >
+#   --api-gateway-url=< VDP API base URL >
 #   --pipeline-id=< Pipeline ID >
-$ streamlit run main.py -- --pipeline-backend-base-url=http://localhost:8080 --pipeline-id=inst
+$ streamlit run main.py -- --api-gateway-url=http://localhost:8080 --pipeline-id=instance-segmentation
 ```
 
 Now go to `http://localhost:8501/` 🎉
 
 
-## Shut down VDP
-
-To shut down all running services:
-```
-$ make down
-```
-
 ## Deploy the demo using Docker
+Alternatively, you can run the demo using Docker.
 
 Build a Docker image
 ```bash
-$ docker build -t streamlit-instance-segmentation .
+$ docker build -t vdp-streamlit-instance-segmentation .
 ```
 Run the Docker container and connect to VDP
 ```bash
-$ docker run -p 8501:8501 --network instill-network streamlit-instance-segmentation -- --pipeline-backend-base-url=http://api-gateway:8080 --pipeline-id=inst
+$ docker run --rm --name vdp-streamlit-instance-segmentation -p 8501:8501 --network instill-network vdp-streamlit-instance-segmentation -- --api-gateway-url=http://api-gateway:8080 --pipeline-id=instance-segmentation
 
 You can now view your Streamlit app in your browser.
 
   URL: http://0.0.0.0:8501
 
+```
+
+## Shut down VDP
+
+To shut down all running VDP services:
+```
+$ make down
 ```

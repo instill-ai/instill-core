@@ -86,11 +86,11 @@ def extract_frames_from_video(image_dir: str, filename: str, framerate: int=30) 
         shutil.rmtree(image_dir)
         return False
 
-def trigger_pipeline_multipart(pipeline_backend_url: str, pipeline_id: str, img_folder: str, img_names: list()) -> requests.Response:
+def trigger_pipeline_multipart(api_gateway_url: str, pipeline_id: str, img_folder: str, img_names: list()) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
 
     Args:
-        pipeline_backend_url (str): VDP pipeline backend base URL
+        api_gateway_url (str): VDP pipeline backend base URL
         pipeline_id (str): pipeline ID
         img_names List(str): local image path
 
@@ -102,7 +102,7 @@ def trigger_pipeline_multipart(pipeline_backend_url: str, pipeline_id: str, img_
     body = [("file", (img_name, open(os.path.join(img_folder, img_name), 'rb'))) for img_name in img_names]
 
     return requests.post(
-        f"{pipeline_backend_url}/pipelines/{pipeline_id}/trigger-multipart", 
+        f"{api_gateway_url}/pipelines/{pipeline_id}/trigger-multipart", 
         files=body)
 
 ############################################################################
@@ -119,25 +119,24 @@ backend: typing.Dict[str, str] = {
 
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description='Trigger VDP pipeline')
-    parser.add_argument("--pipeline", dest = 'pipeline', help = "VDP pipeline ID",
+    parser.add_argument('--api-gateway-url', dest = 'api_gateway_url', type=str,
+                        default='http://localhost:8080', help='VDP API base URL')
+    parser.add_argument("--pipeline-id", dest = 'pipeline_id', help = "VDP pipeline ID",
                         default = "vdp-101-async", type = str)
     parser.add_argument("--framerate", dest = 'framerate', help = "Frame rate of the video",
                         default = 30, type = int)
-    parser.add_argument("--batch-size", dest = 'batch_size', help = "Batch size of the multipart payload.",
-                        default = 2, type = int)
     parser.add_argument("--mapping-file", dest = 'mapping_file', help = "File stores the mapping indices for pipeline triggers.",
                         default = "data-mapping-indices.txt", type = str)
-    parser.add_argument("--backend", dest = 'backend', help = "File stores the mapping indices for pipeline triggers.",
-                        default = backend['pipeline'], type = str)
 
     opt = parser.parse_args()
-    backend['pipeline'] = opt.backend
+
+    api_gateway_url = opt.api_gateway_url + "/v1alpha"
 
     ########################################################################
     # Download video
     ########################################################################
 
-    video_filename = join(os.path.dirname(os.path.realpath(__file__)), "ctriggers")
+    video_filename = join(os.path.dirname(os.path.realpath(__file__)), "cows_dornick.mp4")
 
     skip_download = os.path.exists(video_filename)
     if skip_download:
@@ -147,7 +146,7 @@ if __name__ ==  '__main__':
         blob_filename="vdp/tutorial/cows_dornick/cows_dornick.mp4",
         dst_filename=video_filename)
         if not success:
-            print("Video download was unsuccess.")
+            print("Fail to download the video")
             sys.exit(1)
 
     ########################################################################
@@ -165,7 +164,7 @@ if __name__ ==  '__main__':
     else:
         success = extract_frames_from_video(image_dir, video_filename, framerate=opt.framerate)
         if not success:
-            print("Frame extraction was unsuccessful.")
+            print("Fail to extract the frames")
             sys.exit(1)
 
 
@@ -174,7 +173,7 @@ if __name__ ==  '__main__':
     ########################################################################
 
     ## prepare image list.
-    batch_size = opt.batch_size
+    batch_size = 2
     img_files = [filename for filename in sorted(listdir(image_dir)) if isfile(
         join(image_dir, filename)) and not filename.startswith(".")]
     img_batch = [img_files[i:i+batch_size]  for i in range(0, len(img_files), batch_size)]
@@ -187,12 +186,9 @@ if __name__ ==  '__main__':
     with open(output_file, "w") as f:
         f.close()
 
-    print(f"\n===== Trigger {opt.pipeline} pipeline to process images in '{image_dir}'\n")
-
+    print(f"\n===== Trigger {opt.pipeline_id} pipeline to process images in '{image_dir}'\n")
     for files in tqdm(img_batch, position=0, leave=True):
-        pipeline_backend_url = f'http://{backend["pipeline"]}/{ver}'
-        resp = trigger_pipeline_multipart(pipeline_backend_url, opt.pipeline,image_dir,files)
-        
+        resp = trigger_pipeline_multipart(api_gateway_url, opt.pipeline_id, image_dir, files)
         if resp.status_code == 200:
             mapping_indices = resp.json()['data_mapping_indices']
             with open(output_file, "a") as f:
@@ -201,4 +197,4 @@ if __name__ ==  '__main__':
         else:
             sys.exit(1)
 
-    print("\n===== All images are uploaded successfully!")
+    print("\n===== All images are processed successfully!")

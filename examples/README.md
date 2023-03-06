@@ -5,8 +5,8 @@ This folder consists of diverse examples demonstrating Versatile Data Pipeline (
 ## Get Started
 
 Below are the resources available on the Instill AI websites:
-- **VDP 101** is an introductory series for users to get started with VDP. We walk users through each feature (from VDP installation to deploying your own AI model on VDP) provided by VDP step-by-step. We also provide simple examples to build your first pipeline on VDP.
-- **Use Cases** provides a list of examples demonstrating the diversity and versatility of VDP. You can find pipeline examples built for different AI tasks and apps that help to store, analyze, and visualise the pipeline outputs.
+- **Tutorials** provides a list of innovative use cases demonstrating the diversity and versatility of VDP.  
+  - **VDP 101** is an introductory series for users to get started with VDP. We walk users through each feature provided by VDP step-by-step from installation to deploying AI models to build pipelines.
 - **Documentation** provides a complete guide to VDP.
 - **Blog** consists of news related and announcements of new features and releases. 
 
@@ -14,7 +14,7 @@ Below are the resources available on the Instill AI websites:
 
 To better represent what is in each example folder, we follow a strict naming rule below:
 
-`(optional){app}-{AI task}-{pipeline_mode}-{source}-{destination}`
+`{app}(optional)-{AI task}-{pipeline_mode}-{source}-{destination}-{use-case}(optional)`
 
 Example:
 `metabase-cv-object-deteciton-async-http-postgres`
@@ -24,6 +24,7 @@ Example:
 - `{pipeline_mode}` indicates the pipeline modes, including `SYNC`, `ASYNC`, and `PULL`.
 - `{source}` denotes the source connector of the pipeline. At the moment, VDP supports HTTP and gRPC.
 - `{destination}` indicates the destination of the pipeline. It could be either an API (e.g., HTTP and gRPC), databases (e.g., Postgres, MySQL), or spreadsheets (e.g., Google spreadsheet).
+- `{use-case}(optional)` indicates the use case for this example.
 
 ## Example for Tutorials
 - `instill` consists of examples where ML models are trained by Instill AI.

@@ -45,11 +45,11 @@ def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]
         return boxes_ltwh, categories, scores
 
 @st.cache_data(max_entries=10)
-def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str, image_url: str) -> requests.Response:
+def trigger_detection_pipeline(api_gateway_url: str, pipeline_id: str, image_url: str) -> requests.Response:
     r""" Trigger a pipeline composed with a detection model instance using remote image URL
 
     Args:
-        pipeline_backend_base_url (str): VDP pipeline backend base URL
+        api_gateway_url (str): VDP API base URL
         pipeline_id (str): pipeline ID
         image_url (str): remote image URL, e.g., `https://artifacts.instill.tech/imgs/dog.jpg`
 
@@ -67,7 +67,7 @@ def trigger_detection_pipeline(pipeline_backend_base_url: str, pipeline_id: str,
         ]
     }
 
-    return requests.post("{}/pipelines/{}/trigger".format(pipeline_backend_base_url, pipeline_id), json=body)
+    return requests.post("{}/pipelines/{}/trigger".format(api_gateway_url, pipeline_id), json=body)
 
 
 def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"):
@@ -131,7 +131,7 @@ def display_trigger_request_code():
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{pipeline_backend_base_url}/pipelines/<pipeline-id>/trigger' \\
+        curl -X POST '{api_gateway_url}/pipelines/<pipeline-id>/trigger' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
             "task_inputs": [
@@ -151,8 +151,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--demo-url', type=str,
                         default='https://demo.instill.tech/yolov4-vs-yolov7', help='demo URL')
-    parser.add_argument('--pipeline-backend-base-url', type=str,
-                        default='http://localhost:8080', help='pipeline backend base URL')
+    parser.add_argument('--api-gateway-url', type=str,
+                        default='http://localhost:8080', help='VDP API base URL')
     parser.add_argument('--yolov4', type=str,
                         default='yolov4', help='YOLOv4 pipeline ID on VDP')
     parser.add_argument('--yolov7', type=str,
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     opt = parser.parse_args()
     print(opt)
 
-    pipeline_backend_base_url = opt.pipeline_backend_base_url + "/v1alpha"
+    api_gateway_url = opt.api_gateway_url + "/v1alpha"
 
     display_intro_markdown(opt.demo_url)
 
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         pipeline_results = []
         for pipeline_id in pipeline_ids:
             resp = trigger_detection_pipeline(
-                pipeline_backend_base_url, pipeline_id, image_url)
+                api_gateway_url, pipeline_id, image_url)
             boxes_ltwh, categories, scores = parse_detection_response(resp)
             pipeline_results.append((resp, boxes_ltwh, categories, scores))
 
