@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        model: ["mobilenetv2", "yolov7", "yolov7-pose", "gpt2", "stable-diffusion"]
+        model: ["mobilenetv2", "yolov7", "keypoint", "text-generation", "text-to-image"]
     steps:
       - name: Checkout (latest)
         uses: actions/checkout@v2
