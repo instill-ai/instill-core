@@ -10,7 +10,7 @@ import {
 } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
 
 import * as constant from "./const.js"
-import * as verify from "./verify-gpt2.js"
+import * as verify from "./verify-text-generation.js"
 import * as helper from "./helper.js"
 
 const model = "gpt2";
@@ -19,6 +19,12 @@ const modelRepository = "instill-ai/model-gpt2-megatron-dvc";
 let modelInstances = [
     `models/${model}/instances/fp32-345m-4-gpu`,
 ]
+
+if (__ENV.HOST.includes("demo.instill.tech")) {
+    modelInstances = [
+        `models/${model}/instances/fp32-345m-2-gpu`,
+    ]
+}
 
 export let options = {
     setupTimeout: '30000s',

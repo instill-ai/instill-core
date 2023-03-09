@@ -38,11 +38,11 @@ pipeline-ocr:
 
 .PHONY: pipeline-text-generation
 pipeline-text-generation:
-	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e HOST=$(HOST) ./pipeline/pipeline-gpt2.js --no-usage-report
+	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e HOST=$(HOST) ./pipeline/pipeline-text-generation.js --no-usage-report
 
 .PHONY: pipeline-text-to-image
 pipeline-text-to-image:
-	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e HOST=$(HOST) ./pipeline/pipeline-diffusion.js --no-usage-report
+	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e HOST=$(HOST) ./pipeline/pipeline-text-to-image.js --no-usage-report
 
 test-all: pipeline-mobilenetv2 pipeline-yolov7 pipeline-instance-segmentation pipeline-semantic-segmentation pipeline-keypoint pipeline-ocr
 .PHONE: test-all
