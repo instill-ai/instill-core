@@ -1,14 +1,10 @@
 name: e2e-test
 
 on:
-  # schedule:
-  # # * run the job everyday at 2AM
-  # - cron:  '* 2 * * *'
-  # - timezone: 'Europe/London'
-
-  push:
-    branches:
-      - add-real-models-test # for testing
+  schedule:
+  # * run the job everyday at 2AM
+  - cron:  '* 2 * * *'
+  - timezone: 'Europe/London'
 
 jobs:
   pipeline-on-prem:
