@@ -44,5 +44,5 @@ pipeline-text-generation:
 pipeline-text-to-image:
 	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e HOST=$(HOST) ./pipeline/pipeline-text-to-image.js --no-usage-report
 
-test-all: pipeline-mobilenetv2 pipeline-yolov7 pipeline-instance-segmentation pipeline-semantic-segmentation pipeline-keypoint pipeline-ocr
+test-all: prepare-k6 pipeline-mobilenetv2 pipeline-yolov7 pipeline-instance-segmentation pipeline-semantic-segmentation pipeline-keypoint pipeline-ocr cleanup-k6
 .PHONE: test-all
