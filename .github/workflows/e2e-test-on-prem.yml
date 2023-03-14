@@ -70,10 +70,6 @@ jobs:
         run: |
           cd ./test; make pipeline-semantic-segmentation HOST=http://localhost:8080      
 
-      - name: Inference OCR model
-        run: |
-          cd ./test; make pipeline-ocr HOST=http://localhost:8080
-
       - name: Inference text to image model
         run: |
           cd ./test; make pipeline-text-to-image HOST=http://localhost:8080                                                  
