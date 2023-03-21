@@ -1,5 +1,4 @@
 {
-  "last-release-sha": "be1ec2ebf616ed7fd0c14e72187fb2aa6c666f67",
   "packages": {
     ".": {
       "release-type": "simple",
