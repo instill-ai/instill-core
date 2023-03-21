@@ -2,9 +2,9 @@ name: e2e-test
 
 on:
   schedule:
-  # * run the job everyday at 2AM
-  - cron:  '* 2 * * *'
-  - timezone: 'Europe/London'
+    # * run the job everyday at 2AM
+    - cron:  '20 3 * * *'
+    - timezone: 'Europe/London'
 
 jobs:
   pipeline-on-prem:
