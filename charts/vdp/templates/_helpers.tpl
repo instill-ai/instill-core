@@ -234,19 +234,34 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "9000" -}}
 {{- end -}}
 
-{{/* pipeline service and container port */}}
-{{- define "vdp.pipeline.port" -}}
+{{/* pipeline service and container public port */}}
+{{- define "vdp.pipeline.publicPort" -}}
   {{- printf "8081" -}}
 {{- end -}}
 
-{{/* connector service and container port */}}
-{{- define "vdp.connector.port" -}}
+{{/* pipeline service and container private port */}}
+{{- define "vdp.pipeline.privatePort" -}}
+  {{- printf "3081" -}}
+{{- end -}}
+
+{{/* connector service and container public port */}}
+{{- define "vdp.connector.publicPort" -}}
   {{- printf "8082" -}}
 {{- end -}}
 
-{{/* model service and container port */}}
-{{- define "vdp.model.port" -}}
+{{/* connector service and container private port */}}
+{{- define "vdp.connector.privatePort" -}}
+  {{- printf "3082" -}}
+{{- end -}}
+
+{{/* model service and container public port */}}
+{{- define "vdp.model.publicPort" -}}
   {{- printf "8083" -}}
+{{- end -}}
+
+{{/* model service and container private port */}}
+{{- define "vdp.model.privatePort" -}}
+  {{- printf "3083" -}}
 {{- end -}}
 
 {{/* mgmt service and container public port */}}
@@ -254,8 +269,8 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "8084" -}}
 {{- end -}}
 
-{{/* mgmt service and container admin port */}}
-{{- define "vdp.mgmt.adminPort" -}}
+{{/* mgmt service and container private port */}}
+{{- define "vdp.mgmt.privatePort" -}}
   {{- printf "3084" -}}
 {{- end -}}
 

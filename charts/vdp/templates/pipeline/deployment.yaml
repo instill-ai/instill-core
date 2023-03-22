@@ -96,7 +96,7 @@ spec:
           command: ["./pipeline-backend"]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "vdp.pipeline.port" . }}
+              containerPort: {{ template "vdp.pipeline.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

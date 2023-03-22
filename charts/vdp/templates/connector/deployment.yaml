@@ -163,7 +163,7 @@ spec:
           command: ["./connector-backend"]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "vdp.connector.port" . }}
+              containerPort: {{ template "vdp.connector.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

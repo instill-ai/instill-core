@@ -8,7 +8,7 @@ metadata:
 data:
   config.yaml: |+
     server:
-      port: {{ template "vdp.pipeline.port" . }}
+      port: {{ template "vdp.pipeline.publicPort" . }}
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
@@ -20,7 +20,7 @@ data:
       {{- end }}
     connectorbackend:
       host: {{ template "vdp.connector" . }}
-      port: {{ template "vdp.connector.port" . }}
+      port: {{ template "vdp.connector.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/connector/tls.crt
@@ -28,7 +28,7 @@ data:
       {{- end }}
     modelbackend:
       host: {{ template "vdp.model" . }}
-      port: {{ template "vdp.model.port" . }}
+      port: {{ template "vdp.model.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/model/tls.crt
@@ -36,7 +36,7 @@ data:
       {{- end }}
     mgmtbackend:
       host: {{ template "vdp.mgmt" . }}
-      adminport: {{ template "vdp.mgmt.adminPort" . }}
+      privateport: {{ template "vdp.mgmt.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/mgmt/tls.crt

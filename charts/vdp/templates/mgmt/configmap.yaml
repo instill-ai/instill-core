@@ -8,7 +8,7 @@ metadata:
 data:
   config.yaml: |+
     server:
-      adminport: {{ template "vdp.mgmt.adminPort" . }}
+      privateport: {{ template "vdp.mgmt.privatePort" . }}
       publicport: {{ template "vdp.mgmt.publicPort" . }}
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}

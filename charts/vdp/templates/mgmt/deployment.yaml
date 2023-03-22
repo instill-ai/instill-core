@@ -108,7 +108,7 @@ spec:
           command: ["./mgmt-backend"]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
-              containerPort: {{ template "vdp.mgmt.adminPort" . }}
+              containerPort: {{ template "vdp.mgmt.privatePort" . }}
               protocol: TCP
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.mgmt.publicPort" . }}
