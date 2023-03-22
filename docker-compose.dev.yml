@@ -35,7 +35,8 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
     ports:
-      - ${PIPELINE_BACKEND_PORT}:${PIPELINE_BACKEND_PORT}
+      - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
+      - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
 
   connector_backend_migrate:
     profiles:
@@ -80,7 +81,8 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
     ports:
-      - ${CONNECTOR_BACKEND_PORT}:${CONNECTOR_BACKEND_PORT}
+      - ${CONNECTOR_BACKEND_PRIVATEPORT}:${CONNECTOR_BACKEND_PRIVATEPORT}
+      - ${CONNECTOR_BACKEND_PUBLICPORT}:${CONNECTOR_BACKEND_PUBLICPORT}
 
   model_backend_migrate:
     profiles:
@@ -127,7 +129,8 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
     ports:
-      - ${MODEL_BACKEND_PORT}:${MODEL_BACKEND_PORT}
+      - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
+      - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
 
   mgmt_backend_migrate:
     profiles:
@@ -162,8 +165,8 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
     ports:
+      - ${MGMT_BACKEND_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
       - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
-      - ${MGMT_BACKEND_ADMINPORT}:${MGMT_BACKEND_ADMINPORT}
 
   console:
     profiles:
