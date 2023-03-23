@@ -140,7 +140,7 @@ spec:
           command: ["./model-backend"]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "vdp.model.port" . }}
+              containerPort: {{ template "vdp.model.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

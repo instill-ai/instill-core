@@ -11,9 +11,12 @@ metadata:
   {{- end }}
 spec:
   ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+      port: {{ template "vdp.connector.privatePort" . }}
+      targetPort: {{ template "vdp.connector.privatePort" . }}
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-      port: {{ template "vdp.connector.port" . }}
-      targetPort: {{ template "vdp.connector.port" . }}
+      port: {{ template "vdp.connector.publicPort" . }}
+      targetPort: {{ template "vdp.connector.publicPort" . }}
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: connector
