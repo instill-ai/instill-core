@@ -62,13 +62,13 @@ jobs:
           make integration-test MODE=localhost
 
       - name: Uppercase component name
-        if: inputs.target == 'release'
+        if: inputs.target == 'rc'
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z' 'A-Z')" >> $GITHUB_OUTPUT
 
-      - name: Launch VDP (release)
-        if: inputs.target == 'release'
+      - name: Launch VDP (rc)
+        if: inputs.target == 'rc'
         run: |
           EDITION=local-ce:test \
           ITMODE=true \
@@ -77,8 +77,8 @@ jobs:
           EDITION=local-ce:test \
           docker compose rm -f
 
-      - name: Run ${{ inputs.component }}-backend integration test (release)
-        if: inputs.target == 'release'
+      - name: Run ${{ inputs.component }}-backend integration test (rc)
+        if: inputs.target == 'rc'
         env:
           COMPONENT_VERSION: ${{ env[format('{0}_BACKEND_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
         run: |

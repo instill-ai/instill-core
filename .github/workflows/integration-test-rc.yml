@@ -1,4 +1,4 @@
-name: Integration Test (release)
+name: Integration Test (rc)
 
 on:
   workflow_dispatch:
@@ -15,8 +15,8 @@ jobs:
     uses: instill-ai/vdp/.github/workflows/integration-test-backend.yml@main
     with:
       component: ${{ matrix.component }}
-      target: release
+      target: rc
   console:
     uses: instill-ai/vdp/.github/workflows/integration-test-console.yml@main
     with:
-      target: release
+      target: rc
