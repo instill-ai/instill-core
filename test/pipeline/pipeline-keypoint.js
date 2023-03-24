@@ -69,7 +69,7 @@ export default function () {
         verify.verifyKeypoint(`${model}`, "base64", modelInstances, http.request("POST", `${constant.apiHost}/v1alpha/pipelines/${model}/trigger`, JSON.stringify({
             "task_inputs": [{
                 "keypoint": {
-                    "image_base64": encoding.b64encode(constant.stredanceImgetImg, "b"),
+                    "image_base64": encoding.b64encode(constant.danceImg, "b"),
                 },
             }, {
                 "keypoint": {
