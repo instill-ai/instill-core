@@ -56,7 +56,7 @@ export default function () {
                 }
             }, {
                 "detection": {
-                    "image_url": "https://artifacts.instill.tech/imgs/7e0ac53-emergency-evacuation-route-signpost.jpg",
+                    "image_url": "https://artifacts.instill.tech/imgs/emergency-evacuation-route-signpost.jpg",
                 }
             }]
         }), {
@@ -83,7 +83,7 @@ export default function () {
 
         var fd = new FormData();
         fd.append("file", http.file(constant.signsmallImg, "sign-small.jpg"));
-        fd.append("file", http.file(constant.signpostImg, "7e0ac53-emergency-evacuation-route-signpost.jpg"));
+        fd.append("file", http.file(constant.signpostImg, "emergency-evacuation-route-signpost.jpg"));
         verify.verifyOcr(`${model}`, "form_data", modelInstances, http.request("POST", `${constant.apiHost}/v1alpha/pipelines/${model}/trigger-multipart`, fd.body(), {
             headers: {
                 "Content-Type": `multipart/form-data; boundary=${fd.boundary}`,

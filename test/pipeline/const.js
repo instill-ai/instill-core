@@ -13,4 +13,4 @@ export const danceImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/pipeline/data/dance.
 export const dwaynejohnsonImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/pipeline/data/dwaynejohnson.jpeg`, "b");
 
 export const signsmallImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/pipeline/data/sign-small.jpg`, "b");
-export const signpostImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/pipeline/data/7e0ac53-emergency-evacuation-route-signpost.jpg`, "b");
+export const signpostImg = open(`${__ENV.TEST_FOLDER_ABS_PATH}/pipeline/data/emergency-evacuation-route-signpost.jpg`, "b");
