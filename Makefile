@@ -18,13 +18,13 @@ endif
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@EDITION=local-ce docker compose up -d --quiet-pull
-	@docker compose rm -f
+	@EDITION=local-ce docker compose rm -f
 
-.PHONY: dev
-dev:			## Lunch all dependent services (param: PROFILE=<profile-name>)
+.PHONY: latest
+latest:			## Lunch all dependent services with their latest codebase
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -54,7 +54,7 @@ rm:				## Remove all stopped service containers
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f vdp-build >/dev/null 2>&1
-	@docker rm -f vdp-integration-test >/dev/null 2>&1
+	@docker rm -f backend-integration-test >/dev/null 2>&1
 	@docker rm -f console-integration-test >/dev/null 2>&1
 	@docker compose down -v
 
@@ -71,21 +71,20 @@ top:			## Display all running service processes
 	@docker compose top
 
 .PHONY: build
-build:							## Build latest images for all VDP components
+build:							## Build the latest images
 	@docker build --progress plain \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
-		-f Dockerfile.dev \
-		-t instill/vdp-test:latest .
+		-t instill/vdp-build:test .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build \
-		instill/vdp-test:latest /bin/bash -c " \
+		instill/vdp-build:test /bin/bash -c " \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
@@ -93,15 +92,15 @@ build:							## Build latest images for all VDP components
 doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
 	@docker compose up -d redoc_openapi
 
-.PHONY: integration-test-latest
-integration-test-latest:			## Run integration test for the latest VDP codebases
+.PHONY: integration-test
+integration-test:			## Run integration test
 	@make build
 	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
-		docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=all docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
+		docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=all docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 	@docker run -it --rm \
 		--network instill-network \
-		--name vdp-integration-test instill/vdp-test:latest /bin/bash -c " \
+		--name backend-integration-test instill/vdp-build:test /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
@@ -116,34 +115,6 @@ integration-test-latest:			## Run integration test for the latest VDP codebases
 		--network instill-network \
 		--entrypoint ./entrypoint-playwright.sh \
 		--name console-integration-test instill/console-playwright
-	@make down
-
-.PHONY: integration-test-release
-integration-test-release:			## Run integration test for the release VDP codebases
-	@docker build --progress plain \
-		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
-		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
-		--build-arg K6_VERSION=${K6_VERSION} \
-		--build-arg CACHE_DATE="$(shell date)" \
-		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
-		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
-		--target release \
-		-f Dockerfile.dev \
-		-t instill/vdp-test:release .
-	@EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway docker compose up -d --quiet-pull
-	@docker compose rm -f
-	@docker run -it --rm \
-		--network instill-network \
-		--name vdp-integration-test instill/vdp-test:release /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
-		"
 	@make down
 
 .PHONY: help

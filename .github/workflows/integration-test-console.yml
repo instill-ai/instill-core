@@ -2,10 +2,6 @@ name: Integration Test Reusable (console)
 
 on:
   workflow_call:
-    inputs:
-      target:
-        required: true
-        type: string
 
 jobs:
   integration-test:
@@ -40,8 +36,7 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Launch VDP (latest)
-        if: inputs.target == 'latest'
+      - name: Launch VDP
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
@@ -49,11 +44,12 @@ jobs:
           TRITON_CONDA_ENV_PLATFORM=cpu \
           CONSOLE_BASE_URL_HOST=console \
           CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
-      - name: Run console integration test (latest)
-        if: inputs.target == 'latest'
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+
+      - name: Run console integration test
         run: |
           git clone https://github.com/instill-ai/console.git console
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright .

@@ -6,18 +6,11 @@ on:
       component:
         required: true
         type: string
-      target:
-        required: true
-        type: string
 
 jobs:
   integration-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
-        with:
-          go-version: ${{ env.GOLANG_VERSION }}
-
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
@@ -28,6 +21,10 @@ jobs:
         with:
           envFile: .env
           expand: true
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
 
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
@@ -47,44 +44,19 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Launch VDP (latest)
-        if: inputs.target == 'latest'
+      - name: Launch VDP
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
           ITMODE=true \
           TRITON_CONDA_ENV_PLATFORM=cpu \
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml rm -f
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
-      - name: Run ${{ inputs.component }}-backend integration test (latest)
-        if: inputs.target == 'latest'
+      - name: Run ${{ inputs.component }}-backend integration test
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}-backend.git ${{ inputs.component }}-backend
           cd ${{ inputs.component }}-backend
-          make integration-test MODE=localhost
-
-      - name: Uppercase component name
-        if: inputs.target == 'release'
-        id: uppercase
-        run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z' 'A-Z')" >> $GITHUB_OUTPUT
-
-      - name: Launch VDP (release)
-        if: inputs.target == 'release'
-        run: |
-          EDITION=local-ce:test \
-          ITMODE=true \
-          TRITON_CONDA_ENV_PLATFORM=cpu \
-          docker compose up -d --quiet-pull
-          docker compose rm -f
-
-      - name: Run ${{ inputs.component }}-backend integration test (release)
-        if: inputs.target == 'release'
-        env:
-          COMPONENT_VERSION: ${{ env[format('{0}_BACKEND_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
-        run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}-backend.git ${{ inputs.component }}-backend
-          cd ${{ inputs.component }}-backend
-          make integration-test MODE=localhost
+          make integration-test EDITION=local-ce:test MODE=localhost

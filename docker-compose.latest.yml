@@ -33,7 +33,7 @@ services:
     image: instill/${PIPELINE_BACKEND_HOST}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
     ports:
       - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
       - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
@@ -79,7 +79,7 @@ services:
     image: instill/${CONNECTOR_BACKEND_HOST}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
     ports:
       - ${CONNECTOR_BACKEND_PRIVATEPORT}:${CONNECTOR_BACKEND_PRIVATEPORT}
       - ${CONNECTOR_BACKEND_PUBLICPORT}:${CONNECTOR_BACKEND_PUBLICPORT}
@@ -127,7 +127,7 @@ services:
     image: instill/${MODEL_BACKEND_HOST}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
     ports:
       - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
       - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
@@ -163,7 +163,7 @@ services:
     image: instill/${MGMT_BACKEND_HOST}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
     ports:
       - ${MGMT_BACKEND_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
       - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
@@ -179,7 +179,7 @@ services:
     image: instill/${CONSOLE_HOST}:latest
     environment:
       NEXT_PUBLIC_DISABLE_USAGE_COLLECTION: "false"
-      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION:-local-ce:unknown}
+      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
       NODE_ENV: development
     ports:
       - ${CONSOLE_PORT}:${CONSOLE_PORT}

@@ -48,7 +48,7 @@ jobs:
           git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} pointing to tag ${{ steps.release.outputs.tag_name }}"
           git push origin v${{ steps.release.outputs.major }}
           git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
-  update-helm-charts:
+  release-helm-charts:
     runs-on: ubuntu-latest
     needs: release-please
     if: ${{ needs.release-please.outputs.RELEASE_CREATED }}
