@@ -14,15 +14,16 @@ import * as verify from "./verify-text-generation.js"
 import * as helper from "./helper.js"
 
 const model = "gpt2";
-const modelRepository = "instill-ai/model-gpt2-megatron-dvc";
+const modelRepository = "instill-ai/model-gpt2-megatron-dvc"; 
 
-let modelInstances = [
-    `models/${model}/instances/fp32-345m-4-gpu`,
-]
-
-if (__ENV.HOST.includes("demo.instill.tech")) {
+let modelInstances
+if (__ENV.MODE == "demo") {
     modelInstances = [
         `models/${model}/instances/fp32-345m-2-gpu`,
+    ]
+} else {
+    modelInstances = [
+        `models/${model}/instances/fp32-345m-4-gpu`,
     ]
 }
 
@@ -35,7 +36,12 @@ export let options = {
 };
 
 export function setup() {
-    if (!__ENV.HOST.includes("demo.instill.tech")) {
+    // The model only works for GPU
+    if (__ENV.TEST_CPU_ONLY) {
+        return
+    }
+    if (__ENV.MODE == "demo") {
+    } else {
         helper.setupConnectors()
         helper.deployModel(model, modelRepository, modelInstances)
         helper.createPipeline(model, modelInstances)
@@ -43,6 +49,11 @@ export function setup() {
 }
 
 export default function () {
+    // The model only works for GPU
+    if (__ENV.TEST_CPU_ONLY) {
+        return
+    }
+
     group("Inference: GPT2 model", function () {
         verify.verifyGPT2(`${model}`, "url", modelInstances, http.request("POST", `${constant.apiHost}/v1alpha/pipelines/${model}/trigger`, JSON.stringify({
             "task_inputs": [{
@@ -70,12 +81,23 @@ export default function () {
 }
 
 export function teardown(data) {
-    if (!__ENV.HOST.includes("demo.instill.tech")) {
+    // The model only works for GPU
+    if (__ENV.TEST_CPU_ONLY) {
+        return
+    }
+
+    if (__ENV.MODE == "demo") {
+    } else {
         helper.cleanup(model)
     }
 }
 
 export function handleSummary(data) {
+    // The model only works for GPU
+    if (__ENV.TEST_CPU_ONLY) {
+        return
+    }
+    
     if (__ENV.NOTIFICATION == "true") {
         helper.sendSlackMessages(data);
     }

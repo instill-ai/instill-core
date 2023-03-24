@@ -1,4 +1,13 @@
-export const apiHost = `${__ENV.HOST}`
+let host
+if (__ENV.MODE == "demo" ) {
+    // test demo VDP
+    host = "https://demo.instill.tech"
+} else {
+    // test local VDP
+    host = "http://localhost:8080"
+}
+
+export const apiHost = host
 
 // Read a token from the environment variables
 export const slackToken = `${__ENV.TOKEN}`

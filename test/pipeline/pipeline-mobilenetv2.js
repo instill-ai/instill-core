@@ -19,16 +19,18 @@ import * as helper from "./helper.js"
 const model = "mobilenetv2";
 const modelRepository = "instill-ai/model-mobilenetv2-dvc";
 
-let modelInstances = [
-    `models/${model}/instances/v1.0-cpu`,
-    `models/${model}/instances/v1.0-gpu`,
-]
-if (__ENV.HOST.includes("localhost")) {
+let modelInstances
+if (__ENV.TEST_CPU_ONLY) {
     modelInstances = [
         `models/${model}/instances/v1.0-cpu`,
     ]
-} else if (__ENV.HOST.includes("demo.instill.tech")) {
+} else if (__ENV.TEST_GPU_ONLY) {
     modelInstances = [
+        `models/${model}/instances/v1.0-gpu`,
+    ]
+} else {
+    modelInstances = [
+        `models/${model}/instances/v1.0-cpu`,
         `models/${model}/instances/v1.0-gpu`,
     ]
 }
@@ -42,7 +44,8 @@ export let options = {
 };
 
 export function setup() {
-    if (!__ENV.HOST.includes("demo.instill.tech")) {
+    if (__ENV.MODE == "demo") {
+    } else {
         helper.setupConnectors()
         helper.deployModel(model, modelRepository, modelInstances)
         helper.createPipeline(model, modelInstances)
@@ -97,7 +100,8 @@ export default function () {
 }
 
 export function teardown(data) {
-    if (!__ENV.HOST.includes("demo.instill.tech")) {
+    if (__ENV.MODE == "demo") {
+    } else {
         helper.cleanup(model)
     }
 }

@@ -28,7 +28,7 @@ jobs:
       - name: Stop mono service
         run: |
           sudo kill -9 `sudo lsof -t -i:8084`
-          sudo lsof -i -P -n | grep LISTEN        
+          sudo lsof -i -P -n | grep LISTEN
 
       - name: Free disk space
         run: |
@@ -36,7 +36,7 @@ jobs:
           sudo apt clean
           docker rmi $(docker image ls --all --quiet) > /dev/null || true
           rm --recursive --force "$AGENT_TOOLSDIRECTORY" > /dev/null || true
-          df --human-readable 
+          df --human-readable
 
       - name: Launch VDP (latest)
         run: |
@@ -54,20 +54,20 @@ jobs:
 
       - name: Inference mobilenetv2 model
         run: |
-          cd ./test; make pipeline-mobilenetv2 HOST=http://localhost:8080
+          cd ./test; make pipeline-mobilenetv2 MODE=localhost TEST_CPU_ONLY=true
 
       - name: Inference yolov7 model
         run: |
-          cd ./test; make pipeline-yolov7 HOST=http://localhost:8080    
+          cd ./test; make pipeline-yolov7 MODE=localhost TEST_CPU_ONLY=true
 
       - name: Inference instance segmentation model
         run: |
-          cd ./test; make pipeline-instance-segmentation HOST=http://localhost:8080     
+          cd ./test; make pipeline-instance-segmentation MODE=localhost TEST_CPU_ONLY=true
 
       - name: Inference semantic segmentation model
         run: |
-          cd ./test; make pipeline-semantic-segmentation HOST=http://localhost:8080      
+          cd ./test; make pipeline-semantic-segmentation MODE=localhost TEST_CPU_ONLY=true
 
       - name: Inference text to image model
         run: |
-          cd ./test; make pipeline-text-to-image HOST=http://localhost:8080                                                  
+          cd ./test; make pipeline-text-to-image MODE=localhost TEST_CPU_ONLY=true

@@ -9,7 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        model: ["mobilenetv2", "yolov7", "keypoint", "text-generation", "text-to-image"]
+        model:
+          [
+            "mobilenetv2",
+            "yolov7",
+            "keypoint",
+            "text-generation",
+            "text-to-image",
+          ]
     steps:
       - name: Checkout (latest)
         uses: actions/checkout@v2
@@ -18,12 +25,12 @@ jobs:
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
-          expand: true          
+          expand: true
 
       - name: Install k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-      
+
       - name: Inference ${{ matrix.model }} model
         run: |
-          cd ./test; make pipeline-${{ matrix.model }} HOST=https://demo.instill.tech
+          cd ./test; make pipeline-${{ matrix.model }} MODE=demo TEST_GPU_ONLY=true
