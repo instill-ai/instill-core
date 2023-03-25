@@ -6,7 +6,7 @@ import {
 export function verifyKeypoint(pipelineId,triggerType, modelInstances, resp) {
     check(resp, {
         [`POST /v1alpha/pipelines/${pipelineId}/trigger (${triggerType}) response status is 200`]: (r) => r.status === 200,
-        [`POST /v1alpha/pipelines/${pipelineId}/trigger (${triggerType}) response model_instance_outputs.length == 1`]: (r) => r.json().model_instance_outputs.length >= 1,
+        [`POST /v1alpha/pipelines/${pipelineId}/trigger (${triggerType}) response model_instance_outputs.length >= 1`]: (r) => r.json().model_instance_outputs.length >= 1,
     });
 
     for (let i = 0; i < modelInstances.length; i++) {
