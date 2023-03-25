@@ -74,7 +74,7 @@ export function deployModel(model, repository, modelInstances) {
 
         // Check model creation finished
         let currentTime = new Date().getTime();
-        let timeoutTime = new Date().getTime() + 1 * 60 * 60 * 1000;
+        let timeoutTime = new Date().getTime() + 10 * 60 * 1000;
         while (timeoutTime > currentTime) {
             let res = http.get(`${constant.apiHost}/v1alpha/${createModelResp.json().operation.name}`, {
                 headers: {
@@ -98,9 +98,9 @@ export function deployModel(model, repository, modelInstances) {
                     r.status === 200,
             });
 
-            // Check the model instance state being updated in 1 hours. Some GitHub models is huge.
+            // Check the model instance state being updated in 24 hours. Some GitHub models is huge.
             currentTime = new Date().getTime();
-            timeoutTime = new Date().getTime() + 1 * 60 * 60 * 1000;
+            timeoutTime = new Date().getTime() + 24 * 60 * 60 * 1000;
             while (timeoutTime > currentTime) {
                 var res = http.get(`${constant.apiHost}/v1alpha/${modelInstances[i]}`, {
                     headers: {
