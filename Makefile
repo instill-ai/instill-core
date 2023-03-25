@@ -1,5 +1,7 @@
 .DEFAULT_GOAL:=help
 
+os := $(cat /etc/os-release | awk -F= '$2=="ubuntu"' | awk -F= '{print $2}')
+
 #============================================================================
 
 # load environment variables
@@ -10,6 +12,10 @@ TRITON_CONDA_ENV_PLATFORM := cpu
 ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 	TRITONSERVER_RUNTIME := nvidia
 	TRITON_CONDA_ENV_PLATFORM := gpu
+endif
+
+ifeq ($(os), ubuntu)
+@echo $os
 endif
 
 #============================================================================
