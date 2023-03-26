@@ -53,13 +53,9 @@
 
 - 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
 
-## Online demos
+## Demo playground
 
-An online demo VDP instance has been provisioned, in which you can directly play around the basic features in its Console via https://demo.instill.tech and the API (e.g., https://demo.instill.tech/v1alpha/pipelines).
-
-A number of applications that you can possibly use VDP to quickly achieve are showcased below:
-
-- [![Object Detection Demo](https://img.shields.io/badge/Object%20Detection-%20YOLOv4%20vs%20YOLOv7-pink)](https://demo.instill.tech/yolov4-vs-yolov7)
+An online demo VDP instance has been provisioned, in which you can directly play around the basic features in its Console via https://demo.instill.tech.
 
 Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
 
@@ -84,13 +80,11 @@ $ make all
 
 ![VDO Console](https://artifacts.instill.tech/imgs/vdp-console.png?)
 
-Jump right in
-- [Build your first SYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-a-sync-cls-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
-- [Build your first ASYNC pipeline with no-/low-code](https://www.instill.tech/docs/tutorials/build-an-async-det-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)
+Jump right in [VDP 101: Create your first pipeline on VDP](https://www.instill.tech/tutorials/vdp-101-3-create-your-first-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and explore other [VDP tutorials](https://www.instill.tech/tutorials/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme).
 
 > **Note**
 >
-> The image of model-backend (~2GB) and Triton Inference Server (~11GB) can take a while to pull, but this should be an one-time effort at the first setup.
+> The image of model-backend (~2GB) and Triton Inference Server (~23GB) can take a while to pull, but this should be an one-time effort at the first setup.
 
 **Shut down VDP**
 
