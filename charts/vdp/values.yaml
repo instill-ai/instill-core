@@ -611,7 +611,7 @@ triton:
   condaEnv:
     image:
       repository: instill/triton-conda-env
-      tag: latest
+      tag: 0.3.1-alpha
       pullPolicy: IfNotPresent
   shmSizeLimit: 2Gi
   gpu:
