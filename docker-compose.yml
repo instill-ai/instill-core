@@ -13,6 +13,8 @@ volumes:
     name: conda-pack
   model_repository:
     name: model-repository
+  model_cache:
+    name: models
 
 services:
   api_gateway:
@@ -210,6 +212,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     volumes:
       - model_repository:/model-repository
+      - model_cache:/.cache
     entrypoint: ./${MODEL_BACKEND_HOST}-worker
     depends_on:
       model_backend_init:
@@ -244,6 +247,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     volumes:
       - model_repository:/model-repository
+      - model_cache:/.cache
     healthcheck:
       test:
         [
