@@ -305,6 +305,29 @@ services:
     depends_on:
       - mgmt_backend_init
 
+  controller:
+    container_name: ${CONTROLLER_HOST}
+    image: instill/${CONTROLLER_HOST}:${CONTROLLER_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./${CONTROLLER_HOST}
+    depends_on:
+      pipeline_backend:
+        condition: service_started
+      connector_backend:
+        condition: service_started
+      model_backend:
+        condition: service_healthy
+      mgmt_backend:
+        condition: service_started
+
   console:
     container_name: ${CONSOLE_HOST}
     image: instill/${CONSOLE_HOST}:${CONSOLE_VERSION}
