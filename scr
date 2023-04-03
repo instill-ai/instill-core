@@ -64,7 +64,7 @@ pod_gw=$(kubectl get po -n vdp --no-headers=true | awk '{print $1}' | grep gatew
 pod_console=$(kubectl get po -n vdp --no-headers=true | awk '{print $1}' | grep console)
 
 curl --silent --fail http://localhost:3000 &>/dev/null
-echo "Console OK"
+echo "console OK"
 
 curl --silent --fail http://localhost:8080 &>/dev/null
 echo "api-gateway OK"
