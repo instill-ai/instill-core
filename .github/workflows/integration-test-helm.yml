@@ -58,7 +58,7 @@ jobs:
       - name: Run script file
         run: |
            chmod +x ./charts/vdp/scr
-           ./scr
+           ./charts/vdp/scr
         shell: bash
       - name: Check vdp namespace
         run: kubectl get po -n vdp
