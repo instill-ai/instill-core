@@ -38,9 +38,9 @@ kubectl --namespace vdp port-forward $APIGATEWAY_POD_NAME 8080:${APIGATEWAY_CONT
 kubectl --namespace vdp port-forward $CONSOLE_POD_NAME 3000:${CONSOLE_CONTAINER_PORT} & &>/dev/null
 
 export MODEL_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=model,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}")
-while [[ $(kubectl get pods $MODEL_POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' --namespace vdp) != "True" ]]; do echo "waiting for pod" && sleep 1; done
+#while [[ $(kubectl get pods $MODEL_POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' --namespace vdp) != "True" ]]; do echo "waiting for pod" && sleep 1; done
 
-kubectl get pods $MODEL_POD_NAME --namespace vdp
+kubectl describe po $MODEL_POD_NAME --namespace vdp
 
 pod_list=$(kubectl get pods -n $namespace --no-headers=true | awk '{print $1}')
 
