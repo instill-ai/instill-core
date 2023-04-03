@@ -61,6 +61,13 @@ jobs:
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
 
+      - name: Run controller integration test in container mode (latest)
+        if: inputs.target == 'latest'
+        run: |
+          git clone https://github.com/instill-ai/controller.git controller
+          cd controller
+          make integration-test
+
       - name: Uppercase component name
         if: inputs.target == 'rc'
         id: uppercase
@@ -85,3 +92,12 @@ jobs:
           git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}-backend.git ${{ inputs.component }}-backend
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
+
+      - name: Run controller integration test in container mode (rc)
+        if: inputs.target == 'rc'
+        env:
+          COMPONENT_VERSION: ${{ env.CONTROLLER_VERSION }}
+        run: |
+          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/controller.git controller
+          cd controller
+          make integration-test
