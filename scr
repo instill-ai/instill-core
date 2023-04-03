@@ -11,7 +11,8 @@ namespace="vdp"
 helm install vdp . --devel --namespace $namespace --create-namespace --set enableITMode=true  &>/dev/null 
 
 
-sleep 15
+export MODEL_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=model,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}")
+while [[ $(kubectl get pods $MODEL_POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' --namespace vdp) != "True" ]]; do echo "waiting for pod" && sleep 1; done
 
 export APIGATEWAY_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}")
 
