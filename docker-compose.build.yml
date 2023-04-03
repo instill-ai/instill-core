@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  api_gateway:
+    image: instill/${API_GATEWAY_HOST}:latest
+    build:
+      context: ./${API_GATEWAY_HOST}
+      args:
+        SERVICE_NAME: ${API_GATEWAY_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
+
+  pipeline_backend:
+    image: instill/${PIPELINE_BACKEND_HOST}:latest
+    build:
+      context: ./${PIPELINE_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  connector_backend:
+    image: instill/${CONNECTOR_BACKEND_HOST}:latest
+    build:
+      context: ./${CONNECTOR_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  model_backend:
+    image: instill/${MODEL_BACKEND_HOST}:latest
+    build:
+      context: ./${MODEL_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
+        ARTIVC_VERSION: ${ARTIVC_VERSION}
+
+  mgmt_backend:
+    image: instill/${MGMT_BACKEND_HOST}:latest
+    build:
+      context: ./${MGMT_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  console:
+    image: instill/${CONSOLE_HOST}:latest
+    build:
+      context: ./${CONSOLE_HOST}
+
+  console_playwright:
+    image: instill/${CONSOLE_HOST}-playwright:latest
+    build:
+      context: ./${CONSOLE_HOST}
+      dockerfile: Dockerfile.playwright
+      args:
+        TEST_USER: "root"

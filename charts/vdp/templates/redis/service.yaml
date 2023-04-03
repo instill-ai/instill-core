@@ -1,0 +1,19 @@
+{{- if eq .Values.redis.type "internal" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vdp.redis" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+  {{- with .Values.redis.internal.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - port: 6379
+  selector:
+{{ include "vdp.matchLabels" . | indent 4 }}
+    app.kubernetes.io/component: redis
+{{- end -}}

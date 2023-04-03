@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vdp.model" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model
+  {{- with .Values.model.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+      port: {{ template "vdp.model.privatePort" . }}
+      targetPort: {{ template "vdp.model.privatePort" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ template "vdp.model.publicPort" . }}
+      targetPort: {{ template "vdp.model.publicPort" . }}
+  selector:
+    {{- include "vdp.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: model

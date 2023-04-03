@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.console" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: console
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.console.autoscaling.enabled }}
+  replicas: {{ .Values.console.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: console
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: console
+      annotations:
+        {{- with .Values.console.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Node image nodejs:nodejs is 1001:1001
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+      {{- if .Values.console.serviceAccountName }}
+      serviceAccountName: {{ .Values.console.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.console.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- with .Values.console.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: console
+          image: {{ .Values.console.image.repository }}:{{ .Values.console.image.tag }}
+          imagePullPolicy: {{ .Values.console.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.console.resources }}
+          resources:
+            {{- toYaml .Values.console.resources | nindent 12 }}
+          {{- end }}
+          command: ["./entrypoint.sh"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.console.port" . }}
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.internalTLS.enabled }}
+            - name: console-internal-certs
+              mountPath: "/etc/vdp/ssl/console"
+            {{- end }}
+            {{- with .Values.console.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          env:
+            - name: NEXT_PUBLIC_API_VERSION
+              value: "v1alpha"
+            - name: NEXT_PUBLIC_DISABLE_USAGE_COLLECTION
+              value: "{{ .Values.disableUsage }}"
+            - name: NEXT_PUBLIC_CONSOLE_EDITION
+              value: "{{ .Values.edition }}"
+            - name: NEXT_PUBLIC_CONSOLE_BASE_URL
+              value: "{{ .Values.consoleURL }}"
+            - name: NEXT_PUBLIC_API_GATEWAY_BASE_URL
+              value: "{{ .Values.apigatewayURL }}"
+            - name: NEXT_SERVER_API_GATEWAY_BASE_URL
+              value: http://{{ template "vdp.apigateway" . }}:{{ template "vdp.apigateway.httpPort" . }}
+            - name: NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME
+              value: "instill-ai-user"
+            - name: NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION
+              value: "{{ .Values.internalTLS.enabled }}"
+            - name: NODE_ENV
+              {{- if eq .Values.edition "k8s-ce" }}
+              value: "production"
+              {{- else if eq .Values.edition "k8s-ce:dev" }}
+              value: "development"
+              {{- end }}
+            {{- if .Values.console.extraEnv }}
+            {{- toYaml .Values.console.extraEnv | nindent 12 }}
+            {{- end }}
+        {{- with .Values.console.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        {{- if .Values.internalTLS.enabled }}
+        - name: console-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.console.secretName" . }}
+        {{- end }}
+        {{- if .Values.console.extraVolumes }}
+        {{- toYaml .Values.console.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.console.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

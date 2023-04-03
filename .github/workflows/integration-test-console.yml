@@ -1,0 +1,94 @@
+name: Integration Test Reusable (console)
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      # mono occupies port 8084 which conflicts with mgmt-backend
+      - name: Stop mono service
+        run: |
+          sudo kill -9 `sudo lsof -t -i:8084`
+          sudo lsof -i -P -n | grep LISTEN
+
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+          docker rmi $(docker image ls --all --quiet)
+          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
+          df --human-readable
+
+      - name: Launch VDP (latest)
+        if: inputs.target == 'latest'
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          ITMODE=true \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          CONSOLE_BASE_URL_HOST=console \
+          CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+
+      - name: Run console integration test (latest)
+        if: inputs.target == 'latest'
+        run: |
+          git clone https://github.com/instill-ai/console.git console
+          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
+          docker run -t --rm \
+            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+            -e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+            -e NEXT_SERVER_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+            -e NEXT_PUBLIC_API_VERSION=v1alpha \
+            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+            --network instill-network \
+            --entrypoint ./entrypoint-playwright.sh \
+            --name console-integration-test console-playwright:latest
+
+      - name: Launch VDP (release)
+        if: inputs.target == 'release'
+        run: |
+          EDITION=local-ce:test \
+          ITMODE=true \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          CONSOLE_BASE_URL_HOST=console \
+          CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+          docker compose up -d --quiet-pull
+          EDITION=local-ce:test \
+          docker compose rm -f
+
+      - name: Run console integration test (release)
+        if: inputs.target == 'release'
+        run: |
+          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git console
+          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
+          docker run -t --rm \
+            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+            -e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+            -e NEXT_SERVER_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+            -e NEXT_PUBLIC_API_VERSION=v1alpha \
+            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+            --network instill-network \
+            --entrypoint ./entrypoint-playwright.sh \
+            --name console-integration-test console-playwright:${{ env.CONSOLE_VERSION }}

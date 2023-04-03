@@ -1,0 +1,36 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.appVersionBadge" . }}{{ template "chart.typeBadge" . }}
+
+{{ template "chart.description" . }}
+
+# Requirements
+
+{{ template "chart.requirementsTable" . }}
+
+## Install
+
+Once Helm has been set up correctly, add the repo as follows:
+
+```bash
+helm repo add instill https://helm.instill.tech
+```
+
+If you had already added this repo earlier, run `helm repo update` to retrieve
+the latest versions of the packages.  You can then run `helm search repo vdp --devel` to see the charts.
+
+To install the chart (alpha version):
+
+```bash
+helm install <release-name> instill/vdp --devel
+```
+
+## Uninstall
+
+To uninstall the chart:
+
+```bash
+helm uninstall <release-name>
+```

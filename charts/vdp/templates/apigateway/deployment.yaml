@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.apigateway" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.apigateway.autoscaling.enabled }}
+  replicas: {{ .Values.apigateway.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api-gateway
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/apigateway/configmap.yaml") . | sha256sum }}
+        {{- with .Values.apigateway.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      {{- if .Values.apigateway.serviceAccountName }}
+      serviceAccountName: {{ .Values.apigateway.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.console.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- with .Values.apigateway.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: api-gateway
+          image: {{ .Values.apigateway.image.repository }}:{{ .Values.apigateway.image.tag }}
+          imagePullPolicy: {{ .Values.apigateway.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.internalTLS.enabled) }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.internalTLS.enabled) }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.apigateway.resources }}
+          resources:
+            {{- toYaml .Values.apigateway.resources | nindent 12 }}
+          {{- end }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              make config && \
+              krakend run \
+            {{- if (eq .Values.logLevel "debug") }}
+              --debug \
+            {{- end }}
+              --config krakend.json
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.apigateway.httpPort" . }}
+              protocol: TCP
+            - name: stats
+              containerPort: {{ template "vdp.apigateway.statsPort" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ template "vdp.apigateway.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: "/api-gateway/config/.env"
+              subPath: ".env"
+            {{- if .Values.internalTLS.enabled }}
+            - name: apigateway-internal-certs
+              mountPath: "/etc/vdp/ssl/apigateway"
+            {{- end }}
+            {{- with .Values.apigateway.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          {{- with .Values.apigateway.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.apigateway.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.apigateway" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: apigateway-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.apigateway.secretName" . }}
+        {{- end }}
+        {{- if .Values.apigateway.extraVolumes }}
+        {{- toYaml .Values.apigateway.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.apigateway.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apigateway.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apigateway.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

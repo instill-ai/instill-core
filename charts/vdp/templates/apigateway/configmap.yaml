@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.apigateway" . }}
+data:
+  .env: |-
+    # api-gateway
+    API_GATEWAY_HOST={{ template "vdp.apigateway" . }}
+    API_GATEWAY_PORT={{ template "vdp.apigateway.httpPort" . }}
+    API_GATEWAY_STATS_PORT={{ template "vdp.apigateway.statsPort" . }}
+    API_GATEWAY_METRICS_PORT={{ template "vdp.apigateway.metricsPort" . }}
+    API_GATEWAY_LOG_LEVEL={{ upper .Values.logLevel }}
+    {{- if .Values.internalTLS.enabled }}
+    API_GATEWAY_CERT_FILE=/etc/vdp/ssl/apigateway/tls.cert
+    API_GATEWAY_KEY_FILE=/etc/vdp/ssl/apigateway/tls.key
+    {{- end }}
+
+    # pipeline-backend
+    PIPELINE_BACKEND_HOST={{ template "vdp.pipeline" . }}
+    PIPELINE_BACKEND_PUBLICPORT={{ template "vdp.pipeline.publicPort" . }}
+
+    # connector-backend
+    CONNECTOR_BACKEND_HOST={{ template "vdp.connector" . }}
+    CONNECTOR_BACKEND_PUBLICPORT={{ template "vdp.connector.publicPort" . }}
+
+    # model-backend
+    MODEL_BACKEND_HOST={{ template "vdp.model" . }}
+    MODEL_BACKEND_PUBLICPORT={{ template "vdp.model.publicPort" . }}
+
+    # mgmt-backend
+    MGMT_BACKEND_HOST={{ template "vdp.mgmt" . }}
+    MGMT_BACKEND_PUBLICPORT={{ template "vdp.mgmt.publicPort" . }}

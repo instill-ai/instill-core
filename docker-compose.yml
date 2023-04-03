@@ -1,0 +1,449 @@
+version: "3.9"
+
+networks:
+  default:
+    name: instill-network
+
+volumes:
+  vdp:
+    name: vdp
+  airbyte:
+    name: airbyte
+  conda_pack:
+    name: conda-pack
+  model_repository:
+    name: model-repository
+
+services:
+  api_gateway:
+    container_name: ${API_GATEWAY_HOST}
+    image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
+    restart: unless-stopped
+    environment:
+      API_GATEWAY_HOST: ${API_GATEWAY_HOST}
+      API_GATEWAY_PORT: ${API_GATEWAY_PORT}
+      API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
+      API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
+      API_GATEWAY_LOG_LEVEL: INFO
+      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CONNECTOR_BACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CONNECTOR_BACKEND_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+    command: /bin/bash -c "
+      envsubst <config/.env.envsubst >config/.env &&
+      make config &&
+      krakend run -c krakend.json"
+    depends_on:
+      pipeline_backend:
+        condition: service_started
+      connector_backend:
+        condition: service_started
+      model_backend:
+        condition: service_healthy
+      mgmt_backend:
+        condition: service_started
+
+  pipeline_backend_migrate:
+    container_name: ${PIPELINE_BACKEND_HOST}-migrate
+    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${PIPELINE_BACKEND_HOST}-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  pipeline_backend:
+    container_name: ${PIPELINE_BACKEND_HOST}
+    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_CONNECTORBACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CFG_CONNECTORBACKEND_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
+      CFG_MODELBACKEND_HOST: ${MODEL_BACKEND_HOST}
+      CFG_MODELBACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./${PIPELINE_BACKEND_HOST}
+    depends_on:
+      - pipeline_backend_migrate
+      - temporal
+      - redis
+
+  connector_backend_migrate:
+    container_name: ${CONNECTOR_BACKEND_HOST}-migrate
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  connector_backend_init:
+    container_name: ${CONNECTOR_BACKEND_HOST}-init
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-init
+    depends_on:
+      - connector_backend_migrate
+
+  connector_backend_worker:
+    container_name: ${CONNECTOR_BACKEND_HOST}-worker
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
+      CFG_WORKER_MOUNTSOURCE_VDP: vdp
+      CFG_WORKER_MOUNTSOURCE_AIRBYTE: airbyte
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    volumes:
+      - vdp:/vdp
+      - airbyte:/airbyte
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}-worker
+    depends_on:
+      connector_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
+  connector_backend:
+    container_name: ${CONNECTOR_BACKEND_HOST}
+    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./${CONNECTOR_BACKEND_HOST}
+    depends_on:
+      - connector_backend_worker
+
+  model_backend_migrate:
+    container_name: ${MODEL_BACKEND_HOST}-migrate
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${MODEL_BACKEND_HOST}-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  model_backend_init:
+    container_name: ${MODEL_BACKEND_HOST}-init
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${MODEL_BACKEND_HOST}-init
+    depends_on:
+      - model_backend_migrate
+
+  model_backend_worker:
+    container_name: ${MODEL_BACKEND_HOST}-worker
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_ITMODE: ${ITMODE}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    volumes:
+      - model_repository:/model-repository
+    entrypoint: ./${MODEL_BACKEND_HOST}-worker
+    depends_on:
+      model_backend_init:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
+  model_backend:
+    container_name: ${MODEL_BACKEND_HOST}
+    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${MODEL_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
+      CFG_SERVER_ITMODE: ${ITMODE}
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_TRITONSERVER_GRPCURI: ${TRITON_SERVER_HOST}:${TRITON_SERVER_PORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_TRITONSERVER_MODELSTORE: /model-repository
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    volumes:
+      - model_repository:/model-repository
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "http://localhost:${MODEL_BACKEND_PUBLICPORT}/v1alpha/ready/model",
+        ]
+      timeout: 20s
+      retries: 10
+    entrypoint: ./${MODEL_BACKEND_HOST}
+    depends_on:
+      - triton_server
+      - model_backend_worker
+
+  mgmt_backend_migrate:
+    container_name: ${MGMT_BACKEND_HOST}-migrate
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+    entrypoint: ./${MGMT_BACKEND_HOST}-migrate
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  mgmt_backend_init:
+    container_name: ${MGMT_BACKEND_HOST}-init
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+    entrypoint: ./${MGMT_BACKEND_HOST}-init
+    depends_on:
+      - mgmt_backend_migrate
+
+  mgmt_backend:
+    container_name: ${MGMT_BACKEND_HOST}
+    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+      CFG_SERVER_PLUGIN: ${MGMT_BACKEND_HOST}-plugin
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./${MGMT_BACKEND_HOST}
+    depends_on:
+      - mgmt_backend_init
+
+  console:
+    container_name: ${CONSOLE_HOST}
+    image: instill/${CONSOLE_HOST}:${CONSOLE_VERSION}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_VERSION: v1alpha
+      NEXT_PUBLIC_DISABLE_USAGE_COLLECTION: "false"
+      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION:-local-ce:unknown}
+      NEXT_PUBLIC_CONSOLE_BASE_URL: http://${CONSOLE_BASE_URL_HOST}:${CONSOLE_PORT}
+      NEXT_PUBLIC_API_GATEWAY_BASE_URL: http://${CONSOLE_BASE_API_GATEWAY_URL_HOST}:${API_GATEWAY_PORT}
+      NEXT_SERVER_API_GATEWAY_BASE_URL: http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}
+      NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME: instill-ai-user
+      NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION: "false"
+      NODE_ENV: production
+    ports:
+      - ${CONSOLE_PORT}:${CONSOLE_PORT}
+    entrypoint: ./entrypoint.sh
+    depends_on:
+      - api_gateway
+
+  triton_conda_env:
+    container_name: triton-conda-env
+    image: instill/triton-conda-env:${TRITON_CONDA_ENV_VERSION}-${TRITON_CONDA_ENV_PLATFORM}
+    volumes:
+      - conda_pack:/conda-pack
+
+  triton_server:
+    runtime: ${TRITONSERVER_RUNTIME:-}
+    container_name: ${TRITON_SERVER_HOST}
+    image: instill/tritonserver:${TRITON_SERVER_VERSION}
+    restart: unless-stopped
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
+    command: tritonserver --model-store=/model-repository --model-control-mode=explicit --allow-http=true --strict-model-config=false
+    volumes:
+      - model_repository:/model-repository
+      - conda_pack:/conda-pack
+    healthcheck:
+      test: ["CMD", "curl", "localhost:8000/v2/health/ready"]
+      timeout: 20s
+      retries: 10
+    shm_size: 2gb
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    depends_on:
+      - triton_conda_env
+
+  pg_sql:
+    container_name: ${POSTGRESQL_HOST}
+    image: postgres:${POSTGRESQL_VERSION}-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      timeout: 20s
+      retries: 10
+
+  elasticsearch:
+    container_name: ${ELASTICSEARCH_HOST}
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    image: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_VERSION}
+    volumes:
+      - /var/lib/elasticsearch/data
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    restart: unless-stopped
+    environment:
+      DB: postgresql
+      DB_PORT: ${POSTGRESQL_PORT}
+      POSTGRES_USER: postgres
+      POSTGRES_PWD: password
+      POSTGRES_SEEDS: ${POSTGRESQL_HOST}
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
+      ENABLE_ES: "true"
+      ES_SEEDS: elasticsearch
+      ES_VERSION: v7
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "workflow", "list"]
+      interval: 10s
+      timeout: 1m
+      retries: 10
+    depends_on:
+      - pg_sql
+      - elasticsearch
+
+  temporal_admin_tools:
+    container_name: ${TEMPORAL_HOST}-admin-tools
+    image: temporalio/admin-tools:${TEMPORAL_VERSION}
+    restart: unless-stopped
+    environment:
+      TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: /bin/bash -c "tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text && tail -f /dev/null"
+    depends_on:
+      temporal:
+        condition: service_healthy
+
+  temporal_ui:
+    container_name: ${TEMPORAL_UI_HOST}
+    image: temporalio/ui:${TEMPORAL_UI_VERSION}
+    restart: unless-stopped
+    environment:
+      TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    ports:
+      - ${TEMPORAL_UI_PORT}:8080
+    depends_on:
+      - temporal
+
+  redis:
+    container_name: ${REDIS_HOST}
+    image: ${REDIS_HOST}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
+    restart: unless-stopped
+    environment:
+      ALLOW_EMPTY_PASSWORD: "true"
+
+  redoc_openapi:
+    container_name: redoc-openapi
+    image: redocly/redoc:${REDOC_OPENAPI_VERSION}
+    environment:
+      - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
+    ports:
+      - ${REDOC_OPENAPI_PORT}:80
+
+  socat:
+    container_name: ${SOCAT_HOST}
+    image: alpine/${SOCAT_HOST}:${SOCAT_VERSION}
+    command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
+    user: root
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
