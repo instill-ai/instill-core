@@ -21,7 +21,6 @@ export CONSOLE_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io
 
 export CONSOLE_CONTAINER_PORT=$(kubectl get pod --namespace vdp $CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
 
-sleep 7
 
 
 if [[ $(netstat -anv | grep 127.0.0.1.3000) ]]; then
