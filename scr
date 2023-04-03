@@ -68,7 +68,7 @@ curl --silent --fail http://localhost:3000 &>/dev/null
 echo "Console OK"
 
 curl --silent --fail http://localhost:8080 &>/dev/null
-echo "API OK"
+echo "api-gateway OK"
 
 
 
