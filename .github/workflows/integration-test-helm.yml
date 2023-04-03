@@ -1,66 +1,64 @@
-name: Helm integration test
+name: helm
 
 on: [push]
 
 jobs:
   example:
     name: minikube
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: Clean unused space
+      - name: Maximize build space
         uses: AdityaGarg8/remove-unwanted-software@v1
         with:
           remove-android: 'true'
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.7.2
-        with:
-          minikube version: 'v1.28.0'
-          kubernetes version: 'v1.25.4'
+        uses: medyagh/setup-minikube@master
+      - name: verify 1
+        run: |
+          docker images && df -h
+        shell: bash
       - name: Download and install Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
-      - name: Delete unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache && rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
-      - name: Minikube set 100G
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: minikube set 100gb
         run: |
           minikube config set disk-size 100GB && minikube delete && minikube start && df -h
-        shell: bash
-      - name: eval
-        run: |
-          eval $(minikube docker-env --shell sh)
-        shell: bash
+        shell: bash   
       - name: Free disk space
         run: |
           df --human-readable
           sudo apt clean
-          docker ps
-          docker stop $(docker ps -a -q)
-          docker rm $(docker ps -a -q)
-          docker rmi -f $(docker image ls --all --quiet)
-      - name: Pull triton
+      - name: verify
         run: |
+          docker images && df -h
+        shell: bash
+      - name: Build image
+        run: |
+          export SHELL=/bin/bash
+          eval $(minikube docker-env)
           docker pull instill/tritonserver:22.12
-        shell: bash
-      - name: Verify images
+          docker images
+      - name: Verify
         run: |
           docker images && df -h
         shell: bash
-      - name: Load triton
+      - name: Run script file
         run: |
-          minikube image load instill/tritonserver:22.12
-        shell: bash
-      - name: Run script
-        run: |
-           chmod +x ./scr
+           chmod +x ./charts/vdp/scr
            ./scr
-        shell: bash
-      - name: Verify 2
-        run: |
-          docker images && df -h
         shell: bash
       - name: Check vdp namespace
         run: kubectl get po -n vdp
