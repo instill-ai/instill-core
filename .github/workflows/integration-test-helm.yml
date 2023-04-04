@@ -56,14 +56,6 @@ jobs:
         shell: bash
       - name: Check vdp namespace
         run: kubectl get po -n vdp
-      - name: Run WF - backend
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: integration-test-backend.yml
-      - name: Run WF - console
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: integration-test-console.yml
       - name: Run WF - latest
         uses: benc-uk/workflow-dispatch@v1
         with:
