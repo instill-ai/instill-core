@@ -13,6 +13,8 @@ jobs:
           remove-android: 'true'
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Change dir
+        run: cd charts/vdp && ls
       - name: Setup Minikube
         uses: medyagh/setup-minikube@master
       - name: Download and install Helm
