@@ -57,10 +57,10 @@ jobs:
       - name: Check vdp namespace
         run: kubectl get po -n vdp
       - name: Run WF - latest
-        uses: actions/workflow-dispatch@v2
+        uses: peter-evans/workflow-dispatch@v1
         with:
           workflow: integration-test-latest.yml
-      - name: Run WF
-        uses: actions/workflow-dispatch@v2
+      - name: Run WF - backend
+        uses: peter-evans/workflow-dispatch@v1
         with:
           workflow: integration-test-backend.yml
