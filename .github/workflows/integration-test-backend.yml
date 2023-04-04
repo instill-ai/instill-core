@@ -61,21 +61,21 @@ jobs:
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
 
-      - name: Run controller integration test in container mode (latest)
+      - name: Run controller integration test (latest)
         if: inputs.target == 'latest'
         run: |
           git clone https://github.com/instill-ai/controller.git controller
           cd controller
-          make integration-test
+          make integration-test MODE=localhost
 
       - name: Uppercase component name
-        if: inputs.target == 'rc'
+        if: inputs.target == 'release'
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z' 'A-Z')" >> $GITHUB_OUTPUT
 
-      - name: Launch VDP (rc)
-        if: inputs.target == 'rc'
+      - name: Launch VDP (release)
+        if: inputs.target == 'release'
         run: |
           EDITION=local-ce:test \
           ITMODE=true \
@@ -84,8 +84,8 @@ jobs:
           EDITION=local-ce:test \
           docker compose rm -f
 
-      - name: Run ${{ inputs.component }}-backend integration test (rc)
-        if: inputs.target == 'rc'
+      - name: Run ${{ inputs.component }}-backend integration test (release)
+        if: inputs.target == 'release'
         env:
           COMPONENT_VERSION: ${{ env[format('{0}_BACKEND_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
         run: |
@@ -93,11 +93,11 @@ jobs:
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
 
-      - name: Run controller integration test in container mode (rc)
-        if: inputs.target == 'rc'
+      - name: Run controller integration test (release)
+        if: inputs.target == 'release'
         env:
           COMPONENT_VERSION: ${{ env.CONTROLLER_VERSION }}
         run: |
           git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/controller.git controller
           cd controller
-          make integration-test
+          make integration-test MODE=localhost
