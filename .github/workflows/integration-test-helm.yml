@@ -1,0 +1,64 @@
+name: helm
+
+on: [push]
+
+jobs:
+  example:
+    name: minikube
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v1
+        with:
+          remove-android: 'true'
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Change dir
+        run: cd charts/vdp && ls
+      - name: Setup Minikube
+        uses: medyagh/setup-minikube@master
+      - name: Download and install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Minikube set memory & restart
+        run: |
+          minikube config set memory 6400 && minikube delete && minikube start && df -h
+        shell: bash   
+      - name: Increase free space
+        run: |
+          df --human-readable
+          sudo apt clean
+      - name: Build image
+        run: |
+          export SHELL=/bin/bash
+          eval $(minikube docker-env)
+          docker pull instill/tritonserver:22.12
+          docker pull postgres:15-alpine
+          docker pull temporalio/admin-tools:1.19.1
+          docker pull instill/model-backend:0.14.0-alpha
+          docker pull instill/connector-backend:0.8.0-alpha
+          docker pull instill/api-gateway:0.2.3-alpha
+          docker pull instill/mgmt-backend:0.3.2-alpha
+          docker pull instill/triton-conda-env:latest-cpu
+          docker pull instill/console:0.20.0-alpha
+          docker pull instill/pipeline-backend:0.10.0-alpha
+          docker images
+      - name: Verify
+        run: |
+          docker images && df -h
+        shell: bash
+      - name: Run script file
+        run: |
+           chmod +x ./charts/vdp/scr
+           ./charts/vdp/scr
+        shell: bash
+      - name: Check vdp namespace
+        run: kubectl get po -n vdp
+      - name: Run WF - latest
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: integration-test-latest.yml
