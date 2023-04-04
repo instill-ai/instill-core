@@ -5,7 +5,8 @@
     "task": "TASK_CLASSIFICATION",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-mobilenetv2"
+    "repository": "instill-ai/model-mobilenetv2-dvc",
+    "tag": "v1.0-cpu"
     }
   },
   {
@@ -18,30 +19,13 @@
     }
   },
   {
-    "id": "yolov4",
-    "description": "YOLOv4 is a classic object detector pretrained on MS COCO dataset with 80 object classes.",
-    "task": "TASK_DETECTION",
-    "model_definition": "model-definitions/github",
-    "configuration": {
-      "repository": "instill-ai/model-yolov4-dvc"
-    }
-  },
-  {
     "id": "yolov7",
     "description": "YOLOv7 is a state-of-the-art real-time object detector pretrained on MS COCO dataset with 80 object classes.",
     "task": "TASK_DETECTION",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-yolov7-dvc"
-    }
-  },
-  {
-    "id": "keypoint-r-cnn-r50-fpn",
-    "description": "A keypoint detector, extended on the basis of Mask R-CNN, to detect keypoints in the human body. The model is pretrained on MS COCO dataset with 17 keypoints.",
-    "task": "TASK_KEYPOINT",
-    "model_definition": "model-definitions/github",
-    "configuration": {
-      "repository": "instill-ai/model-keypoint-detection-dvc"
+      "repository": "instill-ai/model-yolov7-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -50,7 +34,8 @@
     "task": "TASK_KEYPOINT",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-yolov7-pose-dvc"
+      "repository": "instill-ai/model-yolov7-pose-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -59,7 +44,8 @@
     "task": "TASK_OCR",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-ocr-dvc"
+      "repository": "instill-ai/model-ocr-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -68,7 +54,8 @@
     "task": "TASK_INSTANCE_SEGMENTATION",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-instance-segmentation-dvc"
+      "repository": "instill-ai/model-instance-segmentation-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -77,7 +64,8 @@
     "task": "TASK_SEMANTIC_SEGMENTATION",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-semantic-segmentation-dvc"
+      "repository": "instill-ai/model-semantic-segmentation-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -86,16 +74,8 @@
     "task": "TASK_TEXT_TO_IMAGE",
     "model_definition": "model-definitions/github",
     "configuration": {
-      "repository": "instill-ai/model-diffusion-dvc"
-    }
-  },
-  {
-    "id": "gpt-2",
-    "description": "GPT-2, from OpenAI, is trained to generate text based on your prompts.",
-    "task": "TASK_TEXT_GENERATION",
-    "model_definition": "model-definitions/github",
-    "configuration": {
-      "repository": "instill-ai/model-gpt2-megatron-dvc"
+      "repository": "instill-ai/model-diffusion-dvc",
+      "tag": "v1.5-cpu"
     }
   }
 ]
