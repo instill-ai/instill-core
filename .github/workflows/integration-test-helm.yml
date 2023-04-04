@@ -15,6 +15,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Minikube
         uses: medyagh/setup-minikube@master
+      - name: Run WF - latest
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: integration-test-latest.yml
       - name: Download and install Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
@@ -56,11 +60,7 @@ jobs:
         shell: bash
       - name: Check vdp namespace
         run: kubectl get po -n vdp
-      - name: Run WF - latest
-        uses: aurelien-baudet/workflow-dispatch@v2
-        with:
-          workflow: integration-test-latest.yml
       - name: Run WF - backend
-        uses: aurelien-baudet/workflow-dispatch@v2
+        uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: integration-test-backend.yml
