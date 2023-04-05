@@ -19,7 +19,7 @@ volumes:
 services:
   api_gateway:
     container_name: ${API_GATEWAY_HOST}
-    image: instill/${API_GATEWAY_HOST}:${API_GATEWAY_VERSION}
+    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     restart: unless-stopped
     environment:
       API_GATEWAY_HOST: ${API_GATEWAY_HOST}
@@ -53,7 +53,7 @@ services:
 
   pipeline_backend_migrate:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -67,7 +67,7 @@ services:
 
   pipeline_backend:
     container_name: ${PIPELINE_BACKEND_HOST}
-    image: instill/${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_VERSION}
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
@@ -97,7 +97,7 @@ services:
 
   connector_backend_migrate:
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
-    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -111,7 +111,7 @@ services:
 
   connector_backend_init:
     container_name: ${CONNECTOR_BACKEND_HOST}-init
-    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -124,7 +124,7 @@ services:
 
   connector_backend_worker:
     container_name: ${CONNECTOR_BACKEND_HOST}-worker
-    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
@@ -147,7 +147,7 @@ services:
 
   connector_backend:
     container_name: ${CONNECTOR_BACKEND_HOST}
-    image: instill/${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_VERSION}
+    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
@@ -171,7 +171,7 @@ services:
 
   model_backend_migrate:
     container_name: ${MODEL_BACKEND_HOST}-migrate
-    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -185,7 +185,7 @@ services:
 
   model_backend_init:
     container_name: ${MODEL_BACKEND_HOST}-init
-    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -198,7 +198,7 @@ services:
 
   model_backend_worker:
     container_name: ${MODEL_BACKEND_HOST}-worker
-    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
@@ -222,7 +222,7 @@ services:
 
   model_backend:
     container_name: ${MODEL_BACKEND_HOST}
-    image: instill/${MODEL_BACKEND_HOST}:${MODEL_BACKEND_VERSION}
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PRIVATEPORT: ${MODEL_BACKEND_PRIVATEPORT}
@@ -264,7 +264,7 @@ services:
 
   mgmt_backend_migrate:
     container_name: ${MGMT_BACKEND_HOST}-migrate
-    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_USERNAME: postgres
@@ -278,7 +278,7 @@ services:
 
   mgmt_backend_init:
     container_name: ${MGMT_BACKEND_HOST}-init
-    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     restart: on-failure
     environment:
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -291,7 +291,7 @@ services:
 
   mgmt_backend:
     container_name: ${MGMT_BACKEND_HOST}
-    image: instill/${MGMT_BACKEND_HOST}:${MGMT_BACKEND_VERSION}
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
@@ -334,7 +334,7 @@ services:
 
   console:
     container_name: ${CONSOLE_HOST}
-    image: instill/${CONSOLE_HOST}:${CONSOLE_VERSION}
+    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_VERSION: v1alpha
@@ -361,7 +361,7 @@ services:
   triton_server:
     runtime: ${TRITONSERVER_RUNTIME:-}
     container_name: ${TRITON_SERVER_HOST}
-    image: instill/tritonserver:${TRITON_SERVER_VERSION}
+    image: ${TRITON_SERVER_IMAGE}:${TRITON_SERVER_VERSION}
     restart: unless-stopped
     environment:
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
@@ -382,7 +382,7 @@ services:
 
   pg_sql:
     container_name: ${POSTGRESQL_HOST}
-    image: postgres:${POSTGRESQL_VERSION}-alpine
+    image: ${POSTGRESQL_IMAGE}:${POSTGRESQL_VERSION}-alpine
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: password
@@ -393,6 +393,7 @@ services:
 
   elasticsearch:
     container_name: ${ELASTICSEARCH_HOST}
+    image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -401,13 +402,12 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
       - xpack.security.enabled=false
-    image: ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_VERSION}
     volumes:
       - /var/lib/elasticsearch/data
 
   temporal:
     container_name: temporal
-    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    image: ${TEMPORAL_IMAGE}:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
       DB: postgresql
@@ -441,7 +441,7 @@ services:
 
   temporal_ui:
     container_name: ${TEMPORAL_UI_HOST}
-    image: temporalio/ui:${TEMPORAL_UI_VERSION}
+    image: ${TEMPORAL_UI_IMAGE}:${TEMPORAL_UI_VERSION}
     restart: unless-stopped
     environment:
       TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
@@ -452,14 +452,14 @@ services:
 
   redis:
     container_name: ${REDIS_HOST}
-    image: ${REDIS_HOST}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
+    image: ${REDIS_IMAGE}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
     restart: unless-stopped
     environment:
       ALLOW_EMPTY_PASSWORD: "true"
 
   redoc_openapi:
     container_name: redoc-openapi
-    image: redocly/redoc:${REDOC_OPENAPI_VERSION}
+    image: ${REDOC_IMAGE}:${REDOC_OPENAPI_VERSION}
     environment:
       - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
     ports:
@@ -467,7 +467,7 @@ services:
 
   socat:
     container_name: ${SOCAT_HOST}
-    image: alpine/${SOCAT_HOST}:${SOCAT_VERSION}
+    image: ${SOCAT_IMAGE}:${SOCAT_VERSION}
     command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
     user: root
     volumes:

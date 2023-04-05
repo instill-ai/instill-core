@@ -21,8 +21,7 @@ services:
       - model
       - console
       - mgmt
-      # - controller
-    image: instill/${PIPELINE_BACKEND_HOST}:latest
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
 
   pipeline_backend:
     profiles:
@@ -32,8 +31,7 @@ services:
       - model
       - console
       - mgmt
-      # - controller
-    image: instill/${PIPELINE_BACKEND_HOST}:latest
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -49,8 +47,7 @@ services:
       - model
       - mgmt
       - console
-      # - controller
-    image: instill/${CONNECTOR_BACKEND_HOST}:latest
+    image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend_init:
     profiles:
@@ -60,8 +57,7 @@ services:
       - model
       - mgmt
       - console
-      # - controller
-    image: instill/${CONNECTOR_BACKEND_HOST}:latest
+    image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend_worker:
     profiles:
@@ -71,8 +67,7 @@ services:
       - model
       - mgmt
       - console
-      # - controller
-    image: instill/${CONNECTOR_BACKEND_HOST}:latest
+    image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend:
     profiles:
@@ -82,8 +77,7 @@ services:
       - model
       - mgmt
       - console
-      # - controller
-    image: instill/${CONNECTOR_BACKEND_HOST}:latest
+    image: ${CONNECTOR_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -99,8 +93,7 @@ services:
       - connector
       - mgmt
       - console
-      # - controller
-    image: instill/${MODEL_BACKEND_HOST}:latest
+    image: ${MODEL_BACKEND_IMAGE}:latest
 
   model_backend_init:
     profiles:
@@ -110,8 +103,7 @@ services:
       - connector
       - mgmt
       - console
-      # - controller
-    image: instill/${MODEL_BACKEND_HOST}:latest
+    image: ${MODEL_BACKEND_IMAGE}:latest
 
   model_backend_worker:
     profiles:
@@ -121,8 +113,7 @@ services:
       - connector
       - mgmt
       - console
-      - controller
-    image: instill/${MODEL_BACKEND_HOST}:latest
+    image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
 
@@ -134,8 +125,7 @@ services:
       - connector
       - mgmt
       - console
-      # - controller
-    image: instill/${MODEL_BACKEND_HOST}:latest
+    image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -151,8 +141,7 @@ services:
       - connector
       - model
       - console
-      - controller
-    image: instill/${MGMT_BACKEND_HOST}:latest
+    image: ${MGMT_BACKEND_IMAGE}:latest
 
   mgmt_backend_init:
     profiles:
@@ -162,8 +151,7 @@ services:
       - connector
       - model
       - console
-      - controller
-    image: instill/${MGMT_BACKEND_HOST}:latest
+    image: ${MGMT_BACKEND_IMAGE}:latest
 
   mgmt_backend:
     profiles:
@@ -173,8 +161,7 @@ services:
       - connector
       - model
       - console
-      - controller
-    image: instill/${MGMT_BACKEND_HOST}:latest
+    image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -206,8 +193,7 @@ services:
       - connector
       - model
       - mgmt
-      - controller
-    image: instill/${CONSOLE_HOST}:latest
+    image: ${CONSOLE_IMAGE}:latest
     environment:
       NEXT_PUBLIC_DISABLE_USAGE_COLLECTION: "false"
       NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
