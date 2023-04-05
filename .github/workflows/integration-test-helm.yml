@@ -22,6 +22,11 @@ jobs:
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
+      - name: Run script file
+        run: |
+           chmod +x ./charts/test.sh
+           ./charts/test.sh
+        shell: bash
       - name: Delete huge unnecessary tools folder
         run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Minikube set memory & restart
@@ -50,11 +55,6 @@ jobs:
       - name: Verify
         run: |
           docker images && df -h
-        shell: bash
-      - name: Run script file
-        run: |
-           chmod +x ./charts/test.sh
-           ./charts/test.sh
         shell: bash
       - name: Check vdp namespace
         run: kubectl get po -n vdp
