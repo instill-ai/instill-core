@@ -14,7 +14,7 @@ volumes:
   model_repository:
     name: model-repository
   model_cache:
-    name: models
+    name: model-cache
 
 services:
   api_gateway:
