@@ -10,7 +10,7 @@ helm repo update
 helm install vdp ./vdp --devel --namespace $namespace --create-namespace --set enableITMode=true        
 #helm install vdp instill/vdp --devel --namespace $namespace --create-namespace --set enableITMode=true      
 
-sleep 10
+kubectl wait --for=condition=Ready pod --all -n $namespace --timeout=300s
 
 export APIGATEWAY_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}")
 
@@ -34,15 +34,9 @@ if nc -zv localhost 8080 &>/dev/null; then
           echo -e "8080 port is ready to use.\n"
           fi
 
-sleep 10
-
 kubectl --namespace vdp port-forward $APIGATEWAY_POD_NAME 8080:${APIGATEWAY_CONTAINER_PORT} & &>/dev/null
 kubectl --namespace vdp port-forward $CONSOLE_POD_NAME 3000:${CONSOLE_CONTAINER_PORT} & &>/dev/null
 
-export MODEL_POD_NAME=$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=model,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}")
-#while [[ $(kubectl get pods $MODEL_POD_NAME -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' --namespace vdp) != "True" ]]; do echo "waiting for pod" && sleep 1; done
-
-kubectl describe po $MODEL_POD_NAME --namespace vdp
 
 pod_list=$(kubectl get pods -n $namespace --no-headers=true | awk '{print $1}')
 
@@ -57,10 +51,6 @@ done
 
 echo -e "All remaining pods are running.\n"
 
-triton=$(kubectl get po -n vdp | grep triton | awk -F " " '{print $1}')
-
-kubectl describe po $triton -n vdp
-
 for pod_name in $pod_list
 do
   pod_status=$(kubectl get pod $pod_name -n $namespace | grep Running | awk -F " " '{print $3}')
@@ -72,10 +62,6 @@ done
 
 pod_gw=$(kubectl get po -n vdp --no-headers=true | awk '{print $1}' | grep gateway)
 pod_console=$(kubectl get po -n vdp --no-headers=true | awk '{print $1}' | grep console)
-
-kubectl wait --for=condition=Ready pod --all -n $namespace --timeout=300s
-
-kubectl describe po $MODEL_POD_NAME --namespace vdp
 
 curl --silent --fail http://localhost:3000 &>/dev/null
 echo "console OK"
