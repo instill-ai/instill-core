@@ -305,6 +305,29 @@ services:
     depends_on:
       - mgmt_backend_init
 
+  controller:
+    container_name: ${CONTROLLER_HOST}
+    image: instill/${CONTROLLER_HOST}:${CONTROLLER_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./${CONTROLLER_HOST}
+    depends_on:
+      pipeline_backend:
+        condition: service_started
+      connector_backend:
+        condition: service_started
+      model_backend:
+        condition: service_healthy
+      mgmt_backend:
+        condition: service_started
+
   console:
     container_name: ${CONSOLE_HOST}
     image: instill/${CONSOLE_HOST}:${CONSOLE_VERSION}
@@ -407,7 +430,7 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    entrypoint: /bin/bash -c "tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text && tail -f /dev/null"
+    entrypoint: /bin/bash -c "tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name ModelInstanceUID --type Text --name Owner --type Text --name ConnectorUID --type Text && tail -f /dev/null"
     depends_on:
       temporal:
         condition: service_healthy
@@ -447,3 +470,21 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+
+  etcd:
+    container_name: ${ETCD_HOST}
+    image: quay.io/coreos/etcd:v${ETCD_VERSION}
+    restart: unless-stopped
+    environment:
+      ETCD_NAME: ${ETCD_HOST}
+      ETCD_ADVERTISE_CLIENT_URLS: http://${ETCD_HOST}:${ETCD_CLIENT_PORT}
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:${ETCD_CLIENT_PORT}
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:${ETCD_PEER_PORT}
+      ETCD_INITIAL_CLUSTER_TOKEN: ${ETCD_CLUSTER_TOKEN}
+      ETCD_INITIAL_CLUSTER_STATE: ${ETCD_CLUSTER_STATE}
+      ETCD_INITIAL_CLUSTER: ${ETCD_HOST}=http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCDCTL_API: ${ETCDCTL_API}
+    ports:
+      - ${ETCD_PEER_PORT}:${ETCD_PEER_PORT}
+      - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}
