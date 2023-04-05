@@ -57,7 +57,7 @@ jobs:
       - name: Run ${{ inputs.component }}-backend integration test (latest)
         if: inputs.target == 'latest'
         run: |
-          git clone https://github.com/instill-ai/${{ inputs.component }}-backend.git ${{ inputs.component }}-backend
+          git clone https://github.com/instill-ai/${{ inputs.component }}-backend.git
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
 
@@ -89,7 +89,7 @@ jobs:
         env:
           COMPONENT_VERSION: ${{ env[format('{0}_BACKEND_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
         run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}-backend.git ${{ inputs.component }}-backend
+          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}-backend.git
           cd ${{ inputs.component }}-backend
           make integration-test MODE=localhost
 

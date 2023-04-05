@@ -52,7 +52,7 @@ jobs:
       - name: Run console integration test (latest)
         if: inputs.target == 'latest'
         run: |
-          git clone https://github.com/instill-ai/console.git console
+          git clone https://github.com/instill-ai/console.git
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
           docker run -t --rm \
             -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -80,7 +80,7 @@ jobs:
       - name: Run console integration test (release)
         if: inputs.target == 'release'
         run: |
-          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git console
+          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
           docker run -t --rm \
             -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
