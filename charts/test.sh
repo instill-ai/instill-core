@@ -7,7 +7,7 @@ sudo apt install netcat ncat socat -y
 helm repo add instill https://helm.instill.tech
 helm repo update
 
-helm install vdp ./vdp --devel --namespace $namespace --create-namespace --set enableITMode=true        
+helm install vdp $PWD/charts/vdp --devel --namespace $namespace --create-namespace --set enableITMode=true
 #helm install vdp instill/vdp --devel --namespace $namespace --create-namespace --set enableITMode=true      
 
 kubectl wait --for=condition=Ready pod --all -n $namespace --timeout=300s
