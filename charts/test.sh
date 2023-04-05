@@ -7,7 +7,7 @@ sudo apt install netcat ncat socat -y
 helm repo add instill https://helm.instill.tech
 helm repo update
 
-helm install vdp "$dir" --devel --namespace $namespace --create-namespace --set enableITMode=true        
+helm install vdp ./vdp --devel --namespace $namespace --create-namespace --set enableITMode=true        
 #helm install vdp instill/vdp --devel --namespace $namespace --create-namespace --set enableITMode=true      
 
 sleep 10
