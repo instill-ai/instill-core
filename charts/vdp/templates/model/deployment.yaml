@@ -174,7 +174,7 @@ spec:
             claimName: {{ $modelRepository.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: model-repository
+            claimName: model-repository-data-volume
         {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs

@@ -79,13 +79,15 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: {{ .Values.database.internal.shmSizeLimit }}
-        {{- if not .Values.persistence.enabled }}
         - name: data
+        {{- if not .Values.persistence.enabled }}
           emptyDir: {}
         {{- else if $database.existingClaim }}
-        - name: data
           persistentVolumeClaim:
             claimName: {{ $database.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: database-data-volume
         {{- end }}
       {{- with .Values.database.internal.nodeSelector }}
       nodeSelector:
@@ -99,27 +101,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- if and .Values.persistence.enabled (not $database.existingClaim) }}
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-      labels:
-        {{- include "vdp.labels" . | nindent 8 }}
-      annotations:
-      {{- range $key, $value := $database.annotations }}
-        {{ $key }}: {{ $value | quote }}
-      {{- end }}
-    spec:
-      accessModes: [{{ $database.accessMode | quote }}]
-      {{- if $database.storageClass }}
-      {{- if (eq "-" $database.storageClass) }}
-      storageClassName: ""
-      {{- else }}
-      storageClassName: "{{ $database.storageClass }}"
-      {{- end }}
-      {{- end }}
-      resources:
-        requests:
-          storage: {{ $database.size | quote }}
-{{- end -}}
 {{- end -}}

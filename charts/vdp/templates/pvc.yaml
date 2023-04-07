@@ -4,7 +4,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: model-repository
+  name: model-repository-data-volume
   annotations:
   {{- range $key, $value := $modelRepository.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -35,7 +35,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: conda-pack
+  name: conda-pack-data-volume
   annotations:
   {{- range $key, $value := $condaPack.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -57,6 +57,68 @@ spec:
   storageClassName: ""
     {{- else }}
   storageClassName: {{ $condaPack.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $database := .Values.persistence.persistentVolumeClaim.database -}}
+{{- if not $database.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: database-data-volume
+  annotations:
+  {{- range $key, $value := $database.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - {{ $database.accessMode }}
+  resources:
+    requests:
+      storage: {{ $database.size }}
+  {{- if $database.storageClass }}
+    {{- if eq "-" $database.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $database.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
+{{- if not $redis.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-data-volume
+  annotations:
+  {{- range $key, $value := $redis.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  accessModes:
+    - {{ $redis.accessMode }}
+  resources:
+    requests:
+      storage: {{ $redis.size }}
+  {{- if $redis.storageClass }}
+    {{- if eq "-" $redis.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $redis.storageClass }}
     {{- end }}
   {{- end }}
 {{- end }}

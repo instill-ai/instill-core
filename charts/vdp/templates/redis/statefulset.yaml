@@ -60,16 +60,17 @@ spec:
           - name: data
             mountPath: /var/lib/redis
             subPath: {{ $redis.subPath }}
-      {{- if not .Values.persistence.enabled }}
       volumes:
         - name: data
+        {{- if not .Values.persistence.enabled }}
           emptyDir: {}
-      {{- else if $redis.existingClaim }}
-      volumes:
-        - name: data
+        {{- else if $redis.existingClaim }}
           persistentVolumeClaim:
             claimName: {{ $redis.existingClaim }}
-      {{- end -}}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: redis-data-volume
+        {{- end }}
     {{- with .Values.redis.internal.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -85,27 +86,4 @@ spec:
     {{- if .Values.redis.internal.priorityClassName }}
       priorityClassName: {{ .Values.redis.internal.priorityClassName }}
     {{- end }}
-  {{- if and .Values.persistence.enabled (not $redis.existingClaim) }}
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-      labels:
-        {{- include "vdp.labels" . | nindent 8 }}
-      annotations:
-      {{- range $key, $value := $redis.annotations }}
-        {{ $key }}: {{ $value | quote }}
-      {{- end }}
-    spec:
-      accessModes: [{{ $redis.accessMode | quote }}]
-      {{- if $redis.storageClass }}
-      {{- if (eq "-" $redis.storageClass) }}
-      storageClassName: ""
-      {{- else }}
-      storageClassName: "{{ $redis.storageClass }}"
-      {{- end }}
-      {{- end }}
-      resources:
-        requests:
-          storage: {{ $redis.size | quote }}
-{{- end -}}
 {{- end -}}

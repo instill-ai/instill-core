@@ -226,23 +226,21 @@ persistence:
       accessMode: ReadWriteOnce
       size: 2Gi
       annotations: {}
-    # If external database is used, the following settings for database will
-    # be ignored
+    # If external database is used, the following settings for database will be ignored
     database:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 512Mi
+      size: 128Mi
       annotations: {}
-    # If external Redis is used, the following settings for Redis will
-    # be ignored
+    # If external Redis is used, the following settings for Redis will be ignored
     redis:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 512Mi
+      size: 128Mi
       annotations: {}
 apigateway:
   # -- The image of api-gateway
@@ -1019,11 +1017,8 @@ elasticsearch:
   secret:
     enabled: true
     password: password
-  volumeClaimTemplate:
-    accessModes: ["ReadWriteOnce"]
-    resources:
-      requests:
-        storage: 100Mi
+  persistence:
+    enabled: false
   esConfig:
     elasticsearch.yml: |
       xpack.security.enabled: false
