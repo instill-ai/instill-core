@@ -21,6 +21,7 @@ services:
       - model
       - console
       - mgmt
+      - controller
     image: ${PIPELINE_BACKEND_IMAGE}:latest
 
   pipeline_backend:
@@ -31,6 +32,7 @@ services:
       - model
       - console
       - mgmt
+      - controller
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -47,6 +49,7 @@ services:
       - model
       - mgmt
       - console
+      - controller
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend_init:
@@ -57,6 +60,7 @@ services:
       - model
       - mgmt
       - console
+      - controller
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend_worker:
@@ -67,6 +71,7 @@ services:
       - model
       - mgmt
       - console
+      - controller
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend:
@@ -77,6 +82,7 @@ services:
       - model
       - mgmt
       - console
+      - controller
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -93,6 +99,7 @@ services:
       - connector
       - mgmt
       - console
+      - controller
     image: ${MODEL_BACKEND_IMAGE}:latest
 
   model_backend_init:
@@ -103,6 +110,7 @@ services:
       - connector
       - mgmt
       - console
+      - controller
     image: ${MODEL_BACKEND_IMAGE}:latest
 
   model_backend_worker:
@@ -113,6 +121,7 @@ services:
       - connector
       - mgmt
       - console
+      - controller
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -125,6 +134,7 @@ services:
       - connector
       - mgmt
       - console
+      - controller
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -141,6 +151,7 @@ services:
       - connector
       - model
       - console
+      - controller
     image: ${MGMT_BACKEND_IMAGE}:latest
 
   mgmt_backend_init:
@@ -151,6 +162,7 @@ services:
       - connector
       - model
       - console
+      - controller
     image: ${MGMT_BACKEND_IMAGE}:latest
 
   mgmt_backend:
@@ -161,6 +173,7 @@ services:
       - connector
       - model
       - console
+      - controller
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -193,6 +206,7 @@ services:
       - connector
       - model
       - mgmt
+      - controller
     image: ${CONSOLE_IMAGE}:latest
     environment:
       NEXT_PUBLIC_DISABLE_USAGE_COLLECTION: "false"

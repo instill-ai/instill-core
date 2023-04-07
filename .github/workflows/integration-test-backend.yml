@@ -54,25 +54,18 @@ jobs:
           EDITION=local-ce:test \
           docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
-      - name: Run ${{ inputs.component }}-backend integration test (latest)
+      - name: Run ${{ inputs.component }} integration test (latest)
         if: inputs.target == 'latest'
         run: |
-          git clone https://github.com/instill-ai/${{ inputs.component }}-backend.git
-          cd ${{ inputs.component }}-backend
-          make integration-test MODE=localhost
-
-      - name: Run controller integration test (latest)
-        if: inputs.target == 'latest'
-        run: |
-          git clone https://github.com/instill-ai/controller.git controller
-          cd controller
+          git clone https://github.com/instill-ai/${{ inputs.component }}.git
+          cd ${{ inputs.component }}
           make integration-test MODE=localhost
 
       - name: Uppercase component name
         if: inputs.target == 'release'
         id: uppercase
         run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z' 'A-Z')" >> $GITHUB_OUTPUT
+          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
       - name: Launch VDP (release)
         if: inputs.target == 'release'
@@ -84,20 +77,11 @@ jobs:
           EDITION=local-ce:test \
           docker compose rm -f
 
-      - name: Run ${{ inputs.component }}-backend integration test (release)
+      - name: Run ${{ inputs.component }} integration test (release)
         if: inputs.target == 'release'
         env:
-          COMPONENT_VERSION: ${{ env[format('{0}_BACKEND_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
+          COMPONENT_VERSION: ${{ env[format('{0}_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
         run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}-backend.git
-          cd ${{ inputs.component }}-backend
-          make integration-test MODE=localhost
-
-      - name: Run controller integration test (release)
-        if: inputs.target == 'release'
-        env:
-          COMPONENT_VERSION: ${{ env.CONTROLLER_VERSION }}
-        run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/controller.git controller
-          cd controller
+          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
+          cd ${{ inputs.component }}
           make integration-test MODE=localhost
