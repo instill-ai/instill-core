@@ -25,7 +25,7 @@ To set it up,
 2. click the **Source type** ▾ drop-down and choose `HTTP`, and
 3. click **Next**.
 
-**Step 2: Import a model from GitHub**
+**Step 2: Import and deploy a model from GitHub**
 
 To process images, here we import a [Mask R-CNN](https://github.com/onnx/models/blob/main/vision/object_detection_segmentation/mask-rcnn/model/MaskRCNN-10.onnx) model from our public GitHub repo [instill-ai/model-instance-segmentation-dvc](https://github.com/instill-ai/model-instance-segmentation-dvc).
 
@@ -34,26 +34,16 @@ To set it up,
 1. give your model a unique ID `instance-segmentation`,
 2. [optional] add description,
 3. click the **Model source** ▾ drop-down and choose `GitHub`,
-4. fill in the GitHub repository URL `instill-ai/model-instance-segmentation-dvc`, and
+4. fill in the GitHub repository URL `instill-ai/model-instance-segmentation-dvc`, and the Git tag e.g., `v1.0-cpu` to import the corresponding model
 5. click **Set up**.
 
-VDP will fetch all the releases of the GitHub repository. Each release is converted into one model instance, using the release tag as the corresponding model instance ID.
-
-**Step 3: Deploy a model instance of the imported model**
-
-Once the model is imported,
-
-1. click the **Model instances** ▾ drop-down,
-2. pick one model instance, and
-3. click **Deploy** to put it online.
-
-**Step 4: Add a HTTP destination**
+**Step 3: Add a HTTP destination**
 
 Since we are building a `SYNC` pipeline, the HTTP destination is automatically paired with the HTTP source.
 
 Just click **Next**.
 
-**Step 5: Set up the pipeline**
+**Step 4: Set up the pipeline**
 
 Almost done! Just
 

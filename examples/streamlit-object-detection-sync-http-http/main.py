@@ -33,7 +33,7 @@ def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]
         boxes_ltwh = []
         categories = []
         scores = []
-        for v in r.model_instance_outputs[0].task_outputs[0].detection.objects:
+        for v in r.model_outputs[0].task_outputs[0].detection.objects:
             boxes_ltwh.append((
                 v.bounding_box.left,
                 v.bounding_box.top,
@@ -46,7 +46,7 @@ def parse_detection_response(resp: requests.Response) -> Tuple[List[Tuple[float]
 
 @st.cache_data(max_entries=10)
 def trigger_detection_pipeline(api_gateway_url: str, pipeline_id: str, image_url: str) -> requests.Response:
-    r""" Trigger a pipeline composed with a detection model instance using remote image URL
+    r""" Trigger a pipeline composed with a detection model using remote image URL
 
     Args:
         api_gateway_url (str): VDP API base URL
