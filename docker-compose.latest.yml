@@ -8,7 +8,7 @@ services:
       - mgmt
       - console
       - controller
-    image: instill/${API_GATEWAY_HOST}:latest
+    image: ${API_GATEWAY_IMAGE}:latest
     restart: unless-stopped
     environment:
       API_GATEWAY_LOG_LEVEL: DEBUG

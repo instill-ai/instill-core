@@ -60,7 +60,7 @@ WORKDIR /vdp
 ARG CACHE_DATE
 RUN echo "VDP release codebase cloned on ${CACHE_DATE}"
 
-ARG API_GATEWAY_VERSION PIPELINE_BACKEND_VERSION CONNECTOR_BACKEND_VERSION MODEL_BACKEND_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION
+ARG API_GATEWAY_VERSION PIPELINE_BACKEND_VERSION CONNECTOR_BACKEND_VERSION MODEL_BACKEND_VERSION MGMT_BACKEND_VERSION CONTROLLER_VERSION CONSOLE_VERSION
 RUN git clone -b v${API_GATEWAY_VERSION} https://github.com/instill-ai/api-gateway.git api-gateway
 RUN git clone -b v${PIPELINE_BACKEND_VERSION} https://github.com/instill-ai/pipeline-backend.git pipeline-backend
 RUN git clone -b v${CONNECTOR_BACKEND_VERSION} https://github.com/instill-ai/connector-backend.git connector-backend

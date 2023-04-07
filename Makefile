@@ -131,6 +131,7 @@ integration-test-release:			## Run integration test on the release VDP
 		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+		--build-arg CONTROLLER_VERSION=${CONTROLLER_VERSION} \
 		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 		--target release \
 		-t instill/vdp-test:release .
