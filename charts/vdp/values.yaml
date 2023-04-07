@@ -1002,6 +1002,16 @@ temporal:
           default_to_namespace: default
           issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
   external:
+etcd:
+  # -- If external etcd is used, set "enabled" to false
+  # and fill the connection informations in "external" section
+  enabled: true
+  persistence:
+    enabled: false
+  auth:
+    rbac:
+      create: false
+  external:
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
   # and fill the connection informations in "external" section

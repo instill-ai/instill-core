@@ -18,6 +18,10 @@ maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai
 dependencies:
+  - name: etcd
+    repository: https://charts.bitnami.com/bitnami
+    version: 8.8.1
+    condition: etcd.enabled
   - name: elasticsearch
     repository: https://helm.elastic.co
     version: 8.5.1

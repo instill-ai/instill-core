@@ -8,6 +8,7 @@ Versatile Data Pipeline (VDP) empowers the modern data stack to process unstruct
 
 | Repository | Name | Version |
 |------------|------|---------|
+| https://charts.bitnami.com/bitnami | etcd | 8.8.1 |
 | https://helm.elastic.co | elasticsearch | 8.5.1 |
 
 ## Install

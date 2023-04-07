@@ -1,6 +1,9 @@
 dependencies:
+- name: etcd
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.8.1
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 8.5.1
-digest: sha256:824d0db0a2374693a725cf95ed807f4c3e33f9225791bd931d676a9970685bbb
-generated: "2023-02-26T21:30:14.427178Z"
+digest: sha256:bc7e71441be7e8dcb451a4bb69657290075a8b6133efbe16ee286c2274d028d1
+generated: "2023-04-07T19:12:00.93589+01:00"
