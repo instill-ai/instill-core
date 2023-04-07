@@ -87,7 +87,7 @@ def extract_frames_from_video(image_dir: str, filename: str, framerate: int=30) 
         return False
 
 def trigger_pipeline_multipart(api_gateway_url: str, pipeline_id: str, img_folder: str, img_names: list()) -> requests.Response:
-    r""" Trigger a pipeline composed with a detection model instance using remote image URL
+    r""" Trigger a pipeline composed with a detection model using remote image URL
 
     Args:
         api_gateway_url (str): VDP pipeline backend base URL
@@ -108,14 +108,6 @@ def trigger_pipeline_multipart(api_gateway_url: str, pipeline_id: str, img_folde
 ############################################################################
 # Settings: VDP backends
 ############################################################################
-
-# TODO: replace with future api-gateway
-ver: Final[str] = "v1alpha"
-backend: typing.Dict[str, str] = {
-    "pipeline": "localhost:8081",
-    "connector": "localhost:8082",
-    "model": "localhost:8083",
-}
 
 if __name__ ==  '__main__':
     parser = argparse.ArgumentParser(description='Trigger VDP pipeline')
