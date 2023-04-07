@@ -50,13 +50,13 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   controller:
-      image: instill/${CONTROLLER_HOST}:latest
-      build:
-        context: ./${CONTROLLER_HOST}
-        args:
-          SERVICE_NAME: ${CONTROLLER_HOST}
-          GOLANG_VERSION: ${GOLANG_VERSION}
-          K6_VERSION: ${K6_VERSION}
+    image: ${CONTROLLER_IMAGE}:latest
+    build:
+      context: ./${CONTROLLER_HOST}
+      args:
+        SERVICE_NAME: ${CONTROLLER_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
 
   console:
     image: ${CONSOLE_IMAGE}:latest
@@ -64,7 +64,7 @@ services:
       context: ./${CONSOLE_HOST}
 
   console_playwright:
-    image: instill/${CONSOLE_IMAGE}-playwright:latest
+    image: ${CONSOLE_IMAGE}-playwright:latest
     build:
       context: ./${CONSOLE_HOST}
       dockerfile: Dockerfile.playwright
