@@ -311,7 +311,7 @@ services:
 
   controller:
     container_name: ${CONTROLLER_HOST}
-    image: instill/${CONTROLLER_HOST}:${CONTROLLER_VERSION}
+    image: ${CONTROLLER_IMAGE}:${CONTROLLER_VERSION}
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"

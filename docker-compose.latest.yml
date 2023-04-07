@@ -191,7 +191,7 @@ services:
       - model
       - mgmt
       - console
-    image: instill/${CONTROLLER_HOST}:latest
+    image: ${CONTROLLER_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}

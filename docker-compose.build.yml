@@ -50,13 +50,13 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   controller:
-    image: ${CONTROLLER_IMAGE}:latest
-    build:
-      context: ./${CONTROLLER_HOST}
-      args:
-        SERVICE_NAME: ${CONTROLLER_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
+      image: ${CONTROLLER_IMAGE}:latest
+      build:
+        context: ./${CONTROLLER_HOST}
+        args:
+          SERVICE_NAME: ${CONTROLLER_HOST}
+          GOLANG_VERSION: ${GOLANG_VERSION}
+          K6_VERSION: ${K6_VERSION}
 
   console:
     image: ${CONSOLE_IMAGE}:latest
