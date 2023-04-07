@@ -46,6 +46,7 @@ RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backen
 RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend
 RUN git clone https://github.com/instill-ai/model-backend.git model-backend
 RUN git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
+RUN git clone https://github.com/instill-ai/controller.git controller
 RUN git clone https://github.com/instill-ai/console.git console
 
 FROM ubuntu:${UBUNTU_VERSION} AS release
@@ -65,4 +66,5 @@ RUN git clone -b v${PIPELINE_BACKEND_VERSION} https://github.com/instill-ai/pipe
 RUN git clone -b v${CONNECTOR_BACKEND_VERSION} https://github.com/instill-ai/connector-backend.git connector-backend
 RUN git clone -b v${MODEL_BACKEND_VERSION} https://github.com/instill-ai/model-backend.git model-backend
 RUN git clone -b v${MGMT_BACKEND_VERSION} https://github.com/instill-ai/mgmt-backend.git mgmt-backend
+RUN git clone -b v${CONTROLLER_VERSION} https://github.com/instill-ai/controller.git controller
 RUN git clone -b v${CONSOLE_VERSION} https://github.com/instill-ai/console.git console
