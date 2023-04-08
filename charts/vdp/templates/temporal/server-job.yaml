@@ -1,4 +1,4 @@
-{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.server.enabled }}
+{{- if and .Values.temporal.enabled .Values.temporal.server.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -14,14 +14,14 @@ spec:
         {{- include "vdp.labels" . | nindent 8 }}
         app.kubernetes.io/component: temporal-es
     spec:
-      {{- with .Values.temporal.internal.server.serviceAccountName }}
+      {{- with .Values.temporal.server.serviceAccountName }}
       serviceAccountName: {{- toYaml . }}
       {{- end }}
       restartPolicy: "OnFailure"
       initContainers:
         - name: check-elasticsearch
-          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
           command: ['sh', '-c', 'until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }} 2>&1 > /dev/null; do echo waiting for elasticsearch to start; sleep 1; done;']
           env:
             - name: ELASTIC_USERNAME
@@ -36,8 +36,8 @@ spec:
                   key: password
       containers:
         - name: create-elasticsearch-index
-          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
           command: ['sh', '-c']
           args:
             - >
@@ -54,15 +54,15 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.elasticsearch.clusterName }}-master-credentials
                   key: password
-      {{- with .Values.temporal.internal.admintools.nodeSelector }}
+      {{- with .Values.temporal.admintools.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.admintools.affinity }}
+      {{- with .Values.temporal.admintools.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.admintools.tolerations }}
+      {{- with .Values.temporal.admintools.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -106,7 +106,7 @@ spec:
             {{- if .Values.triton.extraEnv }}
             {{- toYaml .Values.triton.extraEnv | nindent 12 }}
             {{- end }}
-        {{- with $.Values.temporal.internal.server.sidecarContainers }}
+        {{- with $.Values.temporal.server.sidecarContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:

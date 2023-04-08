@@ -1,4 +1,4 @@
-{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.ui.enabled -}}
+{{- if and .Values.temporal.enabled .Values.temporal.ui.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:

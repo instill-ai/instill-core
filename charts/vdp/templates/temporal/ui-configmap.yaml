@@ -1,4 +1,4 @@
-{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.ui.enabled -}}
+{{- if and .Values.temporal.enabled .Values.temporal.ui.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,5 +8,5 @@ metadata:
     app.kubernetes.io/component: temporal-ui
 data:
   config.yml: |
-    {{- toYaml .Values.temporal.internal.ui.config | nindent 4  }}
+    {{- toYaml .Values.temporal.ui.config | nindent 4  }}
 {{- end -}}

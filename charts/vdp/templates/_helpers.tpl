@@ -78,7 +78,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.database.host" -}}
-  {{- if eq .Values.database.type "internal" -}}
+  {{- if .Values.database.enabled -}}
     {{- template "vdp.database" . -}}
   {{- else -}}
     {{- .Values.database.external.host -}}
@@ -86,7 +86,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.database.port" -}}
-  {{- if eq .Values.database.type "internal" -}}
+  {{- if .Values.database.enabled -}}
     {{- printf "%s" "5432" -}}
   {{- else -}}
     {{- .Values.database.external.port -}}
@@ -94,7 +94,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.database.username" -}}
-  {{- if eq .Values.database.type "internal" -}}
+  {{- if .Values.database.enabled -}}
     {{- printf "%s" "postgres" -}}
   {{- else -}}
     {{- .Values.database.external.username -}}
@@ -102,8 +102,8 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.database.rawPassword" -}}
-  {{- if eq .Values.database.type "internal" -}}
-    {{- .Values.database.internal.password -}}
+  {{- if .Values.database.enabled -}}
+    {{- .Values.database.password -}}
   {{- else -}}
     {{- .Values.database.external.password -}}
   {{- end -}}

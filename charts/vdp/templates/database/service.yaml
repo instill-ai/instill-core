@@ -1,4 +1,4 @@
-{{- if eq .Values.database.type "internal" -}}
+{{- if .Values.database.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
-  {{- with .Values.database.internal.serviceAnnotations }}
+  {{- with .Values.database.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

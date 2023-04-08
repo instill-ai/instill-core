@@ -1,4 +1,4 @@
-{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.ui.enabled -}}
+{{- if and .Values.temporal.enabled .Values.temporal.ui.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,14 +25,14 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: temporal-ui
       annotations:
-        {{- with .Values.temporal.internal.admintools.podAnnotations }}
+        {{- with .Values.temporal.admintools.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- if .Values.temporal.internal.ui.serviceAccountName }}
-      serviceAccountName: {{ .Values.temporal.internal.ui.serviceAccountName }}
+      {{- if .Values.temporal.ui.serviceAccountName }}
+      serviceAccountName: {{ .Values.temporal.ui.serviceAccountName }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.temporal.internal.ui.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ .Values.temporal.ui.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -40,8 +40,8 @@ spec:
       {{- end }}
       containers:
         - name: temporal-web
-          image: {{ .Values.temporal.internal.ui.image.repository }}:{{ .Values.temporal.internal.ui.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.internal.ui.image.pullPolicy }}
+          image: {{ .Values.temporal.ui.image.repository }}:{{ .Values.temporal.ui.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.ui.image.pullPolicy }}
           env:
             - name: TEMPORAL_ADDRESS
               value: {{ include "vdp.temporal" . }}-frontend.{{ .Release.Namespace }}.svc:{{ template "vdp.temporal.frontend.grpcPort" . }}
@@ -50,16 +50,16 @@ spec:
               containerPort: 8080
               protocol: TCP
           resources:
-            {{- toYaml .Values.temporal.internal.ui.resources | nindent 12 }}
-      {{- with .Values.temporal.internal.ui.nodeSelector }}
+            {{- toYaml .Values.temporal.ui.resources | nindent 12 }}
+      {{- with .Values.temporal.ui.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.ui.affinity }}
+      {{- with .Values.temporal.ui.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.ui.tolerations }}
+      {{- with .Values.temporal.ui.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

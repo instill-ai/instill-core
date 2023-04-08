@@ -46,10 +46,10 @@ spec:
       automountServiceAccountToken: {{ .Values.model.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       initContainers:
-        {{- if eq .Values.database.type "internal" }}
+        {{- if .Values.database.enabled }}
         - name: wait-for-db
-          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
@@ -60,8 +60,8 @@ spec:
         - name: temporal-admin-tools
           securityContext:
             runAsUser: 0
-          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
           command: ["/bin/bash", "-c"]
           args:
             - >

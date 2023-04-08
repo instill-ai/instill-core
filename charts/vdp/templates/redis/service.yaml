@@ -1,4 +1,4 @@
-{{- if eq .Values.redis.type "internal" -}}
+{{- if .Values.redis.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
     app.kubernetes.io/component: redis
-  {{- with .Values.redis.internal.serviceAnnotations }}
+  {{- with .Values.redis.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

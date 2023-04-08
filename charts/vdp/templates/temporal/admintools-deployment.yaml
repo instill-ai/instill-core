@@ -1,4 +1,4 @@
-{{- if and (eq .Values.temporal.type "internal") .Values.temporal.internal.admintools.enabled -}}
+{{- if and .Values.temporal.enabled .Values.temporal.admintools.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,25 +17,25 @@ spec:
       labels:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: temporal-admintools
-      {{- with $.Values.temporal.internal.admintools.podAnnotations }}
+      {{- with $.Values.temporal.admintools.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.temporal.internal.ui.serviceAccountName }}
-      serviceAccountName: {{ .Values.temporal.internal.ui.serviceAccountName }}
+      {{- if .Values.temporal.ui.serviceAccountName }}
+      serviceAccountName: {{ .Values.temporal.ui.serviceAccountName }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.temporal.internal.ui.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ .Values.temporal.ui.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
-      {{- if eq .Values.database.type "internal" }}
+      {{- if .Values.database.enabled }}
         - name: wait-for-db
-          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ $.Values.database.internal.image.pullPolicy }}
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
           - name: PGHOST
@@ -45,8 +45,8 @@ spec:
       {{- end }}
       containers:
         - name: temporal-admin-tools
-          image: {{ .Values.temporal.internal.admintools.image.repository }}:{{ .Values.temporal.internal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.internal.admintools.image.pullPolicy }}
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
           livenessProbe:
             exec:
               command:
@@ -86,15 +86,15 @@ spec:
               value: "{{ template "vdp.database.username" . }}"
             - name:  SQL_PASSWORD
               value: "{{ template "vdp.database.rawPassword" . }}"
-      {{- with .Values.temporal.internal.admintools.nodeSelector }}
+      {{- with .Values.temporal.admintools.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.admintools.affinity }}
+      {{- with .Values.temporal.admintools.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.temporal.internal.admintools.tolerations }}
+      {{- with .Values.temporal.admintools.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

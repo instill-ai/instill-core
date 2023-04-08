@@ -1,4 +1,4 @@
-{{- if eq .Values.database.type "internal" -}}
+{{- if .Values.database.enabled -}}
 {{- $database := .Values.persistence.persistentVolumeClaim.database -}}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/component: database
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/database/secret.yaml") . | sha256sum }}
-        {{- with .Values.database.internal.podAnnotations }}
+        {{- with .Values.database.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -30,10 +30,10 @@ spec:
       securityContext:
         runAsUser: 70
         runAsGroup: 70
-      {{- if .Values.database.internal.serviceAccountName }}
-      serviceAccountName: {{ .Values.database.internal.serviceAccountName }}
+      {{- if .Values.database.serviceAccountName }}
+      serviceAccountName: {{ .Values.database.serviceAccountName }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.database.internal.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ .Values.database.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -41,25 +41,25 @@ spec:
       {{- end }}
       containers:
         - name: database
-          image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
-          imagePullPolicy: {{ .Values.database.internal.image.pullPolicy }}
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
           livenessProbe:
             exec:
               command:
               - pg_isready
             initialDelaySeconds: 300
             periodSeconds: 10
-            timeoutSeconds: {{ .Values.database.internal.livenessProbe.timeoutSeconds }}
+            timeoutSeconds: {{ .Values.database.livenessProbe.timeoutSeconds }}
           readinessProbe:
             exec:
               command:
               - pg_isready
             initialDelaySeconds: 1
             periodSeconds: 10
-            timeoutSeconds: {{ .Values.database.internal.readinessProbe.timeoutSeconds }}
-          {{- if .Values.database.internal.resources }}
+            timeoutSeconds: {{ .Values.database.readinessProbe.timeoutSeconds }}
+          {{- if .Values.database.resources }}
           resources:
-            {{- toYaml .Values.database.internal.resources | nindent 10 }}
+            {{- toYaml .Values.database.resources | nindent 10 }}
           {{- end }}
           envFrom:
             - secretRef:
@@ -78,7 +78,7 @@ spec:
         - name: shm-volume
           emptyDir:
             medium: Memory
-            sizeLimit: {{ .Values.database.internal.shmSizeLimit }}
+            sizeLimit: {{ .Values.database.shmSizeLimit }}
         - name: data
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
@@ -89,15 +89,15 @@ spec:
           persistentVolumeClaim:
             claimName: database-data-volume
         {{- end }}
-      {{- with .Values.database.internal.nodeSelector }}
+      {{- with .Values.database.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.database.internal.affinity }}
+      {{- with .Values.database.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.database.internal.tolerations }}
+      {{- with .Values.database.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

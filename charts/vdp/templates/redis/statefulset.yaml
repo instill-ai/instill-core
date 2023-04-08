@@ -1,4 +1,4 @@
-{{- if eq .Values.redis.type "internal" -}}
+{{- if .Values.redis.enabled -}}
 {{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -19,7 +19,7 @@ spec:
       labels:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: redis
-      {{- with .Values.redis.internal.podAnnotations }}
+      {{- with .Values.redis.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -29,19 +29,19 @@ spec:
       securityContext:
         runAsUser: 999
         runAsGroup: 1000
-      {{- if .Values.redis.internal.serviceAccountName }}
-      serviceAccountName: {{ .Values.redis.internal.serviceAccountName }}
+      {{- if .Values.redis.serviceAccountName }}
+      serviceAccountName: {{ .Values.redis.serviceAccountName }}
       {{- end -}}
       {{- with .Values.imagePullSecrets }}
-      automountServiceAccountToken: {{ .Values.redis.internal.automountServiceAccountToken | default false }}
+      automountServiceAccountToken: {{ .Values.redis.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: redis
-          image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
-          imagePullPolicy: {{ .Values.redis.internal.image.pullPolicy }}
+          image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
           livenessProbe:
             tcpSocket:
               port: 6379
@@ -52,9 +52,9 @@ spec:
               port: 6379
             initialDelaySeconds: 1
             periodSeconds: 10
-          {{- if .Values.redis.internal.resources }}
+          {{- if .Values.redis.resources }}
           resources:
-            {{ toYaml .Values.redis.internal.resources | nindent 10 }}
+            {{ toYaml .Values.redis.resources | nindent 10 }}
           {{- end }}
           volumeMounts:
           - name: data
@@ -71,19 +71,19 @@ spec:
           persistentVolumeClaim:
             claimName: redis-data-volume
         {{- end }}
-    {{- with .Values.redis.internal.nodeSelector }}
+    {{- with .Values.redis.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.redis.internal.affinity }}
+    {{- with .Values.redis.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.redis.internal.tolerations }}
+    {{- with .Values.redis.tolerations }}
       tolerations:
         {{ toYaml . | nindent 8 }}
     {{- end }}
-    {{- if .Values.redis.internal.priorityClassName }}
-      priorityClassName: {{ .Values.redis.internal.priorityClassName }}
+    {{- if .Values.redis.priorityClassName }}
+      priorityClassName: {{ .Values.redis.priorityClassName }}
     {{- end }}
 {{- end -}}
