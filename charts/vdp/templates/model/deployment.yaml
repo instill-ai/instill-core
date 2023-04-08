@@ -65,9 +65,7 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - >
-              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
-              tctl --auto_confirm admin cluster add-search-attributes --name Type --type Text --name ModelUID --type Text --name Owner --type Text &&
-              sleep 10
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
           env:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
