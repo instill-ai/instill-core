@@ -241,3 +241,7 @@ services:
   redis:
     ports:
       - ${REDIS_PORT}:6379
+
+  etcd:
+    ports:
+      - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}

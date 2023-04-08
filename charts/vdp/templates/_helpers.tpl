@@ -183,6 +183,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-worker" (include "vdp.model" .) -}}
 {{- end -}}
 
+{{- define "vdp.controller" -}}
+  {{- printf "%s-controller" (include "vdp.fullname" .) -}}
+{{- end -}}
+
 {{- define "vdp.mgmt" -}}
   {{- printf "%s-mgmt" (include "vdp.fullname" .) -}}
 {{- end -}}
@@ -209,6 +213,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 
 {{- define "vdp.temporal" -}}
   {{- printf "%s-temporal" (include "vdp.fullname" .) -}}
+{{- end -}}
+
+{{- define "vdp.etcd" -}}
+  {{- printf "%s-etcd" (include "vdp.fullname" .) -}}
 {{- end -}}
 
 {{- define "vdp.temporal.admintools" -}}
@@ -262,6 +270,11 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{/* model service and container private port */}}
 {{- define "vdp.model.privatePort" -}}
   {{- printf "3083" -}}
+{{- end -}}
+
+{{/* controller service and container private port */}}
+{{- define "vdp.controller.privatePort" -}}
+  {{- printf "3085" -}}
 {{- end -}}
 
 {{/* mgmt service and container public port */}}
@@ -336,6 +349,15 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "8080" -}}
 {{- end -}}
 
+{{/* etcd port */}}
+{{- define "vdp.etcd.clientPort" -}}
+  {{- printf "2379" -}}
+{{- end -}}
+
+{{- define "vdp.etcd.peerPort" -}}
+  {{- printf "2380" -}}
+{{- end -}}
+
 {{- define "vdp.internalTLS.apigateway.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
     {{- .Values.internalTLS.apigateway.secretName -}}
@@ -365,6 +387,14 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
     {{- .Values.internalTLS.model.secretName -}}
   {{- else -}}
     {{- printf "%s-model-internal-tls" (include "vdp.fullname" .) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "vdp.internalTLS.controller.secretName" -}}
+  {{- if eq .Values.internalTLS.certSource "secret" -}}
+    {{- .Values.internalTLS.controller.secretName -}}
+  {{- else -}}
+    {{- printf "%s-controller-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 

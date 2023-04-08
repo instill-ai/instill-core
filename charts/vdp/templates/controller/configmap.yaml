@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.controller" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "vdp.controller.privatePort" . }}
+      edition: {{ .Values.edition }}
+      loopinterval: {{ .Values.controller.loopinterval }}
+      timeout: 120
+      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/controller/tls.crt
+        key: /etc/vdp/ssl/controller/tls.key
+      {{- end }}
+    etcd:
+      host: {{ template "vdp.etcd" . }}
+      port: {{ template "vdp.etcd.clientPort" . }}
+      timeout: 5
+    database:
+      username: {{ template "vdp.database.username" . }}
+      password: {{ template "vdp.database.rawPassword" . }}
+      host: {{ template "vdp.database.host" . }}
+      port: {{ template "vdp.database.port" . }}
+      name: model
+      version: 1
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ template "vdp.redis.addr" . }}
+    temporal:
+      clientoptions:
+        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+    tritonserver:
+      host: {{ include "vdp.triton" . }}
+      grpcuri: {{ include "vdp.triton" . }}:{{ include "vdp.triton.grpcPort" . }}
+      modelstore: /modelstore-repository
+    connectorbackend:
+      host: {{ template "vdp.connector" . }}
+      publicport: {{ template "vdp.connector.publicPort" . }}
+      privateport: {{ template "vdp.connector.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/connector/tls.crt
+        key: /etc/vdp/ssl/connector/tls.key
+      {{- end }}
+    modelbackend:
+      host: {{ template "vdp.model" . }}
+      publicport: {{ template "vdp.model.publicPort" . }}
+      privateport: {{ template "vdp.model.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/model/tls.crt
+        key: /etc/vdp/ssl/model/tls.key
+      {{- end }}
+    pipelinebackend:
+      host: {{ template "vdp.pipeline" . }}
+      publicport: {{ template "vdp.pipeline.publicPort" . }}
+      privateport: {{ template "vdp.pipeline.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/pipeline/tls.crt
+        key: /etc/vdp/ssl/pipeline/tls.key
+      {{- end }}
+    mgmtbackend:
+      host: {{ template "vdp.mgmt" . }}
+      publicport: {{ template "vdp.mgmt.publicPort" . }}
+      privateport: {{ template "vdp.mgmt.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/mgmt/tls.crt
+        key: /etc/vdp/ssl/mgmt/tls.key
+      {{- end }}

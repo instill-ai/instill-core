@@ -319,6 +319,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
+      CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     entrypoint: ./${CONTROLLER_HOST}
     depends_on:

@@ -176,6 +176,14 @@ internalTLS:
     crt: ""
     # Content of model-backend's TLS key file, only available when `certSource` is "manual"
     key: ""
+  # controller related cert configuration
+  controller:
+    # secret name for mcontroller's tls certs, only available when `certSource` is "secret"
+    secretName: ""
+    # Content of controller's TLS key file, only available when `certSource` is "manual"
+    crt: ""
+    # Content of controller's TLS key file, only available when `certSource` is "manual"
+    key: ""
   # mgmt-backend related cert configuration
   mgmt:
     # secret name for mgmt-backend's tls certs, only available when `certSource` is "secret"
@@ -246,7 +254,7 @@ apigateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.2.3-alpha
+    tag: 0.2.4-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -297,7 +305,7 @@ pipeline:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.10.0-alpha
+    tag: 0.11.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -348,7 +356,7 @@ connector:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.8.0-alpha
+    tag: 0.9.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -399,7 +407,7 @@ model:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.14.0-alpha
+    tag: 0.15.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -446,11 +454,63 @@ model:
     spec:
       minAvailable:
       maxUnavailable:
+controller:
+  # -- The image of controller
+  image:
+    repository: instill/controller
+    tag: 0.1.0-alpha
+    pullPolicy: IfNotPresent
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for controller
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  resources: {}
+  loopinterval: 3
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
 mgmt:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.3.2-alpha
+    tag: 0.3.3-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -504,7 +564,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.20.0-alpha
+    tag: 0.21.0-alpha
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
