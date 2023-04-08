@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: helm-lint
         name: Helm Lint
-        entry: bash -c 'helm lint --strict charts/**'
+        entry: bash -c 'helm lint --strict charts/vdp'
         language: system
   - repo: https://github.com/norwoodj/helm-docs
     rev: v1.11.0

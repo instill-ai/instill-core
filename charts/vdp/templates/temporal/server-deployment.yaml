@@ -57,7 +57,7 @@ spec:
           command: ['sh', '-c']
           args:
             - >
-              until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ $.Values.elasticsearch.clusterName }}-master:{{ $.Values.elasticsearch.httpPort }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;
+              until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ $.Values.elasticsearch.clusterName }}-master:{{ $.Values.elasticsearch.httpPort }}/{{ $.Values.elasticsearch.visibilityIndex }} 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 2; done;
           env:
             - name: ELASTIC_USERNAME
               valueFrom:
@@ -78,7 +78,6 @@ spec:
           args:
             - >
               until pg_isready; do echo waiting for db; sleep 2; done &&
-              sleep 2 &&
               until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; do echo waiting for db; sleep 2; done &&
               until psql -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal_visibility'" | grep -q "1 row"; do echo waiting for db; sleep 2; done
             {{- if ne $service "frontend" }}

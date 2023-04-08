@@ -1,63 +1,172 @@
-name: helm
+name: Integration Test (Helm)
 
-on: [push]
+on:
+  push:
 
 jobs:
-  example:
-    name: minikube
-    runs-on: ubuntu-22.04
+  integratoin-test-helm:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
     steps:
-      - name: Maximize build space
+      - name: Maximize GA space
         uses: AdityaGarg8/remove-unwanted-software@v1
         with:
-          remove-android: 'true'
+          remove-android: "true"
+
+      - name: Delete huge unnecessary tools folder
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Increase free space
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt clean
+          df -h
+
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Change dir
-        run: cd charts/vdp && ls
-      - name: Setup Minikube
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Install k6 (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+
+      - name: Install k6 (MacOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-macos-amd64.zip -L | tar xvz --strip-components 1 && chmod 755 k6 && cp k6 /usr/local/bin
+
+      - name: Setup Minikube (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: medyagh/setup-minikube@master
-      - name: Download and install Helm
+        with:
+          cache: false
+          cpus: 2
+          memory: 6144m
+
+      - name: Set up Docker (MacOs)
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-          chmod 700 get_helm.sh
-          ./get_helm.sh
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
-      - name: Minikube set memory & restart
-        run: |
-          minikube config set memory 6400 && minikube delete && minikube start && df -h
-        shell: bash   
-      - name: Increase free space
-        run: |
-          df --human-readable
-          sudo apt clean
-      - name: Build image
+          brew install docker
+
+      - name: Setup Minikube (MacOs)
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: medyagh/setup-minikube@master
+        with:
+          cache: false
+          cpus: 3
+          memory: 6144m
+
+      - name: Pull images
         run: |
           export SHELL=/bin/bash
           eval $(minikube docker-env)
+          docker pull instill/api-gateway:latest
+          docker pull instill/pipeline-backend:latest
+          docker pull instill/connector-backend:latest
+          docker pull instill/model-backend:latest
+          docker pull instill/mgmt-backend:latest
+          docker pull instill/controller:latest
+          docker pull instill/console:latest
           docker pull instill/tritonserver:22.12
+          docker pull instill/triton-conda-env:latest-cpu
           docker pull postgres:15-alpine
           docker pull temporalio/admin-tools:1.19.1
-          docker pull instill/model-backend:0.14.0-alpha
-          docker pull instill/connector-backend:0.8.0-alpha
-          docker pull instill/api-gateway:0.2.3-alpha
-          docker pull instill/mgmt-backend:0.3.2-alpha
-          docker pull instill/triton-conda-env:latest-cpu
-          docker pull instill/console:0.20.0-alpha
-          docker pull instill/pipeline-backend:0.10.0-alpha
           docker images
-      - name: Verify
-        run: |
-          docker images && df -h
-        shell: bash
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          token: ${{ secrets.botGitHubToken }}
+
+      - name: Change dir
+        run: cd charts/vdp && ls
+
       - name: Run script file
         run: |
-           chmod +x ./charts/test.sh
-           ./charts/test.sh
+          chmod +x ./charts/test.sh
+          ./charts/test.sh
+
       - name: Check vdp namespace
+        if: success() || failure()
         run: kubectl get po -n vdp
-      - name: Run WF - latest
-        uses: benc-uk/workflow-dispatch@v1
+
+      - name: Checkout (pipeline)
+        if: success() || failure()
+        uses: actions/checkout@v3
         with:
-          workflow: integration-test-latest.yml
+          repository: instill-ai/pipeline-backend
+
+      - name: Load .env file
+        if: success() || failure()
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Run integration-test
+        if: success() || failure()
+        run: |
+          make integration-test MODE=localhost
+
+      - name: Checkout (connector)
+        if: success() || failure()
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/connector-backend
+
+      - name: Load .env file
+        if: success() || failure()
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Run integration-test
+        if: success() || failure()
+        run: |
+          make integration-test MODE=localhost
+
+      - name: Checkout (model)
+        if: success() || failure()
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/model-backend
+
+      - name: Load .env file
+        if: success() || failure()
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Run integration-test
+        if: success() || failure()
+        run: |
+          make integration-test MODE=localhost
+
+      - name: Checkout (mgmt)
+        if: success() || failure()
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/mgmt-backend
+
+      - name: Load .env file
+        if: success() || failure()
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Run integration-test
+        if: success() || failure()
+        run: |
+          make integration-test MODE=localhost

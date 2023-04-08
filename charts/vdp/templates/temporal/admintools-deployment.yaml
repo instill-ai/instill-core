@@ -57,14 +57,11 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - >
-              if ! psql -h ${SQL_HOST} -p $SQL_PORT} -U ${SQL_USER} -W ${SQL_PASSWORD} -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; then
-                SQL_DATABASE=temporal temporal-sql-tool drop -f &&
-                SQL_DATABASE=temporal temporal-sql-tool create &&
+              if ! PGPASSWORD=${SQL_PASSWORD} psql -h ${SQL_HOST} -p ${SQL_PORT} -U ${SQL_USER} -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; then
+                temporal-sql-tool -database temporal create-database
                 SQL_DATABASE=temporal temporal-sql-tool setup -v 0.0 &&
                 SQL_DATABASE=temporal temporal-sql-tool update-schema -d schema/postgresql/v96/temporal/versioned &&
-                SQL_DATABASE=temporal_visibility temporal-sql-tool drop -f &&
-                SQL_DATABASE=temporal_visibility temporal-sql-tool create &&
-                SQL_DATABASE=temporal_visibility temporal-sql-tool setup -v 0.0 &&
+                temporal-sql-tool -database temporal_visibility create-database
                 SQL_DATABASE=temporal_visibility temporal-sql-tool setup-schema -v 0.0 &&
                 SQL_DATABASE=temporal_visibility temporal-sql-tool update -schema-dir schema/postgresql/v96/visibility/versioned
               fi &&
