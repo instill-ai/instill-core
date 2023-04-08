@@ -31,7 +31,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
         r = json.loads(resp.text, object_hook=lambda d: SimpleNamespace(**d))
 
         boxes_ltwh, rles, categories, scores = [], [], [], []
-        for output in r.model_instance_outputs[0].task_outputs:
+        for output in r.model_outputs[0].task_outputs:
             for v in output.instance_segmentation.objects:
                 boxes_ltwh.append((
                     v.bounding_box.left,
@@ -47,7 +47,7 @@ def parse_instance_segmentation_response(resp: requests.Response) ->  Tuple[List
 
 @st.cache_data(max_entries=10)
 def trigger_pipeline(api_gateway_url: str, pipeline_id: str, image_url: str) -> requests.Response:
-    r""" Trigger a pipeline composed with a detection model instance using remote image URL
+    r""" Trigger a pipeline composed with a detection model using remote image URL
 
     Args:
         api_gateway_url (str): VDP API base URL

@@ -35,7 +35,7 @@ Unlike the responses in the `SYNC` mode, the `ASYNC` pipeline responds with `dat
 	"data_mapping_indices": [  
 		"01GDR4ZW7W4T2H2G8MK79Y49PG"
 	],  
-	"model_instance_outputs": []  
+	"model_outputs": []  
 }
 
 ```

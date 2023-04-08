@@ -17,7 +17,7 @@ $ make all
 
 ```bash
 # Create a new Conda environment
-$ conda create --name vdp-101-sync
+$ conda create --name vdp-101-sync python=3.8
 # Activate the environment created
 $ conda activate vdp-101-sync
 ```

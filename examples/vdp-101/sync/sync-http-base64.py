@@ -8,7 +8,7 @@ import base64
 from utils import draw_detection, parse_detection_response
 
 def trigger_pipeline_base64(api_gateway_url: str, pipeline_id: str, img_string:str) -> requests.Response:
-    r""" Trigger a pipeline composed with a detection model instance using remote image URL
+    r""" Trigger a pipeline composed with a detection model using remote image URL
 
     Args:
         api_gateway_url (str): VDP API base URL

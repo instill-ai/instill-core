@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from utils import draw_detection, parse_detection_response
 
 def trigger_pipeline_multipart(pipeline_backend_base_url: str, pipeline_id: str, images: list()) -> requests.Response:
-    r""" Trigger a pipeline composed with a detection model instance using remote image URL
+    r""" Trigger a pipeline composed with a detection model using remote image URL
 
     Args:
         pipeline_backend_url (str): VDP pipeline backend base URL
