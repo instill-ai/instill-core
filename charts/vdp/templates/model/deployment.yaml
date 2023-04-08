@@ -119,7 +119,7 @@ spec:
             httpGet:
               path: /v1alpha/__readiness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             timeoutSeconds: 15
             initialDelaySeconds: 15
             periodSeconds: 10
@@ -127,7 +127,7 @@ spec:
             httpGet:
               path: /v1alpha/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             timeoutSeconds: 15
             initialDelaySeconds: 15
             periodSeconds: 10
@@ -137,7 +137,7 @@ spec:
           {{- end }}
           command: ["./model-backend"]
           ports:
-            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.model.publicPort" . }}
               protocol: TCP
           volumeMounts:

@@ -100,7 +100,7 @@ spec:
           {{- end }}
           command: ["./controller"]
           ports:
-            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
               containerPort: {{ template "vdp.controller.privatePort" . }}
               protocol: TCP
           volumeMounts:

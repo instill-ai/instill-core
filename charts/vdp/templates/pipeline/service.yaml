@@ -14,7 +14,7 @@ spec:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
       port: {{ template "vdp.pipeline.privatePort" . }}
       targetPort: {{ template "vdp.pipeline.privatePort" . }}
-    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
       port: {{ template "vdp.pipeline.publicPort" . }}
       targetPort: {{ template "vdp.pipeline.publicPort" . }}
   selector:

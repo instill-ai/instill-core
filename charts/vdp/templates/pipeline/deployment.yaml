@@ -79,14 +79,14 @@ spec:
             httpGet:
               path: /v1alpha/__readiness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /v1alpha/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
           {{- if .Values.pipeline.resources }}
@@ -95,7 +95,7 @@ spec:
           {{- end }}
           command: ["./pipeline-backend"]
           ports:
-            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.pipeline.publicPort" . }}
               protocol: TCP
           volumeMounts:
