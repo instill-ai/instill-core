@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.controller" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.controller.autoscaling.enabled }}
+  replicas: {{ .Values.controller.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/controller/configmap.yaml") . | sha256sum }}
+        {{- with .Values.controller.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Ubuntu nobody:nogroup is 65534:65534
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.controller.serviceAccountName }}
+      serviceAccountName: {{ .Values.controller.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.controller.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: wait-for-dependencies
+          image: busybox
+          command: ['sh', '-c']
+          args:
+          - >
+            until wget -O- http://$(ETCD_HOST):$(ETCD_PORT)/health; do echo waiting; sleep 1; done &&
+            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/model; do echo waiting; sleep 1; done &&
+            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/pipeline; do echo waiting; sleep 1; done &&
+            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/connector; do echo waiting; sleep 1; done &&
+            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/mgmt; do echo waiting; sleep 1; done
+          env:
+            - name: API_GATEWAY
+              value: vdp-apigateway
+            - name: API_GATEWAY_PORT
+              value: "8080"
+            - name: ETCD_HOST
+              value: vdp-etcd
+            - name: ETCD_PORT
+              value: "2379"
+      containers:
+        - name: controller
+          image: {{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}
+          imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.controller.resources }}
+          resources:
+            {{- toYaml .Values.controller.resources | nindent 12 }}
+          {{- end }}
+          command: ["./controller"]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "vdp.controller.privatePort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /controller/config/config.yaml
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: controller-internal-certs
+              mountPath: "/etc/vdp/ssl/controller"
+            {{- end }}
+            {{- with .Values.controller.extraVolumeMounts }}
+            {{- toYaml . | indent 12 }}
+            {{- end }}
+          {{- if .Values.controller.extraEnv }}
+          env:
+            {{- toYaml .Values.controller.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.controller.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.controller" . }}
+        - name: controller-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.controller.secretName" . }}
+        {{- if .Values.controller.extraVolumes }}
+        {{- toYaml .Values.controller.extraVolumes | indent 6 }}
+        {{- end }}
+      {{- with .Values.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
