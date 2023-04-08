@@ -10,7 +10,7 @@ data:
     server:
       privateport: {{ template "vdp.controller.privatePort" . }}
       edition: {{ .Values.edition }}
-      loopinterval: {{ .Values.loopinterval }}
+      loopinterval: {{ .Values.controller.loopinterval }}
       timeout: 120
       debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
       {{- if .Values.internalTLS.enabled }}
@@ -20,7 +20,7 @@ data:
       {{- end }}
     etcd:
       host: {{ template "vdp.etcd" . }}
-      port: {{ template "vdp.etcd.port" . }}
+      port: {{ template "vdp.etcd.clientPort" . }}
       timeout: 5
     database:
       username: {{ template "vdp.database.username" . }}

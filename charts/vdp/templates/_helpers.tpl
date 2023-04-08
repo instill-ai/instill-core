@@ -216,7 +216,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.etcd" -}}
-  {{- printf "vdp-etcd" -}}
+  {{- printf "%s-etcd" (include "vdp.fullname" .) -}}
 {{- end -}}
 
 {{- define "vdp.temporal.admintools" -}}
@@ -350,8 +350,12 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{/* etcd port */}}
-{{- define "vdp.etcd.port" -}}
+{{- define "vdp.etcd.clientPort" -}}
   {{- printf "2379" -}}
+{{- end -}}
+
+{{- define "vdp.etcd.peerPort" -}}
+  {{- printf "2380" -}}
 {{- end -}}
 
 {{- define "vdp.internalTLS.apigateway.secretName" -}}

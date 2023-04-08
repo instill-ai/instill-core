@@ -46,24 +46,36 @@ spec:
       terminationGracePeriodSeconds: 120
       initContainers:
         - name: wait-for-dependencies
-          image: busybox
+          image: curlimages/curl:8.00.1
           command: ['sh', '-c']
           args:
           - >
-            until wget -O- http://$(ETCD_HOST):$(ETCD_PORT)/health; do echo waiting; sleep 1; done &&
-            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/model; do echo waiting; sleep 1; done &&
-            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/pipeline; do echo waiting; sleep 1; done &&
-            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/connector; do echo waiting; sleep 1; done &&
-            until wget -O- http://$(API_GATEWAY):$(API_GATEWAY_PORT)/v1alpha/health/mgmt; do echo waiting; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ETCD_HOST}:${ETCD_CLIENT_PORT}/health)" != "200" ]]; do echo waiting for etcd; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
-            - name: API_GATEWAY
-              value: vdp-apigateway
-            - name: API_GATEWAY_PORT
-              value: "8080"
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "vdp.pipeline" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "vdp.pipeline.publicPort" . }}"
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connector" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connector.publicPort" . }}"
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "vdp.model" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "vdp.model.publicPort" . }}"
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "vdp.mgmt" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "vdp.mgmt.publicPort" . }}"
             - name: ETCD_HOST
-              value: vdp-etcd
-            - name: ETCD_PORT
-              value: "2379"
+              value: "{{ template "vdp.etcd" . }}"
+            - name: ETCD_CLIENT_PORT
+              value: "{{ template "vdp.etcd.clientPort" . }}"
       containers:
         - name: controller
           image: {{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}
