@@ -60,5 +60,13 @@ data:
         cert: /etc/vdp/ssl/mgmt/tls.crt
         key: /etc/vdp/ssl/mgmt/tls.key
       {{- end }}
+    controller:
+      host: {{ template "vdp.controller" . }}
+      privateport: {{ template "vdp.controller.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/vdp/ssl/controller/tls.crt
+        key: /etc/vdp/ssl/controller/tls.key
+      {{- end }}
     usageserver:
       {{- toYaml .Values.usageServer | nindent 6 }}
