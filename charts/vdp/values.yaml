@@ -421,10 +421,8 @@ model:
     gpu:
       path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
       enable: true
-      
   # -- Add extra env variables
   extraEnv: []
-    
   # -- Mount external volumes
   # For example, mount a secret containing Certificate root CA to verify database
   # TLS connection.
