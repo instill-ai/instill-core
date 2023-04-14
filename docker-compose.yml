@@ -445,6 +445,7 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: /bin/bash -c "tail -f /dev/null"
     depends_on:
       temporal:
         condition: service_healthy

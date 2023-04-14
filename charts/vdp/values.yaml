@@ -416,10 +416,7 @@ model:
   # -- The number of replica for model-backend
   replicaCount: 1
   # -- Add extra env variables
-  extraEnv: [
-    - name: "MODEL_BACKEND_INIT_MODEL_ENABLE"
-      value: true
-  ]
+  extraEnv: []
   # -- Mount external volumes
   # For example, mount a secret containing Certificate root CA to verify database
   # TLS connection.

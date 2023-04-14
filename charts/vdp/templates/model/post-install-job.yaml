@@ -1,5 +1,3 @@
-# {{- range $i, $steps := .Values.deploymentStrategy.canary.steps }}
-# {{- if .Values.model.extraEnv.enabled -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
