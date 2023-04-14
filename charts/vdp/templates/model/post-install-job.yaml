@@ -1,3 +1,5 @@
+{{- range $key, $extraEnv := .Values.model.extraEnv }}
+{{- if and (eq $extraEnv.name "MODEL_BACKEND_INIT_MODEL_ENABLE") $extraEnv.value -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -53,3 +55,5 @@ spec:
         - name: config
           configMap:
             name: {{ template "vdp.model" . }}            
+{{- end }}
+{{- end }}
