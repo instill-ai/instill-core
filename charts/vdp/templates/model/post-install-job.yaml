@@ -1,4 +1,4 @@
-{{- if .Values.model.modelHub.enable -}}
+{{- if .Values.model.modelHub.enabled -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -50,7 +50,14 @@ spec:
         env:
           - name: MODEL_BACKEND_HOST
             value: "{{ template "vdp.model" . }}"
-          - {{- toYaml .Values.model.modelHub | nindent 12 }}
+          - name: CFG_MODELHUB_CPU_PATH
+            value: {{ .Values.model.modelHub.cpu.path }}
+          - name: CFG_MODELHUB_CPU_ENABLE
+            value: {{ .Values.model.modelHub.cpu.enabled }}
+          - name: CFG_MODELHUB_GPU_PATH
+            value: {{ .Values.model.modelHub.gpu.path }}
+          - name: CFG_MODELHUB_GPU_ENABLE
+            value: {{ .Values.model.modelHub.gpu.enabled }}            
       volumes:
         - name: config
           configMap:

@@ -417,10 +417,13 @@ model:
   replicaCount: 1
   # -- The model hub configuration
   modelHub:
-    enable: true
+    enabled: true
     cpu:
       path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
-      enable: true
+      enabled: true
+    gpu:
+      path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_gpu.json
+      enabled: false
   # -- Add extra env variables
   extraEnv: []
   # -- Mount external volumes
