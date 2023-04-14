@@ -418,7 +418,7 @@ model:
   # -- The model hub configuration
   modelHub:
     enable: true
-    gpu:
+    cpu:
       path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
       enable: true
   # -- Add extra env variables
