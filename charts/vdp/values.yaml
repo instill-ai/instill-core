@@ -419,7 +419,7 @@ model:
   modelHub:
     modelInit: true
     gpu:
-      path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_gpu.json
+      path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
       enable: true
       
   # -- Add extra env variables
