@@ -158,6 +158,9 @@ services:
     profiles:
       - all-with-models
     image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_INIT_MODEL_ENABLED: "true"
+      CFG_INIT_MODEL_PATH: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
 
   mgmt_backend_migrate:
     profiles:
