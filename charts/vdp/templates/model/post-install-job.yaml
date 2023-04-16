@@ -1,4 +1,4 @@
-{{- if .Values.model.modelHub.enabled -}}
+{{- if .Values.model.initmodel.enabled -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -50,14 +50,10 @@ spec:
         env:
           - name: MODEL_BACKEND_HOST
             value: "{{ template "vdp.model" . }}"
-          - name: CFG_MODELHUB_CPU_PATH
-            value: {{ .Values.model.modelHub.cpu.path }}
-          - name: CFG_MODELHUB_CPU_ENABLE
-            value: {{ .Values.model.modelHub.cpu.enabled }}
-          - name: CFG_MODELHUB_GPU_PATH
-            value: {{ .Values.model.modelHub.gpu.path }}
-          - name: CFG_MODELHUB_GPU_ENABLE
-            value: {{ .Values.model.modelHub.gpu.enabled }}            
+          - name: CFG_INIT_MODEL_PATH
+            value: {{ .Values.model.initmodel.path }}
+          - name: CFG_INIT_MODEL_ENABLED
+            value: {{ .Values.model.initmodel.enabled }}
       volumes:
         - name: config
           configMap:

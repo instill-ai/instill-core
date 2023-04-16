@@ -44,7 +44,7 @@ RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
 RUN git clone https://github.com/instill-ai/api-gateway.git api-gateway
 RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
 RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend
-RUN git clone -b add-model-hub-configuration https://github.com/instill-ai/model-backend.git model-backend
+RUN git clone https://github.com/instill-ai/model-backend.git model-backend
 RUN git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
 RUN git clone https://github.com/instill-ai/controller.git controller
 RUN git clone https://github.com/instill-ai/console.git console
