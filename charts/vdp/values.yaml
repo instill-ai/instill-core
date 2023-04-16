@@ -415,8 +415,8 @@ model:
   automountServiceAccountToken: false
   # -- The number of replica for model-backend
   replicaCount: 1
-  # -- The model hub configuration
-  initmodel:
+  # -- The model initialization configuration
+  initModel:
     enabled: true
     path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
   # -- Add extra env variables
