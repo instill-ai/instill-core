@@ -47,13 +47,6 @@ spec:
           - name: config
             mountPath: /model-backend/config/config.yaml
             subPath: config.yaml        
-        env:
-          - name: MODEL_BACKEND_HOST
-            value: "{{ template "vdp.model" . }}"
-          - name: CFG_INITMODEL_PATH
-            value: "{{ .Values.model.initModel.path }}"
-          - name: CFG_INITMODEL_ENABLED
-            value: "{{ .Values.model.initModel.enabled }}"
       volumes:
         - name: config
           configMap:
