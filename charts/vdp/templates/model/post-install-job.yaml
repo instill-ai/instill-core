@@ -46,7 +46,10 @@ spec:
         volumeMounts:
           - name: config
             mountPath: /model-backend/config/config.yaml
-            subPath: config.yaml        
+            subPath: config.yaml
+        env:
+          - name: MODEL_BACKEND_HOST
+            value: "{{ template "vdp.model" . }}"
       volumes:
         - name: config
           configMap:
