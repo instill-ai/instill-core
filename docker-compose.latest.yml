@@ -1,7 +1,6 @@
 services:
   api_gateway:
     profiles:
-      - all-with-models
       - all
       - pipeline
       - connector
@@ -16,7 +15,6 @@ services:
 
   pipeline_backend_migrate:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - connector
@@ -28,7 +26,6 @@ services:
 
   pipeline_backend:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - connector
@@ -46,7 +43,6 @@ services:
 
   connector_backend_migrate:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -58,7 +54,6 @@ services:
 
   connector_backend_init:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -70,7 +65,6 @@ services:
 
   connector_backend_worker:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -82,7 +76,6 @@ services:
 
   connector_backend:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -100,7 +93,6 @@ services:
 
   model_backend_migrate:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -112,7 +104,6 @@ services:
 
   model_backend_init:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -124,7 +115,6 @@ services:
 
   model_backend_worker:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -138,7 +128,6 @@ services:
 
   model_backend:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -156,7 +145,7 @@ services:
 
   model_backend_init_model:
     profiles:
-      - all-with-models
+      - all
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_INITMODEL_ENABLED: "false"
@@ -164,7 +153,6 @@ services:
 
   mgmt_backend_migrate:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -176,7 +164,6 @@ services:
 
   mgmt_backend_init:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -188,7 +175,6 @@ services:
 
   mgmt_backend:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -206,7 +192,6 @@ services:
 
   controller:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
@@ -223,7 +208,6 @@ services:
 
   console:
     profiles:
-      - all-with-models
       - all
       - api-gateway
       - pipeline
