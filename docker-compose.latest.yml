@@ -159,7 +159,7 @@ services:
       - all-with-models
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
-      CFG_INITMODEL_ENABLED: "true"
+      CFG_INITMODEL_ENABLED: "false"
       CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
 
   mgmt_backend_migrate:
