@@ -122,7 +122,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 /*host:port*/
 {{- define "vdp.redis.addr" -}}
   {{- with .Values.redis -}}
-    {{- ternary (printf "%s:6379" (include "vdp.redis" $ )) .external.addr (eq .type "internal") -}}
+    {{- ternary (printf "%s:6379" (include "vdp.redis" $ )) .external.addr .enabled -}}
   {{- end -}}
 {{- end -}}
 
@@ -134,7 +134,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 
 {{- define "vdp.redis.password" -}}
   {{- with .Values.redis -}}
-    {{- ternary "" .external.password (eq .type "internal") -}}
+    {{- ternary "" .external.password .enabled -}}
   {{- end -}}
 {{- end -}}
 
