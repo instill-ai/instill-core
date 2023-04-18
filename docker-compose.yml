@@ -262,6 +262,17 @@ services:
       - triton_server
       - model_backend_worker
 
+  model_backend_init_model:
+    container_name: ${MODEL_BACKEND_HOST}-init-model
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+    entrypoint: ./${MODEL_BACKEND_HOST}-init-model
+    depends_on:
+      model_backend:
+        condition: service_healthy
+
   mgmt_backend_migrate:
     container_name: ${MGMT_BACKEND_HOST}-migrate
     image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}

@@ -143,6 +143,14 @@ services:
       - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
       - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
 
+  model_backend_init_model:
+    profiles:
+      - all
+    image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_INITMODEL_ENABLED: "false"
+      CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
+
   mgmt_backend_migrate:
     profiles:
       - all

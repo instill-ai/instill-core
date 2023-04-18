@@ -1,0 +1,57 @@
+{{- if .Values.model.initModel.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "vdp.model" . }}-init-model
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: model
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/model/configmap.yaml") . | sha256sum }}
+        {{- with .Values.model.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done
+          env:
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "vdp.model" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "vdp.model.publicPort" . }}"
+      containers:
+      - name: model-backend-init-model
+        image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
+        imagePullPolicy: {{ .Values.model.image.pullPolicy }}
+        command: ["./model-backend-init-model"]
+        volumeMounts:
+          - name: config
+            mountPath: /model-backend/config/config.yaml
+            subPath: config.yaml
+        env:
+          - name: MODEL_BACKEND_HOST
+            value: "{{ template "vdp.model" . }}"
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.model" . }}
+{{- end }}

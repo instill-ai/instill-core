@@ -77,3 +77,6 @@ data:
     temporal:
       clientoptions:
         hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+    initmodel:
+      path: {{ .Values.model.initModel.path }}
+      enabled: {{ .Values.model.initModel.enabled }}
