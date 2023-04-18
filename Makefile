@@ -72,8 +72,12 @@ ps:				## List all service containers
 top:			## Display all running service processes
 	@docker compose top
 
-.PHONY: build
-build:							## Build the latest images
+.PHONY: doc
+doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
+	@docker compose up -d redoc_openapi
+
+.PHONY: integration-test-latest
+integration-test-latest:			## Run integration test on the latest VDP
 	@docker build --progress plain \
 		--build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -85,24 +89,24 @@ build:							## Build the latest images
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
-		--name vdp-build \
+		--name vdp-build-latest \
 		instill/vdp-test:latest /bin/bash -c " \
+			API_GATEWAY_VERSION=latest \
+			PIPELINE_BACKEND_VERSION=latest \
+			CONNECTOR_BACKEND_VERSION=latest \
+			MODEL_BACKEND_VERSION=latest \
+			MGMT_BACKEND_VERSION=latest \
+			CONTROLLER_VERSION=latest \
+			CONSOLE_VERSION=latest \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
-
-.PHONY: doc
-doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
-	@docker compose up -d redoc_openapi
-
-.PHONY: integration-test-latest
-integration-test-latest:			## Run integration test on the latest VDP
-	@make build
 	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
 		docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 	@docker run -it --rm \
 		--network instill-network \
-		--name backend-integration-test-latest instill/vdp-test:latest /bin/bash -c " \
+		--name backend-integration-test-latest \
+		instill/vdp-test:latest /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
@@ -114,9 +118,11 @@ integration-test-latest:			## Run integration test on the latest VDP
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
 		--network instill-network \
 		--entrypoint ./entrypoint-playwright.sh \
-		--name console-integration-test-latest instill/console-playwright:latest
+		--name console-integration-test-latest \
+		instill/console-playwright:latest
 	@make down
 
 .PHONY: integration-test-release
@@ -135,21 +141,32 @@ integration-test-release:			## Run integration test on the release VDP
 		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 		--target release \
 		-t instill/vdp-test:release .
-	@EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway docker compose up -d --quiet-pull
+	@docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ${PWD}/.env:/vdp/.env \
+		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
+		--name vdp-build-release \
+		instill/vdp-test:release /bin/bash -c " \
+			API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
+			MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+			MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+			CONTROLLER_VERSION=${CONTROLLER_VERSION} \
+			CONSOLE_VERSION=${CONSOLE_VERSION} \
+			docker compose -f docker-compose.build.yml build --progress plain \
+		"
+	@EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+		docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
 	@docker run -it --rm \
 		--network instill-network \
-		--name backend-integration-test-release instill/vdp-test:release /bin/bash -c " \
+		--name backend-integration-test-release \
+		instill/vdp-test:release /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
-		"
-	@docker run -it --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		--network instill-network \
-		--name backend-integration-test-release instill/vdp-test:release /bin/bash -c " \
-			cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t instill/console-playwright:${CONSOLE_VERSION} . \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -157,9 +174,11 @@ integration-test-release:			## Run integration test on the release VDP
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
 		--network instill-network \
 		--entrypoint ./entrypoint-playwright.sh \
-		--name console-integration-test-release instill/console-playwright:${CONSOLE_VERSION}
+		--name console-integration-test-release \
+		instill/console-playwright:${CONSOLE_VERSION}
 	@make down
 
 .PHONY: help

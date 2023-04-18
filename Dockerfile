@@ -41,13 +41,13 @@ WORKDIR /vdp
 ARG CACHE_DATE
 RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
 
-RUN git clone https://github.com/instill-ai/api-gateway.git api-gateway
-RUN git clone https://github.com/instill-ai/pipeline-backend.git pipeline-backend
-RUN git clone https://github.com/instill-ai/connector-backend.git connector-backend
-RUN git clone https://github.com/instill-ai/model-backend.git model-backend
-RUN git clone https://github.com/instill-ai/mgmt-backend.git mgmt-backend
-RUN git clone https://github.com/instill-ai/controller.git controller
-RUN git clone https://github.com/instill-ai/console.git console
+RUN git clone https://github.com/instill-ai/api-gateway.git
+RUN git clone https://github.com/instill-ai/pipeline-backend.git
+RUN git clone https://github.com/instill-ai/connector-backend.git
+RUN git clone https://github.com/instill-ai/model-backend.git
+RUN git clone https://github.com/instill-ai/mgmt-backend.git
+RUN git clone https://github.com/instill-ai/controller.git
+RUN git clone https://github.com/instill-ai/console.git
 
 FROM ubuntu:${UBUNTU_VERSION} AS release
 
@@ -61,10 +61,10 @@ ARG CACHE_DATE
 RUN echo "VDP release codebase cloned on ${CACHE_DATE}"
 
 ARG API_GATEWAY_VERSION PIPELINE_BACKEND_VERSION CONNECTOR_BACKEND_VERSION MODEL_BACKEND_VERSION MGMT_BACKEND_VERSION CONTROLLER_VERSION CONSOLE_VERSION
-RUN git clone -b v${API_GATEWAY_VERSION} https://github.com/instill-ai/api-gateway.git api-gateway
-RUN git clone -b v${PIPELINE_BACKEND_VERSION} https://github.com/instill-ai/pipeline-backend.git pipeline-backend
-RUN git clone -b v${CONNECTOR_BACKEND_VERSION} https://github.com/instill-ai/connector-backend.git connector-backend
-RUN git clone -b v${MODEL_BACKEND_VERSION} https://github.com/instill-ai/model-backend.git model-backend
-RUN git clone -b v${MGMT_BACKEND_VERSION} https://github.com/instill-ai/mgmt-backend.git mgmt-backend
-RUN git clone -b v${CONTROLLER_VERSION} https://github.com/instill-ai/controller.git controller
-RUN git clone -b v${CONSOLE_VERSION} https://github.com/instill-ai/console.git console
+RUN git clone -b v${API_GATEWAY_VERSION} https://github.com/instill-ai/api-gateway.git
+RUN git clone -b v${PIPELINE_BACKEND_VERSION} https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b v${CONNECTOR_BACKEND_VERSION} https://github.com/instill-ai/connector-backend.git
+RUN git clone -b v${MODEL_BACKEND_VERSION} https://github.com/instill-ai/model-backend.git
+RUN git clone -b v${MGMT_BACKEND_VERSION} https://github.com/instill-ai/mgmt-backend.git
+RUN git clone -b v${CONTROLLER_VERSION} https://github.com/instill-ai/controller.git
+RUN git clone -b v${CONSOLE_VERSION} https://github.com/instill-ai/console.git

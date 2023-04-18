@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   api_gateway:
-    image: instill/${API_GATEWAY_HOST}:latest
+    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     build:
       context: ./${API_GATEWAY_HOST}
       args:
@@ -12,7 +12,7 @@ services:
         KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
 
   pipeline_backend:
-    image: ${PIPELINE_BACKEND_IMAGE}:latest
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     build:
       context: ./${PIPELINE_BACKEND_HOST}
       args:
@@ -21,7 +21,7 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   connector_backend:
-    image: ${CONNECTOR_BACKEND_IMAGE}:latest
+    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     build:
       context: ./${CONNECTOR_BACKEND_HOST}
       args:
@@ -30,7 +30,7 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   model_backend:
-    image: ${MODEL_BACKEND_IMAGE}:latest
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     build:
       context: ./${MODEL_BACKEND_HOST}
       args:
@@ -41,7 +41,7 @@ services:
         ARTIVC_VERSION: ${ARTIVC_VERSION}
 
   mgmt_backend:
-    image: ${MGMT_BACKEND_IMAGE}:latest
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     build:
       context: ./${MGMT_BACKEND_HOST}
       args:
@@ -50,21 +50,21 @@ services:
         K6_VERSION: ${K6_VERSION}
 
   controller:
-      image: ${CONTROLLER_IMAGE}:latest
-      build:
-        context: ./${CONTROLLER_HOST}
-        args:
-          SERVICE_NAME: ${CONTROLLER_HOST}
-          GOLANG_VERSION: ${GOLANG_VERSION}
-          K6_VERSION: ${K6_VERSION}
+    image: ${CONTROLLER_IMAGE}:${CONTROLLER_VERSION}
+    build:
+      context: ./${CONTROLLER_HOST}
+      args:
+        SERVICE_NAME: ${CONTROLLER_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
 
   console:
-    image: ${CONSOLE_IMAGE}:latest
+    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     build:
       context: ./${CONSOLE_HOST}
 
   console_playwright:
-    image: ${CONSOLE_IMAGE}-playwright:latest
+    image: ${CONSOLE_IMAGE}-playwright:${CONSOLE_VERSION}
     build:
       context: ./${CONSOLE_HOST}
       dockerfile: Dockerfile.playwright
