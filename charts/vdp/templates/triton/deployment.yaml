@@ -44,11 +44,13 @@ spec:
       {{- end }}
       initContainers:
         - name: triton-conda-env
+          securityContext:
+            runAsUser: 0
           image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}-{{ ternary "cpu" "gpu" (kindIs "invalid" .Values.triton.nvidiaVisibleDevices) }}
           imagePullPolicy: {{ .Values.triton.condaEnv.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args:
-            - cp -r /conda-pack/* /shared-volume
+            - cp -r /conda-pack/* /shared-volume && chown -R 1000:1000 /shared-volume
           volumeMounts:
             - name: conda-pack
               mountPath: /shared-volume
@@ -138,7 +140,7 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.model.affinity }}
+      {{- with .Values.triton.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -93,6 +93,17 @@ spec:
             - name: config
               mountPath: /model-backend/config/config.yaml
               subPath: config.yaml
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "vdp.mgmt" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "vdp.mgmt.publicPort" . }}"
       containers:
         - name: model-backend-worker
           image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}

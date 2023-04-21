@@ -50,12 +50,12 @@ data:
       grpcuri: {{ include "vdp.triton" . }}:{{ include "vdp.triton.grpcPort" . }}
       modelstore: /model-repository
     database:
-      username: {{ template "vdp.database.username" . }}
-      password: {{ template "vdp.database.rawPassword" . }}
-      host: {{ template "vdp.database.host" . }}
-      port: {{ template "vdp.database.port" . }}
+      username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "vdp.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "vdp.database.port" .) .Values.database.external.port }}
       name: model
-      version: 1
+      version: {{ .Values.model.dbVersion }}
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}
@@ -64,7 +64,7 @@ data:
     cache:
       redis:
         redisoptions:
-          addr: {{ template "vdp.redis.addr" . }}
+          addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
     maxbatchsizelimitation:
       unspecified: 2
       classification: 16

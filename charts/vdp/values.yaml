@@ -255,7 +255,7 @@ apigateway:
   image:
     repository: instill/api-gateway
     tag: 0.2.5-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -306,7 +306,9 @@ pipeline:
   image:
     repository: instill/pipeline-backend
     tag: 0.11.1-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+  # -- The database migration version
+  dbVersion: 1
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -357,7 +359,9 @@ connector:
   image:
     repository: instill/connector-backend
     tag: 0.9.1-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+  # -- The database migration version
+  dbVersion: 1
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -408,7 +412,9 @@ model:
   image:
     repository: instill/model-backend
     tag: 0.16.0-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+  # -- The database migration version
+  dbVersion: 1
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -458,64 +464,14 @@ model:
     spec:
       minAvailable:
       maxUnavailable:
-controller:
-  # -- The image of controller
-  image:
-    repository: instill/controller
-    tag: 0.1.0-alpha
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for controller
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  loopinterval: 3
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
 mgmt:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
     tag: 0.3.4-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+  # -- The database migration version
+  dbVersion: 1
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -562,6 +518,58 @@ mgmt:
     spec:
       minAvailable:
       maxUnavailable:
+controller:
+  # -- The image of controller
+  image:
+    repository: instill/controller
+    tag: 0.1.0-alpha
+    pullPolicy: Always
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for controller
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  resources: {}
+  loopinterval: 3
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
 console:
   # -- Enable console deployment or not
   enabled: true
@@ -569,7 +577,7 @@ console:
   image:
     repository: instill/console
     tag: 0.21.4-alpha
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -723,22 +731,18 @@ database:
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
   maxConnLifeTime: 30m
+  # -- The configuration of external database
   external:
     host:
     port:
     username:
     password:
-    # -- If existing secret is used, the key must be "password"
-    existingSecret: ""
-    # -- SSL mode
-    # "disable" - No SSL
-    # "require" - Always SSL (skip verification)
-    # "verify-ca" - Always SSL (verify that the certificate presented by the
-    # server was signed by a trusted CA)
-    # "verify-full" - Always SSL (verify that the certification presented by the
-    # server was signed by a trusted CA and the server host name matches the one
-    # in the certificate)
-    sslmode: "disable"
+etcd:
+  persistence:
+    enabled: false
+  auth:
+    rbac:
+      create: false
 redis:
   # -- If external Redis is used, set "enabled" to false
   # and fill the connection informations in "external" section
@@ -763,16 +767,10 @@ redis:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  ## -- The configuration of external redis
   external:
-    # -- Support redis, redis+sentinel
-    # addr for redis: <host_redis>:<port_redis>
-    # addr for redis+sentinel: <host_sentinel1>:<port_sentinel1>,<host_sentinel2>:<port_sentinel2>,<host_sentinel3>:<port_sentinel3>
+    # -- Address for redis: <host_redis>:<port_redis>
     addr:
-    # -- The name of the set of Redis instances to monitor, it must be set to support redis+sentinel
-    sentinelMasterSet: ""
-    password: ""
-    # -- If using existingSecret, the key must be REDIS_PASSWORD
-    existingSecret: ""
 temporal:
   # -- If external Temporal is used, set "enabled" to false
   # and fill the connection informations in "external" section
@@ -1064,16 +1062,7 @@ temporal:
       routing:
         default_to_namespace: default
         issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
-  external:
-etcd:
-  # -- If external etcd is used, set "enabled" to false
-  # and fill the connection informations in "external" section
-  enabled: true
-  persistence:
-    enabled: false
-  auth:
-    rbac:
-      create: false
+  ## -- The configuration of external Temporal
   external:
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
@@ -1095,4 +1084,5 @@ elasticsearch:
   esConfig:
     elasticsearch.yml: |
       xpack.security.enabled: false
+  ## -- The configuration of external Elasticsearch
   external:

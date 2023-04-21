@@ -61,7 +61,7 @@ spec:
   {{- end }}
 {{- end }}
 {{- $database := .Values.persistence.persistentVolumeClaim.database -}}
-{{- if not $database.existingClaim }}
+{{- if and (not $database.existingClaim) .Values.database.enabled }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -92,7 +92,7 @@ spec:
   {{- end }}
 {{- end }}
 {{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
-{{- if not $redis.existingClaim }}
+{{- if and (not $redis.existingClaim) .Values.redis.enabled }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

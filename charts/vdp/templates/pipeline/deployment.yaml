@@ -68,6 +68,27 @@ spec:
             - name: config
               mountPath: /pipeline-backend/config/config.yaml
               subPath: config.yaml
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connector" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connector.publicPort" . }}"
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "vdp.model" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "vdp.model.publicPort" . }}"
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "vdp.mgmt" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "vdp.mgmt.publicPort" . }}"
         {{- with .Values.pipeline.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}

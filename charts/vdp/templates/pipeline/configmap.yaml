@@ -54,12 +54,12 @@ data:
     usageserver:
       {{- toYaml .Values.usageServer | nindent 6 }}
     database:
-      username: {{ template "vdp.database.username" . }}
-      password: {{ template "vdp.database.rawPassword" . }}
-      host: {{ template "vdp.database.host" . }}
-      port: {{ template "vdp.database.port" . }}
+      username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "vdp.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "vdp.database.port" .) .Values.database.external.port }}
       name: pipeline
-      version: 1
+      version: {{ .Values.pipeline.dbVersion }}
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}
@@ -68,7 +68,7 @@ data:
     cache:
       redis:
         redisoptions:
-          addr: {{ template "vdp.redis.addr" . }}
+          addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
     temporal:
       clientoptions:
         hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
