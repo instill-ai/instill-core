@@ -22,25 +22,6 @@ data:
       host: {{ template "vdp.etcd" . }}
       port: {{ template "vdp.etcd.clientPort" . }}
       timeout: 5
-    database:
-      username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
-      password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
-      host: {{ default (include "vdp.database.host" .) .Values.database.external.host }}
-      port: {{ default (include "vdp.database.port" .) .Values.database.external.port }}
-      name: pipeline
-      version: 1
-      timezone: Etc/UTC
-      pool:
-        idleconnections: {{ .Values.database.maxIdleConns }}
-        maxconnections: {{ .Values.database.maxOpenConns }}
-        connlifetime: {{ .Values.database.maxConnLifeTime }}
-    cache:
-      redis:
-        redisoptions:
-          addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
-    temporal:
-      clientoptions:
-        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
     tritonserver:
       host: {{ include "vdp.triton" . }}
       grpcuri: {{ include "vdp.triton" . }}:{{ include "vdp.triton.grpcPort" . }}
