@@ -53,7 +53,8 @@ rm:				## Remove all stopped service containers
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
-	@docker rm -f vdp-build >/dev/null 2>&1
+	@docker rm -f vdp-build-latest >/dev/null 2>&1
+	@docker rm -f vdp-build-release >/dev/null 2>&1
 	@docker rm -f backend-integration-test-latest >/dev/null 2>&1
 	@docker rm -f console-integration-test-latest >/dev/null 2>&1
 	@docker rm -f backend-integration-test-release >/dev/null 2>&1
@@ -84,13 +85,13 @@ build-latest:				## Build latest images for all VDP components
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
-		-t instill/vdp-test:latest .
+		-t instill/vdp-compose:latest .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build-latest \
-		instill/vdp-test:latest /bin/bash -c " \
+		instill/vdp-compose:latest /bin/bash -c " \
 			API_GATEWAY_VERSION=latest \
 			PIPELINE_BACKEND_VERSION=latest \
 			CONNECTOR_BACKEND_VERSION=latest \
@@ -116,13 +117,13 @@ build-release:				## Build release images for all VDP components
 		--build-arg CONTROLLER_VERSION=${CONTROLLER_VERSION} \
 		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 		--target release \
-		-t instill/vdp-test:release .
+		-t instill/vdp-compose:release .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build-release \
-		instill/vdp-test:release /bin/bash -c " \
+		instill/vdp-compose:release /bin/bash -c " \
 			API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
@@ -142,7 +143,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 	@docker run -it --rm \
 		--network instill-network \
 		--name backend-integration-test-latest \
-		instill/vdp-test:latest /bin/bash -c " \
+		instill/vdp-compose:latest /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
@@ -170,7 +171,7 @@ integration-test-release:			## Run integration test on the release VDP
 	@docker run -it --rm \
 		--network instill-network \
 		--name backend-integration-test-release \
-		instill/vdp-test:release /bin/bash -c " \
+		instill/vdp-compose:release /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
 			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
