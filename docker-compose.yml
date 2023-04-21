@@ -60,7 +60,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${PIPELINE_BACKEND_HOST}-migrate
+    entrypoint: ./pipeline-backend-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -89,7 +89,7 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./${PIPELINE_BACKEND_HOST}
+    entrypoint: ./pipeline-backend
     depends_on:
       - pipeline_backend_migrate
       - temporal
@@ -104,7 +104,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${CONNECTOR_BACKEND_HOST}-migrate
+    entrypoint: ./connector-backend-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -118,7 +118,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${CONNECTOR_BACKEND_HOST}-init
+    entrypoint: ./connector-backend-init
     depends_on:
       - connector_backend_migrate
 
@@ -138,7 +138,7 @@ services:
     volumes:
       - vdp:/vdp
       - airbyte:/airbyte
-    entrypoint: ./${CONNECTOR_BACKEND_HOST}-worker
+    entrypoint: ./connector-backend-worker
     depends_on:
       connector_backend_init:
         condition: service_completed_successfully
@@ -165,7 +165,7 @@ services:
       CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./${CONNECTOR_BACKEND_HOST}
+    entrypoint: ./connector-backend
     depends_on:
       - connector_backend_worker
 
@@ -178,7 +178,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${MODEL_BACKEND_HOST}-migrate
+    entrypoint: ./model-backend-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -192,7 +192,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${MODEL_BACKEND_HOST}-init
+    entrypoint: ./model-backend-init
     depends_on:
       - model_backend_migrate
 
@@ -213,7 +213,7 @@ services:
     volumes:
       - model_repository:/model-repository
       - model_cache:/.cache
-    entrypoint: ./${MODEL_BACKEND_HOST}-worker
+    entrypoint: ./model-backend-worker
     depends_on:
       model_backend_init:
         condition: service_completed_successfully
@@ -257,7 +257,7 @@ services:
         ]
       timeout: 20s
       retries: 10
-    entrypoint: ./${MODEL_BACKEND_HOST}
+    entrypoint: ./model-backend
     depends_on:
       - triton_server
       - model_backend_worker
@@ -268,7 +268,7 @@ services:
     restart: on-failure
     environment:
       MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
-    entrypoint: ./${MODEL_BACKEND_HOST}-init-model
+    entrypoint: ./model-backend-init-model
     depends_on:
       model_backend:
         condition: service_healthy
@@ -282,7 +282,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-    entrypoint: ./${MGMT_BACKEND_HOST}-migrate
+    entrypoint: ./mgmt-backend-migrate
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -296,7 +296,7 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-    entrypoint: ./${MGMT_BACKEND_HOST}-init
+    entrypoint: ./mgmt-backend-init
     depends_on:
       - mgmt_backend_migrate
 
@@ -315,7 +315,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./${MGMT_BACKEND_HOST}
+    entrypoint: ./mgmt-backend
     depends_on:
       - mgmt_backend_init
 
@@ -332,7 +332,7 @@ services:
       CFG_DATABASE_PASSWORD: password
       CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
-    entrypoint: ./${CONTROLLER_HOST}
+    entrypoint: ./controller
     depends_on:
       pipeline_backend:
         condition: service_started
