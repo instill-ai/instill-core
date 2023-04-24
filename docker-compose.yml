@@ -445,6 +445,8 @@ services:
     restart: unless-stopped
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: /bin/bash
+    command: "-c 'tctl --namespace connector-backend namespace register >/dev/null 2>&1 && tctl --namespace model-backend namespace register >/dev/null 2>&1'"
     depends_on:
       temporal:
         condition: service_healthy
