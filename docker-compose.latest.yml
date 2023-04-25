@@ -146,6 +146,12 @@ services:
   model_backend_init_model:
     profiles:
       - all
+      - api-gateway
+      - pipeline
+      - connector
+      - mgmt
+      - console
+      - controller
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_INITMODEL_ENABLED: "false"
