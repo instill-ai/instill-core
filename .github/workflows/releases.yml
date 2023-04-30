@@ -79,6 +79,7 @@ jobs:
           yq ".connector.image.tag=\"$CONNECTOR_BACKEND_VERSION\"" -i charts/vdp/values.yaml
           yq ".model.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/vdp/values.yaml
           yq ".mgmt.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/vdp/values.yaml
+          yq ".controller.image.tag=\"$CONTROLLER_VERSION\"" -i charts/vdp/values.yaml
           yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/vdp/values.yaml
       - name: Get current chart version
         id: get-current-chart-version
