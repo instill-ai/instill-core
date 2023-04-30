@@ -42,8 +42,8 @@ data:
         redisoptions:
           addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
     temporal:
-      clientoptions:
-        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+      hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+      namespace: connector-backend
     pipelinebackend:
       host: {{ template "vdp.pipeline" . }}
       publicport: {{ template "vdp.pipeline.publicPort" . }}

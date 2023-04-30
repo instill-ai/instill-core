@@ -75,8 +75,8 @@ data:
       semanticsegmentation: 8
       textgeneration: 1
     temporal:
-      clientoptions:
-        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+      hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+      namespace: model-backend
     initmodel:
       path: {{ .Values.model.initModel.path }}
       enabled: {{ .Values.model.initModel.enabled }}
