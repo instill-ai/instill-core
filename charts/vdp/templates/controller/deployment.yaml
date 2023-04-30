@@ -98,21 +98,21 @@ spec:
           resources:
             {{- toYaml .Values.controller.resources | nindent 12 }}
           {{- end }}
-          command: ["./controller"]
+          command: [./{{ .Values.controller.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
               containerPort: {{ template "vdp.controller.privatePort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /controller/config/config.yaml
+              mountPath: {{ .Values.controller.configPath }}
               subPath: config.yaml
             {{- if .Values.internalTLS.enabled }}
             - name: controller-internal-certs
               mountPath: "/etc/vdp/ssl/controller"
             {{- end }}
             {{- with .Values.controller.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- if .Values.controller.extraEnv }}
           env:
@@ -128,8 +128,8 @@ spec:
         - name: controller-internal-certs
           secret:
             secretName: {{ template "vdp.internalTLS.controller.secretName" . }}
-        {{- if .Values.controller.extraVolumes }}
-        {{- toYaml .Values.controller.extraVolumes | indent 6 }}
+        {{- with .Values.controller.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.controller.nodeSelector }}
       nodeSelector:

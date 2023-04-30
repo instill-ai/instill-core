@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.mgmt.publicPort" . }}
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
-      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:

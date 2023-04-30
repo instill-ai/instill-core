@@ -127,7 +127,7 @@ spec:
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
             {{- with $.Values.temporal.server.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
             - name: POD_IP

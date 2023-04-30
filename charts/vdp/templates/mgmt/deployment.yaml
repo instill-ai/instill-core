@@ -63,10 +63,10 @@ spec:
           resources:
             {{- toYaml .Values.mgmt.resources | nindent 12 }}
           {{- end }}
-          command: ["./mgmt-backend-migrate"]
+          command: [./{{ .Values.mgmt.commandName.migration }}]
           volumeMounts:
             - name: config
-              mountPath: /mgmt-backend/config/config.yaml
+              mountPath: {{ .Values.mgmt.configPath }}
               subPath: config.yaml
         - name: mgmt-backend-init
           image: {{ .Values.mgmt.image.repository }}:{{ .Values.mgmt.image.tag }}
@@ -75,10 +75,10 @@ spec:
           resources:
             {{- toYaml .Values.mgmt.resources | nindent 12 }}
           {{- end }}
-          command: ["./mgmt-backend-init"]
+          command: [./{{ .Values.mgmt.commandName.init }}]
           volumeMounts:
             - name: config
-              mountPath: /mgmt-backend/config/config.yaml
+              mountPath: {{ .Values.mgmt.configPath }}
               subPath: config.yaml
         {{- with .Values.mgmt.extraInitContainers }}
         {{- toYaml . | indent 8 }}
@@ -105,7 +105,7 @@ spec:
           resources:
             {{- toYaml .Values.mgmt.resources | nindent 12 }}
           {{- end }}
-          command: ["./mgmt-backend"]
+          command: [./{{ .Values.mgmt.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
               containerPort: {{ template "vdp.mgmt.privatePort" . }}
@@ -115,14 +115,14 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /mgmt-backend/config/config.yaml
+              mountPath: {{ .Values.mgmt.configPath }}
               subPath: config.yaml
             {{- if .Values.internalTLS.enabled }}
             - name: mgmt-internal-certs
               mountPath: "/etc/vdp/ssl/mgmt"
             {{- end }}
             {{- with .Values.mgmt.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.mgmt.extraEnv }}
           env:
@@ -140,8 +140,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.mgmt.secretName" . }}
         {{- end }}
-        {{- if .Values.mgmt.extraVolumes }}
-        {{- toYaml .Values.mgmt.extraVolumes | indent 6 }}
+        {{- with .Values.mgmt.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.mgmt.nodeSelector }}
       nodeSelector:

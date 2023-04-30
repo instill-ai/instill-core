@@ -56,6 +56,7 @@ spec:
             - name: PGUSER
               value: {{ template "vdp.database.username" . }}
         {{- end }}
+        {{- if .Values.temporal.enabled }}
         - name: temporal-admin-tools
           securityContext:
             runAsUser: 0
@@ -69,6 +70,7 @@ spec:
           env:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+        {{- end }}
         - name: connector-backend-migration
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
           imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
@@ -76,10 +78,10 @@ spec:
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
           {{- end }}
-          command: ["./connector-backend-migrate"]
+          command: [./{{ .Values.connector.commandName.migration }}]
           volumeMounts:
             - name: config
-              mountPath: /connector-backend/config/config.yaml
+              mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
         - name: connector-backend-init
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
@@ -88,10 +90,10 @@ spec:
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
           {{- end }}
-          command: ["./connector-backend-init"]
+          command: [./{{ .Values.connector.commandName.init }}]
           volumeMounts:
             - name: config
-              mountPath: /connector-backend/config/config.yaml
+              mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
@@ -138,18 +140,21 @@ spec:
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
           {{- end }}
-          command: ["./connector-backend-worker"]
+          command: [./{{ .Values.connector.commandName.worker }}]
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
           volumeMounts:
             - name: config
-              mountPath: /connector-backend/config/config.yaml
+              mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
             - name: vdp
               mountPath: /vdp
             - name: airbyte
               mountPath: /airbyte
+            {{- with .Values.connector.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         - name: connector-backend
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
           imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
@@ -171,21 +176,21 @@ spec:
           resources:
             {{- toYaml .Values.connector.resources | nindent 12 }}
           {{- end }}
-          command: ["./connector-backend"]
+          command: [./{{ .Values.connector.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.connector.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /connector-backend/config/config.yaml
+              mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/vdp/ssl/connector"
             {{- end }}
             {{- with .Values.connector.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- if .Values.connector.extraEnv }}
           env:
@@ -209,8 +214,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.connector.secretName" . }}
         {{- end }}
-        {{- if .Values.connector.extraVolumes }}
-        {{- toYaml .Values.connector.extraVolumes | indent 6 }}
+        {{- with .Values.connector.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.connector.nodeSelector }}
       nodeSelector:

@@ -11,8 +11,8 @@ data:
     API_GATEWAY_METRICS_PORT={{ template "vdp.apigateway.metricsPort" . }}
     API_GATEWAY_LOG_LEVEL={{ upper .Values.logLevel }}
     {{- if .Values.internalTLS.enabled }}
-    API_GATEWAY_CERT_FILE=/etc/vdp/ssl/apigateway/tls.cert
-    API_GATEWAY_KEY_FILE=/etc/vdp/ssl/apigateway/tls.key
+    API_GATEWAY_CERT_FILE=/etc/ssl/api-gateway/tls.cert
+    API_GATEWAY_KEY_FILE=/etc/ssl/api-gateway/tls.key
     {{- end }}
 
     # pipeline-backend

@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.connector.publicPort" . }}
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
-      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/connector/tls.crt
@@ -42,8 +42,12 @@ data:
         redisoptions:
           addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
     temporal:
-      hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
-      namespace: connector-backend
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "vdp.temporal" .) (include "vdp.temporal.frontend.grpcPort" .)) .Values.connector.temporal.hostPort }}
+      namespace: {{ default "connector-backend" .Values.connector.temporal.namespace }}
+      ca: {{ default "" .Values.connector.temporal.ca }}
+      cert: {{ default "" .Values.connector.temporal.cert }}
+      key: {{ default "" .Values.connector.temporal.key }}
+      serverName: {{ default "" .Values.connector.temporal.serverName }}
     pipelinebackend:
       host: {{ template "vdp.pipeline" . }}
       publicport: {{ template "vdp.pipeline.publicPort" . }}
