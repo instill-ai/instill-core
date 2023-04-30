@@ -63,10 +63,10 @@ spec:
           resources:
             {{- toYaml .Values.pipeline.resources | nindent 12 }}
           {{- end }}
-          command: ["./pipeline-backend-migrate"]
+          command: [./{{ .Values.pipeline.commandName.migration }}]
           volumeMounts:
             - name: config
-              mountPath: /pipeline-backend/config/config.yaml
+              mountPath: {{ .Values.pipeline.configPath }}
               subPath: config.yaml
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
@@ -114,21 +114,21 @@ spec:
           resources:
             {{- toYaml .Values.pipeline.resources | nindent 12 }}
           {{- end }}
-          command: ["./pipeline-backend"]
+          command: [./{{ .Values.pipeline.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.pipeline.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /pipeline-backend/config/config.yaml
+              mountPath: {{ .Values.pipeline.configPath }}
               subPath: config.yaml
             {{- if .Values.internalTLS.enabled }}
             - name: pipeline-internal-certs
               mountPath: "/etc/vdp/ssl/pipeline"
             {{- end }}
             {{- with .Values.pipeline.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- if .Values.pipeline.extraEnv }}
           env:
@@ -146,8 +146,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.pipeline.secretName" . }}
         {{- end }}
-        {{- if .Values.pipeline.extraVolumes }}
-        {{- toYaml .Values.pipeline.extraVolumes | indent 6 }}
+        {{- with .Values.pipeline.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.pipeline.nodeSelector }}
       nodeSelector:

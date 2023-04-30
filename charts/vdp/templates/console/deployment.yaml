@@ -81,7 +81,7 @@ spec:
               mountPath: "/etc/vdp/ssl/console"
             {{- end }}
             {{- with .Values.console.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
             - name: NEXT_PUBLIC_API_VERSION
@@ -118,8 +118,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.console.secretName" . }}
         {{- end }}
-        {{- if .Values.console.extraVolumes }}
-        {{- toYaml .Values.console.extraVolumes | indent 6 }}
+        {{- with .Values.console.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.console.nodeSelector }}
       nodeSelector:

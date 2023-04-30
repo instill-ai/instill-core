@@ -74,7 +74,7 @@ spec:
             - |
               make config && \
               krakend run \
-            {{- if (eq .Values.logLevel "debug") }}
+            {{- if (eq (.Values.logLevel | upper) "DEBUG") }}
               --debug \
             {{- end }}
               --config krakend.json
@@ -90,14 +90,14 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: "/api-gateway/config/.env"
+              mountPath: {{ .Values.apigateway.configPath }}
               subPath: ".env"
             {{- if .Values.internalTLS.enabled }}
             - name: apigateway-internal-certs
               mountPath: "/etc/vdp/ssl/apigateway"
             {{- end }}
             {{- with .Values.apigateway.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.apigateway.extraEnv }}
           env:
@@ -115,8 +115,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.apigateway.secretName" . }}
         {{- end }}
-        {{- if .Values.apigateway.extraVolumes }}
-        {{- toYaml .Values.apigateway.extraVolumes | indent 6 }}
+        {{- with .Values.apigateway.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.apigateway.nodeSelector }}
       nodeSelector:

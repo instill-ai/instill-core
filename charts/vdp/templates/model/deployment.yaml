@@ -57,6 +57,7 @@ spec:
             - name: PGUSER
               value: {{ template "vdp.database.username" . }}
         {{- end }}
+        {{- if .Values.temporal.enabled }}
         - name: temporal-admin-tools
           securityContext:
             runAsUser: 0
@@ -69,6 +70,7 @@ spec:
           env:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+        {{- end }}
         - name: model-backend-migration
           image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
           imagePullPolicy: {{ .Values.model.image.pullPolicy }}
@@ -76,10 +78,10 @@ spec:
           resources:
             {{- toYaml .Values.model.resources | nindent 12 }}
           {{- end }}
-          command: ["./model-backend-migrate"]
+          command: [./{{ .Values.model.commandName.migration }}]
           volumeMounts:
             - name: config
-              mountPath: /model-backend/config/config.yaml
+              mountPath: {{ .Values.model.configPath }}
               subPath: config.yaml
         - name: model-backend-init
           image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
@@ -88,10 +90,10 @@ spec:
           resources:
             {{- toYaml .Values.model.resources | nindent 12 }}
           {{- end }}
-          command: ["./model-backend-init"]
+          command: [./{{ .Values.model.commandName.init }}]
           volumeMounts:
             - name: config
-              mountPath: /model-backend/config/config.yaml
+              mountPath: {{ .Values.model.configPath }}
               subPath: config.yaml
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
@@ -116,13 +118,16 @@ spec:
           resources:
             {{- toYaml .Values.model.resources | nindent 12 }}
           {{- end }}
-          command: ["./model-backend-worker"]
+          command: [./{{ .Values.model.commandName.worker }}]
           volumeMounts:
             - name: config
-              mountPath: /model-backend/config/config.yaml
+              mountPath: {{ .Values.model.configPath }}
               subPath: config.yaml
             - name: model-repository
               mountPath: /model-repository
+            {{- with .Values.model.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         - name: model-backend
           image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
           imagePullPolicy: {{ .Values.model.image.pullPolicy }}
@@ -146,14 +151,14 @@ spec:
           resources:
             {{- toYaml .Values.model.resources | nindent 12 }}
           {{- end }}
-          command: ["./model-backend"]
+          command: [./{{ .Values.model.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.model.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /model-backend/config/config.yaml
+              mountPath: {{ .Values.model.configPath }}
               subPath: config.yaml
             - name: model-repository
               mountPath: /model-repository
@@ -162,7 +167,7 @@ spec:
               mountPath: "/etc/vdp/ssl/model"
             {{- end }}
             {{- with .Values.model.extraVolumeMounts }}
-            {{- toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- if .Values.model.extraEnv }}
           env:
@@ -190,8 +195,8 @@ spec:
           secret:
             secretName: {{ template "vdp.internalTLS.model.secretName" . }}
         {{- end }}
-        {{- if .Values.model.extraVolumes }}
-        {{- toYaml .Values.model.extraVolumes | indent 6 }}
+        {{- with .Values.model.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.model.nodeSelector }}
       nodeSelector:

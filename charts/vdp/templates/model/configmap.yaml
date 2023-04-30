@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.model.publicPort" . }}
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
-      debug: {{ ternary "true" "false" (eq .Values.logLevel "debug") }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       itmode: {{ .Values.enableITMode }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
@@ -75,8 +75,12 @@ data:
       semanticsegmentation: 8
       textgeneration: 1
     temporal:
-      hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
-      namespace: model-backend
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "vdp.temporal" .) (include "vdp.temporal.frontend.grpcPort" .)) .Values.model.temporal.hostPort }}
+      namespace: {{ default "model-backend" .Values.model.temporal.namespace }}
+      ca: {{ default "" .Values.model.temporal.ca }}
+      cert: {{ default "" .Values.model.temporal.cert }}
+      key: {{ default "" .Values.model.temporal.key }}
+      serverName: {{ default "" .Values.model.temporal.serverName }}
     initmodel:
       path: {{ .Values.model.initModel.path }}
       enabled: {{ .Values.model.initModel.enabled }}
