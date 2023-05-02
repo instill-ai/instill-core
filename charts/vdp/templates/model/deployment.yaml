@@ -106,6 +106,15 @@ spec:
               value: "{{ template "vdp.mgmt" . }}"
             - name: MGMT_BACKEND_PORT
               value: "{{ template "vdp.mgmt.publicPort" . }}"
+        - name: chmod-model-repostiroy
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: busybox
+          command: ["sh", "-c", "chmod -R 777 /model-repository"]
+          volumeMounts:
+          - name: model-repository
+            mountPath: /model-repository
       containers:
         - name: model-backend-worker
           image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}

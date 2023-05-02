@@ -1,3 +1,4 @@
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
 {{- if .Values.model.initModel.enabled -}}
 apiVersion: batch/v1
 kind: Job
@@ -25,6 +26,15 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.model.serviceAccountName }}
+      serviceAccountName: {{ .Values.model.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.model.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       restartPolicy: Never
       initContainers:
         - name: wait-for-dependencies
@@ -42,11 +52,13 @@ spec:
       - name: model-backend-init-model
         image: {{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}
         imagePullPolicy: {{ .Values.model.image.pullPolicy }}
-          command: [./{{ .Values.model.commandName.initModel }}]
+        command: [./{{ .Values.model.commandName.initModel }}]
         volumeMounts:
           - name: config
-            mountPath: /model-backend/config/config.yaml
+            mountPath: {{ .Values.model.configPath }}
             subPath: config.yaml
+          - name: model-repository
+            mountPath: /model-repository
         env:
           - name: MODEL_BACKEND_HOST
             value: "{{ template "vdp.model" . }}"
@@ -54,4 +66,26 @@ spec:
         - name: config
           configMap:
             name: {{ template "vdp.model" . }}
+        - name: model-repository
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $modelRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $modelRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: model-repository-data-volume
+        {{- end }}
+      {{- with .Values.model.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.model.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

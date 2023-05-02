@@ -413,3 +413,8 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
     {{- printf "%s-console-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
+
+{{/* Allow KubeVersion to be overridden. */}}
+{{- define "vdp.ingress.kubeVersion" -}}
+  {{- default .Capabilities.KubeVersion.Version .Values.expose.ingress.kubeVersionOverride -}}
+{{- end -}}

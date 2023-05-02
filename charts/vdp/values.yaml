@@ -13,12 +13,14 @@ logLevel: info
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
-# -- Enable integration test mode, making the model-backend use dummy models for tests
-enableITMode: false
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
 # -- Disable usage collection
 disableUsage: false
+# -- Set true to enable integration test mode
+# The model-backend will use dummy models
+# The mgmt-backend will set a mock up customer_id
+itMode: false
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:
@@ -48,7 +50,6 @@ expose:
   ingress:
     hosts:
       apigateway: api.instill.tech
-      console: console.instill.tech
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
     # set to `gce` if using the GCE ingress controller
@@ -224,7 +225,7 @@ persistence:
       existingClaim: ""
       storageClass: ""
       subPath: ""
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce
       size: 10Gi
       annotations: {}
     condaPack:

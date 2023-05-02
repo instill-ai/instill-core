@@ -13,7 +13,7 @@ data:
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode: {{ .Values.enableITMode }}
+      itmode: {{ .Values.itMode }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:
