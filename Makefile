@@ -190,6 +190,76 @@ integration-test-release:			## Run integration test on the release VDP
         instill/console-playwright:${CONSOLE_VERSION}
 	@make down
 
+.PHONY: helm-integration-test-latest
+helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
+		helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
+		--set enableITMode=true \
+		--set edition=k8s-ce:latest \
+		--set apigateway.image.tag=latest \
+		--set pipeline.image.tag=latest \
+		--set connector.image.tag=latest \
+		--set model.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set controller.image.tag=latest
+		kubectl wait --for=condition=Ready pod --all -n vdp --timeout=300s || true
+		export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 & \
+		docker run -it --rm --network host --name backend-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
+		cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+		cd model-backend && make integration-test MODE=localhost && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+		"
+		docker run -it --rm \
+                -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+                -e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+                -e NEXT_PUBLIC_API_VERSION=v1alpha \
+                -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+                -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+                -e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+                --network host \
+                --entrypoint ./entrypoint-playwright.sh \
+                --name console-integration-test-latest \
+                instill/console-playwright:latest
+		helm uninstall vdp --namespace vdp
+		@make down
+
+
+.PHONY: helm-integration-test-release
+helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
+		helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
+		--set enableITMode=true \
+		--set edition=k8s-ce:latest \
+		--set apigateway.image.tag=latest \
+		--set pipeline.image.tag=latest \
+		--set connector.image.tag=latest \
+		--set model.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set controller.image.tag=latest
+		kubectl wait --for=condition=Ready pod --all -n vdp --timeout=300s || true
+		export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 & \
+		docker run -it --rm --network host --name backend-integration-test-release instill/vdp-compose:release /bin/bash -c "cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+		cd model-backend && make integration-test MODE=localhost && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+        "
+        docker run -it --rm \
+                -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+                -e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+                -e NEXT_PUBLIC_API_VERSION=v1alpha \
+                -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		 -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+                -e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+                --network host \
+                --entrypoint ./entrypoint-playwright.sh \
+                --name console-integration-test-release \
+                instill/console-playwright:${CONSOLE_VERSION}
+		helm uninstall vdp --namespace vdp
+		@make down
+
 .PHONY: help
 help:       	## Show this help
 	@echo "\nMake Application with Docker Compose"
