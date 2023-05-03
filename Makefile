@@ -12,6 +12,8 @@ ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
     TRITON_CONDA_ENV_PLATFORM := gpu
 endif
 
+UNAME_S := $(shell uname -s)
+
 #============================================================================
 
 .PHONY: all
@@ -196,6 +198,7 @@ integration-test-release:			## Run integration test on the release VDP
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
+ifeq ($(UNAME_S),Darwin)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
@@ -240,9 +243,56 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
 	@make down
+endif
+ifeq ($(UNAME_S),Linux)
+	@make build-latest
+	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=latest \
+		--set pipeline.image.tag=latest \
+ 		--set connector.image.tag=latest \
+ 		--set model.image.tag=latest \
+ 		--set mgmt.image.tag=latest \
+  		--set controller.image.tag=latest \
+ 		--set apigatewayURL=localhost:8080 \
+		--set consoleURL=localhost:3000 \
+		--set console.serverApiGatewayBaseUrl=localhost:8080
+	@sleep 1
+	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
+	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
+	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
+			cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+			cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+ 			cd model-backend && make integration-test MODE=localhost && cd ~- && \
+			cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+		"
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--network host \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name console-helm-integration-test-latest \
+		instill/console-playwright:latest
+	@helm uninstall vdp --namespace vdp
+	@kubectl delete namespace vdp
+	@pkill -f "port-forward"
+	@make down
+endif
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
+ifeq ($(UNAME_S),Darwin)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
@@ -287,6 +337,52 @@ helm-integration-test-release:                       ## Run integration test on 
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
 	@make down
+endif
+ifeq ($(UNAME_S),Linux)
+	@make build-latest
+	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=latest \
+		--set pipeline.image.tag=latest \
+		--set connector.image.tag=latest \
+		--set model.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set controller.image.tag=latest \
+		--set apigatewayURL=localhost:8080 \
+		--set consoleURL=localhost:3000 \
+		--set console.serverApiGatewayBaseUrl=localhost:8080
+	@sleep 1
+ 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+	kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
+	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
+	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
+			cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+			cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+			cd model-backend && make integration-test MODE=localhost && cd ~- && \
+			cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+		"
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--network host \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name console-helm-integration-test-latest \
+		instill/console-playwright:latest
+	@helm uninstall vdp --namespace vdp
+	@kubectl delete namespace vdp
+	@pkill -f "port-forward"
+	@make down
+endif
 
 .PHONY: help
 help:       	## Show this help
