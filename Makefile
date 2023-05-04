@@ -98,14 +98,14 @@ build-latest:				## Build latest images for all VDP components
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build-latest \
 		instill/vdp-compose:latest /bin/bash -c " \
-			API_GATEWAY_VERSION=latest \
-			PIPELINE_BACKEND_VERSION=latest \
-			CONNECTOR_BACKEND_VERSION=latest \
-			MODEL_BACKEND_VERSION=latest \
-			MGMT_BACKEND_VERSION=latest \
-			CONTROLLER_VERSION=latest \
-			CONSOLE_VERSION=latest \
-			docker compose -f docker-compose.build.yml build --progress plain \
+		API_GATEWAY_VERSION=latest \
+		PIPELINE_BACKEND_VERSION=latest \
+		CONNECTOR_BACKEND_VERSION=latest \
+		MODEL_BACKEND_VERSION=latest \
+		MGMT_BACKEND_VERSION=latest \
+		CONTROLLER_VERSION=latest \
+		CONSOLE_VERSION=latest \
+		docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: build-release
@@ -130,14 +130,14 @@ build-release:				## Build release images for all VDP components
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
 		--name vdp-build-release \
 		instill/vdp-compose:release /bin/bash -c " \
-			API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
-			MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-			MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-			CONTROLLER_VERSION=${CONTROLLER_VERSION} \
-			CONSOLE_VERSION=${CONSOLE_VERSION} \
-			docker compose -f docker-compose.build.yml build --progress plain \
+		API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+		PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+		CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
+		MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+		MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+		CONTROLLER_VERSION=${CONTROLLER_VERSION} \
+		CONSOLE_VERSION=${CONSOLE_VERSION} \
+		docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: integration-test-latest
@@ -150,10 +150,10 @@ integration-test-latest:			## Run integration test on the latest VDP
 		--network instill-network \
 		--name backend-integration-test-latest \
 		instill/vdp-compose:latest /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
+		cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -178,10 +178,10 @@ integration-test-release:			## Run integration test on the release VDP
 		--network instill-network \
 		--name backend-integration-test-release \
 		instill/vdp-compose:release /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
+		cd pipeline-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd connector-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd model-backend && make integration-test MODE=api-gateway && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=api-gateway && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -222,10 +222,10 @@ ifeq ($(UNAME_S),Darwin)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm -p 8080:8080 --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=internal && cd ~- && \
-			cd connector-backend && make integration-test MODE=internal && cd ~- && \
-			cd model-backend && make integration-test MODE=internal && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=internal && cd ~- \
+		cd pipeline-backend && make integration-test MODE=internal && cd ~- && \
+		cd connector-backend && make integration-test MODE=internal && cd ~- && \
+		cd model-backend && make integration-test MODE=internal && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=internal && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
@@ -268,10 +268,10 @@ ifeq ($(UNAME_S),Linux)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
-			cd connector-backend && make integration-test MODE=localhost && cd ~- && \
-			cd model-backend && make integration-test MODE=localhost && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+		cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+		cd model-backend && make integration-test MODE=localhost && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -316,10 +316,10 @@ ifeq ($(UNAME_S),Darwin)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm -p 8080:8080 --name backend-helm-integration-test-release instill/vdp-compose:release /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=internal && cd ~- && \
-			cd connector-backend && make integration-test MODE=internal && cd ~- && \
-			cd model-backend && make integration-test MODE=internal && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=internal && cd ~- \
+		cd pipeline-backend && make integration-test MODE=internal && cd ~- && \
+		cd connector-backend && make integration-test MODE=internal && cd ~- && \
+		cd model-backend && make integration-test MODE=internal && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=internal && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
@@ -353,7 +353,7 @@ ifeq ($(UNAME_S),Linux)
 		--set consoleURL=localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=localhost:8080
 	@sleep 1
-	 @export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
+	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
@@ -362,10 +362,10 @@ ifeq ($(UNAME_S),Linux)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-			cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
-			cd connector-backend && make integration-test MODE=localhost && cd ~- && \
-			cd model-backend && make integration-test MODE=localhost && cd ~- && \
-			cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
+		cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
+		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
+		cd model-backend && make integration-test MODE=localhost && cd ~- && \
+		cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
