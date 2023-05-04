@@ -632,6 +632,8 @@ console:
     repository: instill/console
     tag: 0.22.0-alpha
     pullPolicy: Always
+  # -- The accessible endpoint for the api-gateway from the console server side
+  serverApiGatewayBaseUrl:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
