@@ -1,0 +1,43 @@
+name: Check makefile
+
+on:
+  push:
+    branches:
+      - deniz/ins-590-check-makefile
+
+jobs:
+  makefile:
+    name: check makefile
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v1
+        with:
+          remove-android: 'true'
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+         repository: instill-ai/vdp
+      - name: verify 1
+        run: |
+          docker images && df -h
+        shell: bash
+      - name: Download and install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+      - name: verify
+        run: |
+          docker images && df -h
+        shell: bash
+      - name: Change to repository directory
+        run: cd ${{ github.workspace }}
+      - name: Run make test
+        run: make all
