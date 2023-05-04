@@ -10,18 +10,11 @@ jobs:
     name: check makefile
     runs-on: ubuntu-22.04
     steps:
-      - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@v1
-        with:
-          remove-android: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
          repository: instill-ai/vdp
-      - name: a
-        run: |
-          git checkout deniz/ins-562-helm-integration-test
-        shell: bash
+         ref: deniz/ins-562-helm-integration-test
       - name: Download and install Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
