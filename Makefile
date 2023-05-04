@@ -297,12 +297,12 @@ ifeq ($(UNAME_S),Darwin)
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
 		--set edition=k8s-ce:latest \
-		--set apigateway.image.tag=latest \
-		--set pipeline.image.tag=latest \
-		--set connector.image.tag=latest \
-		--set model.image.tag=latest \
-		--set mgmt.image.tag=latest \
-		--set controller.image.tag=latest \
+		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
+		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
+		--set model.image.tag=${MODEL_BACKEND_VERSION} \
+		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
+		--set controller.image.tag=${CONTROLLER_VERSION} \
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
@@ -339,16 +339,16 @@ ifeq ($(UNAME_S),Darwin)
 	@make down
 endif
 ifeq ($(UNAME_S),Linux)
-	@make build-latest
+	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
-		--set edition=k8s-ce:test \
-		--set apigateway.image.tag=latest \
-		--set pipeline.image.tag=latest \
-		--set connector.image.tag=latest \
-		--set model.image.tag=latest \
-		--set mgmt.image.tag=latest \
-		--set controller.image.tag=latest \
+		--set edition=k8s-ce:latest \
+		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
+		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
+		--set model.image.tag=${MODEL_BACKEND_VERSION} \
+		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
+		--set controller.image.tag=${CONTROLLER_VERSION} \
 		--set apigatewayURL=localhost:8080 \
 		--set consoleURL=localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=localhost:8080
@@ -361,7 +361,7 @@ ifeq ($(UNAME_S),Linux)
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
+	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:release /bin/bash -c " \
 		cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
 		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
 		cd model-backend && make integration-test MODE=localhost && cd ~- && \
