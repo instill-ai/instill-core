@@ -209,6 +209,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set model.image.tag=latest \
 		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
+		--set console.image.tag=latest \
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
@@ -255,6 +256,7 @@ ifeq ($(UNAME_S),Linux)
 		--set model.image.tag=latest \
 		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
+		--set console.image.tag=latest \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=http://localhost:8080
@@ -303,6 +305,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set model.image.tag=${MODEL_BACKEND_VERSION} \
 		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
 		--set controller.image.tag=${CONTROLLER_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
@@ -349,6 +352,7 @@ ifeq ($(UNAME_S),Linux)
 		--set model.image.tag=${MODEL_BACKEND_VERSION} \
 		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
 		--set controller.image.tag=${CONTROLLER_VERSION} \
+		--set console.image.tag=${CONTROLLER_VERSION} \
 		--set apigatewayURL=localhost:8080 \
 		--set consoleURL=localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=localhost:8080
