@@ -251,10 +251,10 @@ ifeq ($(UNAME_S),Linux)
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
-		 --set connector.image.tag=latest \
-		 --set model.image.tag=latest \
-		 --set mgmt.image.tag=latest \
-		  --set controller.image.tag=latest \
+		--set connector.image.tag=latest \
+		--set model.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set controller.image.tag=latest \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=http://localhost:8080
@@ -270,7 +270,7 @@ ifeq ($(UNAME_S),Linux)
 	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
 			cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
 			cd connector-backend && make integration-test MODE=localhost && cd ~- && \
-			 cd model-backend && make integration-test MODE=localhost && cd ~- && \
+			cd model-backend && make integration-test MODE=localhost && cd ~- && \
 			cd mgmt-backend && make integration-test MODE=localhost && cd ~- \
 		"
 	@docker run -it --rm \
