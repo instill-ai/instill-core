@@ -26,7 +26,7 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: connector
       annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/connector/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/connector/configmap.yaml") . | sha256sum }}
         {{- with .Values.connector.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

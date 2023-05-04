@@ -26,7 +26,7 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: pipeline
       annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/pipeline/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/pipeline/configmap.yaml") . | sha256sum }}
         {{- with .Values.pipeline.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
