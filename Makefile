@@ -255,9 +255,9 @@ ifeq ($(UNAME_S),Linux)
  		--set model.image.tag=latest \
  		--set mgmt.image.tag=latest \
   		--set controller.image.tag=latest \
- 		--set apigatewayURL=localhost:8080 \
-		--set consoleURL=localhost:3000 \
-		--set console.serverApiGatewayBaseUrl=localhost:8080
+		--set apigatewayURL=http://localhost:8080 \
+		--set consoleURL=http://localhost:3000 \
+		--set console.serverApiGatewayBaseUrl=http://localhost:8080
 	@sleep 1
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
