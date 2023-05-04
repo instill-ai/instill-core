@@ -292,13 +292,13 @@ ifeq ($(UNAME_S),Linux)
 	@make down
 endif
 
-.PHONY: helm-integration-test-release
+.PHONY: helm-integration-test-release	
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
 ifeq ($(UNAME_S),Darwin)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
-		--set edition=k8s-ce:latest \
+		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
@@ -345,14 +345,14 @@ ifeq ($(UNAME_S),Linux)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
 		--set itMode=true \
-		--set edition=k8s-ce:latest \
+		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
 		--set model.image.tag=${MODEL_BACKEND_VERSION} \
 		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
 		--set controller.image.tag=${CONTROLLER_VERSION} \
-		--set console.image.tag=${CONTROLLER_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
 		--set apigatewayURL=localhost:8080 \
 		--set consoleURL=localhost:3000 \
 		--set console.serverApiGatewayBaseUrl=localhost:8080
@@ -380,7 +380,7 @@ ifeq ($(UNAME_S),Linux)
 		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
 		--network host \
 		--entrypoint ./entrypoint-playwright.sh \
-		--name console-helm-integration-test-latest \
+		--name console-helm-integration-release \
 		instill/console-playwright:${CONSOLE_VERSION}
 	@helm uninstall vdp --namespace vdp
 	@kubectl delete namespace vdp
