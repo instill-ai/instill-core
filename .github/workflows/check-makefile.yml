@@ -18,9 +18,9 @@ jobs:
         uses: actions/checkout@v3
         with:
          repository: instill-ai/vdp
-      - name: verify 1
+      - name: a
         run: |
-          docker images && df -h
+          git checkout deniz/ins-562-helm-integration-test
         shell: bash
       - name: Download and install Helm
         run: |
@@ -40,4 +40,6 @@ jobs:
       - name: Change to repository directory
         run: cd ${{ github.workspace }}
       - name: Run make test
-        run: make all
+        run: make -v
+      - name: check make
+        run: make helm-integration-test-release
