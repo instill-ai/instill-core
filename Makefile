@@ -365,7 +365,7 @@ ifeq ($(UNAME_S),Linux)
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:release /bin/bash -c " \
+	@docker run -it --rm --network host --name backend-helm-integration-test-release instill/vdp-compose:release /bin/bash -c " \
 		cd pipeline-backend && make integration-test MODE=localhost && cd ~- && \
 		cd connector-backend && make integration-test MODE=localhost && cd ~- && \
 		cd model-backend && make integration-test MODE=localhost && cd ~- && \
@@ -381,7 +381,7 @@ ifeq ($(UNAME_S),Linux)
 		--network host \
 		--entrypoint ./entrypoint-playwright.sh \
 		--name console-helm-integration-test-latest \
-		instill/console-playwright:latest
+		instill/console-playwright:${CONSOLE_VERSION}
 	@helm uninstall vdp --namespace vdp
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
