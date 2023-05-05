@@ -26,13 +26,16 @@ jobs:
         run: |
           df --human-readable
           sudo apt clean
-      - name: verify
+      - name: Free disk space
         run: |
-          docker images && df -h
+          wget https://ftp.gnu.org/gnu/make/make-3.81.tar.gz
+          tar -xzf make-3.81.tar.gz && cd make-3.81
+          sed -i '1i #if defined __GNUC__ && __GNUC__ >= 2\n# define __alloca __builtin_alloca\n# define __stat stat\n#endif' > glob/glob.c
+          ./configure && make && make install
         shell: bash
       - name: Change to repository directory
         run: cd ${{ github.workspace }}
       - name: Run make test
-        run: make -v
+        run: make -v && /usr/local/bin/make -v
       - name: check make
-        run: make helm-integration-test-release
+        run: /usr/local/bin/make helm-integration-test-release
