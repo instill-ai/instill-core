@@ -14,22 +14,16 @@ jobs:
         uses: actions/checkout@v3
         with:
          repository: instill-ai/vdp
-         ref: deniz/ins-590-check-makefile
+         ref: main
       - name: Download and install Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
           chmod 700 get_helm.sh
           ./get_helm.sh
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /usr/share/dotnet && rm -rf /opt/ghc && rm -rf "/usr/local/share/boost" &&  rm -rf "$AGENT_TOOLSDIRECTORY"
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-      - name: Free disk space
+      - name: make 3
         run: |
           wget https://ftp.gnu.org/gnu/make/make-3.81.tar.gz
-          tar -xzf make-3.81.tar.gz && cd make-3.81
+          tar -xzf make-3.81.tar.gz && cd make-3.81 && ls -l
           sed -i '1i #if defined __GNUC__ && __GNUC__ >= 2\n# define __alloca __builtin_alloca\n# define __stat stat\n#endif' > glob/glob.c
           ./configure && make && make install
         shell: bash
