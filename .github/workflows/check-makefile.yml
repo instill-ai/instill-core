@@ -25,7 +25,7 @@ jobs:
           wget https://ftp.gnu.org/gnu/make/make-3.81.tar.gz
           tar -xzf make-3.81.tar.gz && cd make-3.81 && ls -l
           sed -i '1i #if defined __GNUC__ && __GNUC__ >= 2\n# define __alloca __builtin_alloca\n# define __stat stat\n#endif' glob/glob.c
-          ./configure && make && make install
+          sudo ./configure && sudo make && sudo make install
         shell: bash
       - name: Change to repository directory
         run: cd ${{ github.workspace }}
