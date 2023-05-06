@@ -69,7 +69,7 @@
     }
   },
   {
-    "id": "stable-diffusion-2-fp32-txt2img",
+    "id": "stable-diffusion-1-5-fp16-txt2img",
     "description": "Stable Diffusion v2 generates high quality images based on text prompts.",
     "task": "TASK_TEXT_TO_IMAGE",
     "model_definition": "model-definitions/github",
