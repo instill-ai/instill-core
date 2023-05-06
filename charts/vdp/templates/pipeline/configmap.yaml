@@ -22,6 +22,7 @@ data:
     connectorbackend:
       host: {{ template "vdp.connector" . }}
       publicport: {{ template "vdp.connector.publicPort" . }}
+      privateport: {{ template "vdp.connector.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/connector/tls.crt
@@ -30,6 +31,7 @@ data:
     modelbackend:
       host: {{ template "vdp.model" . }}
       publicport: {{ template "vdp.model.publicPort" . }}
+      privateport: {{ template "vdp.model.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/model/tls.crt
