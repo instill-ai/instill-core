@@ -735,7 +735,7 @@ triton:
     spec:
       minAvailable:
       maxUnavailable:
-  nvidiaVisibleDevices:
+  nvidiaVisibleDevices: all
   condaEnv:
     image:
       repository: instill/triton-conda-env

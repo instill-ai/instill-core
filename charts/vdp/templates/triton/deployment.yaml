@@ -104,7 +104,7 @@ spec:
               mountPath: /model-repository
           env:
             - name: NVIDIA_VISIBLE_DEVICES
-              value: {{ .Values.triton.nvidiaVisibleDevices }}
+              value: "{{ .Values.triton.nvidiaVisibleDevices }}"
             {{- if .Values.triton.extraEnv }}
             {{- toYaml .Values.triton.extraEnv | nindent 12 }}
             {{- end }}
