@@ -226,14 +226,14 @@ persistence:
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 10Gi
+      size: 50Gi
       annotations: {}
     condaPack:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
-      size: 2Gi
+      size: 10Gi
       annotations: {}
     # If external database is used, the following settings for database will be ignored
     database:
