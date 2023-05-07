@@ -270,10 +270,10 @@ ifeq ($(UNAME_S),Linux)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- \
+		cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd model-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd mgmt-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
@@ -366,10 +366,10 @@ ifeq ($(UNAME_S),Linux)
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
 	@docker run -it --rm --network host --name backend-helm-integration-test-release instill/vdp-compose:release /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- \
+		cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd model-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
+		cd mgmt-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- \
 		"
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
