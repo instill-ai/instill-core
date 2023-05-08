@@ -779,10 +779,10 @@ database:
   affinity: {}
   # -- The maximum number of connections in the idle connection pool per pod.
   # If it <=0, no idle connections are retained.
-  maxIdleConns: 100
+  maxIdleConns: 5
   # -- The maximum number of open connections to the database per pod.
   # If it <= 0, then there is no limit on the number of open connections.
-  maxOpenConns: 1024
+  maxOpenConns: 10
   # -- The maximum amount of time in minutes a connection may be reused.
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
