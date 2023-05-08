@@ -40,6 +40,16 @@
     }
   },
   {
+    "id": "stomata-mask-rcnn",
+    "description": "The instance segmentation model based on Mask R-CNN from Detectron2, fine-tuned on the 'stomata200-mix' dataset with 1 object class 'stomata'.",
+    "task": "TASK_INSTANCE_SEGMENTATION",
+    "model_definition": "model-definitions/github",
+    "configuration": {
+      "repository": "instill-ai/model-stomata-instance-segmentation-dvc",
+      "tag": "v2.0-gpu"
+    }
+  },
+  {
     "id": "lraspp",
     "description": "A semantic segmentation model based on MobileNetV3 from the OpenMMLab semantic segmentation toolbox and benchmark.",
     "task": "TASK_SEMANTIC_SEGMENTATION",
