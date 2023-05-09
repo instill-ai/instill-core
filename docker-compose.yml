@@ -407,6 +407,7 @@ services:
   elasticsearch:
     container_name: ${ELASTICSEARCH_HOST}
     image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
+    restart: unless-stopped
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
       - cluster.routing.allocation.disk.watermark.low=512mb
@@ -444,7 +445,7 @@ services:
   temporal_admin_tools:
     container_name: ${TEMPORAL_HOST}-admin-tools
     image: temporalio/admin-tools:${TEMPORAL_VERSION}
-    restart: unless-stopped
+    restart: on-failure
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     entrypoint: /bin/bash
@@ -482,6 +483,7 @@ services:
   socat:
     container_name: ${SOCAT_HOST}
     image: ${SOCAT_IMAGE}:${SOCAT_VERSION}
+    restart: unless-stopped
     command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
     user: root
     volumes:
