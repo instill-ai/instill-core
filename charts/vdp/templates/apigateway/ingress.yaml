@@ -2,9 +2,15 @@
 {{- $ingress := .Values.expose.ingress -}}
 {{- $tls := .Values.expose.tls -}}
 {{- if eq $ingress.controller "gce" }}
-  {{- $_ := set . "rootPath" "/*" -}}
+{{- $_ := set . "rootPath" "/*" -}}
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: vdp
+spec:
+  timeoutSec: 60
 {{- else }}
-  {{- $_ := set . "rootPath" "/" -}}
+{{- $_ := set . "rootPath" "/" -}}
 {{- end }}
 ---
 {{- if semverCompare "<1.14-0" (include "vdp.ingress.kubeVersion" .) }}
