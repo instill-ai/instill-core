@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.3-alpha](https://github.com/instill-ai/vdp/compare/v0.9.2-alpha...v0.9.3-alpha) (2023-05-11)
+
+
+### Miscellaneous Chores
+
+* **release:** release 0.9.3-alpha ([43176f7](https://github.com/instill-ai/vdp/commit/43176f7372f0204088d9feb4a0b9d206721e53c7))
+
 ## [0.9.2-alpha](https://github.com/instill-ai/vdp/compare/v0.9.1-alpha...v0.9.2-alpha) (2023-04-30)
 
 
