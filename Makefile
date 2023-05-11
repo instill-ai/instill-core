@@ -7,7 +7,7 @@ include .env
 export
 
 TRITON_CONDA_ENV_PLATFORM := cpu
-TRITON_NVIDIA_VISIBLE_DEVICES := 
+TRITON_NVIDIA_VISIBLE_DEVICES :=
 ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 	TRITONSERVER_RUNTIME := nvidia
 	TRITON_CONDA_ENV_PLATFORM := gpu
@@ -218,7 +218,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
 	@sleep 1
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
@@ -265,7 +265,7 @@ ifeq ($(UNAME_S),Linux)
 		--set consoleURL=http://localhost:3000
 	@sleep 1
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
@@ -295,7 +295,7 @@ ifeq ($(UNAME_S),Linux)
 	@make down
 endif
 
-.PHONY: helm-integration-test-release	
+.PHONY: helm-integration-test-release
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
 ifeq ($(UNAME_S),Darwin)
 	@make build-release
@@ -315,7 +315,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
 	@sleep 1
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
@@ -362,7 +362,7 @@ ifeq ($(UNAME_S),Linux)
 		--set consoleURL=http://localhost:3000
 	@sleep 1
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=300s || true
+		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
