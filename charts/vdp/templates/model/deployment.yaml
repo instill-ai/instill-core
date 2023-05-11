@@ -95,7 +95,7 @@ spec:
             - name: config
               mountPath: {{ .Values.model.configPath }}
               subPath: config.yaml
-        - name: wait-for-dependencies
+        - name: wait-for-mgmt-backend
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
           args:
@@ -106,6 +106,17 @@ spec:
               value: "{{ template "vdp.mgmt" . }}"
             - name: MGMT_BACKEND_PORT
               value: "{{ template "vdp.mgmt.publicPort" . }}"
+        - name: wait-for-triton-server
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${TRITON_SERVER_HOST}:${TRITON_SERVER_HTTP_PORT}/v2/health/ready)" != "200" ]]; do echo waiting for triton-server; sleep 1; done
+          env:
+            - name: TRITON_SERVER_HOST
+              value: "{{ template "vdp.triton" . }}"
+            - name: TRITON_SERVER_HTTP_PORT
+              value: "{{ template "vdp.triton.httpPort" . }}"           
         - name: chmod-model-repostiroy
           securityContext:
             runAsUser: 0
