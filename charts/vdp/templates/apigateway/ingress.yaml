@@ -6,7 +6,7 @@
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
-  name: vdp
+  name: vdp-backend-config
 spec:
   timeoutSec: 60
 {{- else }}

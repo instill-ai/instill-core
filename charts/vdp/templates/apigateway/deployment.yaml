@@ -54,15 +54,15 @@ spec:
           readinessProbe:
             httpGet:
               path: /__health
-              scheme: {{ upper (ternary "https" "http" .Values.internalTLS.enabled) }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              scheme: {{ upper (ternary "https" "http" .Values.apigateway.enableTLS) }}
+              port: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /__health
-              scheme: {{ upper (ternary "https" "http" .Values.internalTLS.enabled) }}
-              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              scheme: {{ upper (ternary "https" "http" .Values.apigateway.enableTLS) }}
+              port: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
             initialDelaySeconds: 5
             periodSeconds: 10
           {{- if .Values.apigateway.resources }}
@@ -79,7 +79,7 @@ spec:
             {{- end }}
               --config krakend.json
           ports:
-            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+            - name: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
               containerPort: {{ template "vdp.apigateway.httpPort" . }}
               protocol: TCP
             - name: stats
@@ -92,9 +92,10 @@ spec:
             - name: config
               mountPath: {{ .Values.apigateway.configPath }}
               subPath: ".env"
-            {{- if .Values.internalTLS.enabled }}
-            - name: apigateway-internal-certs
-              mountPath: "/etc/vdp/ssl/apigateway"
+            {{- if .Values.apigateway.enableTLS }}
+            - name: vdp-apigateway-internal-tls
+              mountPath: "/etc/vdp/ssl/api-gateway"
+              readOnly: true
             {{- end }}
             {{- with .Values.apigateway.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -110,10 +111,15 @@ spec:
         - name: config
           configMap:
             name: {{ template "vdp.apigateway" . }}
-        {{- if .Values.internalTLS.enabled }}
-        - name: apigateway-internal-certs
+        {{- if .Values.apigateway.enableTLS }}
+        - name: vdp-apigateway-internal-tls
           secret:
             secretName: {{ template "vdp.internalTLS.apigateway.secretName" . }}
+            items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
         {{- end }}
         {{- with .Values.apigateway.extraVolumes }}
         {{- toYaml . | nindent 8 }}

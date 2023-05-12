@@ -259,6 +259,8 @@ apigateway:
     pullPolicy: Always
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
+  # -- Enable TLS for api-gateway or not
+  enableTLS: false
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
