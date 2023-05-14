@@ -6,12 +6,27 @@
 include .env
 export
 
-TRITON_CONDA_ENV_PLATFORM := cpu
-TRITON_NVIDIA_VISIBLE_DEVICES :=
+# NVIDIA_GPU_AVAILABLE:
+# 	The env variable NVIDIA_GPU_AVAILABLE is set to true if NVIDIA GPU is available. Otherwise, it will be set to false.
+# TRITON_CONDA_ENV_PLATFORM:
+# 	By default, the env variable TRITON_CONDA_ENV_PLATFORM is set to cpu, if NVIDIA GPU is available, it will be set to gpu.
+# 	Specify the env variable TRITON_CONDA_ENV_PLATFORM to override the default value.
+# NVIDIA_VISIBLE_DEVICES:
+# 	By default, the env variable NVIDIA_VISIBLE_DEVICES is set to all if NVIDIA GPU is available. Otherwise, it is unset.
+#	Specify the env variable NVIDIA_VISIBLE_DEVICES to override the default value.
+TRITON_CONDA_ENV_PLATFORM := ${TRITON_CONDA_ENV_PLATFORM}
+NVIDIA_VISIBLE_DEVICES := ${NVIDIA_VISIBLE_DEVICES}
 ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
-	TRITONSERVER_RUNTIME := nvidia
-	TRITON_CONDA_ENV_PLATFORM := gpu
-	TRITON_NVIDIA_VISIBLE_DEVICES := all
+	NVIDIA_GPU_AVAILABLE := true
+	ifndef TRITON_CONDA_ENV_PLATFORM
+		TRITON_CONDA_ENV_PLATFORM := gpu
+	endif
+	ifndef NVIDIA_VISIBLE_DEVICES
+		NVIDIA_VISIBLE_DEVICES := all
+	endif
+else
+	NVIDIA_GPU_AVAILABLE := false
+	TRITON_CONDA_ENV_PLATFORM := cpu
 endif
 
 UNAME_S := $(shell uname -s)
@@ -20,15 +35,29 @@ UNAME_S := $(shell uname -s)
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
+ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+		EDITION=local-ce docker compose -f docker-compose.yml -f - up -d --quiet-pull
+	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+		EDITION=local-ce docker compose -f docker-compose.yml -f - rm -f
+else
 	@EDITION=local-ce docker compose up -d --quiet-pull
 	@EDITION=local-ce docker compose rm -f
+endif
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
+ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml -f - up -d --quiet-pull
+	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml  -f - rm -f
+else
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+endif
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -212,7 +241,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
 		--set console.image.tag=latest \
-		--set triton.nvidiaVisibleDevices=${TRITON_NVIDIA_VISIBLE_DEVICES} \
+		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
@@ -260,7 +289,7 @@ ifeq ($(UNAME_S),Linux)
 		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
 		--set console.image.tag=latest \
-		--set triton.nvidiaVisibleDevices=${TRITON_NVIDIA_VISIBLE_DEVICES} \
+		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
 	@sleep 1
@@ -309,7 +338,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
 		--set controller.image.tag=${CONTROLLER_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set triton.nvidiaVisibleDevices=${TRITON_NVIDIA_VISIBLE_DEVICES} \
+		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
@@ -357,7 +386,7 @@ ifeq ($(UNAME_S),Linux)
 		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
 		--set controller.image.tag=${CONTROLLER_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set triton.nvidiaVisibleDevices=${TRITON_NVIDIA_VISIBLE_DEVICES} \
+		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
 	@sleep 1
