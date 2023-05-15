@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  triton_server:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: []
+              capabilities: [gpu]

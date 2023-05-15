@@ -64,7 +64,9 @@ Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud.
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
-- **(Optional) NVIDIA Container Toolkit** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install NVIDIA Container Toolkit. If you'd like to specifically allot GPUs to VDP, you can set the environment variable [NVIDIA_VISIBLE_DEVICES](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#gpu-enumeration) in the [.env](https://github.com/instill-ai/vdp/blob/main/.env) file.
+- `yq` > `v4.x`. Please follow the installation [guide](https://github.com/mikefarah/yq/#install).
+- **(Optional) NVIDIA Container Toolkit** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install NVIDIA Container Toolkit. If you'd like to specifically allot GPUs to VDP, you can set the environment variable `NVIDIA_VISIBLE_DEVICES`. For example, `NVIDIA_VISIBLE_DEVICES=0,1` will make the `triton-server` consume GPU device id `0` and `1` specifically. By default `NVIDIA_VISIBLE_DEVICES` is set to `all` to use all available GPUs on the machine.
+
 ## Quick start
 
 Execute the following commands to start pre-built images with all the dependencies:
