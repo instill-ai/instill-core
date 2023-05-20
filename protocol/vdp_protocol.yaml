@@ -5,7 +5,7 @@ title: VDP Protocol
 type: object
 description: VDP Protocol structs
 additionalProperties: true
-anyOf:
+oneOf:
   - required:
       - classification
   - required:
@@ -56,182 +56,349 @@ definitions:
   Classification:
     type: object
     additionalProperties: false
-    required:
-      - category
-      - score
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      category:
-        description: "The predicted category of the input"
-        type: string
-      score:
-        description: "The confidence score of the predicted category of the input"
-        type: number
-  Detection:
-    type: object
-    additionalProperties: false
-    required:
-      - objects
-    properties:
-      objects:
-        description: "A list of detected objects"
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
-            - bounding_box
             - category
             - score
           properties:
-            bounding_box:
-              "$ref": "#/definitions/BoundingBox"
             category:
-              description: "The predicted category of the bounding box"
+              description: "The predicted category of the input"
               type: string
             score:
-              description: "The confidence score of the predicted category of the bounding box"
+              description: "The confidence score of the predicted category of the input"
               type: number
-  Keypoint:
+  Detection:
     type: object
-    additionalProperties: true
-    required:
-      - objects
+    additionalProperties: false
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      objects:
-        description: "A list of keypoint objects, a keypoint object includes all the pre-defined keypoints of a detected object"
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
-            - keypoints
-            - score
+            - objects
           properties:
-            keypoints:
-              description: "A keypoint group is composed of a list of pre-defined keypoints of a detected object"
+            objects:
+              description: "A list of detected objects"
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required:
+                  - boundingBox
+                  - category
+                  - score
+                properties:
+                  boundingBox:
+                    "$ref": "#/definitions/BoundingBox"
+                  category:
+                    description: "The predicted category of the bounding box"
+                    type: string
+                  score:
+                    description: "The confidence score of the predicted category of the bounding box"
+                    type: number
+  Keypoint:
+    type: object
+    additionalProperties: false
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
+    properties:
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - objects
+          properties:
+            objects:
+              description: "A list of keypoint objects, a keypoint object includes all the pre-defined keypoints of a detected object"
               type: array
               items:
                 type: object
                 required:
-                  - "x"
-                  - "y"
-                  - "v"
+                  - keypoints
+                  - score
                 properties:
-                  x:
-                    description: "x coordinate of the keypoint"
+                  keypoints:
+                    description: "A keypoint group is composed of a list of pre-defined keypoints of a detected object"
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - "x"
+                        - "y"
+                        - "v"
+                      properties:
+                        x:
+                          description: "x coordinate of the keypoint"
+                          type: number
+                        y:
+                          description: "y coordinate of the keypoint"
+                          type: number
+                        v:
+                          description: "visibility score of the keypoint"
+                          type: number
+                  score:
+                    description: "The confidence score of the predicted object"
                     type: number
-                  y:
-                    description: "y coordinate of the keypoint"
-                    type: number
-                  v:
-                    description: "visibility score of the keypoint"
-                    type: number
-            score:
-              description: "The confidence score of the predicted object"
-              type: number
   Ocr:
     type: object
     additionalProperties: false
-    required:
-      - objects
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      objects:
-        description: "A list of detected bounding boxes"
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
-            - bounding_box
-            - text
-            - score
+            - objects
           properties:
-            bounding_box:
-              "$ref": "#/definitions/BoundingBox"
-            text:
-              description: "Text string recognised per bounding box in the `bounding_boxes`"
-              type: string
-            score:
-              description: "The confidence score of the predicted object"
-              type: number
+            objects:
+              description: "A list of detected bounding boxes"
+              type: array
+              items:
+                type: object
+                required:
+                  - boundingBox
+                  - text
+                  - score
+                properties:
+                  boundingBox:
+                    "$ref": "#/definitions/BoundingBox"
+                  text:
+                    description: "Text string recognised per bounding box"
+                    type: string
+                  score:
+                    description: "The confidence score of the predicted object"
+                    type: number
   InstanceSegmentation:
     type: object
     additionalProperties: false
-    required:
-      - objects
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      objects:
-        description: "A list of detected instance bounding boxes"
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
-            - rle
-            - bounding_box
-            - category
-            - score
+            - objects
           properties:
-            rle:
-              description: Run Length Encoding (RLE) of instance mask within the bounding box
-              type: string
-            bounding_box:
-              "$ref": "#/definitions/BoundingBox"
-            category:
-              description: "The predicted category of the bounding box"
-              type: string
-            score:
-              description: "The confidence score of the predicted instance object"
-              type: number
+            objects:
+              description: "A list of detected instance bounding boxes"
+              type: array
+              items:
+                type: object
+                required:
+                  - rle
+                  - boundingBox
+                  - category
+                  - score
+                properties:
+                  rle:
+                    description: Run Length Encoding (RLE) of instance mask within the bounding box
+                    type: string
+                  boundingBox:
+                    "$ref": "#/definitions/BoundingBox"
+                  category:
+                    description: "The predicted category of the bounding box"
+                    type: string
+                  score:
+                    description: "The confidence score of the predicted instance object"
+                    type: number
   SemanticSegmentation:
     type: object
     additionalProperties: false
-    required:
-      - stuffs
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      stuffs:
-        description: "A list of RLE binary masks"
+      input:
+        "$ref": "#/definitions/BatchImage"
+      output:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
-            - rle
-            - category
+            - stuffs
           properties:
-            rle:
-              description: Run Length Encoding (RLE) of each stuff mask within the image
-              type: string
-            category:
-              description: "Category text string corresponding to each stuff mask"
-              type: string
+            stuffs:
+              description: "A list of RLE binary masks"
+              type: array
+              items:
+                type: object
+                required:
+                  - rle
+                  - category
+                properties:
+                  rle:
+                    description: Run Length Encoding (RLE) of each stuff mask within the image
+                    type: string
+                  category:
+                    description: "Category text string corresponding to each stuff mask"
+                    type: string
   TextToImage:
     type: object
     additionalProperties: false
-    required:
-      - images
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
     properties:
-      images:
-        description: "A list of generated images"
-        type: array
-        items:
-          description: "Generated image string in base64 format"
-          type: string
-  TextGeneration:
-    type: object
-    additionalProperties: false
-    required:
-      - text
-    properties:
-      text:
-        description: "Generated text string"
-        type: string
-  Unspecified:
-    type: object
-    additionalProperties: false
-    required:
-      - raw_outputs
-    properties:
-      raw_outputs:
-        description: "The raw output of the model"
+      input:
         type: array
         items:
           type: object
+          additionalProperties: false
+          required:
+            - prompt
+          properties:
+            prompt:
+              description: "The prompt text to generate images"
+              type: string
+            steps:
+              description: "The steps to generate the final images (default 5)"
+              type: number
+            cfgScale:
+              description: "Classifier Free Guidance (CFG) Scale is a measure of how close you want the model to stick to the prompt when looking for a related image to generate (default 7.5)"
+              type: number
+            negativePrompt:
+              description: 'Negative prompt specifies what content should not be in the generated images (default "")'
+              type: string
+            seed:
+              description: "The random seed to generate images (default 0)"
+              type: number
+            samples:
+              description: "The number of generated images (default 1)"
+              type: number
+      output:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - images
+          properties:
+            images:
+              description: "A list of generated images"
+              type: array
+              items:
+                description: "Generated image string in Base64 format"
+                type: string
+  TextGeneration:
+    type: object
+    additionalProperties: false
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
+    properties:
+      input:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - prompt
+          properties:
+            prompt:
+              description: "The prompt text to generate text"
+              type: string
+            outputLength:
+              description: "The maximum number of tokens for model to generate"
+              type: number
+            badWordsList:
+              description: "The words not to avoid being generated by the model"
+              type: string
+            stopWordsList:
+              description: "The trigger words to stop generation"
+              type: string
+            topk:
+              description: "Top k for sampling"
+              type: number
+            seed:
+              description: "The random seed to generate text"
+              type: number
+      output:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - text
+          properties:
+            text:
+              description: "Generated text string"
+              type: string
+  Unspecified:
+    type: object
+    additionalProperties: false
+    oneOf:
+      - required:
+          - input
+      - required:
+          - output
+    properties:
+      input:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - data
+          properties:
+            data:
+              description: "The input data"
+              type: object
+      output:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
           required:
             - name
             - data_type
@@ -253,6 +420,23 @@ definitions:
               description: "The output data"
               type: array
               items: {} # Allow any type
+  BatchImage:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      anyOf:
+        - required:
+            - url
+        - required:
+            - base64
+      properties:
+        url:
+          description: "The URL of the input image"
+          type: string
+        base64:
+          description: "The Base64 encoded string of the input image"
+          type: string
   BoundingBox:
     type: object
     description: "The detected bounding box in (left, top, width, height) format"
