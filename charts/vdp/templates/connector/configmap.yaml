@@ -18,13 +18,6 @@ data:
         cert: /etc/vdp/ssl/connector/tls.crt
         key: /etc/vdp/ssl/connector/tls.key
       {{- end }}
-    worker:
-      mountsource:
-        vdp: /vdp
-        airbyte: /airbyte
-      mounttarget:
-        vdp: /vdp
-        airbyte: /local
     database:
       username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
       password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
@@ -41,13 +34,6 @@ data:
       redis:
         redisoptions:
           addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
-    temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "vdp.temporal" .) (include "vdp.temporal.frontend.grpcPort" .)) .Values.connector.temporal.hostPort }}
-      namespace: {{ default "connector-backend" .Values.connector.temporal.namespace }}
-      ca: {{ default "" .Values.connector.temporal.ca }}
-      cert: {{ default "" .Values.connector.temporal.cert }}
-      key: {{ default "" .Values.connector.temporal.key }}
-      serverName: {{ default "" .Values.connector.temporal.serverName }}
     pipelinebackend:
       host: {{ template "vdp.pipeline" . }}
       publicport: {{ template "vdp.pipeline.publicPort" . }}

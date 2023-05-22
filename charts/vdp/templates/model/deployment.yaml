@@ -116,7 +116,7 @@ spec:
             - name: TRITON_SERVER_HOST
               value: "{{ template "vdp.triton" . }}"
             - name: TRITON_SERVER_HTTP_PORT
-              value: "{{ template "vdp.triton.httpPort" . }}"           
+              value: "{{ template "vdp.triton.httpPort" . }}"
         - name: chmod-model-repostiroy
           securityContext:
             runAsUser: 0

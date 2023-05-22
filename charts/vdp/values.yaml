@@ -375,7 +375,6 @@ connector:
   commandName:
     migration: connector-backend-migrate
     init: connector-backend-init
-    worker: connector-backend-worker
     main: connector-backend
   # -- The path of configuration file for connector-backend
   configPath: /connector-backend/config/config.yaml

@@ -124,29 +124,6 @@ services:
     depends_on:
       - connector_backend_migrate
 
-  connector_backend_worker:
-    container_name: ${CONNECTOR_BACKEND_HOST}-worker
-    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
-    restart: unless-stopped
-    environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
-      CFG_WORKER_MOUNTSOURCE_VDP: vdp
-      CFG_WORKER_MOUNTSOURCE_AIRBYTE: airbyte
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    volumes:
-      - vdp:/vdp
-      - airbyte:/airbyte
-    entrypoint: ./connector-backend-worker
-    depends_on:
-      connector_backend_init:
-        condition: service_completed_successfully
-      temporal:
-        condition: service_healthy
-
   connector_backend:
     container_name: ${CONNECTOR_BACKEND_HOST}
     image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
@@ -169,7 +146,7 @@ services:
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     entrypoint: ./connector-backend
     depends_on:
-      - connector_backend_worker
+      - connector_backend_migrate
 
   model_backend_migrate:
     container_name: ${MODEL_BACKEND_HOST}-migrate
@@ -446,7 +423,7 @@ services:
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     entrypoint: /bin/bash
-    command: "-c 'tctl --namespace connector-backend namespace register >/dev/null 2>&1 && tctl --namespace model-backend namespace register >/dev/null 2>&1'"
+    command: "-c 'tctl --namespace model-backend namespace register >/dev/null 2>&1'"
     depends_on:
       temporal:
         condition: service_healthy
