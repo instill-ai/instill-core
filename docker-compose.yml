@@ -97,6 +97,39 @@ services:
       - temporal
       - redis
 
+  pipeline_backend_worker:
+    container_name: ${PIPELINE_BACKEND_HOST}-worker
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
+      CFG_SERVER_DISABLEUSAGE: ${DISABLEUSAGE}
+      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_CONNECTORBACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
+      CFG_CONNECTORBACKEND_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
+      CFG_CONNECTORBACKEND_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
+      CFG_MODELBACKEND_HOST: ${MODEL_BACKEND_HOST}
+      CFG_MODELBACKEND_PRIVATEPORT: ${MODEL_BACKEND_PRIVATEPORT}
+      CFG_MODELBACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
+    entrypoint: ./pipeline-backend-worker
+    depends_on:
+      pipeline_backend_migrate:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
   connector_backend_migrate:
     container_name: ${CONNECTOR_BACKEND_HOST}-migrate
     image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
@@ -429,7 +462,7 @@ services:
     environment:
       TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     entrypoint: /bin/bash
-    command: "-c 'tctl --namespace model-backend namespace register >/dev/null 2>&1'"
+    command: "-c 'tctl --namespace model-backend namespace register >/dev/null 2>&1 && tctl --namespace pipeline-backend namespace register >/dev/null 2>&1'"
     depends_on:
       temporal:
         condition: service_healthy

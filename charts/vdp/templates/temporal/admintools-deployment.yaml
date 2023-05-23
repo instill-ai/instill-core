@@ -70,6 +70,7 @@ spec:
               fi &&
               until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
               tctl --namespace model-backend namespace register &&
+              tctl --namespace pipeline-backend namespace register &&
               tail -f /dev/null
           ports:
             - name: http

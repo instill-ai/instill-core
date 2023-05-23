@@ -316,10 +316,19 @@ pipeline:
   commandName:
     migration: pipeline-backend-migrate
     main: pipeline-backend
+    worker: pipeline-backend-worker
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 1
+  dbVersion: 2
+  # -- The configuration of Temporal Cloud
+  temporal:
+    hostPort:
+    namespace:
+    ca:
+    cert:
+    key:
+    serverName:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token

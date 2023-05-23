@@ -56,6 +56,21 @@ spec:
             - name: PGUSER
               value: {{ template "vdp.database.username" . }}
         {{- end }}
+        {{- if .Values.temporal.enabled }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
+        {{- end }}
         - name: pipeline-backend-migration
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
           imagePullPolicy: {{ .Values.pipeline.image.pullPolicy }}
@@ -93,6 +108,25 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
+        - name: pipeline-backend-worker
+          image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
+          imagePullPolicy: {{ .Values.pipeline.image.pullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 120
+            tcpSocket:
+              port: rpc
+          {{- if .Values.pipeline.resources }}
+          resources:
+            {{- toYaml .Values.pipeline.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipeline.commandName.worker }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipeline.configPath }}
+              subPath: config.yaml
+            {{- with .Values.pipeline.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         - name: pipeline-backend
           image: {{ .Values.pipeline.image.repository }}:{{ .Values.pipeline.image.tag }}
           imagePullPolicy: {{ .Values.pipeline.image.pullPolicy }}
