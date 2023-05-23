@@ -140,10 +140,17 @@ spec:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.connector.publicPort" . }}
               protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
           volumeMounts:
             - name: config
               mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/vdp/ssl/connector"

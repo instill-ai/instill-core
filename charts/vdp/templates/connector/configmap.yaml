@@ -18,6 +18,13 @@ data:
         cert: /etc/vdp/ssl/connector/tls.crt
         key: /etc/vdp/ssl/connector/tls.key
       {{- end }}
+    container:
+      mountsource:
+        vdp: /vdp
+        airbyte: /airbyte
+      mounttarget:
+        vdp: /vdp
+        airbyte: /local
     database:
       username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
       password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
