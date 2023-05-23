@@ -167,10 +167,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-migration" (include "vdp.connector" .) -}}
 {{- end -}}
 
-{{- define "vdp.connector.worker" -}}
-  {{- printf "%s-worker" (include "vdp.connector" .) -}}
-{{- end -}}
-
 {{- define "vdp.model" -}}
   {{- printf "%s-model" (include "vdp.fullname" .) -}}
 {{- end -}}

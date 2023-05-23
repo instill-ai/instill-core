@@ -64,17 +64,6 @@ services:
       - controller
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
-  connector_backend_worker:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - model
-      - mgmt
-      - console
-      - controller
-    image: ${CONNECTOR_BACKEND_IMAGE}:latest
-
   connector_backend:
     profiles:
       - all

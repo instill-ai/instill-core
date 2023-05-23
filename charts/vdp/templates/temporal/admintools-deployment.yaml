@@ -69,7 +69,6 @@ spec:
                 SQL_DATABASE=temporal_visibility temporal-sql-tool update -schema-dir schema/postgresql/v96/visibility/versioned
               fi &&
               until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
-              tctl --namespace connector-backend namespace register &&
               tctl --namespace model-backend namespace register &&
               tail -f /dev/null
           ports:

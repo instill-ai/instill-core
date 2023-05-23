@@ -56,21 +56,6 @@ spec:
             - name: PGUSER
               value: {{ template "vdp.database.username" . }}
         {{- end }}
-        {{- if .Values.temporal.enabled }}
-        - name: temporal-admin-tools
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
-          command: ["/bin/bash", "-c"]
-          args:
-            - >
-              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
-          env:
-            - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "vdp.temporal" . }}-frontend:{{ template "vdp.temporal.frontend.grpcPort" . }}"
-        {{- end }}
         - name: connector-backend-migration
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
           imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
@@ -129,32 +114,6 @@ spec:
               mountPath: /vdp
             - name: airbyte
               mountPath: /airbyte
-        - name: connector-backend-worker
-          image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
-          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
-          livenessProbe:
-            initialDelaySeconds: 120
-            tcpSocket:
-              port: rpc
-          {{- if .Values.connector.resources }}
-          resources:
-            {{- toYaml .Values.connector.resources | nindent 12 }}
-          {{- end }}
-          command: [./{{ .Values.connector.commandName.worker }}]
-          env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
-          volumeMounts:
-            - name: config
-              mountPath: {{ .Values.connector.configPath }}
-              subPath: config.yaml
-            - name: vdp
-              mountPath: /vdp
-            - name: airbyte
-              mountPath: /airbyte
-            {{- with .Values.connector.extraVolumeMounts }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
         - name: connector-backend
           image: {{ .Values.connector.image.repository }}:{{ .Values.connector.image.tag }}
           imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
@@ -181,10 +140,17 @@ spec:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.connector.publicPort" . }}
               protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
           volumeMounts:
             - name: config
               mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/vdp/ssl/connector"
