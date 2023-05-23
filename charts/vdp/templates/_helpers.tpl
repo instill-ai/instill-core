@@ -159,6 +159,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-migration" (include "vdp.pipeline" .) -}}
 {{- end -}}
 
+{{- define "vdp.pipeline.worker" -}}
+  {{- printf "%s-worker" (include "vdp.pipeline" .) -}}
+{{- end -}}
+
 {{- define "vdp.connector" -}}
   {{- printf "%s-connector" (include "vdp.fullname" .) -}}
 {{- end -}}

@@ -72,5 +72,9 @@ data:
         redisoptions:
           addr: {{ default (include "vdp.redis.addr" .) .Values.redis.external.addr }}
     temporal:
-      clientoptions:
-        hostport: {{ template "vdp.temporal" . }}-frontend-headless:{{ template "vdp.temporal.frontend.grpcPort" . }}
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "vdp.temporal" .) (include "vdp.temporal.frontend.grpcPort" .)) .Values.pipeline.temporal.hostPort }}
+      namespace: {{ default "pipeline-backend" .Values.pipeline.temporal.namespace }}
+      ca: {{ default "" .Values.pipeline.temporal.ca }}
+      cert: {{ default "" .Values.pipeline.temporal.cert }}
+      key: {{ default "" .Values.pipeline.temporal.key }}
+      serverName: {{ default "" .Values.pipeline.temporal.serverName }}

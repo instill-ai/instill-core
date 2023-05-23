@@ -41,6 +41,20 @@ services:
     ports:
       - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
       - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
+  
+  pipeline_backend_worker:
+    profiles:
+      - all
+      - api-gateway
+      - connector
+      - model
+      - console
+      - mgmt
+      - controller
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
 
   connector_backend_migrate:
     profiles:
