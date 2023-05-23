@@ -129,6 +129,9 @@ services:
     image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: unless-stopped
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
+      CFG_CONTAINER_MOUNTSOURCE_VDP: vdp
+      CFG_CONTAINER_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_SERVER_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
@@ -145,6 +148,9 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
     entrypoint: ./connector-backend
+    volumes:
+      - vdp:/vdp
+      - airbyte:/airbyte
     depends_on:
       - connector_backend_migrate
 
