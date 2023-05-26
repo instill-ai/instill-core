@@ -24,7 +24,7 @@ def trigger_pipeline_url(api_gateway_url: str, pipeline_id: str, image_url: str)
     # Prepare JSON Object
     body = {
         "task_inputs": [
-            {   
+            {
                 "detection": {
                     "image_url": image_url
                 }
@@ -33,7 +33,7 @@ def trigger_pipeline_url(api_gateway_url: str, pipeline_id: str, image_url: str)
     }
 
     return requests.post(
-        f"{api_gateway_url}/pipelines/{pipeline_id}/trigger", 
+        f"{api_gateway_url}/pipelines/{pipeline_id}/triggerSync",
         json=body)
 
 if __name__ == "__main__":
@@ -54,10 +54,10 @@ if __name__ == "__main__":
     # Post HTTP request to the SYNC pipeline
     try:
         resp = trigger_pipeline_url(api_gateway_url, opt.pipeline_id, opt.image_url)
-    
+
     except (ValueError, HTTPError, requests.ConnectionError) as err:
         print("Something wrong with the demo: {}".format(err))
-    
+
     # Parse results from the SYNC pipeline
     boxes_ltwh, categories, scores = parse_detection_response(resp)
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         plt.imshow(img_draw)
         plt.axis('off')
         plt.title("Output image with detection results", fontsize=24)
-        
+
         plt.show()
 
     except (ValueError, HTTPError, requests.ConnectionError) as err:

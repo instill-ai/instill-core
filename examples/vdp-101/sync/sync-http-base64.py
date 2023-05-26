@@ -32,7 +32,7 @@ def trigger_pipeline_base64(api_gateway_url: str, pipeline_id: str, img_string:s
     }
 
     return requests.post(
-        f"{api_gateway_url}/pipelines/{pipeline_id}/trigger", 
+        f"{api_gateway_url}/pipelines/{pipeline_id}/triggerSync",
         json=body)
 
 if __name__ == "__main__":
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     opt = parser.parse_args()
 
     api_gateway_url = opt.api_gateway_url + "/v1alpha"
-    
+
     img_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), opt.image_file)
 
     # Convert JPG to base64 format
@@ -82,6 +82,6 @@ if __name__ == "__main__":
     fig.add_subplot(1, 2, 2)
     plt.imshow(img_draw)
     plt.axis('off')
-    plt.title("Output image with detection resutls", fontsize=24)
-    
+    plt.title("Output image with detection results", fontsize=24)
+
     plt.show()

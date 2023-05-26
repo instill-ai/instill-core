@@ -1,21 +1,15 @@
 import os
 import sys
-import typing
 import pathlib
 import argparse
 import shutil
 from os import listdir, path
 from os.path import isfile, join
-from typing import Final, Any, List, Dict, Tuple
 
 import ffmpeg
 import requests
-import numpy as np
 from tqdm import tqdm
-from tqdm.contrib import tzip
 from google.cloud import storage
-
-from utils import draw_detection
 
 
 ############################################################################
@@ -102,7 +96,7 @@ def trigger_pipeline_multipart(api_gateway_url: str, pipeline_id: str, img_folde
     body = [("file", (img_name, open(os.path.join(img_folder, img_name), 'rb'))) for img_name in img_names]
 
     return requests.post(
-        f"{api_gateway_url}/pipelines/{pipeline_id}/trigger-multipart", 
+        f"{api_gateway_url}/pipelines/{pipeline_id}/triggerAsyncMultipart",
         files=body)
 
 ############################################################################

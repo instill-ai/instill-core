@@ -67,7 +67,7 @@ def trigger_detection_pipeline(api_gateway_url: str, pipeline_id: str, image_url
         ]
     }
 
-    return requests.post("{}/pipelines/{}/trigger".format(api_gateway_url, pipeline_id), json=body)
+    return requests.post("{}/pipelines/{}/triggerSync".format(api_gateway_url, pipeline_id), json=body)
 
 
 def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"):
@@ -99,8 +99,8 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
     # Demo
 
     To spice things up, we use open-source [VDP](https://github.com/instill-ai/vdp) to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference:
-    1. https://demo.instill.tech/v1alpha/pipelines/yolov4/trigger
-    2. https://demo.instill.tech/v1alpha/pipelines/yolov7/trigger
+    1. https://demo.instill.tech/v1alpha/pipelines/yolov4/triggerSync
+    2. https://demo.instill.tech/v1alpha/pipelines/yolov7/triggerSync
 
     Let's trigger two pipelines with an input image each:
 
@@ -131,7 +131,7 @@ def display_trigger_request_code():
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{api_gateway_url}/pipelines/<pipeline-id>/trigger' \\
+        curl -X POST '{api_gateway_url}/pipelines/<pipeline-id>/triggerSync' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
             "task_inputs": [
@@ -212,7 +212,7 @@ if __name__ == "__main__":
         cols = st.columns(len(pipeline_ids))
         for col, (resp, _, _, _) in zip(cols, pipeline_results):
             if resp.status_code == 200:
-                with col.expander(f"POST /pipelines/{pipeline_id}/trigger response"):
+                with col.expander(f"POST /pipelines/{pipeline_id}/triggerSync response"):
                     st.json(resp.json())
 
         # Display VDP markdown (full column)

@@ -68,7 +68,7 @@ def trigger_pipeline(api_gateway_url: str, pipeline_id: str, image_url: str) -> 
         ]
     }
 
-    return requests.post("{}/pipelines/{}/trigger".format(api_gateway_url, pipeline_id), json=body)
+    return requests.post("{}/pipelines/{}/triggerSync".format(api_gateway_url, pipeline_id), json=body)
 
 def display_intro_markdown(pipeline_id="inst"):
     r""" Display Markdown about demo introduction
@@ -97,7 +97,7 @@ def display_intro_markdown(pipeline_id="inst"):
 
     We use open-source [VDP](https://github.com/instill-ai/vdp) to import the [Mask R-CNN](https://github.com/instill-ai/model-instance-segmentation-dvc) model pre-trained on COCO dataset.
 
-    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger`
+    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/triggerSync`
 
 
     """.format(pipeline_id)
@@ -126,7 +126,7 @@ def display_trigger_request_code(pipeline_id):
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{api_gateway_url}/pipelines/{pipeline_id}/trigger' \\
+        curl -X POST '{api_gateway_url}/pipelines/{pipeline_id}/triggerSync' \\
         --header 'Content-Type: application/json' \\
         --data-raw '{{
             "task_inputs": [
@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
             display_trigger_request_code(pipeline_id)
             # Show trigger pipeline response
-            with st.expander(f"POST /pipelines/{pipeline_id}/trigger response"):
+            with st.expander(f"POST /pipelines/{pipeline_id}/triggerSync response"):
                     st.json(resp.json())
 
         else:
