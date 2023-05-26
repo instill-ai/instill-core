@@ -62,7 +62,7 @@ def trigger_pipeline(api_gateway_url: str, pipeline_id: str, file: BytesIO, file
         pipeline trigger result
 
     """
-    return requests.post("{}/pipelines/{}/trigger-multipart".format(api_gateway_url, pipeline_id),
+    return requests.post("{}/pipelines/{}/triggerSyncMultipart".format(api_gateway_url, pipeline_id),
                          files=[("file", (filename, file))])
 
 
@@ -93,7 +93,7 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [Instance Segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
 
-    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/trigger:multipart`
+    VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/triggerSyncMultipart`
 
 
     """.format(pipeline_id)
@@ -123,7 +123,7 @@ def display_trigger_request_code(pipeline_id, filename):
     r""" Display Trigger request code block
     """
     request_code = f"""
-        curl -X POST '{api_gateway_url}/pipelines/{pipeline_id}/trigger:multipart' \\
+        curl -X POST '{api_gateway_url}/pipelines/{pipeline_id}/triggerSyncMultipart' \\
         --form 'file=@"{filename}"'
         """
     with st.expander(f"cURL"):
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
         if resp.status_code == 200:
             # Show trigger pipeline response
-            with st.expander(f"POST /pipelines/{pipeline_id}/trigger:multipart response"):
+            with st.expander(f"POST /pipelines/{pipeline_id}/triggerSyncMultipart response"):
                 st.json(resp.json())
 
             boxes_ltwh, rles_str, categories, scores = parse_instance_segmentation_response(

@@ -21,7 +21,7 @@ def trigger_pipeline_multipart(pipeline_backend_base_url: str, pipeline_id: str,
     body = [("file", (img, open(img, 'rb'))) for img in images]
 
     return requests.post(
-        f"{pipeline_backend_base_url}/pipelines/{pipeline_id}/trigger-multipart", 
+        f"{pipeline_backend_base_url}/pipelines/{pipeline_id}/triggerSyncMultipart",
         files=body)
 
 if __name__ == "__main__":
@@ -68,5 +68,5 @@ if __name__ == "__main__":
     fig.add_subplot(1, 2, 2)
     plt.imshow(img_draw)
     plt.axis('off')
-    plt.title("Output image with detection resutls", fontsize=24)
+    plt.title("Output image with detection results", fontsize=24)
     plt.show()
