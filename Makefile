@@ -55,8 +55,8 @@ ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
 		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml  -f - rm -f
 else
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml -f docker-compose.observe.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml -f docker-compose.observe.yml rm -f
 endif
 
 .PHONY: logs
@@ -96,7 +96,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f console-helm-integration-test-latest >/dev/null 2>&1
 	@docker rm -f backend-helm-integration-test-release >/dev/null 2>&1
 	@docker rm -f console-helm-integration-test-release >/dev/null 2>&1
-	@docker compose down -v
+	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
 
 .PHONY: images
 images:			## List all container images

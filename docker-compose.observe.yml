@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  otel_collector:
+    container_name: ${OTEL_COLLECTOR_HOST}
+    image: ${OTEL_COLLECTOR_IMAGE}:${OTEL_COLLECTOR_VERSION}
+    command: --config=/configs/otel-collector-config.yaml
+    volumes:
+        - ./configs:/configs
+    depends_on:
+        - jaeger
+        - prometheus
+
+  jaeger:
+    container_name: ${JAEGER_HOST}
+    image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
+    ports:
+        - ${JAEGER_WEB_PORT}:${JAEGER_WEB_PORT} # Web HTTP
+
+  # Prometheus
+  prometheus:
+    container_name: ${PROMETHEUS_HOST}
+    image: ${PROMETHEUS_IMAGE}:${PROMETHEUS_VERSION}
+    command:
+        - --config.file=/configs/prometheus-config.yaml
+    volumes:
+        - ./configs:/configs
+    ports:
+        - ${PROMETHEUS_WEB_PORT}:${PROMETHEUS_WEB_PORT}

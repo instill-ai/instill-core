@@ -41,8 +41,8 @@ WORKDIR /vdp
 ARG CACHE_DATE
 RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
 
-RUN git clone https://github.com/instill-ai/api-gateway.git
-RUN git clone https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b heiru/ins-777-otel-trace-entrypoint-in-api-gateway https://github.com/instill-ai/api-gateway.git
+RUN git clone -b heiru/ins-526-implement-opentelemetry-in-pipeline https://github.com/instill-ai/pipeline-backend.git
 RUN git clone https://github.com/instill-ai/connector-backend.git
 RUN git clone https://github.com/instill-ai/model-backend.git
 RUN git clone https://github.com/instill-ai/mgmt-backend.git
