@@ -35,10 +35,14 @@ services:
       MODEL_BACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
       MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
       MGMT_BACKEND_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+      INFLUXDB_HOST: ${INFLUXDB_HOST}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
       JAEGER_HOST: ${JAEGER_HOST}
       JAEGER_PORT: ${JAEGER_LISTEN_THRIFT_PORT}
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+      - ${API_GATEWAY_STATS_PORT}:${API_GATEWAY_STATS_PORT}
+      - ${API_GATEWAY_METRICS_PORT}:${API_GATEWAY_METRICS_PORT}
     command: /bin/bash -c "
       envsubst <config/.env.envsubst >config/.env &&
       make config &&
@@ -508,7 +512,7 @@ services:
 
   etcd:
     container_name: ${ETCD_HOST}
-    image: quay.io/coreos/etcd:v${ETCD_VERSION}
+    image: ${ETCD_IMAGE}:v${ETCD_VERSION}
     restart: unless-stopped
     environment:
       ETCD_NAME: ${ETCD_HOST}
