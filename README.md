@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg" alt="Versatile Data Pipeline: open-source unstructured data ETL">
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg" alt="Versatile Data Pipeline: unstructured data ETL">
 </h1>
 
 <h4 align="center">
@@ -26,7 +26,7 @@
 [![License ELv2](https://img.shields.io/badge/License-ELv2%20-blue)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
 
 
-**Versatile Data Pipeline (VDP)** is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline:
+**Versatile Data Pipeline (VDP)** is a source available unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline:
 
 - **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
 
