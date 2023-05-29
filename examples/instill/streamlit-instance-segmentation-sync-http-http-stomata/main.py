@@ -78,7 +78,7 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     # 🥦 Identify stomata by triggering VDP pipeline
 
-    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline end-to-end unstructured data processing
+    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is a source available unstructured data ETL tool to streamline end-to-end unstructured data processing
 
     - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
@@ -91,7 +91,7 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     # Demo
 
-    We use open-source [VDP](https://github.com/instill-ai/vdp) to import an [Instance Segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
+    We use [VDP](https://github.com/instill-ai/vdp) to import an [Instance Segmentation model](https://github.com/instill-ai/model-stomata-instance-segmentation-dvc) fine-tuned on the Stomata dataset collected by [the Agricultural Biotechnology Research Center (ABRC) of Academia Sinica](https://abrc.sinica.edu.tw/faculty/?id=yalin).
 
     VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/triggerSyncMultipart`
 

@@ -82,7 +82,7 @@ def display_intro_markdown(pipeline_id="inst"):
 
     # Instance Segmentation by triggering VDP pipeline
 
-    [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline
+    [Visual Data Preparation (VDP)](https://github.com/instill-ai/vdp) is a source available unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline
 
     - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
@@ -95,7 +95,7 @@ def display_intro_markdown(pipeline_id="inst"):
 
     # Demo
 
-    We use open-source [VDP](https://github.com/instill-ai/vdp) to import the [Mask R-CNN](https://github.com/instill-ai/model-instance-segmentation-dvc) model pre-trained on COCO dataset.
+    We use [VDP](https://github.com/instill-ai/vdp) to import the [Mask R-CNN](https://github.com/instill-ai/model-instance-segmentation-dvc) model pre-trained on COCO dataset.
 
     VDP instantly gives us the endpoint to perform inference: `https://demo.instill.tech/v1alpha/pipelines/{}/triggerSync`
 

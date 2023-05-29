@@ -85,7 +85,7 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
     [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u={}&display=popup&ref=plugin&src=share_button)
     [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/sharing/share-offsite/?url={})
 
-    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is an open-source unstructured data ETL tool to streamline end-to-end unstructured data processing
+    [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is a source available unstructured data ETL tool to streamline end-to-end unstructured data processing
 
     - 🚀 The fastest way to build end-to-end unstructured data pipelines
     - 🖱️ One-click import & deploy ML/DL models
@@ -98,7 +98,7 @@ def display_intro_markdown(demo_url="https://demo.instill.tech/yolov4-vs-yolov7"
 
     # Demo
 
-    To spice things up, we use open-source [VDP](https://github.com/instill-ai/vdp) to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference:
+    To spice things up, we use [VDP](https://github.com/instill-ai/vdp) to import the official [YOLOv4](https://github.com/AlexeyAB/darknet) and [YOLOv7](https://github.com/WongKinYiu/yolov7) models pre-trained with only [MS-COCO](https://cocodataset.org) dataset. VDP instantly gives us the endpoints to perform inference:
     1. https://demo.instill.tech/v1alpha/pipelines/yolov4/triggerSync
     2. https://demo.instill.tech/v1alpha/pipelines/yolov7/triggerSync
 
