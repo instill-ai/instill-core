@@ -14,6 +14,10 @@ data:
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
+      workflow:
+        maxworkflowtimeout: {{ .Values.pipeline.workflow.maxWorkflowTimeout }}
+        maxworkflowretry: {{ .Values.pipeline.workflow.maxWorkflowRetry }}
+        maxactivityretry: {{ .Values.pipeline.workflow.maxActivityRetry }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/pipeline/tls.crt

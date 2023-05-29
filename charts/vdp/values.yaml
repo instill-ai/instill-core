@@ -321,6 +321,11 @@ pipeline:
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
   dbVersion: 2
+  # -- workflow setting
+  workflow:
+    maxWorkflowTimeout: 3600 # in seconds
+    maxWorkflowRetry: 3
+    maxActivityRetry: 1
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
