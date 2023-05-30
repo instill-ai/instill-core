@@ -1260,12 +1260,16 @@ opentelemetry-collector:
           exporters:
             - logging
 prometheus:
+  prometheus-node-exporter:
+    enabled: false
   global:
     evaluation_interval: 10s
     scrape_interval: 5s
   scrape_configs:
-  - job_name: "metric-collector"
-    static_configs:
-    - targets: ['http://vdp-opentelemetry-collector:9001', 'http://vdp-apigateway:9000']
+    - job_name: "metric-collector"
+      static_configs:
+        - targets:
+            - "http://vdp-opentelemetry-collector:9001"
+            - "http://vdp-apigateway:9000"
 tags:
   observability: true
