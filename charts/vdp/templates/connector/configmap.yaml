@@ -67,3 +67,8 @@ data:
       {{- end }}
     usageserver:
       {{- toYaml .Values.usageServer | nindent 6 }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "vdp.otel" . }}
+        port: {{ template "vdp.otel.port" . }}

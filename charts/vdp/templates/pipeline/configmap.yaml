@@ -82,3 +82,8 @@ data:
       cert: {{ default "" .Values.pipeline.temporal.cert }}
       key: {{ default "" .Values.pipeline.temporal.key }}
       serverName: {{ default "" .Values.pipeline.temporal.serverName }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "vdp.otel" . }}
+        port: {{ template "vdp.otel.port" . }}
