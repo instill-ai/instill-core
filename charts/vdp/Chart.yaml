@@ -24,11 +24,11 @@ dependencies:
     condition: etcd.enabled
   - name: elasticsearch
     repository: https://helm.elastic.co
-    version: 8.5.1
+    version: 7.17.3
     condition: elasticsearch.enabled
-  - name: influxdb
+  - name: influxdb2
     repository: https://helm.influxdata.com
-    version: 4.12.1
+    version: 2.1.1
     tags:
       - observability
   - name: jaeger

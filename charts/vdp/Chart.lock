@@ -4,10 +4,10 @@ dependencies:
   version: 8.8.1
 - name: elasticsearch
   repository: https://helm.elastic.co
-  version: 8.5.1
-- name: influxdb
+  version: 7.17.3
+- name: influxdb2
   repository: https://helm.influxdata.com
-  version: 4.12.1
+  version: 2.1.1
 - name: jaeger
   repository: https://jaegertracing.github.io/helm-charts
   version: 0.71.2
@@ -20,5 +20,5 @@ dependencies:
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.59.1
-digest: sha256:8ed5a512269703821ea178175cdaa02282d00e06a62065cd56a09a88a2e2650b
-generated: "2023-05-30T19:14:40.233372+08:00"
+digest: sha256:3c7a72d5470518ebdf5e3c053ff35843affc43a3c1c6a95a387ace894f1980de
+generated: "2023-05-31T04:31:01.824892+08:00"

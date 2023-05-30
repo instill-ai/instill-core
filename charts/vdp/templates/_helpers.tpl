@@ -359,7 +359,7 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{- define "vdp.influxdb" -}}
-  {{- printf "vdp-influxdb" -}}
+  {{- printf "vdp-influxdb2" -}}
 {{- end -}}
 
 {{- define "vdp.influxdb.port" -}}

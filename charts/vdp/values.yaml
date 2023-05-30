@@ -1138,7 +1138,7 @@ elasticsearch:
   enabled: true
   clusterName: vdp-elasticsearch
   replicas: 1
-  imageTag: 8.5.1
+  imageTag: 7.17.3
   version: v7
   protocol: http
   httpPort: 9200
@@ -1157,21 +1157,13 @@ elasticsearch:
 influxdb:
   image:
     tag: 2.7-alpine
-  env:
-    - name: DOCKER_INFLUXDB_INIT_MODE
-      value: setup
-    - name: DOCKER_INFLUXDB_INIT_USERNAME
-      value: admin
-    - name: DOCKER_INFLUXDB_INIT_PASSWORD
-      value: password
-    - name: DOCKER_INFLUXDB_INIT_ORG
-      value: instill-ai
-    - name: DOCKER_INFLUXDB_INIT_BUCKET
-      value: krakend
-    - name: DOCKER_INFLUXDB_INIT_RETENTION
-      value: 1w
-    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
-      value: i-love-instill-ai
+  adminUser:
+    user: "admin"
+    password: "password"
+    organization: "instill-ai"
+    bucket: "krakend"
+    retention_policy: "1w"
+    token: "i-love-instill-ai"
 jaeger:
   nameOverride: jaeger
   provisionDataStore:
