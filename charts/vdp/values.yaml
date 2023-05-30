@@ -750,7 +750,7 @@ triton:
     spec:
       minAvailable:
       maxUnavailable:
-  nvidiaVisibleDevices:
+  nvidiaVisibleDevices: all
   condaEnv:
     image:
       repository: instill/triton-conda-env
@@ -1157,11 +1157,21 @@ elasticsearch:
 influxdb:
   image:
     tag: 2.7-alpine
-  setDefaultUser:
-    enabled: true
-    user:
-      usernrame: "admin"
-      password: "password"
+  env:
+    - name: DOCKER_INFLUXDB_INIT_MODE
+      value: setup
+    - name: DOCKER_INFLUXDB_INIT_USERNAME
+      value: admin
+    - name: DOCKER_INFLUXDB_INIT_PASSWORD
+      value: password
+    - name: DOCKER_INFLUXDB_INIT_ORG
+      value: instill-ai
+    - name: DOCKER_INFLUXDB_INIT_BUCKET
+      value: krakend
+    - name: DOCKER_INFLUXDB_INIT_RETENTION
+      value: 1w
+    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      value: i-love-instill-ai
 jaeger:
   nameOverride: jaeger
   provisionDataStore:
@@ -1180,6 +1190,14 @@ jaeger:
           value: "jaeger_"
         - name: ES_CREATE_INDEX_TEMPLATES
           value: "false"
+  collector:
+    initContainers:
+      - name: wait-for-elasticsearch
+        image: curlimages/curl:8.00.1
+        command: ['sh', '-c']
+        args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
 opentelemetry-collector:
   nameOverride: opentelemetry-collector
   mode: deployment
@@ -1198,7 +1216,6 @@ opentelemetry-collector:
       enabled: true
       containerPort: 8095
       servicePort: 8095
-      hostPort: 8095
     metrics:
       enabled: true
       containerPort: 9001
