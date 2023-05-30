@@ -1138,15 +1138,14 @@ elasticsearch:
   enabled: true
   clusterName: vdp-elasticsearch
   replicas: 1
-  imageTag: 7.17.3
   version: v7
   protocol: http
   httpPort: 9200
   createCert: false
   visibilityIndex: "temporal_visibility_v1_dev"
-  secret:
-    enabled: true
-    password: password
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      value: "password"
   persistence:
     enabled: false
   esConfig:
