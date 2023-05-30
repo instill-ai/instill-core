@@ -5,5 +5,20 @@ dependencies:
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 8.5.1
-digest: sha256:bc7e71441be7e8dcb451a4bb69657290075a8b6133efbe16ee286c2274d028d1
-generated: "2023-04-07T19:12:00.93589+01:00"
+- name: influxdb
+  repository: https://helm.influxdata.com
+  version: 4.12.1
+- name: jaeger
+  repository: https://jaegertracing.github.io/helm-charts
+  version: 0.71.2
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 22.6.2
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.56.6
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.59.1
+digest: sha256:8ed5a512269703821ea178175cdaa02282d00e06a62065cd56a09a88a2e2650b
+generated: "2023-05-30T19:14:40.233372+08:00"

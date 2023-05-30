@@ -30,3 +30,11 @@ data:
     # mgmt-backend
     MGMT_BACKEND_HOST={{ template "vdp.mgmt" . }}
     MGMT_BACKEND_PUBLICPORT={{ template "vdp.mgmt.publicPort" . }}
+
+    # influxdb
+    INFLUXDB_HOST={{ template "vdp.influxdb" . }}
+    INFLUXDB_PORT={{ template "vdp.influxdb.port" . }}
+
+    # jaeger
+    JAEGER_HOST={{ template "vdp.jaeger" . }}
+    JAEGER_PORT={{ template "vdp.jaeger.port" . }}

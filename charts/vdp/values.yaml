@@ -750,7 +750,7 @@ triton:
     spec:
       minAvailable:
       maxUnavailable:
-  nvidiaVisibleDevices: all
+  nvidiaVisibleDevices:
   condaEnv:
     image:
       repository: instill/triton-conda-env
@@ -1154,3 +1154,71 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
+influxdb:
+  image:
+    tag: 2.7-alpine
+jaeger:
+  fullnameOverride: vdp-jaeger
+  provisionDataStore:
+    cassandra: false
+  storage:
+    type: elasticsearch
+    elasticsearch:
+      host: vdp-elasticsearch-master
+      port: 9200
+      user: elastic
+      password: password
+opentelemetry-collector:
+  fullnameOverride: vdp-opentelemetry-collector
+  mode: deployment
+  config:
+    receivers:
+      jaeger: null
+      prometheus: null
+      zipkin: null
+      otlp:
+        protocols:
+          grpc:
+            endpoint: vdp-opentelemetry-collector:8095
+    processors:
+      memory_limiter:
+        limit_percentage: 50
+        check_interval: 1s
+        spike_limit_percentage: 30
+      batch:
+        send_batch_size: 8192
+    exporters:
+      logging: # aka, stdOut/stdErr
+      jaeger:
+        endpoint: vdp-jaeger-collector:14250
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: vdp-opentelemetry-collector:9001
+        namespace: vdp
+        send_timestamps: true
+        enable_open_metrics: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [logging, jaeger]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [logging, prometheus]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [logging]
+prometheus:
+  global:
+    evaluation_interval: 10s
+    scrape_interval: 5s
+  scrape_configs:
+  - job_name: "metric-collector"
+    static_configs:
+    - targets: ['vdp-opentelemetry-collector:9001', 'vdp-apigateway:9000']
+tags:
+  observability: true

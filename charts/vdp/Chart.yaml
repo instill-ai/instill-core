@@ -26,3 +26,28 @@ dependencies:
     repository: https://helm.elastic.co
     version: 8.5.1
     condition: elasticsearch.enabled
+  - name: influxdb
+    repository: https://helm.influxdata.com
+    version: 4.12.1
+    tags:
+      - observability
+  - name: jaeger
+    repository: https://jaegertracing.github.io/helm-charts
+    version: 0.71.2
+    tags:
+      - observability
+  - name: prometheus
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 22.6.2
+    tags:
+      - observability
+  - name: grafana
+    repository: https://grafana.github.io/helm-charts
+    version: 6.56.6
+    tags:
+      - observability
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.59.1
+    tags:
+      - observability
