@@ -1157,8 +1157,13 @@ elasticsearch:
 influxdb:
   image:
     tag: 2.7-alpine
+  setDefaultUser:
+    enabled: true
+    user:
+      usernrame: "admin"
+      password: "password"
 jaeger:
-  fullnameOverride: vdp-jaeger
+  nameOverride: jaeger
   provisionDataStore:
     cassandra: false
   storage:
@@ -1168,9 +1173,37 @@ jaeger:
       port: 9200
       user: elastic
       password: password
+      extraEnv:
+        - name: ES_VERSION
+          value: "7"
+        - name: index-prefix
+          value: "jaeger_"
+        - name: ES_CREATE_INDEX_TEMPLATES
+          value: "false"
 opentelemetry-collector:
-  fullnameOverride: vdp-opentelemetry-collector
+  nameOverride: opentelemetry-collector
   mode: deployment
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    otlp-http:
+      enabled: false
+    otlp:
+      enabled: true
+      containerPort: 8095
+      servicePort: 8095
+      hostPort: 8095
+    metrics:
+      enabled: true
+      containerPort: 9001
+      servicePort: 9001
+      protocol: TCP
   config:
     receivers:
       jaeger: null
@@ -1179,7 +1212,7 @@ opentelemetry-collector:
       otlp:
         protocols:
           grpc:
-            endpoint: vdp-opentelemetry-collector:8095
+            endpoint: ${env:MY_POD_IP}:8095
     processors:
       memory_limiter:
         limit_percentage: 50
@@ -1194,24 +1227,38 @@ opentelemetry-collector:
         tls:
           insecure: true
       prometheus:
-        endpoint: vdp-opentelemetry-collector:9001
+        endpoint: ${env:MY_POD_IP}:9001
         namespace: vdp
         send_timestamps: true
         enable_open_metrics: true
     service:
       pipelines:
         traces:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [logging, jaeger]
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
+            - jaeger
         metrics:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [logging, prometheus]
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
+            - prometheus
         logs:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [logging]
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
 prometheus:
   global:
     evaluation_interval: 10s
@@ -1219,6 +1266,6 @@ prometheus:
   scrape_configs:
   - job_name: "metric-collector"
     static_configs:
-    - targets: ['vdp-opentelemetry-collector:9001', 'vdp-apigateway:9000']
+    - targets: ['http://vdp-opentelemetry-collector:9001', 'http://vdp-apigateway:9000']
 tags:
   observability: true
