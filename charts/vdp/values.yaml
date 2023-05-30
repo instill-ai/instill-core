@@ -1153,16 +1153,24 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
-influxdb:
-  image:
-    tag: 2.7-alpine
+influxdb2:
+  service:
+    port: 8086
   adminUser:
-    user: "admin"
-    password: "password"
     organization: "instill-ai"
     bucket: "krakend"
     retention_policy: "1w"
+    user: "admin"
+    password: "password"
     token: "i-love-instill-ai"
+  initScripts:
+    enabled: true
+    scripts:
+      init.sh: |+
+        #!/bin/bash
+        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
+        influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
+        influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
 jaeger:
   nameOverride: jaeger
   provisionDataStore:
@@ -1185,7 +1193,7 @@ jaeger:
     initContainers:
       - name: wait-for-elasticsearch
         image: curlimages/curl:8.00.1
-        command: ['sh', '-c']
+        command: ["sh", "-c"]
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
