@@ -42,7 +42,7 @@ echo http://$SERVICE_IP:{{ .Values.service.port }}
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward $APIGATEWAY_POD_NAME 8080:${APIGATEWAY_CONTAINER_PORT}"
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward $CONSOLE_POD_NAME 3000:${CONSOLE_CONTAINER_PORT}"
   {{- if .Values.tags.observability }}
-  echo "Access to the observability stacks"
+  echo "Access to the observability stack"
   echo "Jaeger UI at http://localhost:16686 by:"
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward $JAEGER_POD_NAME 16686:${JAEGER_CONTAINER_PORT}"
   echo "Prometheus UI at http://localhost:9090 by:"
