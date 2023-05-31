@@ -41,7 +41,7 @@ services:
     ports:
       - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
       - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
-  
+
   pipeline_backend_worker:
     profiles:
       - all

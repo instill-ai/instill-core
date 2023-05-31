@@ -358,6 +358,30 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "2380" -}}
 {{- end -}}
 
+{{- define "vdp.influxdb" -}}
+  {{- printf "vdp-influxdb2" -}}
+{{- end -}}
+
+{{- define "vdp.influxdb.port" -}}
+  {{- printf "8086" -}}
+{{- end -}}
+
+{{- define "vdp.jaeger" -}}
+  {{- printf "vdp-jaeger-collector" -}}
+{{- end -}}
+
+{{- define "vdp.jaeger.port" -}}
+  {{- printf "14268" -}}
+{{- end -}}
+
+{{- define "vdp.otel" -}}
+  {{- printf "vdp-opentelemetry-collector" -}}
+{{- end -}}
+
+{{- define "vdp.otel.port" -}}
+  {{- printf "8095" -}}
+{{- end -}}
+
 {{- define "vdp.internalTLS.apigateway.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
     {{- .Values.internalTLS.apigateway.secretName -}}

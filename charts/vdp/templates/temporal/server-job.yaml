@@ -26,15 +26,9 @@ spec:
           command: ['sh', '-c', 'until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }} 2>&1 > /dev/null; do echo waiting for elasticsearch to start; sleep 1; done;']
           env:
             - name: ELASTIC_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.elasticsearch.clusterName }}-master-credentials
-                  key: username
+              value: "elastic"
             - name: ELASTIC_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.elasticsearch.clusterName }}-master-credentials
-                  key: password
+              value: "password"
       containers:
         - name: create-elasticsearch-index
           image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
@@ -46,15 +40,9 @@ spec:
               curl -X PUT --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }}/{{ .Values.elasticsearch.visibilityIndex }} 2>&1
           env:
             - name: ELASTIC_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.elasticsearch.clusterName }}-master-credentials
-                  key: username
+              value: "elastic"
             - name: ELASTIC_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.elasticsearch.clusterName }}-master-credentials
-                  key: password
+              value: "password"
       {{- with .Values.temporal.admintools.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

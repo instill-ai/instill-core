@@ -46,7 +46,7 @@ spec:
         - name: triton-conda-env
           securityContext:
             runAsUser: 0
-          image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}-{{ ternary "cpu" "gpu" (or (eq .Values.triton.nvidiaVisibleDevices "") (kindIs "invalid" .Values.triton.nvidiaVisibleDevices)) }}
+          image: {{ .Values.triton.condaEnv.image.repository }}:{{ .Values.triton.condaEnv.image.tag }}-{{ ternary "gpu" "cpu" .Values.triton.gpu.enabled }}
           imagePullPolicy: {{ .Values.triton.condaEnv.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args:

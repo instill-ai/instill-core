@@ -1138,15 +1138,14 @@ elasticsearch:
   enabled: true
   clusterName: vdp-elasticsearch
   replicas: 1
-  imageTag: 8.5.1
   version: v7
   protocol: http
   httpPort: 9200
   createCert: false
   visibilityIndex: "temporal_visibility_v1_dev"
-  secret:
-    enabled: true
-    password: password
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      value: "password"
   persistence:
     enabled: false
   esConfig:
@@ -1154,3 +1153,175 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
+influxdb2:
+  enabled: true
+  service:
+    port: 8086
+  adminUser:
+    organization: "instill-ai"
+    bucket: "krakend"
+    retention_policy: "1w"
+    user: "admin"
+    password: "password"
+    token: "i-love-instill-ai"
+  initScripts:
+    enabled: true
+    scripts:
+      init.sh: |+
+        #!/bin/bash
+        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
+        influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
+        influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
+jaeger:
+  enabled: true
+  provisionDataStore:
+    cassandra: false
+  storage:
+    type: elasticsearch
+    elasticsearch:
+      host: vdp-elasticsearch-master
+      port: 9200
+      user: elastic
+      password: password
+  collector:
+    initContainers:
+      - name: wait-for-elasticsearch
+        image: curlimages/curl:8.00.1
+        command: ["sh", "-c"]
+        args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+opentelemetry-collector:
+  enabled: true
+  mode: deployment
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    otlp-http:
+      enabled: false
+    otlp:
+      enabled: true
+      containerPort: 8095
+      servicePort: 8095
+    metrics:
+      enabled: true
+      containerPort: 9001
+      servicePort: 9001
+      protocol: TCP
+  config:
+    receivers:
+      jaeger: null
+      prometheus: null
+      zipkin: null
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:8095
+    processors:
+      memory_limiter:
+        limit_percentage: 50
+        check_interval: 1s
+        spike_limit_percentage: 30
+      batch:
+        send_batch_size: 8192
+    exporters:
+      logging: # aka, stdOut/stdErr
+      jaeger:
+        endpoint: vdp-jaeger-collector:14250
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: ${env:MY_POD_IP}:9001
+        namespace: vdp
+        send_timestamps: true
+        enable_open_metrics: true
+    service:
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
+            - jaeger
+        metrics:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
+            - prometheus
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - logging
+prometheus:
+  enabled: true
+  prometheus-node-exporter:
+    enabled: false
+  global:
+    evaluation_interval: 10s
+    scrape_interval: 5s
+  scrape_configs:
+    - job_name: "metric-collector"
+      static_configs:
+        - targets:
+            - "http://vdp-opentelemetry-collector:9001"
+            - "http://vdp-apigateway:9000"
+grafana:
+  enabled: true
+  adminPassword: password
+  dashboards:
+    default:
+      krakend-dashboard:
+        url: https://grafana.com/api/dashboards/17074/revisions/1/download
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 60
+          options:
+            path: /var/lib/grafana/dashboards/default
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: "influx"
+          type: "influxdb"
+          access: "proxy"
+          editable: true
+          isDefault: true
+          orgId: 1
+          url: "http://vdp-influxdb2:8086"
+          version: 1
+          database: krakend
+          basicAuth: false
+          jsonData:
+            defaultBucket: krakend
+            httpMode: POST
+            organization: instill-ai
+            version: Flux
+          secureJsonData:
+            token: i-love-instill-ai
+
+tags:
+  observability: true

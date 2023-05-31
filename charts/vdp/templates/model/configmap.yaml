@@ -84,3 +84,8 @@ data:
     initmodel:
       path: {{ .Values.model.initModel.path }}
       enabled: {{ .Values.model.initModel.enabled }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "vdp.otel" . }}
+        port: {{ template "vdp.otel.port" . }}

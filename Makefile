@@ -29,6 +29,11 @@ else
 	TRITON_CONDA_ENV_PLATFORM := cpu
 endif
 
+COMPOSE_FILES := -f docker-compose.yml
+ifeq (${ENABLE_OBSERVE}, true)
+	COMPOSE_FILES := ${COMPOSE_FILES} -f docker-compose.observe.yml
+endif
+
 UNAME_S := $(shell uname -s)
 
 #============================================================================
@@ -38,12 +43,12 @@ all:			## Launch all services with their up-to-date release version
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		EDITION=local-ce docker compose -f docker-compose.yml -f - up -d --quiet-pull
+		EDITION=local-ce docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
 	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		EDITION=local-ce docker compose -f docker-compose.yml -f - rm -f
+		EDITION=local-ce docker compose ${COMPOSE_FILES} -f - rm -f
 else
-	@EDITION=local-ce docker compose up -d --quiet-pull
-	@EDITION=local-ce docker compose rm -f
+	EDITION=local-ce docker compose ${COMPOSE_FILES} up -d --quiet-pull
+	EDITION=local-ce docker compose ${COMPOSE_FILES} rm -f
 endif
 
 .PHONY: latest
@@ -51,12 +56,12 @@ latest:			## Lunch all dependent services with their latest codebase
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml -f - up -d --quiet-pull
+		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml -f - up -d --quiet-pull
 	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml  -f - rm -f
+		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml  -f - rm -f
 else
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml rm -f
 endif
 
 .PHONY: logs
@@ -96,7 +101,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f console-helm-integration-test-latest >/dev/null 2>&1
 	@docker rm -f backend-helm-integration-test-release >/dev/null 2>&1
 	@docker rm -f console-helm-integration-test-release >/dev/null 2>&1
-	@docker compose down -v
+	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
 
 .PHONY: images
 images:			## List all container images
@@ -245,7 +250,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -292,7 +297,7 @@ ifeq ($(UNAME_S),Linux)
 		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -342,7 +347,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -389,7 +394,7 @@ ifeq ($(UNAME_S),Linux)
 		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -424,4 +429,4 @@ endif
 .PHONY: help
 help:       	## Show this help
 	@echo "\nMake Application with Docker Compose"
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

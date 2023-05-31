@@ -44,6 +44,37 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
+          env:
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "vdp.pipeline" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "vdp.pipeline.publicPort" . }}"
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connector" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connector.publicPort" . }}"
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "vdp.model" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "vdp.model.publicPort" . }}"
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "vdp.mgmt" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "vdp.mgmt.publicPort" . }}"
+            - name: INFLUXDB_HOST
+              value: "{{ template "vdp.influxdb" . }}"
+            - name: INFLUXDB_PORT
+              value: "{{ template "vdp.influxdb.port" . }}"
         {{- with .Values.apigateway.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}
