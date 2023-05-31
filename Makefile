@@ -250,7 +250,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -297,7 +297,7 @@ ifeq ($(UNAME_S),Linux)
 		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -347,7 +347,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set apigatewayURL=http://host.docker.internal:8080 \
 		--set consoleURL=http://host.docker.internal:3000 \
 		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
@@ -394,7 +394,7 @@ ifeq ($(UNAME_S),Linux)
 		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
 		--set apigatewayURL=http://localhost:8080 \
 		--set consoleURL=http://localhost:3000
-	@sleep 1
+	@sleep 5
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
