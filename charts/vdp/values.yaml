@@ -1287,5 +1287,45 @@ prometheus:
         - targets:
             - "http://vdp-opentelemetry-collector:9001"
             - "http://vdp-apigateway:9000"
+grafana:
+  adminPassword: password
+  dashboards:
+    default:
+      krakend-dashboard:
+        url: https://grafana.com/api/dashboards/17074/revisions/1/download
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 60
+          options:
+            path: /var/lib/grafana/dashboards/default
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: "influx"
+          type: "influxdb"
+          access: "proxy"
+          editable: true
+          isDefault: true
+          orgId: 1
+          url: "http://vdp-influxdb2:8086"
+          version: 1
+          database: krakend
+          basicAuth: false
+          jsonData:
+            defaultBucket: krakend
+            httpMode: POST
+            organization: instill-ai
+            version: Flux
+          secureJsonData:
+            token: i-love-instill-ai
+
 tags:
   observability: true
