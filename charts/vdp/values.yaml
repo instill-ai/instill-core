@@ -1154,6 +1154,7 @@ elasticsearch:
   ## -- The configuration of external Elasticsearch
   external:
 influxdb2:
+  enabled: true
   service:
     port: 8086
   adminUser:
@@ -1172,6 +1173,7 @@ influxdb2:
         influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
         influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
 jaeger:
+  enabled: true
   nameOverride: jaeger
   provisionDataStore:
     cassandra: false
@@ -1192,6 +1194,7 @@ jaeger:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
 opentelemetry-collector:
   nameOverride: opentelemetry-collector
+  enabled: true
   mode: deployment
   ports:
     jaeger-compact:
@@ -1269,6 +1272,7 @@ opentelemetry-collector:
           exporters:
             - logging
 prometheus:
+  enabled: true
   prometheus-node-exporter:
     enabled: false
   global:
@@ -1281,6 +1285,7 @@ prometheus:
             - "http://vdp-opentelemetry-collector:9001"
             - "http://vdp-apigateway:9000"
 grafana:
+  enabled: true
   adminPassword: password
   dashboards:
     default:
