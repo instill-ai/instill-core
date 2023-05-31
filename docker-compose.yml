@@ -98,6 +98,7 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend
     depends_on:
       - pipeline_backend_migrate
@@ -131,6 +132,7 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend-worker
     depends_on:
       pipeline_backend_migrate:
@@ -162,6 +164,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./connector-backend-init
     depends_on:
       - connector_backend_migrate
@@ -190,6 +193,7 @@ services:
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./connector-backend
     volumes:
       - vdp:/vdp
@@ -221,6 +225,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./model-backend-init
     depends_on:
       - model_backend_migrate
@@ -240,6 +245,7 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     volumes:
       - model_repository:/model-repository
       - model_cache:/.cache
@@ -276,6 +282,7 @@ services:
       CFG_TRITONSERVER_MODELSTORE: /model-repository
       CFG_SERVER_CORSORIGINS: http://${DOMAIN:-localhost}:${CONSOLE_PORT}
       CFG_LOG_EXTERNAL: ${ENABLE_OBSERVE}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     volumes:
       - model_repository:/model-repository
       - model_cache:/.cache
