@@ -1182,13 +1182,6 @@ jaeger:
       port: 9200
       user: elastic
       password: password
-      extraEnv:
-        - name: ES_VERSION
-          value: "7"
-        - name: index-prefix
-          value: "jaeger_"
-        - name: ES_CREATE_INDEX_TEMPLATES
-          value: "false"
   collector:
     initContainers:
       - name: wait-for-elasticsearch
