@@ -36,5 +36,6 @@ data:
     INFLUXDB_PORT={{ template "vdp.influxdb.port" . }}
 
     # jaeger
+    JAEGER_ENABLE={{ .Values.jaeger.enabled }}
     JAEGER_HOST={{ template "vdp.jaeger" . }}
     JAEGER_PORT={{ template "vdp.jaeger.port" . }}
