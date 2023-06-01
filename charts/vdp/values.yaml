@@ -814,6 +814,8 @@ etcd:
   auth:
     rbac:
       create: false
+  autoCompactionMode: revision
+  autoCompactionRetention: 1
 redis:
   # -- If external Redis is used, set "enabled" to false
   # and fill the connection informations in "external" section
