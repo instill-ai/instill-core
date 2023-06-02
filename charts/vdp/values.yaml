@@ -255,7 +255,7 @@ apigateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.2.6-alpha
+    tag: 0.2.7-alpha
     pullPolicy: Always
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -310,7 +310,7 @@ pipeline:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.11.6-alpha
+    tag: 0.12.0-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -383,7 +383,7 @@ connector:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.9.4-alpha
+    tag: 0.9.5-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -451,7 +451,7 @@ model:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.16.4-alpha
+    tag: 0.16.5-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -525,7 +525,7 @@ mgmt:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.3.7-alpha
+    tag: 0.3.8-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -586,7 +586,7 @@ controller:
   # -- The image of controller
   image:
     repository: instill/controller
-    tag: 0.1.4-alpha
+    tag: 0.1.5-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -645,7 +645,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.22.1-alpha
+    tag: 0.23.0-alpha
     pullPolicy: Always
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayBaseUrl:
@@ -1169,7 +1169,7 @@ influxdb2:
   initScripts:
     enabled: true
     scripts:
-      init.sh: |+
+      init.sh: |
         #!/bin/bash
         BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
         influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
@@ -1193,6 +1193,7 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+
 opentelemetry-collector:
   enabled: true
   mode: deployment
@@ -1324,6 +1325,5 @@ grafana:
             version: Flux
           secureJsonData:
             token: i-love-instill-ai
-
 tags:
   observability: true

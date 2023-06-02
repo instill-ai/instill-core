@@ -2,8 +2,8 @@ apiVersion: v2
 name: vdp
 description: Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
 type: application
-version: 0.1.6-alpha #! auto-updated by the CI workflow
-appVersion: 0.9.3-alpha #! auto-updated by the CI workflow
+version: 0.1.7-alpha #! auto-updated by the CI workflow
+appVersion: 0.10.0-alpha #! auto-updated by the CI workflow
 keywords:
   - unstructured data
   - pipeline
