@@ -30,7 +30,7 @@ else
 endif
 
 COMPOSE_FILES := -f docker-compose.yml
-ifeq (${ENABLE_OBSERVE}, true)
+ifeq (${OBSERVE_ENABLED}, true)
 	COMPOSE_FILES := ${COMPOSE_FILES} -f docker-compose.observe.yml
 endif
 
