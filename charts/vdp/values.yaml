@@ -20,7 +20,7 @@ disableUsage: false
 # -- Set true to enable integration test mode
 # The model-backend will use dummy models
 # The mgmt-backend will set a mock up customer_id
-itMode: false
+itModeEnabled: false
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:

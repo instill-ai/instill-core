@@ -13,7 +13,7 @@ data:
       edition: {{ .Values.edition }}
       disableusage: {{ .Values.disableUsage }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode: {{ .Values.itMode }}
+      itmode: {{ .Values.itModeEnabled }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/mgmt/tls.crt

@@ -179,7 +179,7 @@ build-release:				## Build release images for all VDP components
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
 	@make build-latest
-	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE_ENABLED=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
 		docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 	@docker run -it --rm \
@@ -207,7 +207,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test on the release VDP
 	@make build-release
-	@EDITION=local-ce:test ITMODE=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
+	@EDITION=local-ce:test ITMODE_ENABLED=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
 		docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
 	@docker run -it --rm \
@@ -237,7 +237,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 ifeq ($(UNAME_S),Darwin)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode=true \
+		--set itModeEnabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
@@ -285,7 +285,7 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode=true \
+		--set itModeEnabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
@@ -334,7 +334,7 @@ helm-integration-test-release:                       ## Run integration test on 
 ifeq ($(UNAME_S),Darwin)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode=true \
+		--set itModeEnabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
@@ -382,7 +382,7 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode=true \
+		--set itModeEnabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
