@@ -11,7 +11,7 @@ data:
       privateport: {{ template "vdp.connector.privatePort" . }}
       publicport: {{ template "vdp.connector.publicPort" . }}
       edition: {{ .Values.edition }}
-      disableusage: {{ .Values.disableUsage }}
+      usageenabled: {{ .Values.usageEnabled }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       {{- if .Values.internalTLS.enabled }}
       https:

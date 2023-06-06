@@ -87,7 +87,7 @@ spec:
             - name: NEXT_PUBLIC_API_VERSION
               value: "v1alpha"
             - name: NEXT_PUBLIC_DISABLE_USAGE_COLLECTION
-              value: "{{ .Values.disableUsage }}"
+              value: "false"
             - name: NEXT_PUBLIC_CONSOLE_EDITION
               value: "{{ .Values.edition }}"
             - name: NEXT_PUBLIC_CONSOLE_BASE_URL
