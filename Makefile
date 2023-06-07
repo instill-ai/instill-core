@@ -237,7 +237,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 ifeq ($(UNAME_S),Darwin)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itModeEnabled=true \
+		--set itMode.enabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
@@ -285,7 +285,7 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itModeEnabled=true \
+		--set itMode.enabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
@@ -334,7 +334,7 @@ helm-integration-test-release:                       ## Run integration test on 
 ifeq ($(UNAME_S),Darwin)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itModeEnabled=true \
+		--set itMode.enabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
@@ -382,7 +382,7 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itModeEnabled=true \
+		--set itMode.enabled=true \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
