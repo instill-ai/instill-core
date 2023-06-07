@@ -16,11 +16,13 @@ edition: k8s-ce
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
 # -- Enable usage collection
-usageEnabled: true
+usage:
+  enabled: true
 # -- Set true to enable integration test mode
 # The model-backend will use dummy models
 # The mgmt-backend will set a mock up customer_id
-itModeEnabled: false
+itMode:
+  enabled: false
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:
