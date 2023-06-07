@@ -42,7 +42,7 @@ jobs:
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          ITMODE=false \
+          ITMODE_ENABLED=false \
           TRITON_CONDA_ENV_PLATFORM=cpu \
           docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \

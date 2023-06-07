@@ -56,10 +56,10 @@ pipeline-text-generation:	## Test Text Generation pipeline
 pipeline-text-to-image:		## Test Text to Image pipeline
 	@TEST_FOLDER_ABS_PATH=${PWD} k6 run -e MODE=$(MODE) ./pipeline/pipeline-text-to-image.js --no-usage-report
 
-.PHONY: test-no-large-models	## Test all pipeline without large models 
+.PHONY: test-no-large-models	## Test all pipeline without large models
 test-no-large-models: prepare-k6 pipeline-mobilenetv2 pipeline-yolov7 pipeline-instance-segmentation pipeline-semantic-segmentation pipeline-keypoint pipeline-ocr cleanup-k6
 
-.PHONY: test-all	## Test all pipeline 
+.PHONY: test-all	## Test all pipeline
 test-all: prepare-k6 pipeline-mobilenetv2 pipeline-yolov7 pipeline-instance-segmentation pipeline-semantic-segmentation pipeline-keypoint pipeline-ocr pipeline-text-generation pipeline-text-to-image cleanup-k6
 
 .PHONY: help

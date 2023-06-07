@@ -11,9 +11,11 @@ data:
       privateport: {{ template "vdp.model.privatePort" . }}
       publicport: {{ template "vdp.model.publicPort" . }}
       edition: {{ .Values.edition }}
-      disableusage: {{ .Values.disableUsage }}
+      usage:
+        enabled: {{ .Values.usage.enabled }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode: {{ .Values.itMode }}
+      itmode:
+        enabled: {{ .Values.itMode.enabled }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       {{- if .Values.internalTLS.enabled }}
       https:

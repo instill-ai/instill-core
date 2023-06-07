@@ -11,9 +11,11 @@ data:
       privateport: {{ template "vdp.mgmt.privatePort" . }}
       publicport: {{ template "vdp.mgmt.publicPort" . }}
       edition: {{ .Values.edition }}
-      disableusage: {{ .Values.disableUsage }}
+      usage:
+        enabled: {{ .Values.usage.enabled }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode: {{ .Values.itMode }}
+      itmode:
+        enabled: {{ .Values.itMode.enabled }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/vdp/ssl/mgmt/tls.crt

@@ -40,7 +40,7 @@ jobs:
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          ITMODE=true \
+          ITMODE_ENABLED=true \
           TRITON_CONDA_ENV_PLATFORM=cpu \
           CONSOLE_BASE_URL_HOST=console \
           CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
@@ -69,7 +69,7 @@ jobs:
         if: inputs.target == 'release'
         run: |
           EDITION=local-ce:test \
-          ITMODE=true \
+          ITMODE_ENABLED=true \
           TRITON_CONDA_ENV_PLATFORM=cpu \
           CONSOLE_BASE_URL_HOST=console \
           CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
