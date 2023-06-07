@@ -258,8 +258,8 @@ ifeq ($(UNAME_S),Darwin)
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true
+	@export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
@@ -310,8 +310,8 @@ ifeq ($(UNAME_S),Linux)
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true
+	@export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
@@ -365,8 +365,8 @@ ifeq ($(UNAME_S),Darwin)
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true
+	@export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
@@ -417,8 +417,8 @@ ifeq ($(UNAME_S),Linux)
 	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
 	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
+		kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true
+	@export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
 		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
 		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
