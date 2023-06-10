@@ -395,7 +395,7 @@ connector:
   # -- The path of configuration file for connector-backend
   configPath: /connector-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 1
+  dbVersion: 2
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
