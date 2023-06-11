@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.pipeline.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
-        enabled: {{ .Values.usage.enabled }}
+        {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       workflow:
@@ -58,8 +58,6 @@ data:
         cert: /etc/vdp/ssl/controller/tls.crt
         key: /etc/vdp/ssl/mgcontrollermt/tls.key
       {{- end }}
-    usageserver:
-      {{- toYaml .Values.usageServer | nindent 6 }}
     database:
       username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
       password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}

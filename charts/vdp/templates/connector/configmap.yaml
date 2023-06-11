@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.connector.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
-        enabled: {{ .Values.usage.enabled }}
+        {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       {{- if .Values.internalTLS.enabled }}
       https:
@@ -66,8 +66,6 @@ data:
         cert: /etc/vdp/ssl/controller/tls.crt
         key: /etc/vdp/ssl/controller/tls.key
       {{- end }}
-    usageserver:
-      {{- toYaml .Values.usageServer | nindent 6 }}
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
