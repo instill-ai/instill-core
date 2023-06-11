@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.model.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
-        enabled: {{ .Values.usage.enabled }}
+        {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       itmode:
         enabled: {{ .Values.itMode.enabled }}
@@ -46,8 +46,6 @@ data:
         cert: /etc/vdp/ssl/controller/tls.crt
         key: /etc/vdp/ssl/controller/tls.key
       {{- end }}
-    usageserver:
-      {{- toYaml .Values.usageServer | nindent 6 }}
     tritonserver:
       grpcuri: {{ include "vdp.triton" . }}:{{ include "vdp.triton.grpcPort" . }}
       modelstore: /model-repository

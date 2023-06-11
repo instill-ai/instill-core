@@ -15,9 +15,6 @@ logLevel: info
 edition: k8s-ce
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
-# -- Enable usage collection
-usage:
-  enabled: true
 # -- Set true to enable integration test mode
 # The model-backend will use dummy models
 # The mgmt-backend will set a mock up customer_id
@@ -253,6 +250,12 @@ persistence:
       accessMode: ReadWriteOnce
       size: 128Mi
       annotations: {}
+# -- The usage collector configuration
+usage:
+  enabled: true
+  tlsenabled: true
+  host: usage.instill.tech
+  port: 443
 apigateway:
   # -- The image of api-gateway
   image:
@@ -696,10 +699,6 @@ console:
     spec:
       minAvailable:
       maxUnavailable:
-usageServer:
-  tlsenabled: true
-  host: usage.instill.tech
-  port: 443
 triton:
   # -- The image of Triton
   image:

@@ -12,7 +12,7 @@ data:
       publicport: {{ template "vdp.mgmt.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
-        enabled: {{ .Values.usage.enabled }}
+        {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
       itmode:
         enabled: {{ .Values.itMode.enabled }}
@@ -21,8 +21,6 @@ data:
         cert: /etc/vdp/ssl/mgmt/tls.crt
         key: /etc/vdp/ssl/mgmt/tls.key
       {{- end }}
-    usageserver:
-      {{- toYaml .Values.usageServer | nindent 6 }}
     database:
       username: {{ default (include "vdp.database.username" .) .Values.database.external.username }}
       password: {{ default (include "vdp.database.rawPassword" .) .Values.database.external.password }}
