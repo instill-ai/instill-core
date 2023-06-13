@@ -26,7 +26,7 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: api-gateway
       annotations:
-        checksum/configmap: {{ include (print $.Template.BasePath "/apigateway/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/apigateway/configmap.yaml") . | sha256sum }}
         {{- with .Values.apigateway.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

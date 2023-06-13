@@ -27,7 +27,7 @@ spec:
         {{- include "vdp.matchLabels" $ | nindent 8 }}
         app.kubernetes.io/component: temporal-{{ $service }}
       annotations:
-        checksum/configmap: {{ include (print $.Template.BasePath "/temporal/server-configmap.yaml") $ | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/temporal/server-configmap.yaml") $ | sha256sum }}
         {{- if (default $.Values.temporal.server.metrics.annotations.enabled $serviceValues.metrics.annotations.enabled) }}
         prometheus.io/job: {{ $.Chart.Name }}-{{ $service }}
         prometheus.io/scrape: 'true'

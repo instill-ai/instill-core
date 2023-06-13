@@ -26,7 +26,7 @@ spec:
         {{- include "vdp.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: mgmt
       annotations:
-        checksum/configmap: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/mgmt/configmap.yaml") . | sha256sum }}
         {{- with .Values.mgmt.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
