@@ -1,6 +1,6 @@
 apiVersion: v2
 name: vdp
-description: Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
+description: The Helm chart of Instill VDP
 type: application
 version: 0.1.8-alpha #! auto-updated by the CI workflow
 appVersion: 0.10.1-alpha #! auto-updated by the CI workflow
@@ -13,7 +13,7 @@ keywords:
 sources:
   - https://github.com/instill-ai/vdp
 home: "https://www.instill.tech"
-icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/vdp-logo.png
+icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/helm-vdp-logo.png
 maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai

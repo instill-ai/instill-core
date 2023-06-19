@@ -12,19 +12,12 @@ jobs:
   release-helm-charts:
     runs-on: ubuntu-latest
     env:
-      CHART_REPO: instill-ai/helm-charts
-      CHART_REPO_BRANCH: main
+      HELM_CHART_REPO: instill-ai/helm-charts
+      HELM_CHART_REPO_BRANCH: main
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.botGitHubToken }}
-
-      - name: Checkout Helm chart repo
-        uses: actions/checkout@v3
-        with:
-          repository: ${{ env.CHART_REPO }}
-          path: .helm-chart-repo
           token: ${{ secrets.botGitHubToken }}
 
       - name: Install yq - portable yaml processor
@@ -80,23 +73,26 @@ jobs:
           | xargs -d$'\n' cr package --package-path "$PACKAGES"
           echo "dir=${PACKAGES}" >> $GITHUB_OUTPUT
 
-      - name: Import GPG Key
-        uses: crazy-max/ghaction-import-gpg@v5
+      - name: Checkout Helm chart repo
+        uses: actions/checkout@v3
         with:
-          gpg_private_key: ${{ secrets.botGPGPrivateKey }}
-          passphrase: ${{ secrets.botGPGPassphrase }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_tag_gpgsign: true
+          repository: ${{ env.HELM_CHART_REPO }}
+          path: .helm-chart-repo
+          token: ${{ secrets.botGitHubToken }}
 
       - name: Upload packages
+        working-directory: .helm-chart-repo
+        env:
+          GH_TOKEN: ${{ secrets.botGitHubToken }}
         run: |
           set -ex
-          git config --list
-          owner=$(cut -d '/' -f 1 <<< '${{ env.CHART_REPO }}')
-          repo=$(cut -d '/' -f 2 <<< '${{ env.CHART_REPO }}')
-          cr upload --git-repo "$repo" --owner "$owner" --token '${{ secrets.botGitHubToken }}' \
-            --package-path '${{ steps.package.outputs.dir }}' --skip-existing
+          repo=$(cut -d '/' -f 2 <<< ${{ github.repository }})
+          tag=$repo-$(yq -r '.version' ../charts/$repo/Chart.yaml)
+          gh release delete $tag --cleanup-tag --yes          
+          sleep 1
+          owner=$(cut -d '/' -f 1 <<< '${{ env.HELM_CHART_REPO }}')
+          repo=$(cut -d '/' -f 2 <<< '${{ env.HELM_CHART_REPO }}')
+          cr upload --git-repo "$repo" --owner "$owner" --token '${{ secrets.botGitHubToken }}' --package-path '../${{ steps.package.outputs.dir }}' --make-release-latest false
 
       - name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@v5
@@ -114,9 +110,23 @@ jobs:
           set -ex
           git config --local user.email "droplet-bot@users.noreply.github.com"
           git config --local user.name "droplet-bot"
-          owner=$(cut -d '/' -f 1 <<< '${{ env.CHART_REPO }}')
-          repo=$(cut -d '/' -f 2 <<< '${{ env.CHART_REPO }}')
+          owner=$(cut -d '/' -f 1 <<< '${{ env.HELM_CHART_REPO }}')
+          repo=$(cut -d '/' -f 2 <<< '${{ env.HELM_CHART_REPO }}')
           cr index --git-repo "$repo" --owner "$owner" \
-            --pages-branch '${{ env.CHART_REPO_BRANCH }}' \
+            --pages-branch '${{ env.HELM_CHART_REPO_BRANCH }}' \
             --package-path '../${{ steps.package.outputs.dir }}' \
             --index-path index.yaml --push
+
+      - name: Re-upload packages (re-tag)
+        working-directory: .helm-chart-repo
+        env:
+          GH_TOKEN: ${{ secrets.botGitHubToken }}
+        run: |
+          set -ex
+          repo=$(cut -d '/' -f 2 <<< ${{ github.repository }})
+          tag=$repo-$(yq -r '.version' ../charts/$repo/Chart.yaml)
+          gh release delete $tag --cleanup-tag --yes          
+          sleep 1
+          owner=$(cut -d '/' -f 1 <<< '${{ env.HELM_CHART_REPO }}')
+          repo=$(cut -d '/' -f 2 <<< '${{ env.HELM_CHART_REPO }}')
+          cr upload --git-repo "$repo" --owner "$owner" --token '${{ secrets.botGitHubToken }}' --package-path '../${{ steps.package.outputs.dir }}' --make-release-latest false
