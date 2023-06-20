@@ -158,6 +158,7 @@ services:
     image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
     restart: on-failure
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres

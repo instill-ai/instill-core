@@ -80,6 +80,12 @@ spec:
             - name: config
               mountPath: {{ .Values.connector.configPath }}
               subPath: config.yaml
+            - name: docker-socket-volume
+              mountPath: /var/run/docker.sock
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
@@ -166,6 +172,10 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
+        - name: docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
         - name: config
           configMap:
             name: {{ template "vdp.connector" . }}
