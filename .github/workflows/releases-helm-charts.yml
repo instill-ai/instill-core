@@ -88,7 +88,7 @@ jobs:
           set -ex
           repo=$(cut -d '/' -f 2 <<< ${{ github.repository }})
           tag=$repo-$(yq -r '.version' ../charts/$repo/Chart.yaml)
-          gh release delete $tag --cleanup-tag --yes          
+          gh release delete $tag --cleanup-tag --yes || true
           sleep 1
           owner=$(cut -d '/' -f 1 <<< '${{ env.HELM_CHART_REPO }}')
           repo=$(cut -d '/' -f 2 <<< '${{ env.HELM_CHART_REPO }}')
@@ -125,7 +125,7 @@ jobs:
           set -ex
           repo=$(cut -d '/' -f 2 <<< ${{ github.repository }})
           tag=$repo-$(yq -r '.version' ../charts/$repo/Chart.yaml)
-          gh release delete $tag --cleanup-tag --yes          
+          gh release delete $tag --cleanup-tag --yes || true
           sleep 1
           owner=$(cut -d '/' -f 1 <<< '${{ env.HELM_CHART_REPO }}')
           repo=$(cut -d '/' -f 2 <<< '${{ env.HELM_CHART_REPO }}')

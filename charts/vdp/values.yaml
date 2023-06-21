@@ -260,7 +260,7 @@ apigateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.2.7-alpha
+    tag: 0.2.8-alpha
     pullPolicy: Always
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -315,7 +315,7 @@ pipeline:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.12.1-alpha
+    tag: 0.12.2-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -388,7 +388,7 @@ connector:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.9.6-alpha
+    tag: 0.9.7-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -456,7 +456,7 @@ model:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.16.6-alpha
+    tag: 0.16.7-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -530,7 +530,7 @@ mgmt:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.3.9-alpha
+    tag: 0.3.10-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -591,7 +591,7 @@ controller:
   # -- The image of controller
   image:
     repository: instill/controller
-    tag: 0.1.6-alpha
+    tag: 0.1.7-alpha
     pullPolicy: Always
   # -- The command names to be executed
   commandName:
@@ -650,7 +650,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.24.0-alpha
+    tag: 0.24.1-alpha
     pullPolicy: Always
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayBaseUrl:
