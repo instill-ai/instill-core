@@ -85,15 +85,15 @@ spec:
           readinessProbe:
             httpGet:
               path: /__health
-              scheme: {{ upper (ternary "https" "http" .Values.apigateway.enableTLS) }}
-              port: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+              scheme: {{ upper (ternary "https" "http" .Values.apigateway.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /__health
-              scheme: {{ upper (ternary "https" "http" .Values.apigateway.enableTLS) }}
-              port: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+              scheme: {{ upper (ternary "https" "http" .Values.apigateway.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
             initialDelaySeconds: 5
             periodSeconds: 10
           {{- if .Values.apigateway.resources }}
@@ -110,7 +110,7 @@ spec:
             {{- end }}
               --config krakend.json
           ports:
-            - name: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+            - name: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
               containerPort: {{ template "vdp.apigateway.httpPort" . }}
               protocol: TCP
             - name: stats
@@ -123,8 +123,8 @@ spec:
             - name: config
               mountPath: {{ .Values.apigateway.configPath }}
               subPath: ".env"
-            {{- if .Values.apigateway.enableTLS }}
-            - name: vdp-apigateway-internal-tls
+            {{- if .Values.apigateway.tls.enabled }}
+            - name: {{ .Values.apigateway.tls.secretName }}
               mountPath: "/etc/vdp/ssl/api-gateway"
               readOnly: true
             {{- end }}
@@ -142,7 +142,7 @@ spec:
         - name: config
           configMap:
             name: {{ template "vdp.apigateway" . }}
-        {{- if .Values.apigateway.enableTLS }}
+        {{- if .Values.apigateway.tls.enabled }}
         - name: vdp-apigateway-internal-tls
           secret:
             secretName: {{ template "vdp.internalTLS.apigateway.secretName" . }}

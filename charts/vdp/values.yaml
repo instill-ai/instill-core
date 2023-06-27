@@ -264,8 +264,10 @@ apigateway:
     pullPolicy: Always
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
-  # -- Enable TLS for api-gateway or not
-  enableTLS: false
+  tls:
+    enabled: false
+    # -- The secret name for api-gateway's tls certs
+    secretName: "vdp-api-gateway-internal-tls"
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -1172,7 +1174,7 @@ influxdb2:
     scripts:
       init.sh: |
         #!/bin/bash
-        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
+        BUCKET_ID=$(influx bucket list | grep "${DOCKER_INFLUXDB_INIT_BUCKET}" | awk '{print $1}')
         influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
         influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
 jaeger:

@@ -14,7 +14,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+    - name: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
       port: {{ default (include "vdp.apigateway.httpPort" .) $clusterIP.ports.apigatewayHttp }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
     - name: stats
@@ -36,7 +36,7 @@ spec:
 spec:
   type: NodePort
   ports:
-    - name: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+    - name: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
       port: {{ default (include "vdp.apigateway.httpPort" .) $nodePort.ports.apigatewayHttp.port }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
       {{- if and (ge ($nodePort.ports.apigatewayHttp.nodePort | int) (30000 | int)) (le ($nodePort.ports.apigatewayHttp.nodePort | int) (32767 | int)) }}
@@ -74,7 +74,7 @@ spec:
   loadBalancerIP: {{ $loadBalancer.IP }}
   {{- end }}
   ports:
-    - name: {{ ternary "https" "http" .Values.apigateway.enableTLS }}
+    - name: {{ ternary "https" "http" .Values.apigateway.tls.enabled }}
       port: {{ default (include "vdp.apigateway.httpPort" .) $loadBalancer.ports.apigatewayHttp }}
       targetPort: {{ template "vdp.apigateway.httpPort" . }}
     - name: stats
