@@ -6,63 +6,47 @@
 include .env
 export
 
-# NVIDIA_GPU_AVAILABLE:
-# 	The env variable NVIDIA_GPU_AVAILABLE is set to true if NVIDIA GPU is available. Otherwise, it will be set to false.
-# TRITON_CONDA_ENV_PLATFORM:
-# 	By default, the env variable TRITON_CONDA_ENV_PLATFORM is set to cpu, if NVIDIA GPU is available, it will be set to gpu.
-# 	Specify the env variable TRITON_CONDA_ENV_PLATFORM to override the default value.
-# NVIDIA_VISIBLE_DEVICES:
-# 	By default, the env variable NVIDIA_VISIBLE_DEVICES is set to all if NVIDIA GPU is available. Otherwise, it is unset.
-#	Specify the env variable NVIDIA_VISIBLE_DEVICES to override the default value.
-TRITON_CONDA_ENV_PLATFORM := ${TRITON_CONDA_ENV_PLATFORM}
-NVIDIA_VISIBLE_DEVICES := ${NVIDIA_VISIBLE_DEVICES}
-ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
-	NVIDIA_GPU_AVAILABLE := true
-	ifndef TRITON_CONDA_ENV_PLATFORM
-		TRITON_CONDA_ENV_PLATFORM := gpu
-	endif
-	ifndef NVIDIA_VISIBLE_DEVICES
-		NVIDIA_VISIBLE_DEVICES := all
-	endif
-else
-	NVIDIA_GPU_AVAILABLE := false
-	TRITON_CONDA_ENV_PLATFORM := cpu
-endif
-
-COMPOSE_FILES := -f docker-compose.yml
-ifeq (${OBSERVE_ENABLED}, true)
-	COMPOSE_FILES := ${COMPOSE_FILES} -f docker-compose.observe.yml
-endif
-
 UNAME_S := $(shell uname -s)
+
+CONTAINER_BUILD_NAME := vdp-build
+CONTAINER_COMPOSE_IMAGE_NAME := instill/vdp-compose
+CONTAINER_PLAYWRIGHT_IMAGE_NAME := instill/vdp-console-playwright
+CONTAINER_BACKEND_INTEGRATION_TEST_NAME := vdp-backend-integration-test
+CONTAINER_CONSOLE_INTEGRATION_TEST_NAME := vdp-console-integration-test
+
+BASE_DOCKER_COMPOSE_NAME := base-dind
+MODEL_DOCKER_COMPOSE_NAME := model-dind
+
+HELM_NAMESPACE := instill-ai
+HELM_RELEASE_NAME := vdp
 
 #============================================================================
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		EDITION=local-ce docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
-	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		EDITION=local-ce docker compose ${COMPOSE_FILES} -f - rm -f
-else
-	EDITION=local-ce docker compose ${COMPOSE_FILES} up -d --quiet-pull
-	EDITION=local-ce docker compose ${COMPOSE_FILES} rm -f
-endif
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+		--name ${BASE_DOCKER_COMPOSE_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			cp -r /vdp/base/configs/* $${TMP_CONFIG_DIR} && \
+			/bin/bash -c 'cd base && make latest PROFILE=all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_PATH=$${TMP_CONFIG_DIR}' \
+		" && rm -r $${TMP_CONFIG_DIR}
+	@EDITION=local-ce docker compose -f docker-compose.yml up -d --quiet-pull
+	@EDITION=local-ce docker compose -f docker-compose.yml rm -f
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml -f - up -d --quiet-pull
-	@cat docker-compose.nvidia.yml | yq '.services.triton_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml  -f - rm -f
-else
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose ${COMPOSE_FILES} -f docker-compose.latest.yml rm -f
-endif
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+		--name ${BASE_DOCKER_COMPOSE_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			cp -r /vdp/base/configs/* $${TMP_CONFIG_DIR} && \
+			/bin/bash -c 'cd base && make latest PROFILE=all EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_PATH=$${TMP_CONFIG_DIR}' \
+		" && rm -r $${TMP_CONFIG_DIR}
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -70,7 +54,6 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image instill/tritonserver:${TRITON_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Triton server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@docker compose pull
 
 .PHONY: stop
@@ -91,17 +74,23 @@ rm:				## Remove all stopped service containers
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
-	@docker rm -f vdp-build-latest >/dev/null 2>&1
-	@docker rm -f vdp-build-release >/dev/null 2>&1
-	@docker rm -f backend-integration-test-latest >/dev/null 2>&1
-	@docker rm -f console-integration-test-latest >/dev/null 2>&1
-	@docker rm -f backend-integration-test-release >/dev/null 2>&1
-	@docker rm -f console-integration-test-release >/dev/null 2>&1
-	@docker rm -f backend-helm-integration-test-latest >/dev/null 2>&1
-	@docker rm -f console-helm-integration-test-latest >/dev/null 2>&1
-	@docker rm -f backend-helm-integration-test-release >/dev/null 2>&1
-	@docker rm -f console-helm-integration-test-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BUILD_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BUILD_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+	@docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock --name ${MODEL_DOCKER_COMPOSE_NAME} ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c "/bin/bash -c 'cd model && make down'"
+	@docker rm -f ${MODEL_DOCKER_COMPOSE_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${MODEL_DOCKER_COMPOSE_NAME}-release >/dev/null 2>&1
+	@docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock --name ${BASE_DOCKER_COMPOSE_NAME} ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c "/bin/bash -c 'cd base && make down'"
+	@docker rm -f ${BASE_DOCKER_COMPOSE_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${BASE_DOCKER_COMPOSE_NAME}-release >/dev/null 2>&1
 
 .PHONY: images
 images:			## List all container images
@@ -127,19 +116,19 @@ build-latest:				## Build latest images for all VDP components
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
-		-t instill/vdp-compose:latest .
+		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:latest .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
-		--name vdp-build-latest \
-		instill/vdp-compose:latest /bin/bash -c " \
+		--name ${CONTAINER_BUILD_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 		API_GATEWAY_VERSION=latest \
 		PIPELINE_BACKEND_VERSION=latest \
 		CONNECTOR_BACKEND_VERSION=latest \
 		MODEL_BACKEND_VERSION=latest \
 		MGMT_BACKEND_VERSION=latest \
-		CONTROLLER_VERSION=latest \
+		CONTROLLER_VDP_VERSION=latest \
 		CONSOLE_VERSION=latest \
 		docker compose -f docker-compose.build.yml build --progress plain \
 		"
@@ -156,22 +145,22 @@ build-release:				## Build release images for all VDP components
 		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-		--build-arg CONTROLLER_VERSION=${CONTROLLER_VERSION} \
+		--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 		--target release \
-		-t instill/vdp-compose:release .
+		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:release .
 	@docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${PWD}/.env:/vdp/.env \
 		-v ${PWD}/docker-compose.build.yml:/vdp/docker-compose.build.yml \
-		--name vdp-build-release \
-		instill/vdp-compose:release /bin/bash -c " \
+		--name ${CONTAINER_BUILD_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 		API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 		PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 		CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 		MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-		CONTROLLER_VERSION=${CONTROLLER_VERSION} \
+		CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 		CONSOLE_VERSION=${CONSOLE_VERSION} \
 		docker compose -f docker-compose.build.yml build --progress plain \
 		"
@@ -179,57 +168,59 @@ build-release:				## Build release images for all VDP components
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
 	@make build-latest
-	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE_ENABLED=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
-		docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+		--name ${BASE_DOCKER_COMPOSE_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			cp -r /vdp/base/configs/* $${TMP_CONFIG_DIR} && \
+			/bin/bash -c 'cd base && make latest PROFILE=all EDITION=local-ce:test' \
+		" && rm -r $${TMP_CONFIG_DIR}
+	@docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--name ${MODEL_DOCKER_COMPOSE_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd model && make latest PROFILE=all ITMODE_ENABLED=true EDITION=local-ce:test' \
+		"
+	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 	@docker run -it --rm \
 		--network instill-network \
-		--name backend-integration-test-latest \
-		instill/vdp-compose:latest /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST} API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST} API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST} API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
-	@docker run -it --rm \
-		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
-		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
-		--network instill-network \
-		--entrypoint ./entrypoint-playwright.sh \
-		--name console-integration-test-latest \
-		instill/console-playwright:latest
 	@make down
 
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test on the release VDP
 	@make build-release
-	@EDITION=local-ce:test ITMODE_ENABLED=true CONSOLE_BASE_URL_HOST=console CONSOLE_BASE_API_GATEWAY_URL_HOST=api-gateway \
-		docker compose up -d --quiet-pull
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+		--name ${BASE_DOCKER_COMPOSE_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			cp -r /vdp/base/configs/* $${TMP_CONFIG_DIR} && \
+			/bin/bash -c 'cd base && make latest PROFILE=all EDITION=local-ce:test' \
+		" && rm -r $${TMP_CONFIG_DIR}
+	@docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--name ${MODEL_DOCKER_COMPOSE_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			/bin/bash -c 'cd model && make latest PROFILE=all ITMODE_ENABLED=true EDITION=local-ce:test' \
+		"
+	@EDITION=local-ce:test ITMODE_ENABLED=true docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
 	@docker run -it --rm \
 		--network instill-network \
-		--name backend-integration-test-release \
-		instill/vdp-compose:release /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=api-gateway API_GATEWAY_PORT=8080 && cd ~- \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST} API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c cd connector-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST} API_GATEWAY_PORT=${API_GATEWAY_PORT} && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=${API_GATEWAY_HOST}API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
-	@docker run -it --rm \
-		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:8080 \
-		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
-		--network instill-network \
-		--entrypoint ./entrypoint-playwright.sh \
-		--name console-integration-test-release \
-		instill/console-playwright:${CONSOLE_VERSION}
 	@make down
 
 .PHONY: helm-integration-test-latest
@@ -237,51 +228,21 @@ helm-integration-test-latest:                       ## Run integration test on t
 ifeq ($(UNAME_S),Darwin)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode.enabled=true \
-		--set jaeger.enabled=false \
-		--set prometheus.enabled=false \
-		--set grafana.enabled=false \
-		--set opentelemetry-collector.enabled=false \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
 		--set connector.image.tag=latest \
-		--set model.image.tag=latest \
-		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
-		--set console.image.tag=latest \
-		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
-		--set apigatewayURL=http://host.docker.internal:8080 \
-		--set consoleURL=http://host.docker.internal:3000 \
-		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 5
-	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
-	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		(kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true) && \
-		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
-	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm -p 8080:8080 --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- \
+		--set apigatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm -p ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
-	@docker run -it --rm \
-		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://host.docker.internal:8080 \
-		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-		-p 8080:8080 \
-		-p 3000:3000 \
-		--entrypoint ./entrypoint-playwright.sh \
-		--name console-helm-integration-test-latest \
-		instill/console-playwright:latest
 	@helm uninstall vdp --namespace vdp
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
@@ -290,49 +251,21 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-latest
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode.enabled=true \
-		--set jaeger.enabled=false \
-		--set prometheus.enabled=false \
-		--set grafana.enabled=false \
-		--set opentelemetry-collector.enabled=false \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=latest \
 		--set pipeline.image.tag=latest \
 		--set connector.image.tag=latest \
-		--set model.image.tag=latest \
-		--set mgmt.image.tag=latest \
 		--set controller.image.tag=latest \
-		--set console.image.tag=latest \
-		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
-		--set apigatewayURL=http://localhost:8080 \
-		--set consoleURL=http://localhost:3000
-	@sleep 5
-	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
-	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		(kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true) && \
-		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
-	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm --network host --name backend-helm-integration-test-latest instill/vdp-compose:latest /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- \
+		--set apigatewayURL=http://localhost:${API_GATEWAY_PORT} \
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
-	@docker run -it --rm \
-		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost:8080 \
-		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-		--network host \
-		--entrypoint ./entrypoint-playwright.sh \
-		--name console-helm-integration-test-latest \
-		instill/console-playwright:latest
 	@helm uninstall vdp --namespace vdp
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
@@ -344,51 +277,21 @@ helm-integration-test-release:                       ## Run integration test on 
 ifeq ($(UNAME_S),Darwin)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode.enabled=true \
-		--set jaeger.enabled=false \
-		--set prometheus.enabled=false \
-		--set grafana.enabled=false \
-		--set opentelemetry-collector.enabled=false \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
-		--set model.image.tag=${MODEL_BACKEND_VERSION} \
-		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
-		--set controller.image.tag=${CONTROLLER_VERSION} \
-		--set console.image.tag=${CONSOLE_VERSION} \
-		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
-		--set apigatewayURL=http://host.docker.internal:8080 \
-		--set consoleURL=http://host.docker.internal:3000 \
-		--set console.serverApiGatewayBaseUrl=http://host.docker.internal:8080
-	@sleep 5
-	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
-	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		(kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true) && \
-		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
-	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm -p 8080:8080 --name backend-helm-integration-test-release instill/vdp-compose:release /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=8080 && cd ~- \
+		--set controller.image.tag=${CONTROLLER_VDP_VERSION} \
+		--set apigatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm -p ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
-	@docker run -it --rm \
-		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://host.docker.internal:8080 \
-		-e NEXT_PUBLIC_API_VERSION=v1alpha \
-		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-		-p 8080:8080 \
-		-p 3000:3000 \
-		--entrypoint ./entrypoint-playwright.sh \
-		--name console-helm-integration-test-release \
-		instill/console-playwright:${CONSOLE_VERSION}
 	@helm uninstall vdp --namespace vdp
 	@kubectl delete namespace vdp
 	@pkill -f "port-forward"
@@ -397,51 +300,188 @@ endif
 ifeq ($(UNAME_S),Linux)
 	@make build-release
 	@helm install vdp charts/vdp --devel --namespace vdp --create-namespace \
-		--set itMode.enabled=true \
-		--set jaeger.enabled=false \
-		--set prometheus.enabled=false \
-		--set grafana.enabled=false \
-		--set opentelemetry-collector.enabled=false \
 		--set edition=k8s-ce:test \
 		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
 		--set pipeline.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connector.image.tag=${CONNECTOR_BACKEND_VERSION} \
-		--set model.image.tag=${MODEL_BACKEND_VERSION} \
-		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
-		--set controller.image.tag=${CONTROLLER_VERSION} \
+		--set controller.image.tag=${CONTROLLER_VDP_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set triton.nvidiaVisibleDevices=${NVIDIA_VISIBLE_DEVICES} \
-		--set apigatewayURL=http://localhost:8080 \
-		--set consoleURL=http://localhost:3000
-	@sleep 5
-	@export CONTROLLER_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=controller,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl wait --for=condition=Ready pod $$CONTROLLER_POD_NAME -n vdp --timeout=900s || true
-	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export APIGATEWAY_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$APIGATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		(kubectl wait --for=condition=Ready pod $$APIGATEWAY_POD_NAME -n vdp --timeout=120s || true) && \
-		kubectl --namespace vdp port-forward $$APIGATEWAY_POD_NAME 8080:$${APIGATEWAY_CONTAINER_PORT} > /dev/null 2>&1 &
-	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace vdp -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=vdp" -o jsonpath="{.items[0].metadata.name}") && \
-		export CONSOLE_CONTAINER_PORT=$$(kubectl get pod --namespace vdp $$CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}") && \
-		kubectl --namespace vdp port-forward $$CONSOLE_POD_NAME 3000:$${CONSOLE_CONTAINER_PORT} > /dev/null 2>&1 &
-	@docker run -it --rm --network host --name backend-helm-integration-test-release instill/vdp-compose:release /bin/bash -c " \
-		cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd model-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- && \
-		cd mgmt-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=8080 && cd ~- \
+		--set apigatewayURL=http://localhost:${API_GATEWAY_PORT} \
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_PORT}' \
 		"
+	@helm uninstall vdp --namespace vdp
+	@kubectl delete namespace vdp
+	@pkill -f "port-forward"
+	@make down
+endif
+
+# ==================================================================
+# ==================== Console Integration Test ====================
+# ==================================================================
+
+.PHONY: console-integration-test-latest
+console-integration-test-latest:			## Run console integration test on the latest Instill VDP
+	@make build-latest
+	@COMPOSE_PROFILES=all EDITION=local-ce:test ITMODE_ENABLED=true docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:${API_GATEWAY_PORT}  \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+		--network instill-network \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_PLAYWRIGHT_IMAGE_NAME}:latest
+	@make down
+
+.PHONY: console-integration-test-release
+console-integration-test-release:			## Run console integration test on the release Instill VDP
+	@make build-release
+	@EDITION=local-ce:test ITMODE_ENABLED=true \
+		docker compose up -d --quiet-pull
+	@EDITION=local-ce:test docker compose rm -f
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://api-gateway:${API_GATEWAY_PORT}  \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+		--network instill-network \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-release \
+		${CONTAINER_PLAYWRIGHT_IMAGE_NAME}:${CONSOLE_VERSION}
+	@make down
+
+.PHONY: console-helm-integration-test-latest
+console-helm-integration-test-latest:                       ## Run console integration test on the Helm latest for Instill VDP
+ifeq ($(UNAME_S),Darwin)
+	@make build-latest
+	@helm install ${HELM_RELEASE_NAME} charts/base --devel --namespace instill-ai --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set console.image.tag=latest \
+		--set apigatewayURL=http://host.docker.internal:${API_GATEWAY_PORT}
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		-p ${API_GATEWAY_PORT} :${API_GATEWAY_PORT}  \
+		-p 3000:3000 \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace instill-ai
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
+endif
+ifeq ($(UNAME_S),Linux)
+	@make build-latest
+	@helm install ${HELM_RELEASE_NAME} charts/base --devel --namespace instill-ai --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=latest \
+		--set mgmt.image.tag=latest \
+		--set apigatewayURL=http://localhost:${API_GATEWAY_PORT}
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 	@docker run -it --rm \
 		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:3000 \
-		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost:8080 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost:${API_GATEWAY_PORT}  \
 		-e NEXT_PUBLIC_API_VERSION=v1alpha \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
 		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
 		--network host \
 		--entrypoint ./entrypoint-playwright.sh \
-		--name console-helm-integration-test-release \
-		instill/console-playwright:${CONSOLE_VERSION}
-	@helm uninstall vdp --namespace vdp
-	@kubectl delete namespace vdp
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace instill-ai
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
+endif
+
+.PHONY: console-helm-integration-test-release
+console-helm-integration-test-release:                       ## Run console integration test on the Helm release for Instill VDP
+ifeq ($(UNAME_S),Darwin)
+	@make build-release
+	@helm install ${HELM_RELEASE_NAME} charts/base --devel --namespace instill-ai --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set apigatewayURL=http://host.docker.internal:${API_GATEWAY_PORT}
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://host.docker.internal:${API_GATEWAY_PORT}  \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		-p ${API_GATEWAY_PORT} :${API_GATEWAY_PORT}  \
+		-p 3000:3000 \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${CONSOLE_VERSION}
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace instill-ai
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
+endif
+ifeq ($(UNAME_S),Linux)
+	@make build-release
+	@helm install ${HELM_RELEASE_NAME} charts/base --devel --namespace instill-ai --create-namespace \
+		--set itMode=true \
+		--set edition=k8s-ce:test \
+		--set apigateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmt.image.tag=${MGMT_BACKEND_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set apigatewayURL=http://localhost:${API_GATEWAY_PORT}
+	@kubectl rollout status deployment base-apigateway -n instill-ai --timeout=120s
+	@export APIGATEWAY_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace instill-ai port-forward $${APIGATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@docker run -it --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:3000 \
+		-e NEXT_PUBLIC_API_GATEWAY_BASE_URL=http://localhost:${API_GATEWAY_PORT}  \
+		-e NEXT_PUBLIC_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--network host \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${CONSOLE_VERSION}
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace instill-ai
+	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down
 endif
