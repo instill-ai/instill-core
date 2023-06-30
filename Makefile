@@ -9,13 +9,10 @@ export
 UNAME_S := $(shell uname -s)
 
 CONTAINER_BUILD_NAME := vdp-build
+CONTAINER_COMPOSE_NAME := vdp-dind
 CONTAINER_COMPOSE_IMAGE_NAME := instill/vdp-compose
-CONTAINER_PLAYWRIGHT_IMAGE_NAME := instill/vdp-console-playwright
 CONTAINER_BACKEND_INTEGRATION_TEST_NAME := vdp-backend-integration-test
 CONTAINER_CONSOLE_INTEGRATION_TEST_NAME := vdp-console-integration-test
-
-BASE_DOCKER_COMPOSE_NAME := base-dind
-MODEL_DOCKER_COMPOSE_NAME := model-dind
 
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := vdp
@@ -24,27 +21,31 @@ HELM_RELEASE_NAME := vdp
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
+ifeq ($(BASE_ENABLED), true)
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${BASE_DOCKER_COMPOSE_NAME}-release \
+		--name ${CONTAINER_COMPOSE_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
 		" && rm -r $${TMP_CONFIG_DIR}
+endif
 	@EDITION=local-ce docker compose -f docker-compose.yml up -d --quiet-pull
 	@EDITION=local-ce docker compose -f docker-compose.yml rm -f
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
+ifeq ($(BASE_ENABLED), true)
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${BASE_DOCKER_COMPOSE_NAME}-latest \
+		--name ${CONTAINER_COMPOSE_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
 		" && rm -r $${TMP_CONFIG_DIR}
+endif
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
@@ -85,14 +86,16 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v >/dev/null 2>&1
-	@docker run -it --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		--name ${BASE_DOCKER_COMPOSE_NAME} \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && make down >/dev/null 2>&1' \
-		"
-	@docker rm -f ${BASE_DOCKER_COMPOSE_NAME}-latest >/dev/null 2>&1
-	@docker rm -f ${BASE_DOCKER_COMPOSE_NAME}-release >/dev/null 2>&1
+	@@if docker compose ls -q | grep -q "instill-base"; then \
+		docker run -it --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			--name ${CONTAINER_COMPOSE_NAME} \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+				/bin/bash -c 'cd /instill-ai/base && make down >/dev/null 2>&1' \
+			"; \
+	fi
+	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 
 .PHONY: images
 images:			## List all container images
@@ -164,7 +167,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${BASE_DOCKER_COMPOSE_NAME}-latest \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
@@ -189,7 +192,7 @@ integration-test-release:			## Run integration test on the release VDP
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${BASE_DOCKER_COMPOSE_NAME}-release \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
