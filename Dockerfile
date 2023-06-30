@@ -49,7 +49,6 @@ RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-ai
 
-ARG BASE_VERSION
 RUN git clone https://github.com/instill-ai/base.git
 
 WORKDIR /instill-ai/vdp
