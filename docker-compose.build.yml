@@ -2,11 +2,11 @@ version: "3.9"
 
 services:
   api_gateway_vdp:
-    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
+    image: ${API_GATEWAY_VDP_IMAGE}:${API_GATEWAY_VDP_VERSION}
     build:
       context: ./api-gateway
       args:
-        SERVICE_NAME: ${API_GATEWAY_HOST}
+        SERVICE_NAME: api-gateway
         GOLANG_VERSION: ${GOLANG_VERSION}
         ALPINE_VERSION: ${ALPINE_VERSION}
         KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}

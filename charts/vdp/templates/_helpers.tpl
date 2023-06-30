@@ -77,364 +77,178 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- end -}}
 {{- end -}}
 
-{{- define "vdp.database.host" -}}
-  {{- if .Values.database.enabled -}}
-    {{- template "vdp.database" . -}}
-  {{- else -}}
-    {{- .Values.database.external.host -}}
-  {{- end -}}
+{{- define "base.database.host" -}}
+    {{- template "base.database" . -}}
 {{- end -}}
 
-{{- define "vdp.database.port" -}}
-  {{- if .Values.database.enabled -}}
-    {{- printf "%s" "5432" -}}
-  {{- else -}}
-    {{- .Values.database.external.port -}}
-  {{- end -}}
+{{- define "base.database.port" -}}
+    {{- print "5432" -}}
 {{- end -}}
 
-{{- define "vdp.database.username" -}}
-  {{- if .Values.database.enabled -}}
-    {{- printf "%s" "postgres" -}}
-  {{- else -}}
-    {{- .Values.database.external.username -}}
-  {{- end -}}
+{{- define "base.database.username" -}}
+    {{- print "postgres" -}}
 {{- end -}}
 
-{{- define "vdp.database.rawPassword" -}}
-  {{- if .Values.database.enabled -}}
-    {{- .Values.database.password -}}
-  {{- else -}}
-    {{- .Values.database.external.password -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "vdp.database.encryptedPassword" -}}
-  {{- include "vdp.database.rawPassword" . | b64enc | quote -}}
-{{- end -}}
-
-{{- define "vdp.redis.scheme" -}}
-  {{- with .Values.redis -}}
-    {{- ternary "redis+sentinel" "redis"  (and (eq .type "external" ) .external.sentinelMasterSet) -}}
-  {{- end -}}
+{{- define "base.database.rawPassword" -}}
+    {{- print "password" -}}
 {{- end -}}
 
 /*host:port*/
-{{- define "vdp.redis.addr" -}}
+{{- define "base.redis.addr" -}}
   {{- with .Values.redis -}}
-    {{- ternary (printf "%s:6379" (include "vdp.redis" $ )) .external.addr .enabled -}}
+    {{- default (printf "%s:6379" (include "base.redis" $ )) .addr -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "vdp.redis.masterSet" -}}
-  {{- with .Values.redis -}}
-    {{- ternary .external.sentinelMasterSet "" (eq "redis+sentinel" (include "vdp.redis.scheme" $)) -}}
-  {{- end -}}
+{{- define "base.mgmtBackend" -}}
+  {{- print "base-mgmt-backend" -}}
 {{- end -}}
 
-{{- define "vdp.redis.password" -}}
-  {{- with .Values.redis -}}
-    {{- ternary "" .external.password .enabled -}}
-  {{- end -}}
+{{- define "vdp.apiGatewayVDP" -}}
+  {{- printf "%s-api-gateway-vdp" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-/*scheme://[:password@]host:port[/master_set]*/
-{{- define "vdp.redis.url" -}}
-  {{- with .Values.redis -}}
-    {{- $path := ternary "" (printf "/%s" (include "vdp.redis.masterSet" $)) (not (include "vdp.redis.masterSet" $)) -}}
-    {{- $cred := ternary (printf ":%s@" (.external.password | urlquery)) "" (and (eq .type "external" ) (not (not .external.password))) -}}
-    {{- printf "%s://%s%s%s" (include "vdp.redis.scheme" $) $cred (include "vdp.redis.addr" $) $path -}}
-  {{- end -}}
+{{- define "vdp.pipelineBackend" -}}
+  {{- printf "%s-pipeline-backend" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-{{- define "vdp.apigateway" -}}
-  {{- printf "%s-apigateway" (include "vdp.fullname" .) -}}
+{{- define "vdp.connectorBackend" -}}
+  {{- printf "%s-connector-backend" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-{{- define "vdp.pipeline" -}}
-  {{- printf "%s-pipeline" (include "vdp.fullname" .) -}}
+{{- define "vdp.controllerVDP" -}}
+  {{- printf "%s-controller-vdp" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-{{- define "vdp.pipeline.migration" -}}
-  {{- printf "%s-migration" (include "vdp.pipeline" .) -}}
+{{- define "base.database" -}}
+  {{- printf "base-database" -}}
 {{- end -}}
 
-{{- define "vdp.pipeline.worker" -}}
-  {{- printf "%s-worker" (include "vdp.pipeline" .) -}}
+{{- define "base.redis" -}}
+  {{- print "base-redis" -}}
 {{- end -}}
 
-{{- define "vdp.connector" -}}
-  {{- printf "%s-connector" (include "vdp.fullname" .) -}}
+{{- define "base.temporal" -}}
+  {{- print "base-temporal" -}}
 {{- end -}}
 
-{{- define "vdp.connector.migration" -}}
-  {{- printf "%s-migration" (include "vdp.connector" .) -}}
-{{- end -}}
-
-{{- define "vdp.model" -}}
-  {{- printf "%s-model" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.model.migration" -}}
-  {{- printf "%s-migration" (include "vdp.model" .) -}}
-{{- end -}}
-
-{{- define "vdp.model.worker" -}}
-  {{- printf "%s-worker" (include "vdp.model" .) -}}
-{{- end -}}
-
-{{- define "vdp.controller" -}}
-  {{- printf "%s-controller" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.mgmt" -}}
-  {{- printf "%s-mgmt" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.mgmt.migration" -}}
-  {{- printf "%s-migration" (include "vdp.mgmt" .) -}}
-{{- end -}}
-
-{{- define "vdp.console" -}}
-  {{- printf "%s-console" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.triton" -}}
-  {{- printf "%s-triton-inference-server" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.database" -}}
-  {{- printf "%s-database" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.redis" -}}
-  {{- printf "%s-redis" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.temporal" -}}
-  {{- printf "%s-temporal" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.etcd" -}}
-  {{- printf "%s-etcd" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.temporal.admintools" -}}
-  {{- printf "%s-temporal-admintools" (include "vdp.fullname" .) -}}
-{{- end -}}
-
-{{- define "vdp.temporal.ui" -}}
-  {{- printf "%s-temporal-ui" (include "vdp.fullname" .) -}}
+{{- define "base.etcd" -}}
+  {{- print "base-etcd" -}}
 {{- end -}}
 
 {{/* api-gateway service and container port */}}
-{{- define "vdp.apigateway.httpPort" -}}
+{{- define "vdp.apiGatewayVDP.httpPort" -}}
   {{- printf "8080" -}}
 {{- end -}}
 
 {{/* api-gateway service and container stats port */}}
-{{- define "vdp.apigateway.statsPort" -}}
-  {{- printf "8090" -}}
+{{- define "vdp.apiGatewayVDP.statsPort" -}}
+  {{- printf "8070" -}}
 {{- end -}}
 
 {{/* api-gateway service and container metrics port */}}
-{{- define "vdp.apigateway.metricsPort" -}}
-  {{- printf "9000" -}}
+{{- define "vdp.apiGatewayVDP.metricsPort" -}}
+  {{- printf "8071" -}}
 {{- end -}}
 
 {{/* pipeline service and container public port */}}
-{{- define "vdp.pipeline.publicPort" -}}
+{{- define "vdp.pipelineBackend.publicPort" -}}
   {{- printf "8081" -}}
 {{- end -}}
 
 {{/* pipeline service and container private port */}}
-{{- define "vdp.pipeline.privatePort" -}}
+{{- define "vdp.pipelineBackend.privatePort" -}}
   {{- printf "3081" -}}
 {{- end -}}
 
 {{/* connector service and container public port */}}
-{{- define "vdp.connector.publicPort" -}}
+{{- define "vdp.connectorBackend.publicPort" -}}
   {{- printf "8082" -}}
 {{- end -}}
 
 {{/* connector service and container private port */}}
-{{- define "vdp.connector.privatePort" -}}
+{{- define "vdp.connectorBackend.privatePort" -}}
   {{- printf "3082" -}}
 {{- end -}}
 
-{{/* model service and container public port */}}
-{{- define "vdp.model.publicPort" -}}
-  {{- printf "8083" -}}
-{{- end -}}
-
-{{/* model service and container private port */}}
-{{- define "vdp.model.privatePort" -}}
-  {{- printf "3083" -}}
-{{- end -}}
-
 {{/* controller service and container private port */}}
-{{- define "vdp.controller.privatePort" -}}
+{{- define "vdp.controllerVDP.privatePort" -}}
   {{- printf "3085" -}}
 {{- end -}}
 
-{{/* mgmt service and container public port */}}
-{{- define "vdp.mgmt.publicPort" -}}
+{{/* mgmt-backend service and container public port */}}
+{{- define "base.mgmtBackend.publicPort" -}}
   {{- printf "8084" -}}
 {{- end -}}
 
-{{/* mgmt service and container private port */}}
-{{- define "vdp.mgmt.privatePort" -}}
+{{/* mgmt-backend service and container private port */}}
+{{- define "base.mgmtBackend.privatePort" -}}
   {{- printf "3084" -}}
 {{- end -}}
 
-{{/* console service and container port */}}
-{{- define "vdp.console.port" -}}
-  {{- printf "3000" -}}
-{{- end -}}
-
-{{- define "vdp.triton.httpPort" -}}
-  {{- printf "8000" -}}
-{{- end -}}
-
-{{- define "vdp.triton.grpcPort" -}}
-  {{- printf "8001" -}}
-{{- end -}}
-
-{{- define "vdp.triton.metricsPort" -}}
-  {{- printf "8002" -}}
-{{- end -}}
-
 {{/* temporal container frontend gRPC port */}}
-{{- define "vdp.temporal.frontend.grpcPort" -}}
+{{- define "base.temporal.frontend.grpcPort" -}}
   {{- printf "7233" -}}
 {{- end -}}
 
-{{/* temporal container frontend membership port */}}
-{{- define "vdp.temporal.frontend.membershipPort" -}}
-  {{- printf "6933" -}}
-{{- end -}}
-
-{{/* temporal container history gRPC port */}}
-{{- define "vdp.temporal.history.grpcPort" -}}
-  {{- printf "7234" -}}
-{{- end -}}
-
-{{/* temporal container history membership port */}}
-{{- define "vdp.temporal.history.membershipPort" -}}
-  {{- printf "6934" -}}
-{{- end -}}
-
-{{/* temporal container matching gRPC port */}}
-{{- define "vdp.temporal.matching.grpcPort" -}}
-  {{- printf "7235" -}}
-{{- end -}}
-
-{{/* temporal container matching membership port */}}
-{{- define "vdp.temporal.matching.membershipPort" -}}
-  {{- printf "6935" -}}
-{{- end -}}
-
-{{/* temporal container worker gRPC port */}}
-{{- define "vdp.temporal.worker.grpcPort" -}}
-  {{- printf "7239" -}}
-{{- end -}}
-
-{{/* temporal container worker membership port */}}
-{{- define "vdp.temporal.worker.membershipPort" -}}
-  {{- printf "6939" -}}
-{{- end -}}
-
-{{/* temporal web container port */}}
-{{- define "vdp.temporal.ui.port" -}}
-  {{- printf "8080" -}}
-{{- end -}}
-
 {{/* etcd port */}}
-{{- define "vdp.etcd.clientPort" -}}
+{{- define "base.etcd.clientPort" -}}
   {{- printf "2379" -}}
 {{- end -}}
 
-{{- define "vdp.etcd.peerPort" -}}
-  {{- printf "2380" -}}
+{{- define "base.influxdb" -}}
+  {{- printf "base-influxdb2" -}}
 {{- end -}}
 
-{{- define "vdp.influxdb" -}}
-  {{- printf "vdp-influxdb2" -}}
-{{- end -}}
-
-{{- define "vdp.influxdb.port" -}}
+{{- define "base.influxdb.port" -}}
   {{- printf "8086" -}}
 {{- end -}}
 
-{{- define "vdp.jaeger" -}}
-  {{- printf "vdp-jaeger-collector" -}}
+{{- define "base.jaeger" -}}
+  {{- printf "base-jaeger-collector" -}}
 {{- end -}}
 
-{{- define "vdp.jaeger.port" -}}
+{{- define "base.jaeger.port" -}}
   {{- printf "14268" -}}
 {{- end -}}
 
-{{- define "vdp.otel" -}}
-  {{- printf "vdp-opentelemetry-collector" -}}
+{{- define "base.otel" -}}
+  {{- printf "base-opentelemetry-collector" -}}
 {{- end -}}
 
-{{- define "vdp.otel.port" -}}
+{{- define "base.otel.port" -}}
   {{- printf "8095" -}}
 {{- end -}}
 
-{{- define "vdp.internalTLS.apigateway.secretName" -}}
+{{- define "vdp.internalTLS.apiGatewayVDP.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.apigateway.secretName -}}
+    {{- .Values.internalTLS.apiGatewayVDP.secretName -}}
   {{- else -}}
-    {{- printf "%s-apigateway-internal-tls" (include "vdp.fullname" .) -}}
+    {{- printf "%s-api-gateway-vdp-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "vdp.internalTLS.pipeline.secretName" -}}
+{{- define "vdp.internalTLS.pipelineBackend.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.pipeline.secretName -}}
+    {{- .Values.internalTLS.pipelineBackend.secretName -}}
   {{- else -}}
-    {{- printf "%s-pipeline-internal-tls" (include "vdp.fullname" .) -}}
+    {{- printf "%s-pipeline-backend-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "vdp.internalTLS.connector.secretName" -}}
+{{- define "vdp.internalTLS.connectorBackend.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.connector.secretName -}}
+    {{- .Values.internalTLS.connectorBackend.secretName -}}
   {{- else -}}
-    {{- printf "%s-connector-internal-tls" (include "vdp.fullname" .) -}}
+    {{- printf "%s-connector-backend-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "vdp.internalTLS.model.secretName" -}}
+{{- define "vdp.internalTLS.controllerVDP.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.model.secretName -}}
+    {{- .Values.internalTLS.controllerVDP.secretName -}}
   {{- else -}}
-    {{- printf "%s-model-internal-tls" (include "vdp.fullname" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "vdp.internalTLS.controller.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.controller.secretName -}}
-  {{- else -}}
-    {{- printf "%s-controller-internal-tls" (include "vdp.fullname" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "vdp.internalTLS.mgmt.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.mgmt.secretName -}}
-  {{- else -}}
-    {{- printf "%s-mgmt-internal-tls" (include "vdp.fullname" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "vdp.internalTLS.console.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.console.secretName -}}
-  {{- else -}}
-    {{- printf "%s-console-internal-tls" (include "vdp.fullname" .) -}}
+    {{- printf "%s-controller-vdp-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 

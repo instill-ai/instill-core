@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.apiGatewayVDP" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway-vdp
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.apiGatewayVDP.autoscaling.enabled }}
+  replicas: {{ .Values.apiGatewayVDP.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway-vdp
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api-gateway-vdp
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/api-gateway-vdp/configmap.yaml") . | sha256sum }}
+        {{- with .Values.apiGatewayVDP.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      {{- if .Values.apiGatewayVDP.serviceAccountName }}
+      serviceAccountName: {{ .Values.apiGatewayVDP.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.apiGatewayVDP.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONTROLLER_VDP_HOST}:${CONTROLLER_VDP_PORT}/v1alpha/health/controller)" != "200" ]]; do echo waiting for controller-vdp; sleep 1; done
+          {{- if .Values.tags.observability }}
+            && while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
+          {{- end }}
+          env:
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "vdp.pipelineBackend" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "vdp.pipelineBackend.publicPort" . }}"
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connectorBackend" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connectorBackend.publicPort" . }}"
+            - name: CONTROLLER_VDP_HOST
+              value: "{{ template "vdp.controllerVDP" . }}"
+            - name: CONTROLLER_VDP_PORT
+              value: "{{ template "vdp.controllerVDP.privatePort" . }}"
+            - name: INFLUXDB_HOST
+              value: "{{ template "base.influxdb" . }}"
+            - name: INFLUXDB_PORT
+              value: "{{ template "base.influxdb.port" . }}"
+        {{- with .Values.apiGatewayVDP.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: api-gateway
+          image: {{ .Values.apiGatewayVDP.image.repository }}:{{ .Values.apiGatewayVDP.image.tag }}
+          imagePullPolicy: {{ .Values.apiGatewayVDP.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.apiGatewayVDP.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apiGatewayVDP.tls.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.apiGatewayVDP.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apiGatewayVDP.tls.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.apiGatewayVDP.resources }}
+          resources:
+            {{- toYaml .Values.apiGatewayVDP.resources | nindent 12 }}
+          {{- end }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              make config && \
+              krakend run \
+            {{- if (eq (.Values.logLevel | upper) "DEBUG") }}
+              --debug \
+            {{- end }}
+              --config krakend.json
+          ports:
+            - name: {{ ternary "https" "http" .Values.apiGatewayVDP.tls.enabled }}
+              containerPort: {{ template "vdp.apiGatewayVDP.httpPort" . }}
+              protocol: TCP
+            - name: stats
+              containerPort: {{ template "vdp.apiGatewayVDP.statsPort" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ template "vdp.apiGatewayVDP.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.apiGatewayVDP.configPath }}
+              subPath: ".env"
+            {{- if .Values.apiGatewayVDP.tls.enabled }}
+            - name: {{ template "vdp.internalTLS.apiGatewayVDP.secretName" . }}
+              mountPath: "/etc/instill-ai/vdp/ssl/api-gateway"
+              readOnly: true
+            {{- end }}
+            {{- with .Values.apiGatewayVDP.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.apiGatewayVDP.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.apiGatewayVDP.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.apiGatewayVDP" . }}
+        {{- if .Values.apiGatewayVDP.tls.enabled }}
+        - name: {{ template "vdp.internalTLS.apiGatewayVDP.secretName" . }}
+          secret:
+            secretName: {{ template "vdp.internalTLS.apiGatewayVDP.secretName" . }}
+            items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+        {{- end }}
+        {{- with .Values.apiGatewayVDP.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.apiGatewayVDP.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGatewayVDP.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGatewayVDP.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.controllerVDP" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-vdp
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.controllerVDP.autoscaling.enabled }}
+  replicas: {{ .Values.controllerVDP.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller-vdp
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller-vdp
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/controller-vdp/configmap.yaml") . | sha256sum }}
+        {{- with .Values.controllerVDP.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Ubuntu nobody:nogroup is 65534:65534
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.controllerVDP.serviceAccountName }}
+      serviceAccountName: {{ .Values.controllerVDP.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.controllerVDP.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ETCD_HOST}:${ETCD_CLIENT_PORT}/health)" != "200" ]]; do echo waiting for etcd; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "vdp.pipelineBackend" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "vdp.pipelineBackend.publicPort" . }}"
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connectorBackend" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connectorBackend.publicPort" . }}"
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "base.mgmtBackend" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+            - name: ETCD_HOST
+              value: "{{ template "base.etcd" . }}"
+            - name: ETCD_CLIENT_PORT
+              value: "{{ template "base.etcd.clientPort" . }}"
+      containers:
+        - name: controller
+          image: {{ .Values.controllerVDP.image.repository }}:{{ .Values.controllerVDP.image.tag }}
+          imagePullPolicy: {{ .Values.controllerVDP.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.controllerVDP.resources }}
+          resources:
+            {{- toYaml .Values.controllerVDP.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.controllerVDP.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+              containerPort: {{ template "vdp.controllerVDP.privatePort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.controllerVDP.configPath }}
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: controller-internal-certs
+              mountPath: "/etc/instill-ai/vdp/ssl/controller"
+            {{- end }}
+            {{- with .Values.controllerVDP.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.controllerVDP.extraEnv }}
+          env:
+            {{- toYaml .Values.controllerVDP.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.controllerVDP.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.controllerVDP" . }}
+        - name: controller-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.controllerVDP.secretName" . }}
+        {{- with .Values.controllerVDP.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.controllerVDP.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controllerVDP.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controllerVDP.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

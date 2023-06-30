@@ -1,0 +1,193 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.pipelineBackend" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.pipelineBackend.autoscaling.enabled }}
+  replicas: {{ .Values.pipelineBackend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pipeline-backend
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pipeline-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/pipeline-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.pipelineBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.pipelineBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.pipelineBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.pipelineBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "base.database" . }}
+            - name: PGUSER
+              value: {{ template "base.database.username" . }}
+        {{- end }}
+        {{- if not .Values.pipelineBackend.temporal.hostPort }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
+              if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "base.temporal" . }}-frontend:{{ template "base.temporal.frontend.grpcPort" . }}"
+        {{- end }}
+        - name: pipeline-backend-migration
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          {{- if .Values.pipelineBackend.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.migration }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: CONNECTOR_BACKEND_HOST
+              value: "{{ template "vdp.connectorBackend" . }}"
+            - name: CONNECTOR_BACKEND_PORT
+              value: "{{ template "vdp.connectorBackend.publicPort" . }}"
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "base.mgmtBackend" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+        {{- with .Values.pipelineBackend.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: pipeline-backend-worker
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          livenessProbe:
+            initialDelaySeconds: 120
+            tcpSocket:
+              port: rpc
+          {{- if .Values.pipelineBackend.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.worker }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        - name: pipeline-backend
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.pipelineBackend.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "vdp.pipelineBackend.publicPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: pipeline-internal-certs
+              mountPath: "/etc/instill-ai/vdp/ssl/pipeline"
+            {{- end }}
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.pipelineBackend.extraEnv }}
+          env:
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.pipelineBackend.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "vdp.pipelineBackend" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: pipeline-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.pipelineBackend.secretName" . }}
+        {{- end }}
+        {{- with .Values.pipelineBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.pipelineBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
