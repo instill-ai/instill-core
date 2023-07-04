@@ -85,17 +85,17 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
-	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
+	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
 	@@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-				/bin/bash -c 'cd /instill-ai/base && make down >/dev/null 2>&1' \
+				/bin/bash -c 'cd /instill-ai/base && make down' \
 			"; \
 	fi
-	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 
 .PHONY: images
 images:			## List all container images
