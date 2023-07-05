@@ -136,6 +136,11 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- print "base-etcd" -}}
 {{- end -}}
 
+{{/* api-gateway project */}}
+{{- define "vdp.apiGatewayVDP.project" -}}
+  {{- printf "vdp" -}}
+{{- end -}}
+
 {{/* api-gateway service and container port */}}
 {{- define "vdp.apiGatewayVDP.httpPort" -}}
   {{- printf "8080" -}}
