@@ -83,7 +83,8 @@ services:
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend
     depends_on:
-      - pipeline_backend_migrate
+      pipeline_backend_migrate:
+        condition: service_completed_successfully
 
   pipeline_backend_worker:
     container_name: ${PIPELINE_BACKEND_HOST}-worker
@@ -139,7 +140,8 @@ services:
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./connector-backend-init
     depends_on:
-      - connector_backend_migrate
+      connector_backend_migrate:
+        condition: service_completed_successfully
 
   connector_backend:
     container_name: ${CONNECTOR_BACKEND_HOST}
@@ -170,7 +172,8 @@ services:
       - vdp:/vdp
       - airbyte:/airbyte
     depends_on:
-      - connector_backend_migrate
+      connector_backend_init:
+        condition: service_completed_successfully
 
   controller_vdp:
     container_name: ${CONTROLLER_VDP_HOST}

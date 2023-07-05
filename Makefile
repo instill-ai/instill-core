@@ -87,8 +87,8 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
-	@docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
-	@@if docker compose ls -q | grep -q "instill-base"; then \
+	@docker compose down -v
+	@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
@@ -171,8 +171,9 @@ integration-test-latest:			## Run integration test on the latest VDP
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
+			cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=all EDITION=local-ce:test' \
+			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
 		" && rm -r $${TMP_CONFIG_DIR}
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
@@ -196,8 +197,9 @@ integration-test-release:			## Run integration test on the release VDP
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
+			cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make build-release BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce:test' \
+			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
 		" && rm -r $${TMP_CONFIG_DIR}
 	@EDITION=local-ce:test ITMODE_ENABLED=true docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
