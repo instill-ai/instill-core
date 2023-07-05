@@ -28,7 +28,8 @@ ifeq ($(BASE_ENABLED), true)
 		--name ${CONTAINER_COMPOSE_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
-			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
+			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
 		" && rm -r $${TMP_CONFIG_DIR}
 endif
 	@EDITION=local-ce docker compose -f docker-compose.yml up -d --quiet-pull
@@ -43,7 +44,8 @@ ifeq ($(BASE_ENABLED), true)
 		--name ${CONTAINER_COMPOSE_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
-			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
+			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
 		" && rm -r $${TMP_CONFIG_DIR}
 endif
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
@@ -173,7 +175,8 @@ integration-test-latest:			## Run integration test on the latest VDP
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 			cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
+			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
 		" && rm -r $${TMP_CONFIG_DIR}
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
@@ -199,7 +202,8 @@ integration-test-release:			## Run integration test on the release VDP
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 			cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 			/bin/bash -c 'cd /instill-ai/base && make build-release BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' \
+			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
 		" && rm -r $${TMP_CONFIG_DIR}
 	@EDITION=local-ce:test ITMODE_ENABLED=true docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
