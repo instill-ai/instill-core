@@ -181,9 +181,9 @@ integration-test-latest:			## Run integration test on the latest VDP
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 	@make down
 
@@ -207,9 +207,9 @@ integration-test-release:			## Run integration test on the release VDP
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c cd connector-backend && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT} && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=${API_GATEWAY_VDP_HOST}API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT} && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 	@make down
 
@@ -243,15 +243,15 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm -p ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 endif
 	@helm uninstall vdp --namespace instill-ai
@@ -296,15 +296,15 @@ helm-integration-test-release:                       ## Run integration test on 
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm -p ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
-			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_HOST=localhost API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_HOST=host.docker.internal API_GATEWAY_PORT=${API_GATEWAY_VDP_PORT}' \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 endif
 	@helm uninstall vdp --namespace instill-ai
