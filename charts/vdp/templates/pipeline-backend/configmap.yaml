@@ -62,8 +62,7 @@ data:
         maxconnections: {{ .Values.database.maxOpenConns }}
         connlifetime: {{ .Values.database.maxConnLifeTime }}
     influxdb:
-      host: {{ template "base.influxdb" . }}
-      port: {{ default (include "base.influxdb.port" .) .Values.influxdb2.service.port }}
+      url: {{ template "base.influxdb.url" . }}
       token: {{ .Values.influxdb2.adminUser.token }}
       org: {{ .Values.influxdb2.adminUser.organization }}
       bucket: {{ .Values.influxdb2.adminUser.bucket }}
