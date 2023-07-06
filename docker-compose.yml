@@ -3,6 +3,7 @@ version: "3.9"
 networks:
   default:
     name: instill-network
+    external: true
 
 volumes:
   vdp:
@@ -41,11 +42,6 @@ services:
       envsubst <config/.env.envsubst >config/.env &&
       make config &&
       krakend run -c krakend.json"
-    depends_on:
-      pipeline_backend:
-        condition: service_started
-      connector_backend:
-        condition: service_started
 
   pipeline_backend_migrate:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
@@ -191,11 +187,6 @@ services:
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./controller-vdp
-    depends_on:
-      pipeline_backend:
-        condition: service_started
-      connector_backend:
-        condition: service_started
 
   socat:
     container_name: ${SOCAT_HOST}
