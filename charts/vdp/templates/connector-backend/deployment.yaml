@@ -86,6 +86,10 @@ spec:
             runAsUser: 0
             runAsGroup: 0
             privileged: true
+          {{- if .Values.connectorBackend.extraEnv }}
+          env:
+            {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
+          {{- end }}
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
