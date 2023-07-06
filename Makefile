@@ -21,33 +21,37 @@ HELM_RELEASE_NAME := vdp
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-ifeq ($(BASE_ENABLED), true)
-	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${CONTAINER_COMPOSE_NAME}-release \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
-			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
-			/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
-		" && rm -r $${TMP_CONFIG_DIR}
-endif
+	@if ! (docker compose ls -q | grep -q "instill-base"); then \
+		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
+		docker run -it --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+			--name ${CONTAINER_COMPOSE_NAME}-release \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+				cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
+				/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+				/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
+			" && \
+		rm -r $${TMP_CONFIG_DIR}; \
+	fi
 	@EDITION=local-ce docker compose -f docker-compose.yml up -d --quiet-pull
 	@EDITION=local-ce docker compose -f docker-compose.yml rm -f
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-ifeq ($(BASE_ENABLED), true)
-	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${CONTAINER_COMPOSE_NAME}-latest \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
-			/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
-		" && rm -r $${TMP_CONFIG_DIR}
-endif
+	@if ! (docker compose ls -q | grep -q "instill-base"); then \
+		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
+		docker run -it --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+			--name ${CONTAINER_COMPOSE_NAME}-latest \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+				cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
+				/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+				/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
+			" && \
+		rm -r $${TMP_CONFIG_DIR}; \
+	fi
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
