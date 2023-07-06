@@ -475,16 +475,11 @@ temporal:
     tolerations: []
     affinity: {}
 
-influxdb2:
-  service:
-    port: 8086
-  adminUser:
-    organization: instill-ai
-    bucket: instill-ai
-    retention_policy: 1w
-    user: admin
-    password: password
-    token: i-love-instill-ai
+influxdbCloud:
+  url: 'https://instill.com'
+  token: "IloveInstill"
+  organization: "instill-ai"
+  bucket: 'Instill'
 
 tags:
   observability: true
