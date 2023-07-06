@@ -302,6 +302,8 @@ connectorBackend:
   configPath: /connector-backend/config/config.yaml
   # -- The database migration version
   dbVersion: 3
+  # -- Load the pre-built connector or not
+  prebuiltConnectorEnabled: false
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:

@@ -19,6 +19,8 @@ data:
         cert: /etc/instill-ai/vdp/ssl/connector/tls.crt
         key: /etc/instill-ai/vdp/ssl/connector/tls.key
       {{- end }}
+      prebuiltconnector:
+        enabled: {{ .Values.connectorBackend.prebuiltConnectorEnabled }}
     container:
       mountsource:
         vdp: /vdp
