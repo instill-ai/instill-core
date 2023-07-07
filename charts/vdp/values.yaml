@@ -476,10 +476,10 @@ temporal:
     affinity: {}
 
 influxdbCloud:
-  url: 'https://instill.com'
-  token: "IloveInstill"
+  url: "http://base-influxdb2:8086"
+  token: "i-love-instill-ai"
   organization: "instill-ai"
-  bucket: 'Instill'
+  bucket: "instill-ai"
 
 tags:
   observability: true
