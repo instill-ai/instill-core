@@ -51,10 +51,8 @@ spec:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONTROLLER_VDP_HOST}:${CONTROLLER_VDP_PORT}/v1alpha/health/controller)" != "200" ]]; do echo waiting for controller-vdp; sleep 1; done
-          {{- if .Values.tags.observability }}
-            && while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
-          {{- end }}
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONTROLLER_VDP_HOST}:${CONTROLLER_VDP_PORT}/v1alpha/health/controller)" != "200" ]]; do echo waiting for controller-vdp; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
           env:
             - name: PIPELINE_BACKEND_HOST
               value: "{{ template "vdp.pipelineBackend" . }}"

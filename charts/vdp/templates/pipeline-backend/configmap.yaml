@@ -62,10 +62,10 @@ data:
         maxconnections: {{ .Values.database.maxOpenConns }}
         connlifetime: {{ .Values.database.maxConnLifeTime }}
     influxdb:
-      url: {{ template "base.influxdb.url" . }}
-      token: {{ .Values.influxdb2.adminUser.token }}
-      org: {{ .Values.influxdb2.adminUser.organization }}
-      bucket: {{ .Values.influxdb2.adminUser.bucket }}
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
       flushinterval: 10 # In seconds for non-blocking batch mode
       https:
         cert:
