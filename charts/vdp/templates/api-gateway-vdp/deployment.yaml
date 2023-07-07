@@ -126,8 +126,8 @@ spec:
             {{- with .Values.apiGatewayVDP.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- with .Values.apiGatewayVDP.extraEnv }}
           env:
+          {{- with .Values.apiGatewayVDP.extraEnv }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- with .Values.apiGatewayVDP.sidecarContainers }}
