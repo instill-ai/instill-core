@@ -75,7 +75,7 @@ jobs:
       - name: Update component image versions
         run: |
           source .env
-          yq ".apiGatewayVDP.image.tag=\"$API_GATEWAY_VDP_VERSION\"" -i charts/vdp/values.yaml
+          yq ".apiGatewayVDP.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/vdp/values.yaml
           yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/vdp/values.yaml
           yq ".connectorBackend.image.tag=\"$CONNECTOR_BACKEND_VERSION\"" -i charts/vdp/values.yaml
           yq ".controllerVDP.image.tag=\"$CONTROLLER_VDP_VERSION\"" -i charts/vdp/values.yaml

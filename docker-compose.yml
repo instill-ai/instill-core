@@ -14,7 +14,7 @@ volumes:
 services:
   api_gateway_vdp:
     container_name: ${API_GATEWAY_VDP_HOST}
-    image: ${API_GATEWAY_VDP_IMAGE}:${API_GATEWAY_VDP_VERSION}
+    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     restart: unless-stopped
     environment:
       API_GATEWAY_PROJECT: vdp

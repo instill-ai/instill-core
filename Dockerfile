@@ -74,8 +74,8 @@ RUN git clone -b v${BASE_VERSION} -c advice.detachedHead=false https://github.co
 
 WORKDIR /instill-ai/vdp
 
-ARG API_GATEWAY_VDP_VERSION PIPELINE_BACKEND_VERSION CONNECTOR_BACKEND_VERSION MODEL_BACKEND_VERSION MGMT_BACKEND_VERSION CONTROLLER_VDP_VERSION
-RUN git clone -b v${API_GATEWAY_VDP_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
+ARG API_GATEWAY_VERSION PIPELINE_BACKEND_VERSION CONNECTOR_BACKEND_VERSION MODEL_BACKEND_VERSION MGMT_BACKEND_VERSION CONTROLLER_VDP_VERSION
+RUN git clone -b v${API_GATEWAY_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
 RUN git clone -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
 RUN git clone -b v${CONNECTOR_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/connector-backend.git
 RUN git clone -b v${CONTROLLER_VDP_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/controller-vdp.git

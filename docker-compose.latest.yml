@@ -13,7 +13,7 @@ services:
       - api-gateway-model
       - model
       - controller-model
-    image: ${API_GATEWAY_VDP_IMAGE}:latest
+    image: ${API_GATEWAY_IMAGE}:latest
     environment:
       API_GATEWAY_LOG_LEVEL: DEBUG
 
