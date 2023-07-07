@@ -13,7 +13,6 @@ Get the application URL by running these commands:
   export API_GATEWAY_VDP_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "vdp.apiGatewayVDP" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$API_GATEWAY_VDP_NODE_PORT
-  echo http://$NODE_IP:$CONSOLE_NODE_PORT
 {{- else if eq .Values.expose.type "loadBalancer" }}
   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
         You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "vdp.apiGatewayVDP" . }}'

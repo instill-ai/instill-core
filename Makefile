@@ -12,7 +12,6 @@ CONTAINER_BUILD_NAME := vdp-build
 CONTAINER_COMPOSE_NAME := vdp-dind
 CONTAINER_COMPOSE_IMAGE_NAME := instill/vdp-compose
 CONTAINER_BACKEND_INTEGRATION_TEST_NAME := vdp-backend-integration-test
-CONTAINER_CONSOLE_INTEGRATION_TEST_NAME := vdp-console-integration-test
 
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := vdp
@@ -84,13 +83,9 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_BUILD_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BUILD_NAME}-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_CONSOLE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 	@docker compose down -v
@@ -134,7 +129,7 @@ build-latest:				## Build latest images for all VDP components
 		-v ${BUILD_CONFIG_DIR_PATH}/docker-compose.build.yml:/instill-ai/vdp/docker-compose.build.yml \
 		--name ${CONTAINER_BUILD_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			API_GATEWAY_VDP_VERSION=latest \
+			API_GATEWAY_VERSION=latest \
 			PIPELINE_BACKEND_VERSION=latest \
 			CONNECTOR_BACKEND_VERSION=latest \
 			CONTROLLER_VDP_VERSION=latest \
@@ -148,7 +143,7 @@ build-release:				## Build release images for all VDP components
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
-		--build-arg API_GATEWAY_VDP_VERSION=${API_GATEWAY_VDP_VERSION} \
+		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
@@ -160,7 +155,7 @@ build-release:				## Build release images for all VDP components
 		-v ${BUILD_CONFIG_DIR_PATH}/docker-compose.build.yml:/instill-ai/vdp/docker-compose.build.yml \
 		--name ${CONTAINER_BUILD_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
-			API_GATEWAY_VDP_VERSION=${API_GATEWAY_VDP_VERSION} \
+			API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 			CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
@@ -230,24 +225,25 @@ helm-integration-test-latest:                       ## Run integration test on t
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			/bin/bash -c 'cd /instill-ai/base && \
 				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
-					--namespace instill-ai --create-namespace \
+					--namespace ${HELM_RELEASE_NAME} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set apiGatewayBase.image.tag=latest \
 					--set mgmtBackend.image.tag=latest \
 					--set console.image.tag=latest \
-					--set tags.observability=false && \
-				kubectl rollout status deployment base-api-gateway-base -n instill-ai --timeout=120s --kubeconfig /instill-ai/kubeconfig' \
+					--set tags.observability=false \
+					--set tags.prometheusStack=false && \
+				kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_RELEASE_NAME} --timeout=120s --kubeconfig /instill-ai/kubeconfig' \
 		"
-	@helm install vdp charts/vdp --namespace instill-ai --create-namespace \
+	@helm install vdp charts/vdp --namespace ${HELM_RELEASE_NAME} --create-namespace \
 		--set edition=k8s-ce:test \
 		--set apiGatewayVDP.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set connectorBackend.image.tag=latest \
 		--set controllerVDP.image.tag=latest \
 		--set tags.observability=false
-	@kubectl rollout status deployment vdp-api-gateway-vdp -n instill-ai --timeout=120s
-	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace instill-ai port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
+	@kubectl rollout status deployment vdp-api-gateway-vdp --namespace ${HELM_RELEASE_NAME} --timeout=120s
+	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_RELEASE_NAME} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_RELEASE_NAME} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm -p ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
@@ -262,12 +258,12 @@ else ifeq ($(UNAME_S),Linux)
 			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 endif
-	@helm uninstall vdp --namespace instill-ai
+	@helm uninstall vdp --namespace ${HELM_RELEASE_NAME}
 	@docker run -it --rm \
 		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace instill-ai' \
+			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_RELEASE_NAME}' \
 		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
@@ -283,24 +279,24 @@ helm-integration-test-release:                       ## Run integration test on 
 			/bin/bash -c 'cd /instill-ai/base && \
 				export $(grep -v '^#' .env | xargs) && \
 				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
-					--namespace instill-ai --create-namespace \
+					--namespace ${HELM_RELEASE_NAME} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set apiGatewayBase.image.tag=$${API_GATEWAY_BASE_VERSION} \
 					--set mgmtBackend.image.tag=$${MGMT_BACKEND_VERSION} \
-					--set console.image.tag=$${CONSOLE_VERSION} \
-					--set tags.observability=false && \
-				kubectl rollout status deployment base-api-gateway-base -n instill-ai --timeout=120s --kubeconfig /instill-ai/kubeconfig' \
+					--set tags.observability=false \
+					--set tags.prometheusStack=false && \
+				kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_RELEASE_NAME} --timeout=120s --kubeconfig /instill-ai/kubeconfig' \
 		"
-	@helm install vdp charts/vdp --namespace instill-ai --create-namespace \
+	@helm install vdp charts/vdp --namespace ${HELM_RELEASE_NAME} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set apiGatewayVDP.image.tag=${API_GATEWAY_VDP_VERSION} \
+		--set apiGatewayVDP.image.tag=${API_GATEWAY_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
 		--set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
 		--set tags.observability=false
-	@kubectl rollout status deployment vdp-api-gateway-vdp -n instill-ai --timeout=120s
-	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace instill-ai port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
+	@kubectl rollout status deployment vdp-api-gateway-vdp --namespace ${HELM_RELEASE_NAME} --timeout=120s
+	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_RELEASE_NAME} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_RELEASE_NAME} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm -p ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
@@ -315,12 +311,12 @@ else ifeq ($(UNAME_S),Linux)
 			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 endif
-	@helm uninstall vdp --namespace instill-ai
+	@helm uninstall vdp --namespace ${HELM_RELEASE_NAME}
 	@docker run -it --rm \
 		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace instill-ai' \
+			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_RELEASE_NAME}' \
 		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
