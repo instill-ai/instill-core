@@ -86,8 +86,8 @@ spec:
             runAsUser: 0
             runAsGroup: 0
             privileged: true
-          {{- if .Values.connectorBackend.extraEnv }}
           env:
+          {{- if .Values.connectorBackend.extraEnv }}
             {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
           {{- end }}
         - name: wait-for-dependencies
@@ -153,6 +153,9 @@ spec:
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
+          {{- if .Values.connectorBackend.extraEnv }}
+            {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: {{ .Values.connectorBackend.configPath }}
@@ -168,10 +171,6 @@ spec:
             {{- with .Values.connectorBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- if .Values.connectorBackend.extraEnv }}
-          env:
-            {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
-          {{- end }}
         {{- with .Values.connectorBackend.sidecarContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

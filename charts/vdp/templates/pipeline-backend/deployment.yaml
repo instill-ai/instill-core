@@ -160,8 +160,8 @@ spec:
             {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- if .Values.pipelineBackend.extraEnv }}
           env:
+          {{- if .Values.pipelineBackend.extraEnv }}
             {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
           {{- end }}
         {{- with .Values.pipelineBackend.sidecarContainers }}
