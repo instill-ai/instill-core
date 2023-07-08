@@ -82,6 +82,8 @@ spec:
               subPath: config.yaml
             - name: docker-socket-volume
               mountPath: /var/run/docker.sock
+            - name: docker-image-cache
+              mountPath: "/var/lib/docker/overlay2"     
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -164,6 +166,8 @@ spec:
               mountPath: /vdp
             - name: airbyte
               mountPath: /airbyte
+            - name: docker-image-cache
+              mountPath: "/var/lib/docker/overlay2"   
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/instill-ai/vdp/ssl/connector"
@@ -188,6 +192,8 @@ spec:
           emptyDir: {}
         - name: airbyte
           emptyDir: {}
+        - name: docker-image-cache
+          emptyDir: {}  
         {{- if .Values.internalTLS.enabled }}
         - name: connector-internal-certs
           secret:
