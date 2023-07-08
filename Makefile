@@ -221,10 +221,15 @@ integration-test-release:			## Run integration test on the release VDP
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
 	@make build-latest
-	@docker run -it --rm \
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
+			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
+			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && \
 				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
@@ -234,7 +239,8 @@ helm-integration-test-latest:                       ## Run integration test on t
 					--set console.image.tag=latest \
 					--set tags.observability=false \
 					--set tags.prometheusStack=false' \
-		"
+			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
+		" && rm -r $${TMP_CONFIG_DIR}
 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
