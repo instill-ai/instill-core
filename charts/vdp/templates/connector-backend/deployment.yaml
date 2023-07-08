@@ -82,8 +82,6 @@ spec:
               subPath: config.yaml
             - name: docker-socket-volume
               mountPath: /var/run/docker.sock
-            - name: docker-image-cache
-              mountPath: "/var/lib/docker/overlay2"     
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -107,25 +105,6 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
-        - name: dind-daemon
-          image: docker:dind
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-                cpu: 20m
-                memory: 512Mi
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-            privileged: true
-          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
-          volumeMounts:
-            - name: docker-volume
-              mountPath: /var/lib/docker
-            - name: vdp
-              mountPath: /vdp
-            - name: airbyte
-              mountPath: /airbyte
         - name: connector-backend
           image: {{ .Values.connectorBackend.image.repository }}:{{ .Values.connectorBackend.image.tag }}
           imagePullPolicy: {{ .Values.connectorBackend.image.pullPolicy }}
@@ -153,11 +132,13 @@ spec:
               containerPort: {{ template "vdp.connectorBackend.publicPort" . }}
               protocol: TCP
           env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
           {{- if .Values.connectorBackend.extraEnv }}
             {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
           {{- end }}
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
           volumeMounts:
             - name: config
               mountPath: {{ .Values.connectorBackend.configPath }}
@@ -166,8 +147,8 @@ spec:
               mountPath: /vdp
             - name: airbyte
               mountPath: /airbyte
-            - name: docker-image-cache
-              mountPath: "/var/lib/docker/overlay2"   
+            - name: docker-socket-volume
+              mountPath: /var/run/docker.sock
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/instill-ai/vdp/ssl/connector"
@@ -192,8 +173,6 @@ spec:
           emptyDir: {}
         - name: airbyte
           emptyDir: {}
-        - name: docker-image-cache
-          emptyDir: {}  
         {{- if .Values.internalTLS.enabled }}
         - name: connector-internal-certs
           secret:
