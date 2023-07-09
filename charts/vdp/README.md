@@ -1,6 +1,6 @@
 # vdp
 
-![Version: 0.1.9-alpha](https://img.shields.io/badge/Version-0.1.9--alpha-informational?style=flat-square) ![AppVersion: 0.10.2-alpha](https://img.shields.io/badge/AppVersion-0.10.2--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.10-alpha](https://img.shields.io/badge/Version-0.1.10--alpha-informational?style=flat-square) ![AppVersion: 0.11.0-alpha](https://img.shields.io/badge/AppVersion-0.11.0--alpha-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill VDP
 
