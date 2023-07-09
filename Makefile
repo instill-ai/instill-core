@@ -29,9 +29,9 @@ all:			## Launch all services with their up-to-date release version
 			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 				cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
 				/bin/bash -c 'cd /instill-ai/base && make all EDITION=local-ce OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-				/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
+				/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 			" && \
-		rm -r $${TMP_CONFIG_DIR}; \
+		rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@EDITION=local-ce docker compose -f docker-compose.yml up -d --quiet-pull
 	@EDITION=local-ce docker compose -f docker-compose.yml rm -f
@@ -47,9 +47,9 @@ latest:			## Lunch all dependent services with their latest codebase
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 				cp -r /instill-ai/base/configs/* $${TMP_CONFIG_DIR} && \
 				/bin/bash -c 'cd /instill-ai/base && make latest PROFILE=$(PROFILE) EDITION=local-ce:latest OBSERVE_ENABLED=${OBSERVE_ENABLED} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-				/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
+				/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 			" && \
-		rm -r $${TMP_CONFIG_DIR}; \
+		rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=local-ce:latest docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
@@ -143,6 +143,7 @@ build-release:				## Build release images for all VDP components
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
+		--build-arg BASE_VERSION=${BASE_VERSION} \
 		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
@@ -155,6 +156,7 @@ build-release:				## Build release images for all VDP components
 		-v ${BUILD_CONFIG_DIR_PATH}/docker-compose.build.yml:/instill-ai/vdp/docker-compose.build.yml \
 		--name ${CONTAINER_BUILD_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
+			BASE_VERSION=${BASE_VERSION} \
 			API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
@@ -176,8 +178,8 @@ integration-test-latest:			## Run integration test on the latest VDP
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && COMPOSE_PROFILES=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull' && \
 			/bin/bash -c 'cd /instill-ai/base && COMPOSE_PROFILES=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f' && \
-			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
-		" && rm -r $${TMP_CONFIG_DIR}
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 	@COMPOSE_PROFILES=all EDITION=local-ce:test docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 	@docker run -it --rm \
@@ -204,8 +206,8 @@ integration-test-release:			## Run integration test on the release VDP
 			/bin/bash -c 'cd /instill-ai/base && make build-release BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose up -d --quiet-pull' && \
 			/bin/bash -c 'cd /instill-ai/base && EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose rm -f' && \
-			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
-		" && rm -r $${TMP_CONFIG_DIR}
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
 	@EDITION=local-ce:test ITMODE_ENABLED=true docker compose up -d --quiet-pull
 	@EDITION=local-ce:test docker compose rm -f
 	@docker run -it --rm \
@@ -213,7 +215,7 @@ integration-test-release:			## Run integration test on the release VDP
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
-			/bin/bash -c cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT} && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
 			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=${API_GATEWAY_VDP_HOST} API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
 		"
 	@make down
@@ -239,8 +241,8 @@ helm-integration-test-latest:                       ## Run integration test on t
 					--set console.image.tag=latest \
 					--set tags.observability=false \
 					--set tags.prometheusStack=false' \
-			/bin/bash -c 'rm -r $${TMP_CONFIG_DIR}/*' \
-		" && rm -r $${TMP_CONFIG_DIR}
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -253,6 +255,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
+	@sleep 1
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
@@ -289,11 +292,10 @@ helm-integration-test-release:                       ## Run integration test on 
 				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
-					--set apiGatewayBase.image.tag=$${API_GATEWAY_BASE_VERSION} \
-					--set mgmtBackend.image.tag=$${MGMT_BACKEND_VERSION} \
 					--set tags.observability=false \
 					--set tags.prometheusStack=false' \
-		"
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -306,6 +308,7 @@ helm-integration-test-release:                       ## Run integration test on 
 	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
+	@sleep 1
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/bash -c " \
 			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
