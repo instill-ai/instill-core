@@ -1,30 +1,22 @@
 ## -- Provide a name in place of vdp
 nameOverride: ""
-
 ## -- Override the deployment namespace
 namespaceOverride: ""
-
 ## -- Provide a name to substitute for the full names of resources
 fullnameOverride: ""
-
 # -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
   type: RollingUpdate
-
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
-
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
-
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
-
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
-
 expose:
   # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
@@ -103,7 +95,6 @@ expose:
       apiGatewayVDPMetrics:
     # Annotations on the LoadBalancer service
     annotations: {}
-
 # -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -148,14 +139,12 @@ internalTLS:
     crt: ""
     # Content of controller-vdp's TLS key file, only available when `certSource` is "manual"
     key: ""
-
 # -- The usage collector configuration
 usage:
   enabled: true
   tlsenabled: true
   host: usage.instill.tech
   port: 443
-
 apiGatewayVDP:
   # -- The image of api-gateway
   image:
@@ -212,7 +201,6 @@ apiGatewayVDP:
     spec:
       minAvailable:
       maxUnavailable:
-
 pipelineBackend:
   # -- The image of pipeline-backend
   image:
@@ -286,7 +274,6 @@ pipelineBackend:
     spec:
       minAvailable:
       maxUnavailable:
-
 connectorBackend:
   # -- The image of connector-backend
   image:
@@ -357,7 +344,6 @@ connectorBackend:
     spec:
       minAvailable:
       maxUnavailable:
-
 controllerVDP:
   # -- The image of controller
   image:
@@ -415,7 +401,6 @@ controllerVDP:
     spec:
       minAvailable:
       maxUnavailable:
-
 database:
   # -- The host of database
   host:
@@ -435,7 +420,6 @@ database:
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
   maxConnLifeTime: 30m
-
 etcd:
   persistence:
     enabled: false
@@ -444,10 +428,8 @@ etcd:
       create: false
   autoCompactionMode: revision
   autoCompactionRetention: 1
-
 redis:
   addr:
-
 temporal:
   admintools:
     # -- Enable Temporal admin-tools
@@ -474,12 +456,10 @@ temporal:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-
 influxdbCloud:
   url: "http://base-influxdb2:8086"
   token: "i-love-instill-ai"
   organization: "instill-ai"
   bucket: "instill-ai"
-
 tags:
   observability: true
