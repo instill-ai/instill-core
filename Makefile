@@ -20,6 +20,7 @@ HELM_RELEASE_NAME := vdp
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
+	@make build-release
 	@if ! (docker compose ls -q | grep -q "instill-base"); then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		docker run -it --rm \
@@ -38,6 +39,7 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
+	@make build-latest
 	@if ! (docker compose ls -q | grep -q "instill-base"); then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		docker run -it --rm \
