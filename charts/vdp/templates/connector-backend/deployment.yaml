@@ -80,10 +80,8 @@ spec:
             - name: config
               mountPath: {{ .Values.connectorBackend.configPath }}
               subPath: config.yaml
-            - name: docker-socket-volume
+            - name: host-docker-socket-volume
               mountPath: /var/run/docker.sock
-            - name: docker-image-cache
-              mountPath: "/var/lib/docker/overlay2"     
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -92,6 +90,22 @@ spec:
           {{- if .Values.connectorBackend.extraEnv }}
             {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
           {{- end }}
+        - name: copy-docker
+          image: alpine:3.14
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+          - >
+            cp -r /tmp/docker/* /var/lib/docker/
+          volumeMounts:
+            - name: host-docker-volume
+              mountPath: /tmp/docker
+            - name: docker-volume
+              mountPath: /var/lib/docker
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
@@ -166,8 +180,8 @@ spec:
               mountPath: /vdp
             - name: airbyte
               mountPath: /airbyte
-            - name: docker-image-cache
-              mountPath: "/var/lib/docker/overlay2"   
+            - name: docker-volume
+              mountPath: /var/lib/docker
             {{- if .Values.internalTLS.enabled }}
             - name: connector-internal-certs
               mountPath: "/etc/instill-ai/vdp/ssl/connector"
@@ -179,10 +193,13 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
-        - name: docker-socket-volume
+        - name: host-docker-socket-volume
           hostPath:
             path: /var/run/docker.sock
             type: Socket
+        - name: host-docker-volume
+          hostPath:
+            path: /var/lib/docker
         - name: config
           configMap:
             name: {{ template "vdp.connectorBackend" . }}
@@ -192,8 +209,6 @@ spec:
           emptyDir: {}
         - name: airbyte
           emptyDir: {}
-        - name: docker-image-cache
-          emptyDir: {}  
         {{- if .Values.internalTLS.enabled }}
         - name: connector-internal-certs
           secret:
