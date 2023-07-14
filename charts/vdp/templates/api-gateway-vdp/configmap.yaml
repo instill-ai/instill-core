@@ -4,6 +4,8 @@ metadata:
   name: {{ template "vdp.apiGatewayVDP" . }}
 data:
   .env: |-
+    LOG_LEVEL={{ upper .Values.logLevel }}
+
     # api-gateway
     API_GATEWAY_HOST={{ template "vdp.apiGatewayVDP" . }}
     API_GATEWAY_PORT={{ template "vdp.apiGatewayVDP.httpPort" . }}
@@ -25,7 +27,6 @@ data:
     CONNECTOR_BACKEND_PUBLICPORT={{ template "vdp.connectorBackend.publicPort" . }}
 
     # influxdb
-    INFLUXDB_ENABLE={{ .Values.tags.observability }}
     INFLUXDB_HOST={{ template "base.influxdb" . }}
     INFLUXDB_PORT={{ template "base.influxdb.port" . }}
 
