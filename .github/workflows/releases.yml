@@ -75,13 +75,10 @@ jobs:
       - name: Update component image versions
         run: |
           source .env
-          yq ".apigateway.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/vdp/values.yaml
-          yq ".pipeline.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/vdp/values.yaml
-          yq ".connector.image.tag=\"$CONNECTOR_BACKEND_VERSION\"" -i charts/vdp/values.yaml
-          yq ".model.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/vdp/values.yaml
-          yq ".mgmt.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/vdp/values.yaml
-          yq ".controller.image.tag=\"$CONTROLLER_VERSION\"" -i charts/vdp/values.yaml
-          yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/vdp/values.yaml
+          yq ".apiGatewayVDP.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/vdp/values.yaml
+          yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/vdp/values.yaml
+          yq ".connectorBackend.image.tag=\"$CONNECTOR_BACKEND_VERSION\"" -i charts/vdp/values.yaml
+          yq ".controllerVDP.image.tag=\"$CONTROLLER_VDP_VERSION\"" -i charts/vdp/values.yaml
       - name: Get current chart version
         id: get-current-chart-version
         run: |

@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.pipelineBackend" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "vdp.pipelineBackend.privatePort" . }}
+      publicport: {{ template "vdp.pipelineBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
+      workflow:
+        maxworkflowtimeout: {{ .Values.pipelineBackend.workflow.maxWorkflowTimeout }}
+        maxworkflowretry: {{ .Values.pipelineBackend.workflow.maxWorkflowRetry }}
+        maxactivityretry: {{ .Values.pipelineBackend.workflow.maxActivityRetry }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
+        key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
+      {{- end }}
+    connectorbackend:
+      host: {{ template "vdp.connectorBackend" . }}
+      publicport: {{ template "vdp.connectorBackend.publicPort" . }}
+      privateport: {{ template "vdp.connectorBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/connector/tls.crt
+        key: /etc/instill-ai/vdp/ssl/connector/tls.key
+      {{- end }}
+    mgmtbackend:
+      host: {{ template "base.mgmtBackend" . }}
+      privateport: {{ template "base.mgmtBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
+      {{- end }}
+    controller:
+      host: {{ template "vdp.controllerVDP" . }}
+      privateport: {{ template "vdp.controllerVDP.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/controller/tls.crt
+        key: /etc/instill-ai/vdp/ssl/controller/tls.key
+      {{- end }}
+    database:
+      username: {{ default (include "base.database.username" .) .Values.database.username }}
+      password: {{ default (include "base.database.rawPassword" .) .Values.database.password }}
+      host: {{ default (include "base.database.host" .) .Values.database.host }}
+      port: {{ default (include "base.database.port" .) .Values.database.port }}
+      name: pipeline
+      version: {{ .Values.pipelineBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10 # In seconds for non-blocking batch mode
+      https:
+        cert:
+        key:
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "base.redis.addr" .) .Values.redis.addr }}
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "base.temporal" .) (include "base.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
+      namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
+      ca: {{ default "" .Values.pipelineBackend.temporal.ca }}
+      cert: {{ default "" .Values.pipelineBackend.temporal.cert }}
+      key: {{ default "" .Values.pipelineBackend.temporal.key }}
+      serverName: {{ default "" .Values.pipelineBackend.temporal.serverName }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "base.otel" . }}
+        port: {{ template "base.otel.port" . }}

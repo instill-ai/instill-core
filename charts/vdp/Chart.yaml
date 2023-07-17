@@ -1,9 +1,9 @@
 apiVersion: v2
 name: vdp
-description: Versatile Data Pipeline (VDP) empowers the modern data stack to process unstructured data.
+description: The Helm chart of Instill VDP
 type: application
-version: 0.1.8-alpha #! auto-updated by the CI workflow
-appVersion: 0.10.1-alpha #! auto-updated by the CI workflow
+version: 0.1.10-alpha #! auto-updated by the CI workflow
+appVersion: 0.11.0-alpha #! auto-updated by the CI workflow
 keywords:
   - unstructured data
   - pipeline
@@ -13,46 +13,7 @@ keywords:
 sources:
   - https://github.com/instill-ai/vdp
 home: "https://www.instill.tech"
-icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/vdp-logo.png
+icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/helm-vdp-logo.png
 maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai
-dependencies:
-  - name: etcd
-    repository: https://charts.bitnami.com/bitnami
-    version: 8.8.1
-    condition: etcd.enabled
-  - name: elasticsearch
-    repository: https://helm.elastic.co
-    version: 7.17.3
-    condition: elasticsearch.enabled
-  - name: influxdb2
-    repository: https://helm.influxdata.com
-    version: 2.1.1
-    condition: influxdb2.enabled
-    tags:
-      - observability
-  - name: jaeger
-    repository: https://jaegertracing.github.io/helm-charts
-    version: 0.71.2
-    condition: jaeger.enabled
-    tags:
-      - observability
-  - name: prometheus
-    repository: https://prometheus-community.github.io/helm-charts
-    version: 22.6.2
-    condition: prometheus.enabled
-    tags:
-      - observability
-  - name: grafana
-    repository: https://grafana.github.io/helm-charts
-    version: 6.56.6
-    condition: grafana.enabled
-    tags:
-      - observability
-  - name: opentelemetry-collector
-    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    version: 0.59.1
-    condition: opentelemetry-collector.enabled
-    tags:
-      - observability

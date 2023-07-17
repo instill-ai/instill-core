@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "vdp.apiGatewayVDP" . }}
+data:
+  .env: |-
+    # api-gateway
+    API_GATEWAY_HOST={{ template "vdp.apiGatewayVDP" . }}
+    API_GATEWAY_PORT={{ template "vdp.apiGatewayVDP.httpPort" . }}
+    API_GATEWAY_PROJECT={{ template "vdp.apiGatewayVDP.project" . }}
+    API_GATEWAY_STATS_PORT={{ template "vdp.apiGatewayVDP.statsPort" . }}
+    API_GATEWAY_METRICS_PORT={{ template "vdp.apiGatewayVDP.metricsPort" . }}
+    API_GATEWAY_LOG_LEVEL={{ upper .Values.logLevel }}
+    {{- if .Values.apiGatewayVDP.tls.enabled }}
+    API_GATEWAY_CERT_FILE=/etc/instill-ai/vdp/ssl/api-gateway/tls.crt
+    API_GATEWAY_KEY_FILE=/etc/instill-ai/vdp/ssl/api-gateway/tls.key
+    {{- end }}
+
+    # pipeline-backend
+    PIPELINE_BACKEND_HOST={{ template "vdp.pipelineBackend" . }}
+    PIPELINE_BACKEND_PUBLICPORT={{ template "vdp.pipelineBackend.publicPort" . }}
+
+    # connector-backend
+    CONNECTOR_BACKEND_HOST={{ template "vdp.connectorBackend" . }}
+    CONNECTOR_BACKEND_PUBLICPORT={{ template "vdp.connectorBackend.publicPort" . }}
+
+    # influxdb
+    INFLUXDB_ENABLE={{ .Values.tags.observability }}
+    INFLUXDB_HOST={{ template "base.influxdb" . }}
+    INFLUXDB_PORT={{ template "base.influxdb.port" . }}
+
+    # jaeger
+    JAEGER_ENABLE={{ .Values.tags.observability }}
+    JAEGER_HOST={{ template "base.jaeger" . }}
+    JAEGER_PORT={{ template "base.jaeger.port" . }}

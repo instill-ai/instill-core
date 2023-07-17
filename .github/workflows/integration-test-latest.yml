@@ -11,19 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component:
-          [
-            pipeline-backend,
-            connector-backend,
-            model-backend,
-            mgmt-backend,
-            controller,
-          ]
+        component: [pipeline-backend, connector-backend, controller-vdp]
     uses: instill-ai/vdp/.github/workflows/integration-test-backend.yml@main
     with:
       component: ${{ matrix.component }}
-      target: latest
-  console:
-    uses: instill-ai/vdp/.github/workflows/integration-test-console.yml@main
-    with:
       target: latest

@@ -1,15 +1,18 @@
 version: "3.9"
 
 services:
-  api_gateway:
+  api_gateway_vdp:
     profiles:
       - all
-      - pipeline
-      - connector
-      - model
+      - api-gateway-base
       - mgmt
       - console
-      - controller
+      - pipeline
+      - connector
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${API_GATEWAY_IMAGE}:latest
     environment:
       API_GATEWAY_LOG_LEVEL: DEBUG
@@ -17,23 +20,29 @@ services:
   pipeline_backend_migrate:
     profiles:
       - all
-      - api-gateway
-      - connector
-      - model
-      - console
+      - api-gateway-base
       - mgmt
-      - controller
+      - console
+      - api-gateway-vdp
+      - connector
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
 
   pipeline_backend:
     profiles:
       - all
-      - api-gateway
-      - connector
-      - model
-      - console
+      - api-gateway-base
       - mgmt
-      - controller
+      - console
+      - api-gateway-vdp
+      - connector
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -45,12 +54,15 @@ services:
   pipeline_backend_worker:
     profiles:
       - all
-      - api-gateway
-      - connector
-      - model
-      - console
+      - api-gateway-base
       - mgmt
-      - controller
+      - console
+      - api-gateway-vdp
+      - connector
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -59,34 +71,43 @@ services:
   connector_backend_migrate:
     profiles:
       - all
-      - api-gateway
-      - pipeline
-      - model
+      - api-gateway-base
       - mgmt
       - console
-      - controller
+      - api-gateway-vdp
+      - pipeline
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend_init:
     profiles:
       - all
-      - api-gateway
-      - pipeline
-      - model
+      - api-gateway-base
       - mgmt
       - console
-      - controller
+      - api-gateway-vdp
+      - pipeline
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
 
   connector_backend:
     profiles:
       - all
-      - api-gateway
-      - pipeline
-      - model
+      - api-gateway-base
       - mgmt
       - console
-      - controller
+      - api-gateway-vdp
+      - pipeline
+      - controller-vdp
+      - api-gateway-model
+      - model
+      - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -95,171 +116,21 @@ services:
       - ${CONNECTOR_BACKEND_PRIVATEPORT}:${CONNECTOR_BACKEND_PRIVATEPORT}
       - ${CONNECTOR_BACKEND_PUBLICPORT}:${CONNECTOR_BACKEND_PUBLICPORT}
 
-  model_backend_migrate:
+  controller_vdp:
     profiles:
       - all
-      - api-gateway
-      - pipeline
-      - connector
+      - api-gateway-base
       - mgmt
       - console
-      - controller
-    image: ${MODEL_BACKEND_IMAGE}:latest
-
-  model_backend_init:
-    profiles:
-      - all
-      - api-gateway
+      - api-gateway-vdp
       - pipeline
       - connector
-      - mgmt
-      - console
-      - controller
-    image: ${MODEL_BACKEND_IMAGE}:latest
-
-  model_backend_worker:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - mgmt
-      - console
-      - controller
-    image: ${MODEL_BACKEND_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-
-  model_backend:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - mgmt
-      - console
-      - controller
-    image: ${MODEL_BACKEND_IMAGE}:latest
+      - api-gateway-model
+      - model
+      - controller-model
+    image: ${CONTROLLER_VDP_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
     ports:
-      - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
-      - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
-
-  model_backend_init_model:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - mgmt
-      - console
-      - controller
-    image: ${MODEL_BACKEND_IMAGE}:latest
-    environment:
-      CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
-      CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
-
-  mgmt_backend_migrate:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - console
-      - controller
-    image: ${MGMT_BACKEND_IMAGE}:latest
-
-  mgmt_backend_init:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - console
-      - controller
-    image: ${MGMT_BACKEND_IMAGE}:latest
-
-  mgmt_backend:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - console
-      - controller
-    image: ${MGMT_BACKEND_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
-    ports:
-      - ${MGMT_BACKEND_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
-      - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
-
-  controller:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - mgmt
-      - console
-    image: ${CONTROLLER_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
-    ports:
-      - ${CONTROLLER_PRIVATEPORT}:${CONTROLLER_PRIVATEPORT}
-
-  console:
-    profiles:
-      - all
-      - api-gateway
-      - pipeline
-      - connector
-      - model
-      - mgmt
-      - controller
-    image: ${CONSOLE_IMAGE}:latest
-    environment:
-      NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}
-      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
-      NODE_ENV: development
-    ports:
-      - ${CONSOLE_PORT}:${CONSOLE_PORT}
-
-  triton_conda_env:
-    image: instill/triton-conda-env:latest-${TRITON_CONDA_ENV_PLATFORM}
-
-  triton_server:
-    ports:
-      - ${TRITON_SERVER_PORT}:8001
-
-  pg_sql:
-    ports:
-      - ${POSTGRESQL_PORT}:5432
-
-  elasticsearch:
-    ports:
-      - ${ELASTICSEARCH_PORT}:9200
-
-  temporal:
-    ports:
-      - ${TEMPORAL_PORT}:7233
-
-  temporal_ui:
-    ports:
-      - ${TEMPORAL_UI_PORT}:8080
-
-  redis:
-    ports:
-      - ${REDIS_PORT}:6379
-
-  etcd:
-    ports:
-      - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}
+      - ${CONTROLLER_VDP_PRIVATEPORT}:${CONTROLLER_VDP_PRIVATEPORT}

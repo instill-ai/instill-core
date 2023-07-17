@@ -1,0 +1,231 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "vdp.connectorBackend" . }}
+  labels:
+    {{- include "vdp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: connector-backend
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.connectorBackend.autoscaling.enabled }}
+  replicas: {{ .Values.connectorBackend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vdp.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: connector-backend
+  template:
+    metadata:
+      labels:
+        {{- include "vdp.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: connector-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/connector-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.connectorBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.connectorBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.connectorBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.connectorBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "base.database" . }}
+            - name: PGUSER
+              value: {{ template "base.database.username" . }}
+        {{- end }}
+        - name: connector-backend-migration
+          image: {{ .Values.connectorBackend.image.repository }}:{{ .Values.connectorBackend.image.tag }}
+          imagePullPolicy: {{ .Values.connectorBackend.image.pullPolicy }}
+          {{- if .Values.connectorBackend.resources }}
+          resources:
+            {{- toYaml .Values.connectorBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.connectorBackend.commandName.migration }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.connectorBackend.configPath }}
+              subPath: config.yaml
+        - name: connector-backend-init
+          image: {{ .Values.connectorBackend.image.repository }}:{{ .Values.connectorBackend.image.tag }}
+          imagePullPolicy: {{ .Values.connectorBackend.image.pullPolicy }}
+          {{- if .Values.connectorBackend.resources }}
+          resources:
+            {{- toYaml .Values.connectorBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.connectorBackend.commandName.init }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.connectorBackend.configPath }}
+              subPath: config.yaml
+            - name: host-docker-socket-volume
+              mountPath: /var/run/docker.sock
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          env:
+          {{- if .Values.connectorBackend.extraEnv }}
+            {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
+          {{- end }}
+        - name: copy-docker
+          image: alpine:3.14
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+          - >
+            cp -r /tmp/docker/* /var/lib/docker/
+          volumeMounts:
+            - name: host-docker-volume
+              mountPath: /tmp/docker
+            - name: docker-volume
+              mountPath: /var/lib/docker
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "base.mgmtBackend" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+        {{- with .Values.connectorBackend.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: dind-daemon
+          image: docker:dind
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+                cpu: 20m
+                memory: 512Mi
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
+          volumeMounts:
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+        - name: connector-backend
+          image: {{ .Values.connectorBackend.image.repository }}:{{ .Values.connectorBackend.image.tag }}
+          imagePullPolicy: {{ .Values.connectorBackend.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if .Values.connectorBackend.resources }}
+          resources:
+            {{- toYaml .Values.connectorBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.connectorBackend.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "vdp.connectorBackend.publicPort" . }}
+              protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          {{- if .Values.connectorBackend.extraEnv }}
+            {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.connectorBackend.configPath }}
+              subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            {{- if .Values.internalTLS.enabled }}
+            - name: connector-internal-certs
+              mountPath: "/etc/instill-ai/vdp/ssl/connector"
+            {{- end }}
+            {{- with .Values.connectorBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- with .Values.connectorBackend.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: host-docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        - name: host-docker-volume
+          hostPath:
+            path: /var/lib/docker
+        - name: config
+          configMap:
+            name: {{ template "vdp.connectorBackend" . }}
+        - name: docker-volume
+          emptyDir: {}
+        - name: vdp
+          emptyDir: {}
+        - name: airbyte
+          emptyDir: {}
+        {{- if .Values.internalTLS.enabled }}
+        - name: connector-internal-certs
+          secret:
+            secretName: {{ template "vdp.internalTLS.connectorBackend.secretName" . }}
+        {{- end }}
+        {{- with .Values.connectorBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.connectorBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connectorBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connectorBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

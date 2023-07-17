@@ -1,21 +1,21 @@
 {{- if and .Values.internalTLS.enabled (eq .Values.internalTLS.certSource "auto") }}
 {{- $ca := genCA "vdp-internal-ca" 365 }}
-{{- $agCN := (include "vdp.apigateway" .) }}
+{{- $agCN := (include "vdp.apiGatewayVDP" .) }}
 {{- $agCrt := genSignedCert $agCN (list "127.0.0.1") (list "localhost" $agCN) 365 $ca }}
-{{- $pipelineCN := (include "vdp.pipeline" .) }}
+{{- $pipelineCN := (include "vdp.pipelineBackend" .) }}
 {{- $pipelineCrt := genSignedCert $pipelineCN (list "127.0.0.1") (list "localhost" $pipelineCN) 365 $ca }}
-{{- $connectorCN := (include "vdp.connector" .) }}
+{{- $connectorCN := (include "vdp.connectorBackend" .) }}
 {{- $connectorCrt := genSignedCert $connectorCN (list "127.0.0.1") (list "localhost" $connectorCN) 365 $ca }}
 {{- $modelCN := (include "vdp.model" .) }}
 {{- $modelCrt := genSignedCert $modelCN (list "127.0.0.1") (list "localhost" $modelCN) 365 $ca }}
-{{- $mgmtCN := (include "vdp.mgmt" .) }}
+{{- $mgmtCN := (include "base.mgmtBackend" .) }}
 {{- $mgmtCrt := genSignedCert $mgmtCN (list "127.0.0.1") (list "localhost" $mgmtCN) 365 $ca }}
 {{- $consoleCN := (include "vdp.vdp.console" .) }}
 {{- $consoleCrt := genSignedCert $consoleCN (list "127.0.0.1") (list "localhost" $consoleCN) 365 $ca }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "vdp.internalTLS.apigateway.secretName" . }}"
+  name: "{{ template "vdp.internalTLS.apiGatewayVDP.secretName" . }}"
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -26,7 +26,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "vdp.internalTLS.pipeline.secretName" . }}"
+  name: "{{ template "vdp.internalTLS.pipelineBackend.secretName" . }}"
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -37,45 +37,12 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "vdp.internalTLS.connector.secretName" . }}"
+  name: "{{ template "vdp.internalTLS.connectorBackend.secretName" . }}"
   labels:
     {{- include "vdp.labels" . | nindent 4 }}
 type: kubernetes.io/tls
 data:
   tls.crt: {{ $connectorCrt.Cert | b64enc | quote }}
   tls.key: {{ $connectorCrt.Key | b64enc | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "vdp.internalTLS.model.secretName" . }}"
-  labels:
-    {{- include "vdp.labels" . | nindent 4 }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ $modelCrt.Cert | b64enc | quote }}
-  tls.key: {{ $modelCrt.Key | b64enc | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "vdp.internalTLS.mgmt.secretName" . }}"
-  labels:
-    {{- include "vdp.labels" . | nindent 4 }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ $mgmtCrt.Cert | b64enc | quote }}
-  tls.key: {{ $mgmtCrt.Key | b64enc | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "vdp.internalTLS.console.secretName" . }}"
-  labels:
-    {{- include "vdp.labels" . | nindent 4 }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ $consoleCrt.Cert | b64enc | quote }}
-  tls.key: {{ $consoleCrt.Key | b64enc | quote }}
 ---
 {{- end }}

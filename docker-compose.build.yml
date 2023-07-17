@@ -1,12 +1,12 @@
 version: "3.9"
 
 services:
-  api_gateway:
+  api_gateway_vdp:
     image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     build:
-      context: ./${API_GATEWAY_HOST}
+      context: ./api-gateway
       args:
-        SERVICE_NAME: ${API_GATEWAY_HOST}
+        SERVICE_NAME: api-gateway
         GOLANG_VERSION: ${GOLANG_VERSION}
         ALPINE_VERSION: ${ALPINE_VERSION}
         KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
@@ -29,44 +29,11 @@ services:
         GOLANG_VERSION: ${GOLANG_VERSION}
         K6_VERSION: ${K6_VERSION}
 
-  model_backend:
-    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+  controller_vdp:
+    image: ${CONTROLLER_VDP_IMAGE}:${CONTROLLER_VDP_VERSION}
     build:
-      context: ./${MODEL_BACKEND_HOST}
+      context: ./${CONTROLLER_VDP_HOST}
       args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        SERVICE_NAME: ${CONTROLLER_VDP_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
         K6_VERSION: ${K6_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
-        ARTIVC_VERSION: ${ARTIVC_VERSION}
-
-  mgmt_backend:
-    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
-    build:
-      context: ./${MGMT_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MGMT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
-
-  controller:
-    image: ${CONTROLLER_IMAGE}:${CONTROLLER_VERSION}
-    build:
-      context: ./${CONTROLLER_HOST}
-      args:
-        SERVICE_NAME: ${CONTROLLER_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
-
-  console:
-    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
-    build:
-      context: ./${CONSOLE_HOST}
-
-  console_playwright:
-    image: ${CONSOLE_IMAGE}-playwright:${CONSOLE_VERSION}
-    build:
-      context: ./${CONSOLE_HOST}
-      dockerfile: Dockerfile.playwright
-      args:
-        TEST_USER: "root"

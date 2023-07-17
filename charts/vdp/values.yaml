@@ -15,11 +15,6 @@ logLevel: info
 edition: k8s-ce
 # -- The maximum data payload to VDP cluster (MB)
 maxDataSizeMB: 12
-# -- Set true to enable integration test mode
-# The model-backend will use dummy models
-# The mgmt-backend will set a mock up customer_id
-itMode:
-  enabled: false
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:
@@ -48,7 +43,7 @@ expose:
       secretName: ""
   ingress:
     hosts:
-      apigateway: api.instill.tech
+      apiGatewayVDP: api-vdp.instill.tech
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
     # set to `gce` if using the GCE ingress controller
@@ -61,44 +56,30 @@ expose:
   clusterIP:
     ports:
       # The service port api-gateway http listens on
-      apigatewayHttp:
+      apiGatewayVDPHttp:
       # The service port api-gateway stats listens on
-      apigatewayStats:
+      apiGatewayVDPStats:
       # The service port api-gateway metrics listens on
-      apigatewayMetrics:
-      # The service port console web listens on
-      console:
-      # The service port temporal web listens on
-      temporal:
+      apiGatewayVDPMetrics:
     # Annotations on the ClusterIP service
     annotations: {}
   nodePort:
     ports:
-      apigatewayHttp:
+      apiGatewayVDPHttp:
         # The service port api-gateway http listens on
         port:
         # The node port api-gateway listens on
         nodePort: 30010
-      apigatewayStats:
+      apiGatewayVDPStats:
         # The service port api-gateway stats listens
         port:
         # The node port api-gateway stats listens on
         nodePort: 30011
-      apigatewayMetrics:
+      apiGatewayVDPMetrics:
         # The service port api-gateway metrics listens on
         port:
         # The node port api-gateway metrics listens on
         nodePort: 30012
-      console:
-        # The service port console web listens on
-        port:
-        # The node port console web listens on
-        nodePort: 30020
-      temporal:
-        # The service port temporal web listens on
-        port:
-        # The node port temporal web listens on
-        nodePort: 30030
     # Annotations on the NodePort service
     annotations: {}
   loadBalancer:
@@ -107,31 +88,13 @@ expose:
     sourceRanges: []
     ports:
       # The service port api-gateway http listens on
-      apigatewayHttp:
+      apiGatewayVDPHttp:
       # The service port api-gateway stats listens on
-      apigatewayStats:
+      apiGatewayVDPStats:
       # The service port api-gateway metrics listens on
-      apigatewayMetrics:
-      # The service port console web listens on
-      console:
-      # The service port temporal web listens on
-      temporal:
+      apiGatewayVDPMetrics:
     # Annotations on the LoadBalancer service
     annotations: {}
-# -- The external URL for VDP core service. It is used to
-# populate the API endpoints showed on the console
-#
-# Format: protocol://domain[:port]. Usually:
-# 1) if "expose.type" is "ingress", the "domain" should be
-# the value of "expose.ingress.hosts.gateway"
-# 2) if "expose.type" is "clusterIP", the "domain" should be
-# the value of "expose.clusterIP.name"
-# 3) if "expose.type" is "nodePort", the "domain" should be
-# the IP address of Kubernetes node
-#
-# If VDP is deployed behind the proxy, set it as the URL of the proxy (without protocol and port)
-apigatewayURL: http://localhost:8080
-consoleURL: http://localhost:3000
 # -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -144,16 +107,16 @@ internalTLS:
   certSource: "auto"
   # The content of trust ca, only available when `certSource` is "manual"
   trustCa: ""
-  # api-gateway related cert configuration
-  apigateway:
-    # secret name for api-gateway's tls certs, only available when `certSource` is "secret"
+  # api-gateway-vdp related cert configuration
+  apiGatewayVDP:
+    # secret name for api-gateway-vdp's tls certs, only available when `certSource` is "secret"
     secretName: ""
-    # Content of api-gateway's TLS cert file, only available when `certSource` is "manual"
+    # Content of api-gateway-vdp's TLS cert file, only available when `certSource` is "manual"
     crt: ""
-    # Content of api-gateway's TLS key file, only available when `certSource` is "manual"
+    # Content of api-gateway-vdp's TLS key file, only available when `certSource` is "manual"
     key: ""
   # pipeline-backend related cert configuration
-  pipeline:
+  pipeline-backend:
     # secret name for pipeline-backend's tls certs, only available when `certSource` is "secret"
     secretName: ""
     # Content of pipeline-backend's TLS key file, only available when `certSource` is "manual"
@@ -161,111 +124,38 @@ internalTLS:
     # Content of pipeline-backend's TLS key file, only available when `certSource` is "manual"
     key: ""
   # connector-backend related cert configuration
-  connector:
+  connector-backend:
     # secret name for connector-backend's tls certs, only available when `certSource` is "secret"
     secretName: ""
     # Content of connector-backend's TLS key file, only available when `certSource` is "manual"
     crt: ""
     # Content of connector-backend's TLS key file, only available when `certSource` is "manual"
     key: ""
-  # model-backend related cert configuration
-  model:
-    # secret name for model-backend's tls certs, only available when `certSource` is "secret"
+  # controller-vdp related cert configuration
+  controllerVDP:
+    # secret name for controller-vdp's tls certs, only available when `certSource` is "secret"
     secretName: ""
-    # Content of model-backend's TLS key file, only available when `certSource` is "manual"
+    # Content of controller-vdp's TLS key file, only available when `certSource` is "manual"
     crt: ""
-    # Content of model-backend's TLS key file, only available when `certSource` is "manual"
+    # Content of controller-vdp's TLS key file, only available when `certSource` is "manual"
     key: ""
-  # controller related cert configuration
-  controller:
-    # secret name for mcontroller's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of controller's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of controller's TLS key file, only available when `certSource` is "manual"
-    key: ""
-  # mgmt-backend related cert configuration
-  mgmt:
-    # secret name for mgmt-backend's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of mgmt-backend's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of mgmt-backend's TLS key file, only available when `certSource` is "manual"
-    key: ""
-  # console related cert configuration
-  console:
-    # secret name for console's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of console's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of console's TLS key file, only available when `certSource` is "manual"
-    key: ""
-  # triton related cert configuration
-  triton:
-    # secret name for triton's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of triton's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of triton's TLS key file, only available when `certSource` is "manual"
-    key: ""
-# -- The persistence is enabled by default and a default StorageClass
-# is needed in the k8s cluster to provision volumes dynamically.
-# Specify another StorageClass in the "storageClass" or set "existingClaim"
-# if you already have existing persistent volumes to use
-persistence:
-  enabled: true
-  # Setting it to "keep" to avoid removing PVCs during a helm delete
-  # operation. Leaving it empty will delete PVCs after the chart deleted
-  # (this does not apply for PVCs that are created for internal database
-  # and redis components, i.e. they are never deleted automatically)
-  resourcePolicy: "keep"
-  persistentVolumeClaim:
-    modelRepository:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 50Gi
-      annotations: {}
-    condaPack:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 10Gi
-      annotations: {}
-    # If external database is used, the following settings for database will be ignored
-    database:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 128Mi
-      annotations: {}
-    # If external Redis is used, the following settings for Redis will be ignored
-    redis:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 128Mi
-      annotations: {}
 # -- The usage collector configuration
 usage:
   enabled: true
   tlsenabled: true
   host: usage.instill.tech
   port: 443
-apigateway:
+apiGatewayVDP:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.2.7-alpha
-    pullPolicy: Always
+    tag: 0.3.0-alpha
+    pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
-  # -- Enable TLS for api-gateway or not
-  enableTLS: false
+  # -- The TLS configuration for api-gateway-vdp
+  tls:
+    enabled: false
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -311,12 +201,12 @@ apigateway:
     spec:
       minAvailable:
       maxUnavailable:
-pipeline:
+pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.12.1-alpha
-    pullPolicy: Always
+    tag: 0.13.0-alpha
+    pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
     migration: pipeline-backend-migrate
@@ -325,7 +215,7 @@ pipeline:
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 2
+  dbVersion: 3
   # -- workflow setting
   workflow:
     maxWorkflowTimeout: 3600 # in seconds
@@ -384,12 +274,12 @@ pipeline:
     spec:
       minAvailable:
       maxUnavailable:
-connector:
+connectorBackend:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.9.6-alpha
-    pullPolicy: Always
+    tag: 0.10.0-alpha
+    pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
     migration: connector-backend-migrate
@@ -398,7 +288,9 @@ connector:
   # -- The path of configuration file for connector-backend
   configPath: /connector-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 2
+  dbVersion: 3
+  # -- Load the pre-built connector or not
+  prebuiltConnectorEnabled: false
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
@@ -452,152 +344,17 @@ connector:
     spec:
       minAvailable:
       maxUnavailable:
-model:
-  # -- The image of model-backend
-  image:
-    repository: instill/model-backend
-    tag: 0.16.6-alpha
-    pullPolicy: Always
-  # -- The command names to be executed
-  commandName:
-    migration: model-backend-migrate
-    init: model-backend-init
-    worker: model-backend-worker
-    main: model-backend
-    initModel: model-backend-init-model
-  # -- The path of configuration file for model-backend
-  configPath: /model-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 1
-  # -- The configuration of Temporal Cloud
-  temporal:
-    hostPort:
-    namespace:
-    ca:
-    cert:
-    key:
-    serverName:
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for model-backend
-  replicaCount: 1
-  # -- The model initialization configuration
-  initModel:
-    enabled: false
-    path: https://raw.githubusercontent.com/instill-ai/vdp/main/model-hub/model_hub_cpu.json
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-mgmt:
-  # -- The image of mgmt-backend
-  image:
-    repository: instill/mgmt-backend
-    tag: 0.3.9-alpha
-    pullPolicy: Always
-  # -- The command names to be executed
-  commandName:
-    migration: mgmt-backend-migrate
-    init: mgmt-backend-init
-    main: mgmt-backend
-  # -- The path of configuration file for mgmt-backend
-  configPath: /mgmt-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 1
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for mgmt-backend
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  # -- The pod resource
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-controller:
+controllerVDP:
   # -- The image of controller
   image:
-    repository: instill/controller
-    tag: 0.1.6-alpha
-    pullPolicy: Always
+    repository: instill/controller-vdp
+    tag: 0.1.0-alpha
+    pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
-    main: controller
+    main: controller-vdp
   # -- The path of configuration file for mgmt-backend
-  configPath: /controller/config/config.yaml
+  configPath: /controller-vdp/config/config.yaml
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -644,155 +401,15 @@ controller:
     spec:
       minAvailable:
       maxUnavailable:
-console:
-  # -- Enable console deployment or not
-  enabled: true
-  # -- The image of console
-  image:
-    repository: instill/console
-    tag: 0.24.0-alpha
-    pullPolicy: Always
-  # -- The accessible endpoint for the api-gateway from the console server side
-  serverApiGatewayBaseUrl:
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for console
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volume
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-triton:
-  # -- The image of Triton
-  image:
-    repository: instill/tritonserver
-    tag: 22.12
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for Triton
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  # -- The pod resource
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-  nvidiaVisibleDevices: all
-  condaEnv:
-    image:
-      repository: instill/triton-conda-env
-      tag: 0.3.1-alpha
-      pullPolicy: IfNotPresent
-  shmSizeLimit: 2Gi
-  gpu:
-    enabled: false
-    num:
 database:
-  # -- If external database is used, set "enabled" to false
-  # and fill the connection informations in "external" section
-  enabled: true
-  # -- The image of postgresql
-  image:
-    repository: postgres
-    tag: 15-alpine
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The initial superuser password for internal database
-  password: "password"
-  # -- The size limit for Shared memory, pgSQL use it for shared_buffer
-  shmSizeLimit: 512Mi
-  # -- The pod resource
-  resources: {}
-  # -- The timeout used in livenessProbe; 1 to 5 seconds
-  livenessProbe:
-    timeoutSeconds: 1
-  # -- The timeout used in readinessProbe; 1 to 5 seconds
-  readinessProbe:
-    timeoutSeconds: 1
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+  # -- The host of database
+  host:
+  # -- The port of database
+  port:
+  # -- The user name
+  username:
+  # -- The user password
+  password:
   # -- The maximum number of connections in the idle connection pool per pod.
   # If it <=0, no idle connections are retained.
   maxIdleConns: 5
@@ -803,12 +420,6 @@ database:
   # Expired connections may be closed lazily before reuse.
   # If it <= 0, connections are not closed due to a connection's age.
   maxConnLifeTime: 30m
-  # -- The configuration of external database
-  external:
-    host:
-    port:
-    username:
-    password:
 etcd:
   persistence:
     enabled: false
@@ -818,266 +429,8 @@ etcd:
   autoCompactionMode: revision
   autoCompactionRetention: 1
 redis:
-  # -- If external Redis is used, set "enabled" to false
-  # and fill the connection informations in "external" section
-  enabled: true
-  # -- The image of redis
-  image:
-    repository: redis
-    tag: 7.0-alpine3.16
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The pod resource
-  resources: {}
-  ## -- The priority class to run the pod as
-  priorityClassName:
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  ## -- The configuration of external redis
-  external:
-    # -- Address for redis: <host_redis>:<port_redis>
-    addr:
+  addr:
 temporal:
-  # -- Enable Temporal deployment or not
-  enabled: true
-  server:
-    # -- Enable Temporal server
-    enabled: true
-    # -- The image of Temporal server
-    image:
-      repository: temporalio/server
-      tag: 1.19.1
-      pullPolicy: IfNotPresent
-    dynamicConfig: {}
-    # matching.numTaskqueueReadPartitions:
-    #   - value: 5
-    #     constraints: {}
-    # matching.numTaskqueueWritePartitions:
-    #   - value: 5
-    #     constraints: {}
-
-    config:
-      logLevel: "debug,info"
-      # IMPORTANT: This value cannot be changed, once it's set.
-      numHistoryShards: 512
-      persistence:
-        defaultStore: default
-        additionalStores: {}
-        default:
-          driver: "sql"
-          sql:
-            driver: "postgres"
-            host:
-            port: 5432
-            database: "temporal"
-            existingSecret: ""
-            secretName: ""
-            maxConns: 20
-            maxConnLifetime: "1h"
-            # connectAttributes:
-            # tx_isolation: 'READ-COMMITTED'
-        visibility:
-          driver: "sql"
-          sql:
-            driver: "postgres"
-            host:
-            port: 5432
-            database: "temporal_visibility"
-            existingSecret: ""
-            secretName: ""
-            maxConns: 20
-            maxConnLifetime: "1h"
-            # connectAttributes:
-            #   tx_isolation: 'READ-COMMITTED'
-    metrics:
-      # Annotate pods directly with Prometheus annotations.
-      # Use this if you installed Prometheus from a Helm chart.
-      annotations:
-        enabled: true
-      # Enable Prometheus ServiceMonitor
-      # Use this if you installed the Prometheus Operator (https://github.com/coreos/prometheus-operator).
-      serviceMonitor:
-        enabled: false
-        interval: 30s
-        # Set additional lables to all the ServiceMonitor resources
-        additionalLabels: {}
-        #  label1: value1
-        #  label2: value2
-        # Set Prometheus metric_relabel_configs via ServiceMonitor
-        # Use metricRelabelings to adjust metric and label names as needed
-        metricRelabelings: []
-        # - action: replace
-        #   sourceLabels:
-        #   - exported_namespace
-        #   targetLabel: temporal_namespace
-        # - action: replace
-        #   regex: service_errors_(.+)
-        #   replacement: ${1}
-        #   sourceLabels:
-        #   - __name__
-        #   targetLabel: temporal_error_kind
-        # - action: replace
-        #   regex: service_errors_.+
-        #   replacement: temporal_service_errors
-        #   sourceLabels:
-        #   - __name__
-        #   targetLabel: __name__
-      prometheus:
-        timerType: histogram
-    frontend:
-      replicaCount: 1
-      service:
-        annotations: {}
-        type: ClusterIP
-        port: 7233
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    history:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7234
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    matching:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7235
-      metrics:
-        annotations:
-          enabled: false
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    worker:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7239
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    # -- Set the service account to be used, default if left empty
-    serviceAccountName: ""
-    # -- Mount the service account token
-    automountServiceAccountToken: false
-    # -- Add extra env variables
-    extraEnv: []
-    # -- Mount external volumes
-    # For example, mount a secret containing Certificate root CA to verify database
-    # TLS connection.
-    extraVolumes: []
-    # - name: my-volume
-    #   secret:
-    #     secretName: my-secret
-    extraVolumeMounts: []
-    # - name: my-volume
-    #   mountPath: /etc/secrets/my-secret
-    #   readOnly: true
-    # -- Add extra init containers
-    extraInitContainers: []
-    # extraInitContainers:
-    #  - name: ...
-    #    image: ...
-    # -- Add extra sidecar containers
-    sidecarContainers: {}
-    # -- Additional deployment annotations
-    podAnnotations: {}
-    # -- Additional service annotations
-    serviceAnnotations: {}
-    # -- The pod resource
-    resources: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
   admintools:
     # -- Enable Temporal admin-tools
     enabled: true
@@ -1103,228 +456,10 @@ temporal:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-  ui:
-    # -- Enable Temporal UI
-    enabled: true
-    # -- The image of Temporal UI
-    image:
-      repository: temporalio/ui
-      tag: 2.9.0
-      pullPolicy: IfNotPresent
-    # -- Set the service account to be used, default if left empty
-    serviceAccountName: ""
-    # -- Mount the service account token
-    automountServiceAccountToken: false
-    # -- The number of replica for temporal ui
-    replicaCount: 1
-    # -- The pod resource
-    resources: {}
-    ## -- The priority class to run the pod as
-    priorityClassName:
-    # -- Additional deployment annotations
-    podAnnotations: {}
-    # -- Additional service annotations
-    serviceAnnotations: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    config:
-      # server/config.yml file content
-      auth:
-        enabled: false
-      routing:
-        default_to_namespace: default
-        issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
-elasticsearch:
-  # -- If external Elasticsearch is used, set "enabled" to false
-  # and fill the connection informations in "external" section
-  enabled: true
-  clusterName: vdp-elasticsearch
-  replicas: 1
-  version: v7
-  protocol: http
-  httpPort: 9200
-  createCert: false
-  visibilityIndex: "temporal_visibility_v1_dev"
-  extraEnvs:
-    - name: ELASTIC_PASSWORD
-      value: "password"
-  persistence:
-    enabled: false
-  esConfig:
-    elasticsearch.yml: |
-      xpack.security.enabled: false
-  ## -- The configuration of external Elasticsearch
-  external:
-influxdb2:
-  enabled: true
-  service:
-    port: 8086
-  adminUser:
-    organization: "instill-ai"
-    bucket: "krakend"
-    retention_policy: "1w"
-    user: "admin"
-    password: "password"
-    token: "i-love-instill-ai"
-  initScripts:
-    enabled: true
-    scripts:
-      init.sh: |
-        #!/bin/bash
-        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
-        influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
-        influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
-jaeger:
-  enabled: true
-  provisionDataStore:
-    cassandra: false
-  storage:
-    type: elasticsearch
-    elasticsearch:
-      host: vdp-elasticsearch-master
-      port: 9200
-      user: elastic
-      password: password
-  collector:
-    initContainers:
-      - name: wait-for-elasticsearch
-        image: curlimages/curl:8.00.1
-        command: ["sh", "-c"]
-        args:
-          - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://vdp-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
-opentelemetry-collector:
-  enabled: true
-  mode: deployment
-  ports:
-    jaeger-compact:
-      enabled: false
-    jaeger-thrift:
-      enabled: false
-    jaeger-grpc:
-      enabled: false
-    zipkin:
-      enabled: false
-    otlp-http:
-      enabled: false
-    otlp:
-      enabled: true
-      containerPort: 8095
-      servicePort: 8095
-    metrics:
-      enabled: true
-      containerPort: 9001
-      servicePort: 9001
-      protocol: TCP
-  config:
-    receivers:
-      jaeger: null
-      prometheus: null
-      zipkin: null
-      otlp:
-        protocols:
-          grpc:
-            endpoint: ${env:MY_POD_IP}:8095
-    processors:
-      memory_limiter:
-        limit_percentage: 50
-        check_interval: 1s
-        spike_limit_percentage: 30
-      batch:
-        send_batch_size: 8192
-    exporters:
-      logging: # aka, stdOut/stdErr
-      jaeger:
-        endpoint: vdp-jaeger-collector:14250
-        tls:
-          insecure: true
-      prometheus:
-        endpoint: ${env:MY_POD_IP}:9001
-        namespace: vdp
-        send_timestamps: true
-        enable_open_metrics: true
-    service:
-      pipelines:
-        traces:
-          receivers:
-            - otlp
-          processors:
-            - memory_limiter
-            - batch
-          exporters:
-            - logging
-            - jaeger
-        metrics:
-          receivers:
-            - otlp
-          processors:
-            - memory_limiter
-            - batch
-          exporters:
-            - logging
-            - prometheus
-        logs:
-          receivers:
-            - otlp
-          processors:
-            - memory_limiter
-            - batch
-          exporters:
-            - logging
-prometheus:
-  enabled: true
-  prometheus-node-exporter:
-    enabled: false
-  global:
-    evaluation_interval: 10s
-    scrape_interval: 5s
-  scrape_configs:
-    - job_name: "metric-collector"
-      static_configs:
-        - targets:
-            - "http://vdp-opentelemetry-collector:9001"
-            - "http://vdp-apigateway:9000"
-grafana:
-  enabled: true
-  adminPassword: password
-  dashboards:
-    default:
-      krakend-dashboard:
-        url: https://grafana.com/api/dashboards/17074/revisions/1/download
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: "default"
-          orgId: 1
-          folder: ""
-          type: file
-          disableDeletion: false
-          updateIntervalSeconds: 60
-          options:
-            path: /var/lib/grafana/dashboards/default
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: "influx"
-          type: "influxdb"
-          access: "proxy"
-          editable: true
-          isDefault: true
-          orgId: 1
-          url: "http://vdp-influxdb2:8086"
-          version: 1
-          database: krakend
-          basicAuth: false
-          jsonData:
-            defaultBucket: krakend
-            httpMode: POST
-            organization: instill-ai
-            version: Flux
-          secureJsonData:
-            token: i-love-instill-ai
+influxdbCloud:
+  url: "http://base-influxdb2:8086"
+  token: "i-love-instill-ai"
+  organization: "instill-ai"
+  bucket: "instill-ai"
 tags:
   observability: true
