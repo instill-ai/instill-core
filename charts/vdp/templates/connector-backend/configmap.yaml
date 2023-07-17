@@ -21,13 +21,15 @@ data:
       {{- end }}
       prebuiltconnector:
         enabled: {{ .Values.connectorBackend.prebuiltConnectorEnabled }}
-    container:
-      mountsource:
-        vdp: /vdp
-        airbyte: /airbyte
-      mounttarget:
-        vdp: /vdp
-        airbyte: /local
+    connector:
+      airbyte:
+        mountsource:
+          vdp: /vdp
+          airbyte: /airbyte
+        mounttarget:
+          vdp: /vdp
+          airbyte: /local
+        excludelocalconnector: true
     database:
       username: {{ default (include "base.database.username" .) .Values.database.username }}
       password: {{ default (include "base.database.rawPassword" .) .Values.database.password }}
