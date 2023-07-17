@@ -6,61 +6,61 @@ type: object
 description: VDP Protocol structs
 additionalProperties: true
 oneOf:
-  - required:
-      - classification
-  - required:
-      - detection
-  - required:
-      - keypoint
-  - required:
-      - ocr
-  - required:
-      - instance_segmentation
-  - required:
-      - semantic_segmentation
-  - required:
-      - text_to_image
-  - required:
-      - text_generation
-  - required:
-      - unspecified
+- required:
+  - classification
+- required:
+  - detection
+- required:
+  - keypoint
+- required:
+  - ocr
+- required:
+  - instance_segmentation
+- required:
+  - semantic_segmentation
+- required:
+  - text_to_image
+- required:
+  - text_generation
+- required:
+  - unspecified
 properties:
   classification:
-    description: "Classify an image into pre-defined categories"
+    description: Classify an image into pre-defined categories
     "$ref": "#/definitions/Classification"
   detection:
-    description: "Detect and localise multiple objects"
+    description: Detect and localise multiple objects
     "$ref": "#/definitions/Detection"
   keypoint:
-    description: "Detect and localise keypoints of multiple objects"
+    description: Detect and localise keypoints of multiple objects
     "$ref": "#/definitions/Keypoint"
   ocr:
-    description: "Detect, localise and recognise texts"
+    description: Detect, localise and recognise texts
     "$ref": "#/definitions/Ocr"
   instance_segmentation:
-    description: "Detect, localise and delineate multiple objects"
+    description: Detect, localise and delineate multiple objects
     "$ref": "#/definitions/InstanceSegmentation"
   semantic_segmentation:
-    description: "Classify image pixels into predefined categories"
+    description: Classify image pixels into predefined categories
     "$ref": "#/definitions/SemanticSegmentation"
   text_to_image:
-    description: "Generates images from input text"
+    description: Generates images from input text
     "$ref": "#/definitions/TextToImage"
   text_generation:
-    description: "Generate new texts from input text"
+    description: Generate new texts from input text
     "$ref": "#/definitions/TextGeneration"
   unspecified:
-    description: "Unspecified task with output in the free form"
+    description: Unspecified task with output in the free form
     "$ref": "#/definitions/Unspecified"
 definitions:
   Classification:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -70,23 +70,23 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - category
-            - score
+          - category
+          - score
           properties:
             category:
-              description: "The predicted category of the input"
+              description: The predicted category of the input
               type: string
             score:
-              description: "The confidence score of the predicted category of the input"
+              description: The confidence score of the predicted category of the input
               type: number
   Detection:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -96,35 +96,36 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - objects
+          - objects
           properties:
             objects:
-              description: "A list of detected objects"
+              description: A list of detected objects
               type: array
               items:
                 type: object
                 additionalProperties: false
                 required:
-                  - boundingBox
-                  - category
-                  - score
+                - bounding_box
+                - category
+                - score
                 properties:
-                  boundingBox:
+                  bounding_box:
                     "$ref": "#/definitions/BoundingBox"
                   category:
-                    description: "The predicted category of the bounding box"
+                    description: The predicted category of the bounding box
                     type: string
                   score:
-                    description: "The confidence score of the predicted category of the bounding box"
+                    description: The confidence score of the predicted category of
+                      the bounding box
                     type: number
   Keypoint:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -134,47 +135,52 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - objects
+          - objects
           properties:
             objects:
-              description: "A list of keypoint objects, a keypoint object includes all the pre-defined keypoints of a detected object"
+              description: A list of keypoint objects, a keypoint object includes
+                all the pre-defined keypoints of a detected object
               type: array
               items:
                 type: object
                 required:
-                  - keypoints
-                  - score
+                - keypoints
+                - score
+                - bounding_box
                 properties:
                   keypoints:
-                    description: "A keypoint group is composed of a list of pre-defined keypoints of a detected object"
+                    description: A keypoint group is composed of a list of pre-defined
+                      keypoints of a detected object
                     type: array
                     items:
                       type: object
                       required:
-                        - "x"
-                        - "y"
-                        - "v"
+                      - x
+                      - y
+                      - v
                       properties:
                         x:
-                          description: "x coordinate of the keypoint"
+                          description: x coordinate of the keypoint
                           type: number
                         y:
-                          description: "y coordinate of the keypoint"
+                          description: y coordinate of the keypoint
                           type: number
                         v:
-                          description: "visibility score of the keypoint"
+                          description: visibility score of the keypoint
                           type: number
                   score:
-                    description: "The confidence score of the predicted object"
+                    description: The confidence score of the predicted object
                     type: number
+                  bounding_box:
+                    "$ref": "#/definitions/BoundingBox"
   Ocr:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -184,34 +190,34 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - objects
+          - objects
           properties:
             objects:
-              description: "A list of detected bounding boxes"
+              description: A list of detected bounding boxes
               type: array
               items:
                 type: object
                 required:
-                  - boundingBox
-                  - text
-                  - score
+                - boundingBox
+                - text
+                - score
                 properties:
                   boundingBox:
                     "$ref": "#/definitions/BoundingBox"
                   text:
-                    description: "Text string recognised per bounding box"
+                    description: Text string recognised per bounding box
                     type: string
                   score:
-                    description: "The confidence score of the predicted object"
+                    description: The confidence score of the predicted object
                     type: number
   InstanceSegmentation:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -221,38 +227,39 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - objects
+          - objects
           properties:
             objects:
-              description: "A list of detected instance bounding boxes"
+              description: A list of detected instance bounding boxes
               type: array
               items:
                 type: object
                 required:
-                  - rle
-                  - boundingBox
-                  - category
-                  - score
+                - rle
+                - boundingBox
+                - category
+                - score
                 properties:
                   rle:
-                    description: Run Length Encoding (RLE) of instance mask within the bounding box
+                    description: Run Length Encoding (RLE) of instance mask within
+                      the bounding box
                     type: string
                   boundingBox:
                     "$ref": "#/definitions/BoundingBox"
                   category:
-                    description: "The predicted category of the bounding box"
+                    description: The predicted category of the bounding box
                     type: string
                   score:
-                    description: "The confidence score of the predicted instance object"
+                    description: The confidence score of the predicted instance object
                     type: number
   SemanticSegmentation:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         "$ref": "#/definitions/BatchImage"
@@ -262,31 +269,33 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - stuffs
+          - stuffs
           properties:
             stuffs:
-              description: "A list of RLE binary masks"
+              description: A list of RLE binary masks
               type: array
               items:
                 type: object
                 required:
-                  - rle
-                  - category
+                - rle
+                - category
                 properties:
                   rle:
-                    description: Run Length Encoding (RLE) of each stuff mask within the image
+                    description: Run Length Encoding (RLE) of each stuff mask within
+                      the image
                     type: string
                   category:
-                    description: "Category text string corresponding to each stuff mask"
+                    description: Category text string corresponding to each stuff
+                      mask
                     type: string
   TextToImage:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         type: array
@@ -294,25 +303,32 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - prompt
+          - text_prompts
           properties:
-            prompt:
-              description: "The prompt text to generate images"
-              type: string
+            text_prompts:
+              description: The prompts to generate images
+              type: array
+              items:
+                type: string
             steps:
-              description: "The steps to generate the final images (default 5)"
+              description: The steps to generate the final images (default 5)
               type: number
-            cfgScale:
-              description: "Classifier Free Guidance (CFG) Scale is a measure of how close you want the model to stick to the prompt when looking for a related image to generate (default 7.5)"
+            cfg_scale:
+              description: Classifier Free Guidance (CFG) Scale is a measure of how
+                close you want the model to stick to the prompt when looking for a
+                related image to generate (default 7.5)
               type: number
-            negativePrompt:
-              description: 'Negative prompt specifies what content should not be in the generated images (default "")'
-              type: string
             seed:
-              description: "The random seed to generate images (default 0)"
+              description: The random seed to generate images (default 0)
               type: number
             samples:
-              description: "The number of generated images (default 1)"
+              description: The number of generated images (default 1)
+              type: number
+            height:
+              description: The height of generated images (default 512)
+              type: number
+            width:
+              description: The width of generated images (default 512)
               type: number
       output:
         type: array
@@ -320,22 +336,82 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - images
+          - images
           properties:
             images:
-              description: "A list of generated images"
+              description: A list of generated images
               type: array
               items:
-                description: "Generated image string in Base64 format"
+                description: Generated image string in Base64 format
+                type: string
+  ImageToImage:
+    type: object
+    additionalProperties: false
+    oneOf:
+    - required:
+      - input
+    - required:
+      - output
+    properties:
+      input:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - text_prompts
+          - init_image
+          properties:
+            text_prompts:
+              description: The prompts to generate images
+              type: array
+              items:
+                type: string
+            init_image:
+              description: The initial image
+              "$ref": "#/definitions/Image"
+            steps:
+              description: The steps to generate the final images (default 5)
+              type: number
+            cfg_scale:
+              description: Classifier Free Guidance (CFG) Scale is a measure of how
+                close you want the model to stick to the prompt when looking for a
+                related image to generate (default 7.5)
+              type: number
+            seed:
+              description: The random seed to generate images (default 0)
+              type: number
+            samples:
+              description: The number of generated images (default 1)
+              type: number
+            height:
+              description: The height of generated images (default 512)
+              type: number
+            width:
+              description: The width of generated images (default 512)
+              type: number
+      output:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - images
+          properties:
+            images:
+              description: A list of generated images
+              type: array
+              items:
+                description: Generated image string in Base64 format
                 type: string
   TextGeneration:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         type: array
@@ -343,25 +419,27 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - prompt
+          - text_prompts
           properties:
-            prompt:
-              description: "The prompt text to generate text"
-              type: string
-            outputLength:
-              description: "The maximum number of tokens for model to generate"
+            text_prompts:
+              description: The prompt text to generate text
+              type: array
+              items:
+                type: string
+            output_len:
+              description: The maximum number of tokens for model to generate
               type: number
-            badWordsList:
-              description: "The words not to avoid being generated by the model"
+            bad_words:
+              description: The words not to avoid being generated by the model
               type: string
-            stopWordsList:
-              description: "The trigger words to stop generation"
+            stop_words:
+              description: The trigger words to stop generation
               type: string
-            topk:
-              description: "Top k for sampling"
+            top_k:
+              description: Top k for sampling
               type: number
             seed:
-              description: "The random seed to generate text"
+              description: The random seed to generate text
               type: number
       output:
         type: array
@@ -369,19 +447,19 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - text
+          - text
           properties:
             text:
-              description: "Generated text string"
+              description: Generated text string
               type: string
-  Unspecified:
+  TextEmbeddings:
     type: object
     additionalProperties: false
     oneOf:
-      - required:
-          - input
-      - required:
-          - output
+    - required:
+      - input
+    - required:
+      - output
     properties:
       input:
         type: array
@@ -389,10 +467,43 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - data
+          - texts
+          properties:
+            texts:
+              description: The texts to convert to embeddings
+              type: array
+              items:
+                type: string
+      output:
+        type: object
+        additionalProperties: false
+        required:
+        - embedding
+        properties:
+          embedding:
+            description: The generated embeddings
+            type: array
+            items:
+              type: number
+  Unspecified:
+    type: object
+    additionalProperties: false
+    oneOf:
+    - required:
+      - input
+    - required:
+      - output
+    properties:
+      input:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - data
           properties:
             data:
-              description: "The input data"
+              description: The input data
               type: object
       output:
         type: array
@@ -400,62 +511,64 @@ definitions:
           type: object
           additionalProperties: false
           required:
-            - name
-            - data_type
-            - shape
-            - data
+          - name
+          - data_type
+          - shape
+          - data
           properties:
             name:
-              description: "The corresponding output name of the model output data"
+              description: The corresponding output name of the model output data
               type: string
             data_type:
-              description: "The type of the output data"
+              description: The type of the output data
               type: string
             shape:
-              description: "The shape of the output data"
+              description: The shape of the output data
               type: array
               items:
                 type: integer
             data:
-              description: "The output data"
+              description: The output data
               type: array
-              items: {} # Allow any type
+              items: {}
   BatchImage:
     type: array
     items:
-      type: object
-      additionalProperties: false
-      anyOf:
-        - required:
-            - url
-        - required:
-            - base64
-      properties:
-        url:
-          description: "The URL of the input image"
-          type: string
-        base64:
-          description: "The Base64 encoded string of the input image"
-          type: string
+      "$ref": "#/definitions/Image"
+  Image:
+    type: object
+    additionalProperties: false
+    anyOf:
+    - required:
+      - url
+    - required:
+      - base64
+    properties:
+      url:
+        description: The URL of the input image
+        type: string
+      base64:
+        description: The Base64 encoded string of the input image
+        type: string
   BoundingBox:
     type: object
-    description: "The detected bounding box in (left, top, width, height) format"
+    description: The detected bounding box in (left, top, width, height) format
     additionalProperties: false
     required:
-      - left
-      - top
-      - width
-      - height
+    - left
+    - top
+    - width
+    - height
     properties:
       left:
-        description: "Bounding box left x-axis value"
+        description: Bounding box left x-axis value
         type: number
       top:
-        description: "Bounding box top y-axis value"
+        description: Bounding box top y-axis value
         type: number
       width:
-        description: "Bounding box width value"
+        description: Bounding box width value
         type: number
       height:
-        description: "Bounding box height value"
+        description: Bounding box height value
         type: number
