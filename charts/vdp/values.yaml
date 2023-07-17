@@ -288,7 +288,7 @@ connectorBackend:
   # -- The path of configuration file for connector-backend
   configPath: /connector-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 3
+  dbVersion: 4
   # -- Load the pre-built connector or not
   prebuiltConnectorEnabled: false
   # -- The configuration of Temporal Cloud
