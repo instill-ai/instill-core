@@ -21,7 +21,11 @@ oneOf:
 - required:
   - text_to_image
 - required:
+  - image_to_image
+- required:
   - text_generation
+- required:
+  - text_embeddings
 - required:
   - unspecified
 properties:
@@ -46,9 +50,15 @@ properties:
   text_to_image:
     description: Generates images from input text
     "$ref": "#/definitions/TextToImage"
+  image_to_image:
+    description: Generated images from input image and text
+    "$ref": "#/definitions/ImageToImage"
   text_generation:
     description: Generate new texts from input text
     "$ref": "#/definitions/TextGeneration"
+  text_embeddings:
+    description: Convert text to embeddings
+    "$ref": "#/definitions/TextEmbeddings"
   unspecified:
     description: Unspecified task with output in the free form
     "$ref": "#/definitions/Unspecified"
@@ -58,13 +68,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -84,13 +94,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -123,13 +133,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -178,13 +188,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -215,13 +225,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -257,13 +267,13 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         "$ref": "#/definitions/BatchImage"
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -293,11 +303,11 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         type: array
         items:
           type: object
@@ -330,7 +340,7 @@ definitions:
             width:
               description: The width of generated images (default 512)
               type: number
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -349,11 +359,11 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         type: array
         items:
           type: object
@@ -390,7 +400,7 @@ definitions:
             width:
               description: The width of generated images (default 512)
               type: number
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -409,11 +419,11 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         type: array
         items:
           type: object
@@ -441,7 +451,7 @@ definitions:
             seed:
               description: The random seed to generate text
               type: number
-      output:
+      outputs:
         type: array
         items:
           type: object
@@ -457,11 +467,11 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         type: array
         items:
           type: object
@@ -474,7 +484,7 @@ definitions:
               type: array
               items:
                 type: string
-      output:
+      outputs:
         type: object
         additionalProperties: false
         required:
@@ -490,11 +500,11 @@ definitions:
     additionalProperties: false
     oneOf:
     - required:
-      - input
+      - inputs
     - required:
-      - output
+      - outputs
     properties:
-      input:
+      inputs:
         type: array
         items:
           type: object
@@ -505,7 +515,7 @@ definitions:
             data:
               description: The input data
               type: object
-      output:
+      outputs:
         type: array
         items:
           type: object
