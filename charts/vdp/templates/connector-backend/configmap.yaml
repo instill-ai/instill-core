@@ -75,3 +75,12 @@ data:
       otelcollector:
         host: {{ template "base.otel" . }}
         port: {{ template "base.otel.port" . }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10 # In seconds for non-blocking batch mode
+      https:
+        cert:
+        key:
