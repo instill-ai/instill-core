@@ -16,6 +16,12 @@ CONTAINER_BACKEND_INTEGRATION_TEST_NAME := vdp-backend-integration-test
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := vdp
 
+ifeq ($(UNAME_S),Darwin)
+EXTRA_PARAMS :=
+else ifeq ($(UNAME_S),Linux)
+EXTRA_PARAMS := -v ${HOME}/.minikube/:${HOME}/.minikube/ --network host
+endif
+
 #============================================================================
 
 .PHONY: all
@@ -234,16 +240,16 @@ integration-test-release:			## Run integration test on the release VDP
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
 	@make build-latest
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set apiGatewayBase.image.tag=latest \
@@ -281,10 +287,10 @@ else ifeq ($(UNAME_S),Linux)
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_NAMESPACE}' \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
 		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
@@ -294,12 +300,12 @@ endif
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
 	@make build-release
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			/bin/bash -c 'cd /instill-ai/base && \
 				export $(grep -v '^#' .env | xargs) && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set tags.observability=false \
@@ -334,10 +340,10 @@ else ifeq ($(UNAME_S),Linux)
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_NAMESPACE}' \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
 		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
