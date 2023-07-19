@@ -99,6 +99,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 	@docker compose down -v
+ifeq ($(UNAME_S),Darwin)
 	@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
@@ -107,6 +108,19 @@ down:			## Stop all services and remove all service containers and volumes
 				/bin/bash -c 'cd /instill-ai/base && make down' \
 			"; \
 	fi
+else ifeq ($(UNAME_S),Linux)
+	@if docker compose ls -q | grep -q "instill-base"; then \
+		docker run -it --rm \
+			-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+			-v ${HOME}/.minikube/:${HOME}/.minikube/ \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			--network host \
+			--name ${CONTAINER_COMPOSE_NAME} \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+				/bin/bash -c 'cd /instill-ai/base && make down' \
+			"; \
+	fi
+endif
 
 .PHONY: images
 images:			## List all container images
@@ -233,6 +247,7 @@ integration-test-release:			## Run integration test on the release VDP
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
 	@make build-latest
+ifeq ($(UNAME_S),Darwin)
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -253,6 +268,30 @@ helm-integration-test-latest:                       ## Run integration test on t
 					--set tags.prometheusStack=false' \
 			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 		" && rm -rf $${TMP_CONFIG_DIR}
+else ifeq ($(UNAME_S),Linux)
+	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
+		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
+		--network host \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			cp /instill-ai/base/.env $${TMP_CONFIG_DIR}/.env && \
+			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
+			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+			/bin/bash -c 'cd /instill-ai/base && \
+				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+					--namespace ${HELM_NAMESPACE} --create-namespace \
+					--set edition=k8s-ce:test \
+					--set apiGatewayBase.image.tag=latest \
+					--set mgmtBackend.image.tag=latest \
+					--set console.image.tag=latest \
+					--set tags.observability=false \
+					--set tags.prometheusStack=false' \
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
+endif
 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -293,6 +332,7 @@ endif
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
 	@make build-release
+ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm \
 		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
@@ -306,6 +346,23 @@ helm-integration-test-release:                       ## Run integration test on 
 					--set tags.prometheusStack=false' \
 			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 		" && rm -rf $${TMP_CONFIG_DIR}
+else ifeq ($(UNAME_S),Linux)
+	@docker run -it --rm \
+		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
+		--network host \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd /instill-ai/base && \
+				export $(grep -v '^#' .env | xargs) && \
+				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+					--namespace ${HELM_NAMESPACE} --create-namespace \
+					--set edition=k8s-ce:test \
+					--set tags.observability=false \
+					--set tags.prometheusStack=false' \
+			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
+		" && rm -rf $${TMP_CONFIG_DIR}
+endif
 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
