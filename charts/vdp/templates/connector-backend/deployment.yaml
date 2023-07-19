@@ -90,6 +90,7 @@ spec:
           {{- if .Values.connectorBackend.extraEnv }}
             {{- toYaml .Values.connectorBackend.extraEnv | nindent 12 }}
           {{- end }}
+        {{- if .Values.connectorBackend.copyHostDocker }}
         - name: copy-docker
           image: alpine:3.14
           imagePullPolicy: IfNotPresent
@@ -106,6 +107,7 @@ spec:
             runAsUser: 0
             runAsGroup: 0
             privileged: true
+        {{- end }}
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']

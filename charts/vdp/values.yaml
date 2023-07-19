@@ -344,6 +344,7 @@ connectorBackend:
     spec:
       minAvailable:
       maxUnavailable:
+  copyHostDocker: false
 controllerVDP:
   # -- The image of controller
   image:
