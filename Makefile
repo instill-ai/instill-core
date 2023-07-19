@@ -238,7 +238,7 @@ integration-test-release:			## Run integration test on the release VDP
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
-	# @make build-latest
+	@make build-latest
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
