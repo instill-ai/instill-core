@@ -107,7 +107,6 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker compose down -v
 	@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
-			-v ${HOME}/.kube/config:/root/.kube/config \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
@@ -260,42 +259,42 @@ helm-integration-test-latest:                       ## Run integration test on t
 					--set tags.prometheusStack=false' \
 			/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 		" && rm -rf $${TMP_CONFIG_DIR}
-# 	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
-# 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
-# 		--set edition=k8s-ce:test \
-# 		--set apiGatewayVDP.image.tag=latest \
-# 		--set pipelineBackend.image.tag=latest \
-# 		--set connectorBackend.image.tag=latest \
-# 		--set controllerVDP.image.tag=latest \
-# 		--set tags.observability=false
-# 	@kubectl rollout status deployment vdp-api-gateway-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
-# 	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
-# 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
-# 	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
-# 	@sleep 1
-# ifeq ($(UNAME_S),Darwin)
-# 	@docker run -it --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-# 			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
-# 			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
-# 			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
-# 		"
-# else ifeq ($(UNAME_S),Linux)
-# 	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-# 			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
-# 			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
-# 			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
-# 		"
-# endif
-# 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
-# 	@docker run -it --rm \
-# 		-v ${HOME}/.kube/config:/root/.kube/config \
-# 		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
-# 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-# 			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
-# 		"
-# 	@kubectl delete namespace instill-ai
-# 	@pkill -f "port-forward"
-# 	@make down
+	@kubectl rollout status deployment base-api-gateway-base --namespace ${HELM_NAMESPACE} --timeout=120s
+	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set apiGatewayVDP.image.tag=latest \
+		--set pipelineBackend.image.tag=latest \
+		--set connectorBackend.image.tag=latest \
+		--set controllerVDP.image.tag=latest \
+		--set tags.observability=false
+	@kubectl rollout status deployment vdp-api-gateway-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
+	@export API_GATEWAY_VDP_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway-vdp,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_VDP_POD_NAME} ${API_GATEWAY_VDP_PORT}:${API_GATEWAY_VDP_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_VDP_PORT} > /dev/null 2>&1; do sleep 1; done
+	@sleep 1
+ifeq ($(UNAME_S),Darwin)
+	@docker run -it --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
+		"
+else ifeq ($(UNAME_S),Linux)
+	@docker run -it --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd pipeline-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd connector-backend && make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' && \
+			/bin/bash -c 'cd controller-vdp && make integration-test API_GATEWAY_VDP_HOST=host.docker.internal API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}' \
+		"
+endif
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+	@docker run -it --rm \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		${EXTRA_PARAMS} --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
+		"
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
