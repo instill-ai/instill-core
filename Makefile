@@ -102,6 +102,7 @@ down:			## Stop all services and remove all service containers and volumes
 ifeq ($(UNAME_S),Darwin)
 	@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
+			-v ${HOME}/.kube/config:/root/.kube/config \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
@@ -111,7 +112,7 @@ ifeq ($(UNAME_S),Darwin)
 else ifeq ($(UNAME_S),Linux)
 	@if docker compose ls -q | grep -q "instill-base"; then \
 		docker run -it --rm \
-			-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+			-v ${HOME}/.kube/config:/root/.kube/config \
 			-v ${HOME}/.minikube/:${HOME}/.minikube/ \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--network host \
@@ -249,7 +250,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@make build-latest
 ifeq ($(UNAME_S),Darwin)
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
@@ -258,7 +259,7 @@ ifeq ($(UNAME_S),Darwin)
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set apiGatewayBase.image.tag=latest \
@@ -270,7 +271,7 @@ ifeq ($(UNAME_S),Darwin)
 		" && rm -rf $${TMP_CONFIG_DIR}
 else ifeq ($(UNAME_S),Linux)
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
@@ -281,7 +282,7 @@ else ifeq ($(UNAME_S),Linux)
 			cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 			/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 			/bin/bash -c 'cd /instill-ai/base && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set apiGatewayBase.image.tag=latest \
@@ -319,12 +320,22 @@ else ifeq ($(UNAME_S),Linux)
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_NAMESPACE}' \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
 		"
+else ifeq ($(UNAME_S),Linux)
+	@docker run -it --rm \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
+		"
+endif
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down
@@ -334,12 +345,12 @@ helm-integration-test-release:                       ## Run integration test on 
 	@make build-release
 ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			/bin/bash -c 'cd /instill-ai/base && \
 				export $(grep -v '^#' .env | xargs) && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set tags.observability=false \
@@ -348,14 +359,14 @@ ifeq ($(UNAME_S),Darwin)
 		" && rm -rf $${TMP_CONFIG_DIR}
 else ifeq ($(UNAME_S),Linux)
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
 		--network host \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
 			/bin/bash -c 'cd /instill-ai/base && \
 				export $(grep -v '^#' .env | xargs) && \
-				helm --kubeconfig /instill-ai/kubeconfig install base charts/base \
+				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
 					--set edition=k8s-ce:test \
 					--set tags.observability=false \
@@ -390,12 +401,23 @@ else ifeq ($(UNAME_S),Linux)
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+ifeq ($(UNAME_S),Darwin)
 	@docker run -it --rm \
-		-v ${HOME}/.kube/config:/instill-ai/kubeconfig \
+		-v ${HOME}/.kube/config:/root/.kube/config \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
-			/bin/bash -c 'cd /instill-ai/base && helm --kubeconfig /instill-ai/kubeconfig uninstall base --namespace ${HELM_NAMESPACE}' \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
 		"
+else ifeq ($(UNAME_S),Linux)
+	@docker run -it --rm \
+		-v ${HOME}/.kube/config:/root/.kube/config \
+		-v ${HOME}/.minikube/:${HOME}/.minikube/ \
+		--network host \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/bash -c " \
+			/bin/bash -c 'cd /instill-ai/base && helm uninstall base --namespace ${HELM_NAMESPACE}' \
+		"
+endif
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down
