@@ -149,7 +149,7 @@ apiGatewayVDP:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.3.0-alpha
+    tag: 0.3.1-alpha
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -205,7 +205,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.13.0-alpha
+    tag: 0.14.0-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -278,7 +278,7 @@ connectorBackend:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.10.0-alpha
+    tag: 0.10.1-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -349,7 +349,7 @@ controllerVDP:
   # -- The image of controller
   image:
     repository: instill/controller-vdp
-    tag: 0.1.0-alpha
+    tag: 0.1.1-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
