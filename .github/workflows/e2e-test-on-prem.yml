@@ -1,78 +1,105 @@
-# name: e2e-test
+name: e2e-test
 
-# on:
-#   workflow_dispatch:
-#   push:
-#     branches:
-#       - ins-837-fix-e2e-test-ga-workflows-in-the-vdp-repo    
-#   schedule:
-#     - cron: "*/5 * * * *"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ins-837-fix-e2e-test-ga-workflows-in-the-vdp-repo    
 
-# jobs:
-#   pipeline-on-prem:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout (latest)
-#         uses: actions/checkout@v2
+jobs:
+  pipeline-on-prem:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop mono service
+        run: |
+          sudo kill -9 `sudo lsof -t -i:8084`
+          sudo lsof -i -P -n | grep LISTEN
 
-#       - name: Load .env file
-#         uses: cardinalby/export-env-action@v2
-#         with:
-#           envFile: .env
-#           expand: true
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
 
-#       - uses: actions/setup-go@v3
-#         with:
-#           go-version: ${{ env.GOLANG_VERSION }}
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-#       # mono occupies port 8084 which conflicts with mgmt-backend
-#       - name: Stop mono service
-#         run: |
-#           sudo kill -9 `sudo lsof -t -i:8084`
-#           sudo lsof -i -P -n | grep LISTEN
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+          docker rmi $(docker image ls --all --quiet)
+          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
+          df --human-readable
 
-#       - name: Free disk space
-#         run: |
-#           df --human-readable
-#           sudo apt clean
-#           docker rmi $(docker image ls --all --quiet) > /dev/null || true
-#           rm --recursive --force "$AGENT_TOOLSDIRECTORY" > /dev/null || true
-#           df --human-readable
+      - name: Checkout repo (base)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
 
-#       - name: Launch VDP (latest)
-#         run: |
-#           ls -al
-#           COMPOSE_PROFILES=all \
-#           EDITION=local-ce:test \
-#           ITMODE_ENABLED=false \
-#           TRITON_CONDA_ENV_PLATFORM=cpu \
-#           docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
-#           COMPOSE_PROFILES=all \
-#           docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+      - name: Load .env file (base)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
 
-#       - name: Install k6
-#         run: |
-#           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+      - name: Launch Instill Base (latest)
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
-#       - name: Inference mobilenetv2 model
-#         run: |
-#           cd ./test; make pipeline-mobilenetv2 MODE=localhost TEST_CPU_ONLY=true
+      - name: Checkout repo (vdp)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
 
-#       - name: Inference yolov7 model
-#         run: |
-#           cd ./test; make pipeline-yolov7 MODE=localhost TEST_CPU_ONLY=true
+      - name: Load .env file (vdp)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
 
-#       - name: Inference instance segmentation model
-#         run: |
-#           cd ./test; make pipeline-instance-segmentation MODE=localhost TEST_CPU_ONLY=true
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
 
-#       - name: Inference semantic segmentation model
-#         run: |
-#           cd ./test; make pipeline-semantic-segmentation MODE=localhost TEST_CPU_ONLY=true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2    
 
-#       - name: Inference text to image model
-#         run: |
-#           cd ./test; make pipeline-text-to-image MODE=localhost TEST_CPU_ONLY=true
+      - name: Launch Instill VDP (latest)
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          ITMODE_ENABLED=false \
+          TRITON_CONDA_ENV_PLATFORM=cpu \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+
+      - name: Inference mobilenetv2 model
+        run: |
+          cd ./test; make pipeline-mobilenetv2 MODE=localhost TEST_CPU_ONLY=true
+
+      - name: Inference yolov7 model
+        run: |
+          cd ./test; make pipeline-yolov7 MODE=localhost TEST_CPU_ONLY=true
+
+      - name: Inference instance segmentation model
+        run: |
+          cd ./test; make pipeline-instance-segmentation MODE=localhost TEST_CPU_ONLY=true
+
+      - name: Inference semantic segmentation model
+        run: |
+          cd ./test; make pipeline-semantic-segmentation MODE=localhost TEST_CPU_ONLY=true
+
+      - name: Inference text to image model
+        run: |
+          cd ./test; make pipeline-text-to-image MODE=localhost TEST_CPU_ONLY=true
