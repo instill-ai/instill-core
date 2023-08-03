@@ -291,6 +291,7 @@ connectorBackend:
   dbVersion: 5
   # -- Load the pre-built connector or not
   prebuiltConnectorEnabled: false
+  excludelocalconnector: true
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:

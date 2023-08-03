@@ -29,7 +29,7 @@ data:
         mounttarget:
           vdp: /vdp
           airbyte: /local
-        excludelocalconnector: true
+        excludelocalconnector: {{ .Values.connectorBackend.excludelocalconnector }}
     database:
       username: {{ default (include "base.database.username" .) .Values.database.username }}
       password: {{ default (include "base.database.rawPassword" .) .Values.database.password }}
