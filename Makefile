@@ -16,6 +16,13 @@ CONTAINER_BACKEND_INTEGRATION_TEST_NAME := vdp-backend-integration-test
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := vdp
 
+# check or generate uuid for user
+ifeq ($(wildcard ${SYSTEM_CONFIG_PATH}/user_uid),)
+$(shell mkdir -p ${SYSTEM_CONFIG_PATH})
+$(shell uuidgen >> ${SYSTEM_CONFIG_PATH}/user_uid)
+endif
+DEFAULT_USER_UID := $(shell cat ${SYSTEM_CONFIG_PATH}/user_uid)
+
 #============================================================================
 
 .PHONY: all
@@ -32,7 +39,7 @@ all:			## Launch all services with their up-to-date release version
 				cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 				/bin/bash -c 'cd /instill-ai/base && make build-release BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-				/bin/bash -c 'cd /instill-ai/base && EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose up -d --quiet-pull' && \
+				/bin/bash -c 'cd /instill-ai/base && DEFAULT_USER_UID=${DEFAULT_USER_UID} EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose up -d --quiet-pull' && \
 				/bin/bash -c 'cd /instill-ai/base && EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose rm -f' && \
 				/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 			" && \
@@ -55,7 +62,7 @@ latest:			## Lunch all dependent services with their latest codebase
 				cp /instill-ai/base/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/base/configs/influxdb $${TMP_CONFIG_DIR} && \
 				/bin/bash -c 'cd /instill-ai/base && make build-latest BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
-				/bin/bash -c 'cd /instill-ai/base && COMPOSE_PROFILES=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull' && \
+				/bin/bash -c 'cd /instill-ai/base && DEFAULT_USER_UID=${DEFAULT_USER_UID} COMPOSE_PROFILES=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull' && \
 				/bin/bash -c 'cd /instill-ai/base && COMPOSE_PROFILES=all EDITION=local-ce:test OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f' && \
 				/bin/bash -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 			" && \
