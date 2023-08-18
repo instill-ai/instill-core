@@ -1,0 +1,15 @@
+name: Helm Integration Test (release)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [pipeline-backend, connector-backend, controller-vdp]
+    uses: instill-ai/vdp/.github/workflows/helm-integration-test-backend.yml@main
+    with:
+      component: ${{ matrix.component }}
+      target: release
