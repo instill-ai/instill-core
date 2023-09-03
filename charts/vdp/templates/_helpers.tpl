@@ -104,10 +104,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- print "base-mgmt-backend" -}}
 {{- end -}}
 
-{{- define "vdp.apiGatewayVDP" -}}
-  {{- printf "%s-api-gateway-vdp" (include "vdp.fullname" .) -}}
-{{- end -}}
-
 {{- define "vdp.pipelineBackend" -}}
   {{- printf "%s-pipeline-backend" (include "vdp.fullname" .) -}}
 {{- end -}}
@@ -134,26 +130,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 
 {{- define "base.etcd" -}}
   {{- print "base-etcd" -}}
-{{- end -}}
-
-{{/* api-gateway project */}}
-{{- define "vdp.apiGatewayVDP.project" -}}
-  {{- printf "vdp" -}}
-{{- end -}}
-
-{{/* api-gateway service and container port */}}
-{{- define "vdp.apiGatewayVDP.httpPort" -}}
-  {{- printf "8080" -}}
-{{- end -}}
-
-{{/* api-gateway service and container stats port */}}
-{{- define "vdp.apiGatewayVDP.statsPort" -}}
-  {{- printf "8070" -}}
-{{- end -}}
-
-{{/* api-gateway service and container metrics port */}}
-{{- define "vdp.apiGatewayVDP.metricsPort" -}}
-  {{- printf "8071" -}}
 {{- end -}}
 
 {{/* pipeline service and container public port */}}
@@ -223,14 +199,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 
 {{- define "base.otel.port" -}}
   {{- printf "8095" -}}
-{{- end -}}
-
-{{- define "vdp.internalTLS.apiGatewayVDP.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.apiGatewayVDP.secretName -}}
-  {{- else -}}
-    {{- printf "%s-api-gateway-vdp-internal-tls" (include "vdp.fullname" .) -}}
-  {{- end -}}
 {{- end -}}
 
 {{- define "vdp.internalTLS.pipelineBackend.secretName" -}}
