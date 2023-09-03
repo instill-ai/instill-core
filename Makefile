@@ -19,7 +19,7 @@ HELM_RELEASE_NAME := vdp
 # check or generate uuid for user
 ifeq ($(wildcard ${SYSTEM_CONFIG_PATH}/user_uid),)
 $(shell mkdir -p ${SYSTEM_CONFIG_PATH})
-$(shell uuidgen >> ${SYSTEM_CONFIG_PATH}/user_uid)
+$(shell docker run --rm andyneff/uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid)
 endif
 DEFAULT_USER_UID := $(shell cat ${SYSTEM_CONFIG_PATH}/user_uid)
 
