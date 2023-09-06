@@ -207,6 +207,8 @@ pipelineBackend:
     repository: instill/pipeline-backend
     tag: 0.14.1-alpha
     pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
   # -- The command names to be executed
   commandName:
     migration: pipeline-backend-migrate
