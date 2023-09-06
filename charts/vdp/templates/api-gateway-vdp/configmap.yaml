@@ -26,6 +26,10 @@ data:
     CONNECTOR_BACKEND_HOST={{ template "vdp.connectorBackend" . }}
     CONNECTOR_BACKEND_PUBLICPORT={{ template "vdp.connectorBackend.publicPort" . }}
 
+    # mgmt-backend
+    MGMT_BACKEND_HOST={{ template "base.mgmtBackend" . }}
+    MGMT_BACKEND_PUBLICPORT={{ template "base.mgmtBackend.publicPort" . }}
+
     # influxdb
     INFLUXDB_HOST={{ template "base.influxdb" . }}
     INFLUXDB_PORT={{ template "base.influxdb.port" . }}
