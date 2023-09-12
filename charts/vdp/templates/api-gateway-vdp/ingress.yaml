@@ -1,3 +1,4 @@
+{{- if .Values.expose.ingress.enabled }}
 {{- if eq .Values.expose.type "ingress" }}
 {{- $ingress := .Values.expose.ingress -}}
 {{- $tls := .Values.expose.tls -}}
@@ -63,4 +64,5 @@ spec:
     {{- if $ingress.hosts.apiGatewayVDP }}
     host: {{ $ingress.hosts.apiGatewayVDP }}
     {{- end }}
+{{- end }}
 {{- end }}

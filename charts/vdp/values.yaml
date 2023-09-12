@@ -42,6 +42,7 @@ expose:
       # "tls.key" - the private key
       secretName: ""
   ingress:
+    enabled: false
     hosts:
       apiGatewayVDP: api-vdp.instill.tech
     # set to the type of ingress controller if it has specific requirements.
@@ -54,6 +55,7 @@ expose:
     # Annotations on the Ingress
     annotations: {}
   clusterIP:
+    enabled: false
     ports:
       # The service port api-gateway http listens on
       apiGatewayVDPHttp:
@@ -64,6 +66,7 @@ expose:
     # Annotations on the ClusterIP service
     annotations: {}
   nodePort:
+    enabled: false
     ports:
       apiGatewayVDPHttp:
         # The service port api-gateway http listens on
@@ -146,6 +149,7 @@ usage:
   host: usage.instill.tech
   port: 443
 apiGatewayVDP:
+  enabled: false
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway

@@ -1,3 +1,4 @@
+{{- if .Values.apiGatewayVDP.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -38,3 +39,4 @@ data:
     JAEGER_ENABLE={{ .Values.tags.observability }}
     JAEGER_HOST={{ template "base.jaeger" . }}
     JAEGER_PORT={{ template "base.jaeger.port" . }}
+{{- end }}

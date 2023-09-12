@@ -1,3 +1,4 @@
+{{- if or ( .Values.expose.clusterIP.enabled ) ( .Values.expose.nodePort.enabled ) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -87,3 +88,4 @@ spec:
   selector:
     {{- include "vdp.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: api-gateway-vdp
+{{- end }}
