@@ -86,7 +86,7 @@ jobs:
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}
+          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
 
   integration-test-release:
     if: inputs.target == 'release'
@@ -165,4 +165,4 @@ jobs:
         run: |
           git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_VDP_HOST=localhost API_GATEWAY_VDP_PORT=${API_GATEWAY_VDP_PORT}
+          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}

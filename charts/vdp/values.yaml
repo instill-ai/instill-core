@@ -17,84 +17,6 @@ edition: k8s-ce
 maxDataSizeMB: 12
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
-expose:
-  # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
-  # and fill the information in the corresponding section
-  type: clusterIP
-  tls:
-    # Enable TLS or not.
-    enabled: true
-    # The source of the tls certificate. Set as "auto", "secret"
-    # or "none" and fill the information in the corresponding section
-    # 1) auto: generate the tls certificate automatically
-    # 2) secret: read the tls certificate from the specified secret.
-    # The tls certificate can be generated manually or by cert manager
-    # 3) none: configure no tls certificate for the ingress. If the default
-    # tls certificate is configured in the ingress controller, choose this option
-    certSource: auto
-    auto:
-      # The common name used to generate the certificate, it's necessary
-      # when the type isn't "ingress"
-      commonName: ""
-    secret:
-      # The name of secret which contains keys named:
-      # "tls.crt" - the certificate
-      # "tls.key" - the private key
-      secretName: ""
-  ingress:
-    hosts:
-      apiGatewayVDP: api-vdp.instill.tech
-    # set to the type of ingress controller if it has specific requirements.
-    # leave as `default` for most ingress controllers.
-    # set to `gce` if using the GCE ingress controller
-    controller: default
-    ## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress
-    kubeVersionOverride: ""
-    className: ""
-    # Annotations on the Ingress
-    annotations: {}
-  clusterIP:
-    ports:
-      # The service port api-gateway http listens on
-      apiGatewayVDPHttp:
-      # The service port api-gateway stats listens on
-      apiGatewayVDPStats:
-      # The service port api-gateway metrics listens on
-      apiGatewayVDPMetrics:
-    # Annotations on the ClusterIP service
-    annotations: {}
-  nodePort:
-    ports:
-      apiGatewayVDPHttp:
-        # The service port api-gateway http listens on
-        port:
-        # The node port api-gateway listens on
-        nodePort: 30010
-      apiGatewayVDPStats:
-        # The service port api-gateway stats listens
-        port:
-        # The node port api-gateway stats listens on
-        nodePort: 30011
-      apiGatewayVDPMetrics:
-        # The service port api-gateway metrics listens on
-        port:
-        # The node port api-gateway metrics listens on
-        nodePort: 30012
-    # Annotations on the NodePort service
-    annotations: {}
-  loadBalancer:
-    # Set the IP if the LoadBalancer supports assigning IP
-    IP: ""
-    sourceRanges: []
-    ports:
-      # The service port api-gateway http listens on
-      apiGatewayVDPHttp:
-      # The service port api-gateway stats listens on
-      apiGatewayVDPStats:
-      # The service port api-gateway metrics listens on
-      apiGatewayVDPMetrics:
-    # Annotations on the LoadBalancer service
-    annotations: {}
 # -- The internal TLS used for VDP components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -107,14 +29,6 @@ internalTLS:
   certSource: "auto"
   # The content of trust ca, only available when `certSource` is "manual"
   trustCa: ""
-  # api-gateway-vdp related cert configuration
-  apiGatewayVDP:
-    # secret name for api-gateway-vdp's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of api-gateway-vdp's TLS cert file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of api-gateway-vdp's TLS key file, only available when `certSource` is "manual"
-    key: ""
   # pipeline-backend related cert configuration
   pipeline-backend:
     # secret name for pipeline-backend's tls certs, only available when `certSource` is "secret"
@@ -145,62 +59,6 @@ usage:
   tlsenabled: true
   host: usage.instill.tech
   port: 443
-apiGatewayVDP:
-  # -- The image of api-gateway
-  image:
-    repository: instill/api-gateway
-    tag: 0.3.2-alpha
-    pullPolicy: IfNotPresent
-  # -- The path of configuration file for api-gateway
-  configPath: /api-gateway/config/.env
-  # -- The TLS configuration for api-gateway-vdp
-  tls:
-    enabled: false
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for api-gateway
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volume
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
 pipelineBackend:
   # -- The image of pipeline-backend
   image:

@@ -1,32 +1,15 @@
 version: "3.9"
 
 services:
-  api_gateway_vdp:
-    profiles:
-      - all
-      - api-gateway-base
-      - mgmt
-      - console
-      - pipeline
-      - connector
-      - controller-vdp
-      - api-gateway-model
-      - model
-      - controller-model
-    image: ${API_GATEWAY_IMAGE}:latest
-    environment:
-      API_GATEWAY_LOG_LEVEL: DEBUG
 
   pipeline_backend_migrate:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - connector
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -34,13 +17,11 @@ services:
   pipeline_backend:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - connector
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -54,13 +35,11 @@ services:
   pipeline_backend_worker:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - connector
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -71,13 +50,11 @@ services:
   connector_backend_migrate:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - pipeline
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
@@ -85,13 +62,11 @@ services:
   connector_backend_init:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - pipeline
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
@@ -99,13 +74,11 @@ services:
   connector_backend:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - pipeline
       - controller-vdp
-      - api-gateway-model
       - model
       - controller-model
     image: ${CONNECTOR_BACKEND_IMAGE}:latest
@@ -119,13 +92,11 @@ services:
   controller_vdp:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
-      - api-gateway-vdp
       - pipeline
       - connector
-      - api-gateway-model
       - model
       - controller-model
     image: ${CONTROLLER_VDP_IMAGE}:latest
