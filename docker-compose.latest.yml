@@ -5,7 +5,7 @@ services:
   pipeline_backend_migrate:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - connector
@@ -17,7 +17,7 @@ services:
   pipeline_backend:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - connector
@@ -35,7 +35,7 @@ services:
   pipeline_backend_worker:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - connector
@@ -50,7 +50,7 @@ services:
   connector_backend_migrate:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - pipeline
@@ -62,7 +62,7 @@ services:
   connector_backend_init:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - pipeline
@@ -74,7 +74,7 @@ services:
   connector_backend:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - pipeline
@@ -92,7 +92,7 @@ services:
   controller_vdp:
     profiles:
       - all
-      - api-gateway-base
+      - api-gateway
       - mgmt
       - console
       - pipeline
