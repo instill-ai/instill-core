@@ -72,6 +72,12 @@ jobs:
             sleep 10
           done
 
+      - name: Port-forward of vdp-api-gateway
+        run: |
+          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o json | jq -r '.items[0].metadata.name')
+          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+
       - name: Checkout repo (vdp)
         uses: actions/checkout@v3
         with:
@@ -157,6 +163,12 @@ jobs:
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
+
+      - name: Port-forward of vdp-api-gateway
+        run: |
+          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=vdp" -o json | jq -r '.items[0].metadata.name')
+          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 
       - name: Checkout repo (vdp)
         uses: actions/checkout@v3
