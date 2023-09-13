@@ -309,6 +309,8 @@ helm-integration-test-release:                       ## Run integration test on 
 				export $(grep -v '^#' .env | xargs) && \
 				helm install base charts/base \
 					--namespace ${HELM_NAMESPACE} --create-namespace \
+					--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+					--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 					--set edition=k8s-ce:test \
 					--set tags.observability=false \
 					--set tags.prometheusStack=false' \
