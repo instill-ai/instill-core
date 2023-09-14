@@ -67,7 +67,7 @@ jobs:
       - name: Load .env file (vdp)
         uses: cardinalby/export-env-action@v2
         with:
-          envFile: .env    
+          envFile: .env
 
       - name: Launch Instill VDP (latest)
         run: |
@@ -90,7 +90,7 @@ jobs:
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3000
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3379/health
 
-      - name: Curl to mgmt, pipeline, connector and controller healthcheck endpoint
+      - name: Curl to vdp services healthcheck endpoint
         run: |
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/base/v1alpha/health/mgmt
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/pipeline

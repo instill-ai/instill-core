@@ -16,18 +16,10 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
-
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -38,10 +30,45 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
+      - name: Free disk space
+        run: |
+          df --human-readable
+          sudo apt clean
+          docker rmi $(docker image ls --all --quiet)
+          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
+          df --human-readable
+
+      - name: Checkout repo (base)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
+
+      - name: Load .env file (base)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
       - name: Launch Instill Base (release)
         run: |
           EDITION=local-ce \
           DEFAULT_USER_UID=${DEFAULT_USER_UID} \
+          docker compose -f docker-compose.yml up -d --quiet-pull
+          EDITION=local-ce \
+          docker compose -f docker-compose.yml rm -f
+
+      - name: Checkout repo (vdp)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file (vdp)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill VDP (release)
+        run: |
+          EDITION=local-ce \
           docker compose -f docker-compose.yml up -d --quiet-pull
           EDITION=local-ce \
           docker compose -f docker-compose.yml rm -f
@@ -57,8 +84,8 @@ jobs:
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8088/health
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3000
 
-      - name: Curl to base mgmt healthcheck endpoint
-        run: |    
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:7080/v1alpha/health/mgmt
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1alpha/health/connector
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1alpha/health/pipeline
+      - name: Curl to vdp services healthcheck endpoint
+        run: |
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/base/v1alpha/health/mgmt
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/pipeline
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/connector
