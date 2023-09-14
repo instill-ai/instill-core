@@ -1,10 +1,7 @@
 name: Make latest
 
 on:
-  workflow_call:
-  push:
-    branches:
-      - sarthakgupta/ins-1715-github-actions-workflow-for-make-all-and-make-latest
+  workflow_dispatch:
 
 jobs:
   make-latest:
