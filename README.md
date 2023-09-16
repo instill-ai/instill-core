@@ -1,21 +1,4 @@
-<h1 align="center">
-  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/vdp.svg" alt="Versatile Data Pipeline: unstructured data ETL">
-</h1>
-
-<h4 align="center">
-    <a href="https://www.instill.tech/career?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">We're hiring 🚀</a>
-</h4>
-
-<h4 align="center">
-    <a href="https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Doc</a> |
-    <a href="https://www.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Website</a> |
-    <a href="https://discord.gg/sevxWsqpGh">Community</a> |
-    <a href="https://blog.instill.tech/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme">Blog</a>
-</h4>
-
----
-
-# Instill VDP  &nbsp; [![Twitter URL](https://img.shields.io/twitter/url?logo=twitter&style=social&url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Finstill-ai%2Fvdp&via=instill_tech&text=Build%20end-to-end%20unstructured%20data%20processing%20pipelines%20with%20VDP%2C%2010x%20faster.&hashtags=ETL%2Cvdp%2Cdata%2Cai%2Cml%2Copensource)
+# Instill VDP
 
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/vdp?&label=Release&color=blue&include_prereleases&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgOEg3VjRIMjNWMTdIMjFDMjEgMTguNjYgMTkuNjYgMjAgMTggMjBDMTYuMzQgMjAgMTUgMTguNjYgMTUgMTdIOUM5IDE4LjY2IDcuNjYgMjAgNiAyMEM0LjM0IDIwIDMgMTguNjYgMyAxN0gxVjEyTDQgOFpNMTggMThDMTguNTUgMTggMTkgMTcuNTUgMTkgMTdDMTkgMTYuNDUgMTguNTUgMTYgMTggMTZDMTcuNDUgMTYgMTcgMTYuNDUgMTcgMTdDMTcgMTcuNTUgMTcuNDUgMTggMTggMThaTTQuNSA5LjVMMi41NCAxMkg3VjkuNUg0LjVaTTYgMThDNi41NSAxOCA3IDE3LjU1IDcgMTdDNyAxNi40NSA2LjU1IDE2IDYgMTZDNS40NSAxNiA1IDE2LjQ1IDUgMTdDNSAxNy41NSA1LjQ1IDE4IDYgMThaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)](https://github.com/instill-ai/vdp/releases)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/instill-ai)](https://artifacthub.io/packages/helm/instill-ai/vdp)
@@ -26,47 +9,31 @@
 [![License ELv2](https://img.shields.io/badge/License-ELv2%20-blue)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
 
 
-**Versatile Data Pipeline (VDP)** is a source available unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline:
+💧 **Instill VDP (Versatile Data Pipeline)** is a source available unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline.
 
-- **Extract** unstructured data from pre-built data sources such as cloud/on-prem storage, or IoT devices
-
-- **Transform** it into analysable or meaningful data representations by AI models
-
-- **Load** the transformed data into warehouses, applications, or other destinations
-
-![VDP Concept](https://artifacts.instill.tech/imgs/vdp-concept.png?id=1)
+☁️ **Instill Cloud** offers fully managed **Instill VDP**. Please [sign up](https://console.instill.tech) to try out for free.
 
 ## Highlights
 
-- 🚀 **[The fastest way to build end-to-end unstructured data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
+- 🧬 **[The backbone for all your AI needs](https://www.instill.tech/docs/core-concepts/pipeline)** - production-ready AI-first applications built with LLM, Diffusion Models and more
 
-- ⚡️ **[High-performing backends](https://www.instill.tech/docs/prepare-models/overview)** implemented in Go with Triton Inference Server for unleashing the full power of NVIDIA GPU architecture (e.g., concurrency, scheduler, batcher) supporting TensorRT, PyTorch, TensorFlow, ONNX, Python and more.
+- 🚀 **[The fastest way to build unstructured data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
 
-- 🖱️ **[One-click import & deploy ML/DL models](https://www.instill.tech/docs/import-models/overview)** from GitHub, Hugging Face or cloud storage managed by version control tools like DVC or ArtiVC
+- ⚡️ **[High-performing backends](https://www.instill.tech/docs/prepare-models/overview)** implemented in Go
 
-- 📦 **[Standardised AI Task](https://www.instill.tech/docs/core-concepts/ai-task)** output formats to streamline data integration or analysis
+- 🔌 **[Pre-built miscellaneous connectors](https://www.instill.tech/docs/core-concepts/connector)** for extensive data and AI access
 
-- 🔌 **[Pre-built ETL data connectors](https://www.instill.tech/docs/core-concepts/connector)** for extensive data access integrated with Airbyte
+- 🪢 **[Build pipelines for diverse scenarios](https://www.instill.tech/docs/core-concepts/pipeline#mode)** - **SYNC** mode for real-time inference, and **ASYNC** or **PULL/PUSH** mode for on-demand workload
 
-- 🪢 **[Build pipelines for diverse scenarios](https://www.instill.tech/docs/core-concepts/pipeline#mode)** - **SYNC** mode for real-time inference and **ASYNC** mode for on-demand workload
+- 🧁 **[Scalable API-first platform](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
 
-- 🧁 **[Scalable API-first microservice design for great developer experience](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
-
-- 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher/AI Engineer/Data Engineer/Data Scientist hat and *put on the all-rounder hat* to deliver more with VDP
-
-## Demo playground
-
-An online demo VDP instance has been provisioned, in which you can directly play around the basic features in its Console via https://demo.instill.tech.
-
-Want to showcase your ML/DL models? We offer fully-managed VDP on Instill Cloud. Please [sign up the form](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we will reach out to you.
+- 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher, AI Engineer, Data Engineer, Data Scientist, designer, marketer and content creator hat and *put on the all-rounder hat* to deliver more with VDP
 
 ## Prerequisites
 
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
-- `yq` > `v4.x`. Please follow the installation [guide](https://github.com/mikefarah/yq/#install).
-- **(Optional) NVIDIA Container Toolkit** - To enable GPU support in VDP, please refer to [NVIDIA Cloud Native Documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) to install NVIDIA Container Toolkit. If you'd like to specifically allot GPUs to VDP, you can set the environment variable `NVIDIA_VISIBLE_DEVICES`. For example, `NVIDIA_VISIBLE_DEVICES=0,1` will make the `triton-server` consume GPU device id `0` and `1` specifically. By default `NVIDIA_VISIBLE_DEVICES` is set to `all` to use all available GPUs on the machine.
 
 ## Quick start
 
@@ -81,37 +48,19 @@ $ make all
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
 
-![VDO Console](https://artifacts.instill.tech/imgs/vdp-console.png?)
-
-Jump right in [VDP 101: Create your first pipeline on VDP](https://www.instill.tech/tutorials/vdp-101-3-create-your-first-pipeline/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and explore other [VDP tutorials](https://www.instill.tech/tutorials/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme).
-
-> **Note**
->
-> The image of model-backend (~2GB) and Triton Inference Server (~23GB) can take a while to pull, but this should be an one-time effort at the first setup.
-
-**Shut down VDP**
-
 To shut down all running services:
 ```
 $ make down
 ```
-### Guidance philosophy
-VDP is built with open heart and we expect VDP to be exposed to more MLOps integrations. It is implemented with microservice and API-first design principle. Instead of building all components from scratch, we've decided to adopt sophisticated open-source tools:
 
-- [Triton Inference Server](https://github.com/triton-inference-server/server) for high-performance model serving
-
-- [Temporal](https://github.com/temporalio/temporal) for a reliable, durable and scalable workflow engine
-
-- [Airbyte](https://github.com/airbytehq/airbyte) for abundant destination connectors
-
-We hope VDP can also enrich the open-source communities in a way to bring more practical use cases in unstructured data processing.
+> **Note**
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 ## Documentation
 
 📔 **Documentation**
 
-
- Check out the [documentation & tutorials](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) to learn VDP!
+ Please check out the [documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) website.
 
 📘 **API Reference**
 
@@ -119,61 +68,10 @@ The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provi
 
 For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
-## Model Hub
-
-We curate a list of ready-to-use models for VDP. These models are from different sources and have been tested by our team. Want to contribute a new model? Please create an issue, we are happy to test and add it to the list 👐.
-
-| Model                                                                                                                                               | Task                                | Sources                                                                                                                                                                                                                                                      | Framework         | CPU | GPU |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | --- | --- |
-| [MobileNet v2](https://github.com/onnx/models/tree/main/vision/classification/mobilenet)                                                            | Image Classification                | [GitHub-DVC](https://github.com/instill-ai/model-mobilenetv2-dvc)                                                                                                                                                                                            | ONNX              | ✅   | ✅   |
-| [Vision Transformer (ViT)](https://huggingface.co/google/vit-base-patch16-224)                                                                      | Image Classification                | [Hugging Face](https://huggingface.co/google/vit-base-patch16-224)                                                                                                                                                                                           | ONNX              | ✅   | ❌   |
-| [YOLOv4](https://github.com/AlexeyAB/darknet)                                                                                                       | Object Detection                    | [GitHub-DVC](https://github.com/instill-ai/model-yolov4-dvc)                                                                                                                                                                                                 | ONNX              | ✅   | ✅   |
-| [YOLOv7](https://github.com/WongKinYiu/yolov7)                                                                                                      | Object Detection                    | [GitHub-DVC](https://github.com/instill-ai/model-yolov7-dvc)                                                                                                                                                                                                 | ONNX              | ✅   | ✅   |
-| [YOLOv7 W6 Pose](https://github.com/WongKinYiu/yolov7)                                                                                              | Keypoint Detection                  | [GitHub-DVC](https://github.com/instill-ai/model-yolov7-pose-dvc)                                                                                                                                                                                            | ONNX              | ✅   | ✅   |
-| [PSNet](https://github.com/open-mmlab/mmocr/tree/main/configs/textdet/psenet) + [EasyOCR](https://github.com/JaidedAI/EasyOCR)                      | Optical Character Recognition (OCR) | [GitHub-DVC](https://github.com/instill-ai/model-ocr-dvc)                                                                                                                                                                                                    | ONNX              | ✅   | ✅   |
-| [Mask RCNN](https://github.com/onnx/models/blob/main/vision/object_detection_segmentation/mask-rcnn/model/MaskRCNN-10.onnx)                         | Instance Segmentation               | [GitHub-DVC](https://github.com/instill-ai/model-instance-segmentation-dvc)                                                                                                                                                                                  | PyTorch           | ✅   | ✅   |
-| [Lite R-ASPP based on MobileNetV3](https://github.com/open-mmlab/mmsegmentation/tree/98dfa1749bac0b5281502f4bb3832379da8feb8c/configs/mobilenet_v3) | Semantic Segmentation               | [GitHub-DVC](https://github.com/instill-ai/model-semantic-segmentation-dvc)                                                                                                                                                                                  | ONNX              | ✅   | ✅   |
-| [Stable Diffusion](https://huggingface.co/runwayml/stable-diffusion-v1-5)                                                                           | Text to Image                       | [GitHub-DVC](https://github.com/instill-ai/model-diffusion-dvc), [Local-CPU](https://artifacts.instill.tech/vdp/sample-models/stable-diffusion-1-5-cpu.zip), [Local-GPU](https://artifacts.instill.tech/vdp/sample-models/stable-diffusion-1-5-fp16-gpu.zip) | ONNX              | ✅   | ✅   |  |
-| [Megatron GPT2](https://catalog.ngc.nvidia.com/orgs/nvidia/models/megatron_lm_345m)                                                                 | Text Generation                     | [GitHub-DVC](https://github.com/instill-ai/model-gpt2-megatron-dvc)                                                                                                                                                                                          | FasterTransformer | ❌   | ✅   |
-
-
-Note: The `GitHub-DVC` source in the table means importing a model into VDP from a GitHub repository that uses [DVC](https://dvc.org) to manage large files.
-
 ## Community support
 
-For general help using VDP, you can use one of these channels:
-
-- [GitHub](https://github.com/instill-ai/vdp) - bug reports, feature requests, project discussions and contributions
-
-- [Discord](https://discord.gg/sevxWsqpGh) - live discussion with the community and our team
-
-- [Newsletter](https://www.instill.tech/newsletter/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) & [Twitter](https://twitter.com/instill_tech) - get the latest updates
-
-If you are interested in hosting service of VDP, we've started signing up users to our private alpha. [Get early access](https://www.instill.tech/get-access/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) and we'll contact you when we're ready.
-
-## Contributing
-
-We love contribution to VDP in any forms:
-
-- Please refer to the [guideline](https://www.instill.tech/docs/development/setup-local-development/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) for local development.
-
-- Please open a topic in the repository [Discussions](https://github.com/instill-ai/vdp/discussions) for any feature requests.
-
-- Please open issues for bug report in the repository
-
-  - [vdp](https://github.com/instill-ai/vdp) for general issues;
-
-  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [console](https://github.com/instill-ai/console), etc., for specific issues.
-
-- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress.
-
-> **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+Please refer to the [community](https://github.com/instill-ai/community) repository.
 
 ## License
 
 See the [LICENSE](./LICENSE) file for licensing information.
-
-## We're hiring 🚀
-
-Interested in building VDP with us? Join our remote team and build the future for unstructured data ETL. Check out [our open roles](https://www.instill.tech/career?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme).
