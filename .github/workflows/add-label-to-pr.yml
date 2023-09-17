@@ -1,0 +1,13 @@
+name: Add Label to PR
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  triage:
+    uses: instill-ai/.github/.github/workflows/add-label-to-pr.yml@main
+    secrets:
+      botGitHubToken: ${{ secrets.botGitHubToken }}
