@@ -7,8 +7,8 @@ on:
 
 jobs:
   track_pr:
-    uses: instill-ai/meta/.github/workflows/add-pr-to-prj.yml@main
+    uses: instill-ai/.github/.github/workflows/add-to-prj.yml@main
     with:
-      project_number: 5 # Versatile Data Pipeline (VDP) project
+      project_number: 5
     secrets:
       botGitHubToken: ${{ secrets.botGitHubToken }}
