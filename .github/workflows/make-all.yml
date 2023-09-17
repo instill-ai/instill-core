@@ -1,7 +1,11 @@
-name: Make all
+name: Make All
 
 on:
   workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   make-all:
@@ -35,24 +39,6 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Checkout repo (base)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/base
-
-      - name: Load .env file (base)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill Base (release)
-        run: |
-          EDITION=local-ce \
-          DEFAULT_USER_UID=${DEFAULT_USER_UID} \
-          docker compose -f docker-compose.yml up -d --quiet-pull
-          EDITION=local-ce \
-          docker compose -f docker-compose.yml rm -f
-
       - name: Checkout repo (vdp)
         uses: actions/checkout@v3
         with:
@@ -65,24 +51,19 @@ jobs:
 
       - name: Launch Instill VDP (release)
         run: |
-          EDITION=local-ce \
-          docker compose -f docker-compose.yml up -d --quiet-pull
-          EDITION=local-ce \
-          docker compose -f docker-compose.yml rm -f
+          make all EDITION=local-ce:test
 
       - name: List all docker containers
         run: |
           docker ps -a
           sleep 60
 
-      - name: Curl to base (influxdb, temporal and console) healthcheck endpoint
-        run: |
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8086/health
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8088/health
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3000
-
-      - name: Curl to vdp services healthcheck endpoint
+      - name: Probe to vdp services healthcheck endpoint
         run: |
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/base/v1alpha/health/mgmt
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/pipeline
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/connector
+
+      - name: Tear down Instill VDP (release)
+        run: |
+          make down
