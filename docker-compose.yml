@@ -12,7 +12,6 @@ volumes:
     name: airbyte
 
 services:
-
   pipeline_backend_migrate:
     container_name: ${PIPELINE_BACKEND_HOST}-migrate
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
@@ -34,7 +33,7 @@ services:
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -63,7 +62,7 @@ services:
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -122,7 +121,7 @@ services:
       CFG_SERVER_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -148,7 +147,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
-      CFG_SERVER_EDITION: ${EDITION:-local-ce:unknown}
+      CFG_SERVER_EDITION: ${EDITION}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
