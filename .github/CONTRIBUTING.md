@@ -1,32 +1,74 @@
 # Contributing Guidelines
 
-Hello! Thanks for your interest in contributing to the codebase.
+We appreciate your contribution to this amazing project! Any form of engagement is welcome, including but not limiting to
+- feature request
+- documentation wording
+- bug report
+- roadmap suggestion
+- ...and so on!
 
-## How to contribute
+Please refer to the [community contributing section](https://github.com/instill-ai/community#contributing) for more details.
 
-We love contribution to VDP in any forms:
+## Development and codebase contribution
 
-- Please refer to the [guideline](https://www.instill.tech/docs/development/setup-local-development/?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) for local development.
+Before delving into the details to come up with your first PR, please familiarise yourself with the project structure of [Instill Core](https://github.com/instill-ai/community#instill-core).
 
-- Please open a topic in the repository [Discussions](https://github.com/instill-ai/vdp/discussions) for any feature requests.
+### Prerequisites
 
-- Please open issues for bug report in the repository
+Please refer to [here](../README.md#prerequisites) to make sure your environment has been all set.
 
-  - [vdp](https://github.com/instill-ai/vdp) for general issues;
+### Launch the local dev system
 
-  - [pipeline-backend](https://github.com/instill-ai/pipeline-backend), [connector-backend](https://github.com/instill-ai/connector-backend), [model-backend](https://github.com/instill-ai/model-backend), [console](https://github.com/instill-ai/console), etc., for specific issues.
+Clone the repo and launch the `latest` version of the codebase for all dependencies:
 
-- Please refer to the [VDP project board](https://github.com/orgs/instill-ai/projects/5) to track progress.
+```bash
+$ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
-> **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+# launch all latest service components
+$ make latest PROFILE=all
+```
 
+The env variable `PROFILE` is intended to specify which service component you want to develop on
+- `all`
 
+  When you set `PROFILE=all`, the whole `Instill Base` and `Instill VDP` stack will be launched, meaning you want to test the system as a whole
 
-## Submitting a pull request
+- `{service}`
 
-To make an efficient review process, we very much appreciate if the PR commits
+  When you set `PROFILE={service}`, in which `{service}` can be `controller-vdp`, `connector` or `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all its dependencies. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
 
-- follow the [conventional commits guidelines](https://www.conventionalcommits.org/),
-- follow the [7 rules of commit messages](https://chris.beams.io/posts/git-commit/), and
-- are rearranged to squash trivial commits together (use [git rebase](http://gitready.com/advanced/2009/03/20/reorder-commits-with-rebase.html)).
+### Tear down the local dev system
+
+Simply run:
+```bash
+$ make down
+```
+
+### Build the local images
+
+We use Docker multi-stage builds to build a `instill/vdp-compose:{latest,release}` image which will be based on to run dind (docker-in-docker) to build all the images of `Instill VDP` defined in the compose file [docker-compose.build.yml](../docker-compose.build.yml).
+
+You can build the images by simply running:
+
+```bash
+$ make build-{latest,release}
+```
+
+### Sending PRs
+
+Please take these general guidelines into consideration when you are sending a PR:
+
+1. **Fork the Repository:** Begin by forking the repository to your GitHub account.
+2. **Create a New Branch:** Create a new branch to house your work. Use a clear and descriptive name, like `<your-github-username>/<what-your-pr-about>`.
+3. **Make and Commit Changes:** Implement your changes and commit them. We encourage you to follow these best practices for commits to ensure an efficient review process:
+   - Adhere to the [conventional commits guidelines](https://www.conventionalcommits.org/) for meaningful commit messages.
+   - Follow the [7 rules of commit messages](https://chris.beams.io/posts/git-commit/) for well-structured and informative commits.
+   - Rearrange commits to squash trivial changes together, if possible. Utilize [git rebase](http://gitready.com/advanced/2009/03/20/reorder-commits-with-rebase.html) for this purpose.
+4. **Push to Your Branch:** Push your branch to your GitHub repository: `git push origin feat/<your-feature-name>`.
+5. **Open a Pull Request:** Initiate a pull request to our repository. Our team will review your changes and collaborate with you on any necessary refinements.
+
+When you are ready to send a PR, we recommend you to first open a `draft` one. This will trigger a bunch of `integration-test` [workflows](https://github.com/instill-ai/vdp/tree/main/.github/workflows) running a thorough test suite on multiple platforms. After the tests are done and passed, you can now mark the PR `open` to notify the codebase owners to review. We appreciate your endeavour to pass the integration test for your PR to make sure the sanity with respect to the entire scope of **Instill Core**.
+
+## Last words
+
+Your contributions make a difference. Let's build something amazing together!
