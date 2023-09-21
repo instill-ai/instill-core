@@ -68,6 +68,10 @@ The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provi
 
 For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
+## Contributing
+
+Please refer to the [Contributing Guidelines](./.github/CONTRIBUTING.md) for more details.
+
 ## Community support
 
 Please refer to the [community](https://github.com/instill-ai/community) repository.
