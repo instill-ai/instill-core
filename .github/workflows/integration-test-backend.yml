@@ -11,7 +11,7 @@ on:
         type: string
 
 jobs:
-  integration-test-latest:
+  integration-test-latest-linux:
     if: inputs.target == 'latest'
     runs-on: ubuntu-latest
     steps:
@@ -88,7 +88,120 @@ jobs:
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
 
-  integration-test-release:
+  integration-test-latest-mac:
+    if: inputs.target == 'latest'
+    runs-on: [self-hosted,macOS,vdp]
+    steps:
+      - name: Set up environment
+        run: |
+          brew install make
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Make down vdp
+        run: |
+          docker rm -f vdp-build-latest >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f vdp-dind-latest >/dev/null 2>&1
+          EDITION=NULL docker compose down -v
+          sleep 60
+
+      - name: Install k6
+        run: |
+          brew install k6
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Make down base
+        run: |
+          docker rm -f base-build-latest >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f base-console-integration-test-latest >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f base-console-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f base-dind-latest >/dev/null 2>&1
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          sleep 60
+
+      - name: Launch Instill Base (latest)
+        run: |
+          make build-latest
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+
+      - name: Checkout repo (vdp)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file (vdp)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill VDP (latest)
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+
+      - name: Run ${{ inputs.component }} integration test (latest)
+        if: inputs.target == 'latest'
+        run: |
+          git clone https://github.com/instill-ai/${{ inputs.component }}.git
+          cd ${{ inputs.component }}
+          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
+
+      - name: Make down vdp
+        run: |
+          docker rm -f vdp-build-latest >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f vdp-dind-latest >/dev/null 2>&1
+          EDITION=NULL docker compose down -v
+          sleep 60
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
+
+      - name: Make down base
+        run: |
+          docker rm -f base-build-latest >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f base-console-integration-test-latest >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f base-console-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f base-dind-latest >/dev/null 2>&1
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          sleep 60    
+
+  integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
     steps:
@@ -166,3 +279,118 @@ jobs:
           git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
+
+  integration-test-release-mac:
+    if: inputs.target == 'release'
+    runs-on: [self-hosted,macOS,vdp]
+    steps:
+      - name: Set up environment
+        run: |
+          brew install make
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Make down vdp
+        run: |
+          docker rm -f vdp-build-release >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f vdp-dind-release >/dev/null 2>&1
+          EDITION=NULL docker compose down -v
+          sleep 60
+
+      - name: Install k6
+        run: |
+          brew install k6
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Make down base
+        run: |
+          docker rm -f base-build-release >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f base-console-integration-test-release >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f base-console-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f base-dind-release >/dev/null 2>&1
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          sleep 60
+
+      - name: Launch Instill Base (release)
+        run: |
+          make build-release
+          EDITION=local-ce:test \
+          docker compose up -d --quiet-pull
+          EDITION=local-ce:test \
+          docker compose rm -f
+
+      - name: Checkout repo (vdp)
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/vdp
+
+      - name: Load .env file (vdp)
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Uppercase component name
+        id: uppercase
+        run: |
+          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
+
+      - name: Launch Instill VDP (release)
+        run: |
+          EDITION=local-ce:test \
+          docker compose up -d --quiet-pull
+          EDITION=local-ce:test \
+          docker compose rm -f
+
+      - name: Run ${{ inputs.component }} integration test (release)
+        env:
+          COMPONENT_VERSION: ${{ env[format('{0}_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
+        run: |
+          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
+          cd ${{ inputs.component }}
+          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
+
+      - name: Make down vdp
+        run: |
+          docker rm -f vdp-build-release >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f vdp-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f vdp-dind-release >/dev/null 2>&1
+          EDITION=NULL docker compose down -v
+          sleep 60
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: instill-ai/base
+
+      - name: Make down base
+        run: |
+          docker rm -f base-build-release >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f base-console-integration-test-release >/dev/null 2>&1
+          docker rm -f base-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f base-console-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f base-dind-release >/dev/null 2>&1
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          sleep 60
