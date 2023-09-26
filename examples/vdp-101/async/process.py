@@ -158,4 +158,4 @@ if __name__ ==  '__main__':
             success = generate_video_from_frames(output_dir, opt.output_filename, framerate=opt.framerate)
             print(f'Video {opt.output_filename} was successly generated and saved to {output_dir}.')
         else:
-            print('Cannot generate video due to unexpected errors. Please check hte error message above.')
+            print('Cannot generate video due to unexpected errors. Please check the error message above.')
