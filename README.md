@@ -39,11 +39,22 @@
 
 Execute the following commands to start pre-built images with all the dependencies:
 
+**The stable release version**
+
+```bash
+$ git clone -b v0.14.0-alpha https://github.com/instill-ai/vdp.git && cd vdp
+
+# Launch all services
+$ make all
+```
+
+**The latest version for development**
+
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 
 # Launch all services
-$ make all
+$ make latest PROFILE=all
 ```
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
