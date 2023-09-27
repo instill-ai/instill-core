@@ -39,7 +39,6 @@ all:			## Launch all services with their up-to-date release version
 		rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@EDITION=$${EDITION:=local-ce} docker compose -f docker-compose.yml up -d --quiet-pull
-	@EDITION=$${EDITION:=local-ce} docker compose -f docker-compose.yml rm -f
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
@@ -62,7 +61,6 @@ latest:			## Lunch all dependent services with their latest codebase
 		rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=$${EDITION:=local-ce:latest} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=$${EDITION:=local-ce:latest} docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -74,19 +72,23 @@ pull:			## Pull all service images
 
 .PHONY: stop
 stop:			## Stop all components
-	@docker compose stop
+	@EDITION= docker compose stop
+	@docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--name ${CONTAINER_COMPOSE_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+			/bin/sh -c 'cd /instill-ai/base && make stop' \
+		"
 
 .PHONY: start
-start:			## Start all stopped services
-	@docker compose start
-
-.PHONY: restart
-restart:		## Restart all services
-	@docker compose restart
-
-.PHONY: rm
-rm:				## Remove all stopped service containers
-	@docker compose rm -f
+start:			## Start all stopped components
+	@docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		--name ${CONTAINER_COMPOSE_NAME}-latest \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+			/bin/sh -c 'cd /instill-ai/base && make start' \
+		"
+	@EDITION= docker compose start
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
