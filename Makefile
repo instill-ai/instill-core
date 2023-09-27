@@ -64,11 +64,11 @@ latest:			## Lunch all dependent services with their latest codebase
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
-	@docker compose logs --follow --tail=10
+	@EDITION= docker compose logs --follow --tail=10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker compose pull
+	@EDITION= docker compose pull
 
 .PHONY: stop
 stop:			## Stop all components
@@ -100,7 +100,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
-	@EDITION=NULL docker compose down -v
+	@EDITION= docker compose down -v
 	@if docker compose ls -q | grep -q "instill-base"; then \
 		if docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest >/dev/null 2>&1; then \
 			docker run --rm \
@@ -125,15 +125,11 @@ images:			## List all container images
 
 .PHONY: ps
 ps:				## List all service containers
-	@docker compose ps
+	@EDITION= docker compose ps
 
 .PHONY: top
 top:			## Display all running service processes
-	@docker compose top
-
-.PHONY: doc
-doc:						## Run Redoc for OpenAPI spec at http://localhost:3001
-	@docker compose up -d redoc_openapi
+	@EDITION= docker compose top
 
 .PHONY: build-latest
 build-latest:				## Build latest images for all VDP components
