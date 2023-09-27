@@ -168,8 +168,8 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
 
-  temporal_admin_tools:
-    container_name: temporal-admin-tools
+  temporal_admin_tools_vdp:
+    container_name: temporal-admin-tools-vdp
     image: ${TEMPORAL_ADMIN_TOOLS_IMAGE}:${TEMPORAL_ADMIN_TOOLS_VERSION}
     restart: on-failure
     environment:
