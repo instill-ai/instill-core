@@ -7,6 +7,9 @@ metadata:
     app.kubernetes.io/component: pipeline-backend
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.pipelineBackend.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   strategy:
     type: {{ .Values.updateStrategy.type }}
