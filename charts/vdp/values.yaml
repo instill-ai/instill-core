@@ -125,7 +125,7 @@ pipelineBackend:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
+    targetAverageMemoryUtilization:
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -196,7 +196,7 @@ connectorBackend:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
+    targetAverageMemoryUtilization:
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -254,7 +254,7 @@ controllerVDP:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
+    targetAverageMemoryUtilization:
   nodeSelector: {}
   tolerations: []
   affinity: {}
