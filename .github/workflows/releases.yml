@@ -66,7 +66,7 @@ jobs:
           arch="$(uname -m)"
           curl -s https://api.github.com/repos/norwoodj/helm-docs/releases/latest \
           | yq --indent 0 --no-colors --input-format json --unwrapScalar \
-            ".assets[] | select(.name | test("\""^helm-docs_.+_Linux_${arch}\.tar\.gz$"\"")) | .browser_download_url" \
+            ".assets[] | select(.name | test("\""^helm-docs_Linux_${arch}\.tar\.gz$"\"")) | .browser_download_url" \
           | xargs curl -SsL \
           | tar zxf - -C /usr/local/bin
       - uses: actions/checkout@v3
