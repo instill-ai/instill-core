@@ -20,7 +20,7 @@
 - Visually **test** pipelines with a single click, viewing output at each stage
 - Easily **share** your pipelines to showcase your work
 
-**☁️ [Instill Cloud](https://console.instill.tech)** is a fully-managed public cloud service that grants you access to all the fantastic features of Instill VDP, without the hassle of managing infrastructure.
+**☁️ [Instill Cloud](https://console.instill.tech)** offers a fully managed public cloud service, providing you with access to all the fantastic features of Instill VDP without the burden of infrastructure management.
 
 ## Highlights
 
