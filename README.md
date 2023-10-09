@@ -8,26 +8,33 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-blue)](https://github.com/instill-ai/vdp/blob/main/protocol/LICENSE)
 [![License ELv2](https://img.shields.io/badge/License-ELv2%20-blue)](https://github.com/instill-ai/vdp/blob/main/LICENSE)
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-cloud-demo-generative-art-template.gif" width=100%>
+  <br>
+    <em>Build, test and share your pipelines - No code required!</em>
+</div>
 
-💧 **Instill VDP (Versatile Data Pipeline)** is a source available unstructured data ETL tool to streamline the end-to-end unstructured data processing pipeline.
+<br>
 
-☁️ **Instill Cloud** offers fully managed **Instill VDP**. Please [sign up](https://console.instill.tech) to try out for free.
+💧 **Instill VDP (Versatile Data Pipeline)** is a source-available tool, designed to streamline your data processing pipelines from inception to completion. If your goal is to develop versatile AI features using Large Language Models (LLM), Generative AI, Vision, or Audio models, Instill VDP empowers you to:
+
+- Effortlessly **connect** to your unstructured data
+- **Build** pipelines to enable diverse AI functionalities in your applications
+- Visually **test** pipelines with a single click, viewing output at each stage
+- Easily **share** your pipelines to showcase your work
+
+**☁️ [Instill Cloud](https://console.instill.tech)** is a fully-managed public cloud service that grants you access to all the fantastic features of Instill VDP, without the hassle of managing infrastructure.
 
 ## Highlights
 
-- 🧬 **[The backbone for all your AI needs](https://www.instill.tech/docs/core-concepts/pipeline)** - production-ready AI-first applications built with LLM, Diffusion Models and more
-
-- 🚀 **[The fastest way to build unstructured data pipelines](https://www.instill.tech/docs/core-concepts/pipeline)** - building a pipeline is like assembling LEGO blocks
-
-- ⚡️ **[High-performing backends](https://www.instill.tech/docs/prepare-models/overview)** implemented in Go
-
-- 🔌 **[Pre-built miscellaneous connectors](https://www.instill.tech/docs/core-concepts/connector)** for extensive data and AI access
-
-- 🪢 **[Build pipelines for diverse scenarios](https://www.instill.tech/docs/core-concepts/pipeline#mode)** - **SYNC** mode for real-time inference, and **ASYNC** or **PULL/PUSH** mode for on-demand workload
-
-- 🧁 **[Scalable API-first platform](https://www.instill.tech/docs/start-here/faq#tech)** - seamless integration to modern data stack at any scale
-
-- 🤠 **[Built for every AI and Data practitioner](https://www.instill.tech/docs/start-here/faq#essentials)** - The no-/low-code interface helps take off your AI Researcher, AI Engineer, Data Engineer, Data Scientist, designer, marketer and content creator hat and *put on the all-rounder hat* to deliver more with VDP
+- 🚀 Accelerate AI applications by building end-to-end AI-powered pipelines for unstructured data up to 10 times faster
+- 🔌 Utilize pre-built connectors to access data from various sources, powerful AI models, and third-party tools
+- 🌟 Benefit from a no-code drag-and-drop pipeline builder, enabling quick and customizable application development
+- 🪢 Choose between real-time inference (SYNC) and on-demand workload (ASYNC) processing modes
+- 🧁 Enjoy a scalable API-first microservice design, offering an excellent developer experience
+- ⚡️ Leverage high-performing backends implemented in Go
+- 📊 Gain visibility into pipeline performance through a detailed dashboard
+- 🤠 Access no-/low-code interfaces, making VDP suitable for every AI and data practitioner
 
 ## Prerequisites
 
@@ -35,7 +42,10 @@
 
 - **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
 
-## Quick start
+## Quick Start
+
+> **Note**
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 Execute the following commands to start pre-built images with all the dependencies:
 
@@ -66,28 +76,41 @@ To shut down all running services:
 $ make down
 ```
 
-> **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+Explore our [documentation](https://www.instill.tech/docs/vdp/deployment/overview) to discover all available deployment options.
+
+## Dive into the Projects
+
+Instill VDP stands as a crucial project within our **[Instill Core](https://github.com/instill-ai#instill-core)** stack. It provides an open-source AI infrastructure tailored for unstructured data, enabling versatile AI application development. Within this ecosystem, delve into source-available projects that enable you to construct flexible AI pipelines, enhancing your data processing abilities and converting raw data into actionable insights.
+
+- 💧 [Instill VDP](https://github.com/instill-ai/vdp): Streamline the unstructured data journey for AI applications
+- ⚗️ [Instill Model](https://github.com/instill-ai/model): Transform your applications with AI models
+- 🗿 [Instill Base](https://github.com/instill-ai/base): Essential Services for VDP and Model
+
+## No-/Low-code Access & Support
+
+To dive into Instill Core and Instill Cloud, we provide:
+
+- ✨ [Console](https://github.com/instill-ai/console) for non-developers, empowering them to dive into AI applications and process unstructured data without any coding.
+- 🧰 CLI and SDKs for developers to seamlessly integrate with their existing data stack in minutes.
+  - [Instill CLI](https://github.com/instill-ai/cli)
+  - [Python SDK](https://github.com/instill-ai/python-sdk)
+  - [TypeScript SDK](https://github.com/instill-ai/typescript-sdk)
+- 🙌 Join our [Discord](https://discord.gg/sevxWsqpGh) server to exchange ideas about unstructured data processing, AI, MLOps, and get support from the Instill AI team. We're here to support you every step of the way!
 
 ## Documentation
 
-📔 **Documentation**
+- 📔 **Documentation** - Check out the **[documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme)** website.
+- 📘 **API Reference** - Access http://localhost:3001 after `make all`, or simply run `make doc` to access the _OpenAPI documentation_. The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
 
- Please check out the [documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=banner&utm_campaign=vdp_readme) website.
+## Be Part of Our Community
 
-📘 **API Reference**
+We strongly believe in the power of community collaboration and deeply value your contributions. Head over to our [Community](https://github.com/instill-ai/community) repository, the central hub for discussing our open-source projects, raising issues, and sharing your brilliant ideas.
 
-The gRPC protocols in [protobufs](https://github.com/instill-ai/protobufs) provide the single source of truth for the VDP APIs. The genuine protobuf documentation can be found in our [Buf Scheme Registry (BSR)](https://buf.build/instill-ai/protobufs).
-
-For the OpenAPI documentation, access http://localhost:3001 after `make all`, or simply run `make doc`.
 
 ## Contributing
 
 Please refer to the [Contributing Guidelines](./.github/CONTRIBUTING.md) for more details.
 
-## Community support
-
-Please refer to the [community](https://github.com/instill-ai/community) repository.
 
 ## License
 
