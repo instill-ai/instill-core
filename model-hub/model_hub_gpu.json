@@ -66,7 +66,7 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-diffusion-dvc",
-      "tag": "v1.5-fp16-gpu1"
+      "tag": "v1.5-fp16-gpu0"
     }
   },
   {
@@ -76,7 +76,7 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-gpt2-megatron-dvc",
-      "tag": "fp32-345m-2-gpu"
+      "tag": "fp32-345m-1-gpu"
     }
   }
 ]
