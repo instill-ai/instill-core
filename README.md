@@ -103,11 +103,15 @@ To dive into Instill Core and Instill Cloud, we provide:
 
 We strongly believe in the power of community collaboration and deeply value your contributions. Head over to our [Community](https://github.com/instill-ai/community) repository, the central hub for discussing our open-source projects, raising issues, and sharing your brilliant ideas.
 
-
 ## Contributing
 
 Please refer to the [Contributing Guidelines](./.github/CONTRIBUTING.md) for more details.
 
+Big thanks to these amazing contributors!
+
+<a href="https://github.com/instill-ai/vdp/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=instill-ai/vdp" />
+</a>
 
 ## License
 
