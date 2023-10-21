@@ -5,8 +5,8 @@
     "task": "TASK_CLASSIFICATION",
     "model_definition": "model-definitions/github",
     "configuration": {
-    "repository": "instill-ai/model-mobilenetv2-dvc",
-    "tag": "v1.0-cpu"
+      "repository": "instill-ai/model-mobilenetv2-dvc",
+      "tag": "v1.0-cpu"
     }
   },
   {
@@ -76,6 +76,16 @@
     "configuration": {
       "repository": "instill-ai/model-diffusion-dvc",
       "tag": "v1.5-cpu"
+    }
+  },
+  {
+    "id": "llama2-7b",
+    "description": "Llama2-7b, from meta, is trained to generate text based on your prompts.",
+    "task": "TASK_TEXT_GENERATION",
+    "model_definition": "model-definitions/github",
+    "configuration": {
+      "repository": "instill-ai/model-llama2-7b-dvc",
+      "tag": "fp32-7b-hf-tf-cpu"
     }
   }
 ]
