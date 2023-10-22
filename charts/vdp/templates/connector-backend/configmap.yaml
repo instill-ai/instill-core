@@ -31,10 +31,10 @@ data:
           airbyte: /local
         excludelocalconnector: {{ .Values.connectorBackend.excludelocalconnector }}
     database:
-      username: {{ default (include "base.database.username" .) .Values.database.username }}
-      password: {{ default (include "base.database.rawPassword" .) .Values.database.password }}
-      host: {{ default (include "base.database.host" .) .Values.database.host }}
-      port: {{ default (include "base.database.port" .) .Values.database.port }}
+      username: {{ default (include "core.database.username" .) .Values.database.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.port }}
       name: connector
       version: {{ .Values.connectorBackend.dbVersion }}
       timezone: Etc/UTC
@@ -45,7 +45,7 @@ data:
     cache:
       redis:
         redisoptions:
-          addr: {{ default (include "base.redis.addr" .) .Values.redis.addr }}
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.addr }}
     pipelinebackend:
       host: {{ template "vdp.pipelineBackend" . }}
       publicport: {{ template "vdp.pipelineBackend.publicPort" . }}
@@ -55,8 +55,8 @@ data:
         key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
       {{- end }}
     mgmtbackend:
-      host: {{ template "base.mgmtBackend" . }}
-      privateport: {{ template "base.mgmtBackend.privatePort" . }}
+      host: {{ template "core.mgmtBackend" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
@@ -73,8 +73,8 @@ data:
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
-        host: {{ template "base.otel" . }}
-        port: {{ template "base.otel.port" . }}
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
     influxdb:
       url: {{ .Values.influxdbCloud.url }}
       token: {{ .Values.influxdbCloud.token }}

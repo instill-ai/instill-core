@@ -19,8 +19,8 @@ data:
         key: /etc/instill-ai/vdp/ssl/controller/tls.key
       {{- end }}
     etcd:
-      host: {{ template "base.etcd" . }}
-      port: {{ template "base.etcd.clientPort" . }}
+      host: {{ template "core.etcd" . }}
+      port: {{ template "core.etcd.clientPort" . }}
       timeout: 5
     connectorbackend:
       host: {{ template "vdp.connectorBackend" . }}
@@ -41,9 +41,9 @@ data:
         key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
       {{- end }}
     mgmtbackend:
-      host: {{ template "base.mgmtBackend" . }}
-      publicport: {{ template "base.mgmtBackend.publicPort" . }}
-      privateport: {{ template "base.mgmtBackend.privatePort" . }}
+      host: {{ template "core.mgmtBackend" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt

@@ -319,7 +319,7 @@ temporal:
     tolerations: []
     affinity: {}
 influxdbCloud:
-  url: "http://base-influxdb2:8086"
+  url: "http://core-influxdb2:8086"
   token: "i-love-instill-ai"
   organization: "instill-ai"
   bucket: "instill-ai"
