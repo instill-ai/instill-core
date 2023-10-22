@@ -19,7 +19,7 @@ To better represent what is in each example folder, we follow a strict naming ru
 Example:
 `metabase-cv-object-deteciton-async-http-postgres`
 
-- `{app}(optional)` indicates the app used in this example. For instance, `metabase` is an online interactive front-end that provides real-time data extraction from databases and visualisation.
+- `{app}(optional)` indicates the app used in this example. For instance, `metabase` is an online interactive front-end that provides real-time data extraction from databases and visualization.
 - `{AI task}` indicates the AI task demonstrated in the example. `cv-object-deteciton` means the AI task is an object detection in computer vision (CV).  
 - `{pipeline_mode}` indicates the pipeline modes, including `SYNC`, `ASYNC`, and `PULL`.
 - `{source}` denotes the source connector of the pipeline. At the moment, VDP supports HTTP and gRPC.
