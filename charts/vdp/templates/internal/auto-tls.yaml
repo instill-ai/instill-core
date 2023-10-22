@@ -6,7 +6,7 @@
 {{- $connectorCrt := genSignedCert $connectorCN (list "127.0.0.1") (list "localhost" $connectorCN) 365 $ca }}
 {{- $modelCN := (include "vdp.model" .) }}
 {{- $modelCrt := genSignedCert $modelCN (list "127.0.0.1") (list "localhost" $modelCN) 365 $ca }}
-{{- $mgmtCN := (include "base.mgmtBackend" .) }}
+{{- $mgmtCN := (include "core.mgmtBackend" .) }}
 {{- $mgmtCrt := genSignedCert $mgmtCN (list "127.0.0.1") (list "localhost" $mgmtCN) 365 $ca }}
 {{- $consoleCN := (include "vdp.vdp.console" .) }}
 {{- $consoleCrt := genSignedCert $consoleCN (list "127.0.0.1") (list "localhost" $consoleCN) 365 $ca }}

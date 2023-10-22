@@ -34,8 +34,8 @@ data:
         key: /etc/instill-ai/vdp/ssl/connector/tls.key
       {{- end }}
     mgmtbackend:
-      host: {{ template "base.mgmtBackend" . }}
-      privateport: {{ template "base.mgmtBackend.privatePort" . }}
+      host: {{ template "core.mgmtBackend" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
@@ -50,10 +50,10 @@ data:
         key: /etc/instill-ai/vdp/ssl/controller/tls.key
       {{- end }}
     database:
-      username: {{ default (include "base.database.username" .) .Values.database.username }}
-      password: {{ default (include "base.database.rawPassword" .) .Values.database.password }}
-      host: {{ default (include "base.database.host" .) .Values.database.host }}
-      port: {{ default (include "base.database.port" .) .Values.database.port }}
+      username: {{ default (include "core.database.username" .) .Values.database.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.port }}
       name: pipeline
       version: {{ .Values.pipelineBackend.dbVersion }}
       timezone: Etc/UTC
@@ -73,9 +73,9 @@ data:
     cache:
       redis:
         redisoptions:
-          addr: {{ default (include "base.redis.addr" .) .Values.redis.addr }}
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.addr }}
     temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "base.temporal" .) (include "base.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
       namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
       ca: {{ default "" .Values.pipelineBackend.temporal.ca }}
       cert: {{ default "" .Values.pipelineBackend.temporal.cert }}
@@ -84,5 +84,5 @@ data:
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
-        host: {{ template "base.otel" . }}
-        port: {{ template "base.otel.port" . }}
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}

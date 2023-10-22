@@ -43,17 +43,17 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Checkout repo (base)
+      - name: Checkout repo (core)
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
-      - name: Load .env file (base)
+      - name: Load .env file (core)
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Launch Instill Base (latest)
+      - name: Launch Instill Core (latest)
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
@@ -90,7 +90,7 @@ jobs:
 
   integration-test-latest-mac:
     if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted,macOS,vdp]
+    runs-on: [self-hosted, macOS, vdp]
     steps:
       - name: Set up environment
         run: |
@@ -122,25 +122,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Make down base
+      - name: Make down core
         run: |
-          docker rm -f base-build-latest >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f base-console-integration-test-latest >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f base-console-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f base-dind-latest >/dev/null 2>&1
+          docker rm -f core-build-latest >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f core-console-integration-test-latest >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f core-dind-latest >/dev/null 2>&1
           EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
           sleep 60
 
-      - name: Launch Instill Base (latest)
+      - name: Launch Instill Core (latest)
         run: |
           make build-latest
           COMPOSE_PROFILES=all \
@@ -188,18 +188,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
-      - name: Make down base
+      - name: Make down core
         run: |
-          docker rm -f base-build-latest >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f base-console-integration-test-latest >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f base-console-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f base-dind-latest >/dev/null 2>&1
+          docker rm -f core-build-latest >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-latest >/dev/null 2>&1
+          docker rm -f core-console-integration-test-latest >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
+          docker rm -f core-dind-latest >/dev/null 2>&1
           EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
-          sleep 60    
+          sleep 60
 
   integration-test-release-linux:
     if: inputs.target == 'release'
@@ -233,17 +233,17 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Checkout repo (base)
+      - name: Checkout repo (core)
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
-      - name: Load .env file (base)
+      - name: Load .env file (core)
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Launch Instill Base (latest)
+      - name: Launch Instill Core (latest)
         run: |
           EDITION=local-ce:test \
           docker compose up -d --quiet-pull
@@ -282,7 +282,7 @@ jobs:
 
   integration-test-release-mac:
     if: inputs.target == 'release'
-    runs-on: [self-hosted,macOS,vdp]
+    runs-on: [self-hosted, macOS, vdp]
     steps:
       - name: Set up environment
         run: |
@@ -314,25 +314,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Make down base
+      - name: Make down core
         run: |
-          docker rm -f base-build-release >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f base-console-integration-test-release >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f base-console-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f base-dind-release >/dev/null 2>&1
+          docker rm -f core-build-release >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f core-console-integration-test-release >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f core-dind-release >/dev/null 2>&1
           EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
           sleep 60
 
-      - name: Launch Instill Base (release)
+      - name: Launch Instill Core (release)
         run: |
           make build-release
           EDITION=local-ce:test \
@@ -382,15 +382,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/base
+          repository: instill-ai/core
 
-      - name: Make down base
+      - name: Make down core
         run: |
-          docker rm -f base-build-release >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f base-console-integration-test-release >/dev/null 2>&1
-          docker rm -f base-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f base-console-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f base-dind-release >/dev/null 2>&1
+          docker rm -f core-build-release >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-release >/dev/null 2>&1
+          docker rm -f core-console-integration-test-release >/dev/null 2>&1
+          docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
+          docker rm -f core-dind-release >/dev/null 2>&1
           EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
           sleep 60

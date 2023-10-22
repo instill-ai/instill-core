@@ -64,13 +64,13 @@ spec:
             - name: CONNECTOR_BACKEND_PORT
               value: "{{ template "vdp.connectorBackend.publicPort" . }}"
             - name: MGMT_BACKEND_HOST
-              value: "{{ template "base.mgmtBackend" . }}"
+              value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
-              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+              value: "{{ template "core.mgmtBackend.publicPort" . }}"
             - name: ETCD_HOST
-              value: "{{ template "base.etcd" . }}"
+              value: "{{ template "core.etcd" . }}"
             - name: ETCD_CLIENT_PORT
-              value: "{{ template "base.etcd.clientPort" . }}"
+              value: "{{ template "core.etcd.clientPort" . }}"
       containers:
         - name: controller
           image: {{ .Values.controllerVDP.image.repository }}:{{ .Values.controllerVDP.image.tag }}

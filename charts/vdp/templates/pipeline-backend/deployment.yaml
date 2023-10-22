@@ -55,9 +55,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "base.database" . }}
+              value: {{ template "core.database" . }}
             - name: PGUSER
-              value: {{ template "base.database.username" . }}
+              value: {{ template "core.database.username" . }}
         {{- end }}
         {{- if not .Values.pipelineBackend.temporal.hostPort }}
         - name: temporal-admin-tools
@@ -73,7 +73,7 @@ spec:
               if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "base.temporal" . }}-frontend:{{ template "base.temporal.frontend.grpcPort" . }}"
+              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
         - name: pipeline-backend-migration
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
@@ -100,9 +100,9 @@ spec:
             - name: CONNECTOR_BACKEND_PORT
               value: "{{ template "vdp.connectorBackend.publicPort" . }}"
             - name: MGMT_BACKEND_HOST
-              value: "{{ template "base.mgmtBackend" . }}"
+              value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
-              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+              value: "{{ template "core.mgmtBackend.publicPort" . }}"
         {{- with .Values.pipelineBackend.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}

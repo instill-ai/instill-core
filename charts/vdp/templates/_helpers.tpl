@@ -77,31 +77,31 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- end -}}
 {{- end -}}
 
-{{- define "base.database.host" -}}
-    {{- template "base.database" . -}}
+{{- define "core.database.host" -}}
+    {{- template "core.database" . -}}
 {{- end -}}
 
-{{- define "base.database.port" -}}
+{{- define "core.database.port" -}}
     {{- print "5432" -}}
 {{- end -}}
 
-{{- define "base.database.username" -}}
+{{- define "core.database.username" -}}
     {{- print "postgres" -}}
 {{- end -}}
 
-{{- define "base.database.rawPassword" -}}
+{{- define "core.database.rawPassword" -}}
     {{- print "password" -}}
 {{- end -}}
 
 /*host:port*/
-{{- define "base.redis.addr" -}}
+{{- define "core.redis.addr" -}}
   {{- with .Values.redis -}}
-    {{- default (printf "%s:6379" (include "base.redis" $ )) .addr -}}
+    {{- default (printf "%s:6379" (include "core.redis" $ )) .addr -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "base.mgmtBackend" -}}
-  {{- print "base-mgmt-backend" -}}
+{{- define "core.mgmtBackend" -}}
+  {{- print "core-mgmt-backend" -}}
 {{- end -}}
 
 {{- define "vdp.pipelineBackend" -}}
@@ -116,20 +116,20 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-controller-vdp" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-{{- define "base.database" -}}
-  {{- printf "base-database" -}}
+{{- define "core.database" -}}
+  {{- printf "core-database" -}}
 {{- end -}}
 
-{{- define "base.redis" -}}
-  {{- print "base-redis" -}}
+{{- define "core.redis" -}}
+  {{- print "core-redis" -}}
 {{- end -}}
 
-{{- define "base.temporal" -}}
-  {{- print "base-temporal" -}}
+{{- define "core.temporal" -}}
+  {{- print "core-temporal" -}}
 {{- end -}}
 
-{{- define "base.etcd" -}}
-  {{- print "base-etcd" -}}
+{{- define "core.etcd" -}}
+  {{- print "core-etcd" -}}
 {{- end -}}
 
 {{/* pipeline service and container public port */}}
@@ -158,46 +158,46 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{- end -}}
 
 {{/* mgmt-backend service and container public port */}}
-{{- define "base.mgmtBackend.publicPort" -}}
+{{- define "core.mgmtBackend.publicPort" -}}
   {{- printf "8084" -}}
 {{- end -}}
 
 {{/* mgmt-backend service and container private port */}}
-{{- define "base.mgmtBackend.privatePort" -}}
+{{- define "core.mgmtBackend.privatePort" -}}
   {{- printf "3084" -}}
 {{- end -}}
 
 {{/* temporal container frontend gRPC port */}}
-{{- define "base.temporal.frontend.grpcPort" -}}
+{{- define "core.temporal.frontend.grpcPort" -}}
   {{- printf "7233" -}}
 {{- end -}}
 
 {{/* etcd port */}}
-{{- define "base.etcd.clientPort" -}}
+{{- define "core.etcd.clientPort" -}}
   {{- printf "2379" -}}
 {{- end -}}
 
-{{- define "base.influxdb" -}}
-  {{- printf "base-influxdb2" -}}
+{{- define "core.influxdb" -}}
+  {{- printf "core-influxdb2" -}}
 {{- end -}}
 
-{{- define "base.influxdb.port" -}}
+{{- define "core.influxdb.port" -}}
   {{- printf "8086" -}}
 {{- end -}}
 
-{{- define "base.jaeger" -}}
-  {{- printf "base-jaeger-collector" -}}
+{{- define "core.jaeger" -}}
+  {{- printf "core-jaeger-collector" -}}
 {{- end -}}
 
-{{- define "base.jaeger.port" -}}
+{{- define "core.jaeger.port" -}}
   {{- printf "14268" -}}
 {{- end -}}
 
-{{- define "base.otel" -}}
-  {{- printf "base-opentelemetry-collector" -}}
+{{- define "core.otel" -}}
+  {{- printf "core-opentelemetry-collector" -}}
 {{- end -}}
 
-{{- define "base.otel.port" -}}
+{{- define "core.otel.port" -}}
   {{- printf "8095" -}}
 {{- end -}}
 

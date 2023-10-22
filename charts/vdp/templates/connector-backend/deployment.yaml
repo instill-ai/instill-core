@@ -52,9 +52,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "base.database" . }}
+              value: {{ template "core.database" . }}
             - name: PGUSER
-              value: {{ template "base.database.username" . }}
+              value: {{ template "core.database.username" . }}
         {{- end }}
         - name: connector-backend-migration
           image: {{ .Values.connectorBackend.image.repository }}:{{ .Values.connectorBackend.image.tag }}
@@ -116,9 +116,9 @@ spec:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
             - name: MGMT_BACKEND_HOST
-              value: "{{ template "base.mgmtBackend" . }}"
+              value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
-              value: "{{ template "base.mgmtBackend.publicPort" . }}"
+              value: "{{ template "core.mgmtBackend.publicPort" . }}"
         {{- with .Values.connectorBackend.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}

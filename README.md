@@ -77,11 +77,37 @@ Explore our [documentation](https://www.instill.tech/docs/vdp/deployment/overvie
 
 ## Dive into the Projects
 
-Instill VDP stands as a crucial project within our **[Instill Core](https://github.com/instill-ai#instill-core)** stack. It provides an open-source AI infrastructure tailored for unstructured data, enabling versatile AI application development. Within this ecosystem, delve into source-available projects that enable you to construct flexible AI pipelines, enhancing your data processing abilities and converting raw data into actionable insights.
+Explore our open-source unstructured data infrastructure stack, comprising a collection of source-available projects designed to streamline every aspect of building versatile AI features with unstructured data. Dive into the potential in our [documentation](https://www.instill.tech/docs).
 
-- 💧 [Instill VDP](https://github.com/instill-ai/vdp): Streamline the unstructured data journey for AI applications
-- ⚗️ [Instill Model](https://github.com/instill-ai/model): Transform your applications with AI models
-- 🗿 [Instill Base](https://github.com/instill-ai/base): Essential Services for VDP and Model
+<div align="center">
+  <img src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-projects.svg" width=80%>
+  <br>
+    <em>Open Source Unstructured Data Infrastructure Stack</em>
+</div>
+<br>
+<details>
+  <summary><b>🔮 <a href="https://github.com/instill-ai/core" target="_blank">Instill Core</a>: The starting point for self-hosting Instill VDP and Instill Model</b></summary><br>
+
+  **Instill Core**, or **Core**, serves as the bedrock upon which open-source unstructured data stack thrive. Essential services such as user management servers, databases, and third-party observability tools find their home here. Instill Core also provides deployment codes to facilitate the seamless launch of both Instill VDP and Instill Model.
+</details>
+
+<details>
+  <summary><b>💧 <a href="https://github.com/instill-ai/vdp" target="_blank">Instill VDP</a>: AI pipeline builder for unstructured data</b></summary><br>
+
+  **Instill VDP**, or **VDP (Versatile Data Pipeline)**, represents a comprehensive unstructured data infrastructure. Its purpose is to simplify the journey of processing unstructured data from start to finish:
+
+  - **Extract:** Gather unstructured data from diverse sources, including AI applications, cloud/on-prem storage, and IoT devices.
+  - **Transform:** Utilize AI models to convert raw data into meaningful insights and actionable formats.
+  - **Load:** Efficiently move processed data to warehouses, applications, or other destinations.
+
+  Embracing VDP is straightforward, whether you opt for Instill Cloud deployment or self-hosting via Instill Core. Consult our comprehensive [documentation](https://www.instill.tech/docs/core/vdp/deployment/overview) to delve into VDP deployment.
+</details>
+
+<details>
+  <summary><b>⚗️ <a href="https://github.com/instill-ai/model" target="_blank">Instill Model</a>: Scalable AI model serving and training</b></summary><br>
+
+  **Instill Model**, or simply **Model**, emerges as an advanced ModelOps platform. Here, the focus is on empowering you to seamlessly import, train and serve Machine Learning (ML) models for inference purposes. Like other projects, Instill Model's source code is available for your exploration.
+</details>
 
 ## No-/Low-code Access & Support
 
