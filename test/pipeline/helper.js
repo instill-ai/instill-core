@@ -98,7 +98,7 @@ export function deployModel(model, repository, modelInstances) {
                     r.status === 200,
             });
 
-            // Check the model instance state being updated in 24 hours. Some GitHub models is huge.
+            // Check the model instance state being updated in 24 hours. Some GitHub models are huge.
             currentTime = new Date().getTime();
             timeoutTime = new Date().getTime() + 24 * 60 * 60 * 1000;
             while (timeoutTime > currentTime) {
