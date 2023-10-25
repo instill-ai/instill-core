@@ -17,8 +17,8 @@ After onboarding, you will be redirected to the **Pipeline** page on the left si
 
 #### Create a SYNC pipeline `stomata`
 
-**Step 1: Add a HTTP source**
-A HTTP source accepts HTTP requests with image payloads to be processed by a pipeline.
+**Step 1: Add an HTTP source**
+An HTTP source accepts HTTP requests with image payloads to be processed by a pipeline.
 
 To set it up,
 
@@ -38,7 +38,7 @@ To set it up,
 4. fill in the GitHub repository URL `instill-ai/model-stomata-instance-segmentation-dvc`, and a Git tag e.g., `v1.0-cpu` to import the model
 5. click **Set up**.
 
-**Step 3: Add a HTTP destination**
+**Step 3: Add an HTTP destination**
 
 Since we are building a `SYNC` pipeline, the HTTP destination is automatically paired with the HTTP source.
 
@@ -49,7 +49,7 @@ Just click **Next**.
 Almost done! Just
 
 1. give your pipeline a unique ID `stomata`,
-2. [optional] add description, and
+2. [optional] Add description, and
 3. click **Set up**.
 
 Now you should see the newly created SYNC pipeline `stomata` on the Pipeline page 🎉
