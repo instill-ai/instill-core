@@ -109,7 +109,7 @@ def rle_decode(uncompressed_rle):
                 'counts': [n1, n2, n3, ...],
                 'size': [height, width] of the mask
             }
-        mask_shape: (height,width) of mask to return
+        mask_shape: (height, width) of mask to return
 
     Returns np.ndarray binary mask, 1 - mask, 0 - background
     """
@@ -124,7 +124,7 @@ def binary_mask_to_polygons(binary_mask, tolerance=0):
     r""" Converts a binary mask to COCO polygon representation
     Args:
         binary_mask: a 2D binary numpy array where '1's represent the object
-        tolerance: Maximum distance from original points of polygon to approximated polygonal chain. If tolerance is 0, the original coordinate array is returned.
+        tolerance: Maximum distance from original points of polygon to approximated polygonal chain. If the tolerance is 0, the original coordinate array is returned.
 
     """
     def close_contour(contour):
@@ -158,7 +158,7 @@ def rle_to_polygon(uncompressed_rle, bbox_ltwh):
                 'counts': [n1, n2, n3, ...],
                 'size': [height, width] of the mask
             }
-        bbox_ltwh: the bounding box that constraints the RLE in the format of [left, top, width, height]
+        bbox_ltwh: the bounding box that constrains the RLE in the format of [left, top, width, height]
 
     Return a list of polygons related to the original image
     """
