@@ -52,7 +52,7 @@ jobs:
 
       - name: Launch Instill VDP (release)
         run: |
-          make all EDITION=local-ce:test
+          make all BUILD=true EDITION=local-ce:test
 
       - name: List all docker containers
         run: |

@@ -20,45 +20,46 @@ HELM_RELEASE_NAME := vdp
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@make build-release
-	@if ! (docker compose ls -q | grep -q "instill-core"); then \
+	@if [ "${BUILD}" = "true" ]; then make build-release; fi
+	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 			-v $${SYSTEM_CONFIG_PATH}:$${SYSTEM_CONFIG_PATH} \
+			-e BUILD=${BUILD} \
 			--name ${CONTAINER_COMPOSE_NAME}-release \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make all EDITION=$${EDITION:=local-ce} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+				/bin/sh -c 'cd /instill-ai/core && make all BUILD=${BUILD} PROJECT=core EDITION=$${EDITION:=local-ce} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 				rm -rf $${TMP_CONFIG_DIR}/* \
-			" && \
-		rm -rf $${TMP_CONFIG_DIR}; \
+			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@EDITION=$${EDITION:=local-ce} docker compose -f docker-compose.yml up -d --quiet-pull
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-	@make build-latest
-	@if ! (docker compose ls -q | grep -q "instill-core"); then \
+	@if [ "${BUILD}" = "true" ]; then make build-latest; fi
+	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 			-v $${SYSTEM_CONFIG_PATH}:$${SYSTEM_CONFIG_PATH} \
+			-e BUILD=${BUILD} \
+			-e PROFILE=${PROFILE} \
 			--name ${CONTAINER_COMPOSE_NAME}-latest \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make latest PROFILE=all EDITION=$${EDITION:=local-ce:latest} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
+				/bin/sh -c 'cd /instill-ai/core && make latest BUILD=${BUILD} PROJECT=core PROFILE=$${PROFILE} EDITION=$${EDITION:=local-ce:latest} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
 				rm -rf $${TMP_CONFIG_DIR}/* \
-			" && \
-		rm -rf $${TMP_CONFIG_DIR}; \
+			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
 	@COMPOSE_PROFILES=$(PROFILE) EDITION=$${EDITION:=local-ce:latest} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 
@@ -101,22 +102,24 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 	@EDITION= docker compose down -v
-	@if docker compose ls -q | grep -q "instill-core"; then \
-		if docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest >/dev/null 2>&1; then \
-			docker run --rm \
-				-v /var/run/docker.sock:/var/run/docker.sock \
-				--name ${CONTAINER_COMPOSE_NAME} \
-				${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
-					/bin/sh -c 'cd /instill-ai/core && make down' \
-				"; \
-		elif docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release >/dev/null 2>&1; then \
-			docker run --rm \
-				-v /var/run/docker.sock:/var/run/docker.sock \
-				--name ${CONTAINER_COMPOSE_NAME} \
-				${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
-					/bin/sh -c 'cd /instill-ai/core && make down' \
-				"; \
-		fi	\
+	@if [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes')" = "yes" ]; then \
+		docker run --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			--name ${CONTAINER_COMPOSE_NAME} \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+				if [ \"$$( docker container inspect -f '{{.State.Status}}' core-dind 2>/dev/null)\" != \"running\" ]; then \
+					/bin/sh -c 'cd /instill-ai/core && make down'; \
+				fi \
+			"; \
+	elif [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release --format='yes')" = "yes" ]; then \
+		docker run --rm \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			--name ${CONTAINER_COMPOSE_NAME} \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+				if [ \"$$( docker container inspect -f '{{.State.Status}}' core-dind 2>/dev/null)\" != \"running\" ]; then \
+					/bin/sh -c 'cd /instill-ai/core && make down'; \
+				fi \
+			"; \
 	fi
 
 .PHONY: images
@@ -180,7 +183,7 @@ build-release:				## Build release images for all VDP components
 
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
-	@make latest PROFILE=all EDITION=local-ce:test
+	@make latest BUILD=true PROFILE=all EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
@@ -193,7 +196,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test on the release VDP
-	@make all EDITION=local-ce:test
+	@make all BUILD=true EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
