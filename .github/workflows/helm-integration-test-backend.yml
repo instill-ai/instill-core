@@ -94,8 +94,9 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
             --set connectorBackend.image.tag=latest \
+            --set connectorBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=latest \
-            --set tags.observability=false
+            --set tags.observability=false 
           kubectl rollout status deployment vdp-connector-backend --namespace instill-ai
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
           kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai
@@ -210,6 +211,7 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
             --set connectorBackend.image.tag=latest \
+            --set connectorBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=latest \
             --set tags.observability=false
           kubectl rollout status deployment vdp-connector-backend --namespace instill-ai --timeout=120s
@@ -318,6 +320,7 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
+            --set connectorBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
           kubectl rollout status deployment vdp-connector-backend --namespace instill-ai
@@ -440,6 +443,7 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
+            --set connectorBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
           kubectl rollout status deployment vdp-connector-backend --namespace instill-ai --timeout=120s

@@ -239,6 +239,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=latest \
 		--set connectorBackend.image.tag=latest \
+		--set connectorBackend.excludelocalconnector=false \
 		--set controllerVDP.image.tag=latest \
 		--set tags.observability=false
 	@kubectl rollout status deployment vdp-connector-backend --namespace ${HELM_NAMESPACE} --timeout=120s
@@ -276,8 +277,8 @@ helm-integration-test-release:                       ## Run integration test on 
 	@docker run --rm \
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		${DOCKER_HELM_IT_EXTRA_PARAMS} \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
 			/bin/sh -c 'cd /instill-ai/core && \
 				export $(grep -v '^#' .env | xargs) && \
 				helm install core charts/core \
@@ -296,6 +297,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
+		--set connectorBackend.excludelocalconnector=false \
 		--set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
 		--set tags.observability=false
 	@kubectl rollout status deployment vdp-connector-backend --namespace ${HELM_NAMESPACE} --timeout=120s
