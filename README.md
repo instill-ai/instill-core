@@ -37,7 +37,7 @@
 
 - **macOS or Linux** - VDP works on macOS or Linux, but does not support Windows yet.
 
-- **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services at local. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
+- **Docker and Docker Compose** - VDP uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using VDP.
 
 ## Quick Start
 
@@ -106,7 +106,7 @@ Explore our open-source unstructured data infrastructure stack, comprising a col
 <details>
   <summary><b>⚗️ <a href="https://github.com/instill-ai/model" target="_blank">Instill Model</a>: Scalable AI model serving and training</b></summary><br>
 
-  **Instill Model**, or simply **Model**, emerges as an advanced ModelOps platform. Here, the focus is on empowering you to seamlessly import, train and serve Machine Learning (ML) models for inference purposes. Like other projects, Instill Model's source code is available for your exploration.
+  **Instill Model**, or simply **Model**, emerges as an advanced ModelOps platform. Here, the focus is on empowering you to seamlessly import, train, and serve Machine Learning (ML) models for inference purposes. Like other projects, Instill Model's source code is available for your exploration.
 </details>
 
 ## No-/Low-code Access & Support

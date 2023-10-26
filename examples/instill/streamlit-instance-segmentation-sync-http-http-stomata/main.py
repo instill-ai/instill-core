@@ -13,14 +13,14 @@ from urllib.error import HTTPError
 
 
 def parse_instance_segmentation_response(resp: requests.Response) -> Tuple[List[Tuple[float]], List[str], List[str], List[float]]:
-    r""" Parse an Instance Segmentation response in to bounding boxes, RLEs, categories and scores
+    r""" Parse an Instance Segmentation response into bounding boxes, RLEs, categories, and scores
 
     Args:
-        resp (`requests.Response`): response for standardised Instance Segmentation task
+        resp (`requests.Response`): response for standardized Instance Segmentation task
 
     Returns: parsed outputs, a tuple of
         List[Tuple[float]]: a list of detected bounding boxes in the format of (left, top, width, height)
-        List[str]: a list of Uncompressed Run-length encoding (RLE) in the format of comma separated string separated by comma. The length of this list must be the same as the detected bounding boxes.
+        List[str]: a list of Uncompressed Run-length encoding (RLE) in the format of a comma-separated string separated by a comma. The length of this list must be the same as the detected bounding boxes.
         List[str]: a list of category labels, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
         List[float]: a list of scores, each of which corresponds to a detected bounding box. The length of this list must be the same as the detected bounding boxes.
 
@@ -76,7 +76,7 @@ def display_intro_markdown(pipeline_id="stomata"):
 
     intro_markdown = """
 
-    # 🥦 Identify stomata by triggering VDP pipeline
+    # 🥦 Identify stomata by triggering the VDP pipeline
 
     [Versatile Data Pipeline (VDP)](https://github.com/instill-ai/vdp) is a source available unstructured data ETL tool to streamline end-to-end unstructured data processing
 
@@ -87,7 +87,7 @@ def display_intro_markdown(pipeline_id="stomata"):
     Give us a ⭐ on [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/instill-ai/vdp) and join our [![Discord](https://img.shields.io/badge/Community-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/sevxWsqpGh)
 
     #### We are offering **FREE** fully-managed VDP on Instill Cloud
-    If you are interested in showcasing your models, please [sign up the form](https://www.instill.tech/get-access) and we will reach out to you. Seats are limited - first come , first served.
+    If you are interested in showcasing your models, please [sign up for the form](https://www.instill.tech/get-access) and we will reach out to you. Seats are limited - first come, first served.
 
     # Demo
 

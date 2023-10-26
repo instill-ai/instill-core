@@ -5,7 +5,7 @@ import {
 let classificationDog = "golden retriever"
 let classificationBear = "brown bear"
 
-if (__ENV.TARGET == "m1") { // m1 have problem with classification extension and result with the Triton 22.12 is wrong when running batching.
+if (__ENV.TARGET == "m1") { // m1 has a problem with classification extension and the result with the Triton 22.12 is wrong when running batching.
     classificationDog = "tile roof"
     classificationBear = "tile roof"
 }
