@@ -8,6 +8,8 @@ export
 
 UNAME_S := $(shell uname -s)
 
+INSTILL_VDP_VERSION := $(shell git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 2-)
+
 CONTAINER_BUILD_NAME := vdp-build
 CONTAINER_COMPOSE_NAME := vdp-dind
 CONTAINER_COMPOSE_IMAGE_NAME := instill/vdp-compose
@@ -21,6 +23,19 @@ HELM_RELEASE_NAME := vdp
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@if [ "${BUILD}" = "true" ]; then make build-release; fi
+	@if [ ! "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} --format='yes' 2> /dev/null)" = "yes" ]; then \
+		docker build --progress plain \
+			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+			--build-arg K6_VERSION=${K6_VERSION} \
+			--build-arg CACHE_DATE="$(shell date)" \
+			--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
+			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+			--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
+			--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
+			--target release \
+			-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .; \
+	fi
 	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
@@ -30,7 +45,7 @@ all:			## Launch all services with their up-to-date release version
 			-v $${SYSTEM_CONFIG_PATH}:$${SYSTEM_CONFIG_PATH} \
 			-e BUILD=${BUILD} \
 			--name ${CONTAINER_COMPOSE_NAME}-release \
-			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
@@ -42,7 +57,7 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-	@if [ "${BUILD}" = "true" ]; then make build-latest; fi
+	@make build-latest
 	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
@@ -102,7 +117,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 	@EDITION= docker compose down -v
-	@if [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes')" = "yes" ]; then \
+	@if [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes' 2> /dev/null)" = "yes" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
@@ -111,11 +126,11 @@ down:			## Stop all services and remove all service containers and volumes
 					/bin/sh -c 'cd /instill-ai/core && make down'; \
 				fi \
 			"; \
-	elif [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release --format='yes')" = "yes" ]; then \
+	elif [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} --format='yes' 2> /dev/null)" = "yes" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
-			${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+			${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 				if [ \"$$( docker container inspect -f '{{.State.Status}}' core-dind 2>/dev/null)\" != \"running\" ]; then \
 					/bin/sh -c 'cd /instill-ai/core && make down'; \
 				fi \
@@ -167,13 +182,13 @@ build-release:				## Build release images for all VDP components
 		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 		--target release \
-		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:release .
+		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .
 	@docker run --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v ${BUILD_CONFIG_DIR_PATH}/.env:/instill-ai/vdp/.env \
 		-v ${BUILD_CONFIG_DIR_PATH}/docker-compose.build.yml:/instill-ai/vdp/docker-compose.build.yml \
 		--name ${CONTAINER_BUILD_NAME}-release \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
@@ -200,7 +215,7 @@ integration-test-release:			## Run integration test on the release VDP
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
@@ -278,7 +293,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		${DOCKER_HELM_IT_EXTRA_PARAMS} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd /instill-ai/core && \
 				export $(grep -v '^#' .env | xargs) && \
 				helm install core charts/core \
@@ -305,13 +320,13 @@ helm-integration-test-release:                       ## Run integration test on 
 	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
 	@sleep 10
 ifeq ($(UNAME_S),Darwin)
-	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
-	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:release /bin/sh -c " \
+	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
@@ -322,7 +337,7 @@ endif
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		${DOCKER_HELM_IT_EXTRA_PARAMS} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd /instill-ai/core && helm uninstall core --namespace ${HELM_NAMESPACE}' \
 		"
 	@kubectl delete namespace instill-ai
