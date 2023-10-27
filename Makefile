@@ -21,6 +21,19 @@ HELM_RELEASE_NAME := vdp
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@if [ "${BUILD}" = "true" ]; then make build-release; fi
+	@if [ ! "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release --format='yes' 2> /dev/null)" = "yes" ]; then \
+		docker build --progress plain \
+			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+			--build-arg K6_VERSION=${K6_VERSION} \
+			--build-arg CACHE_DATE="$(shell date)" \
+			--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
+			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+			--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
+			--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
+			--target release \
+			-t ${CONTAINER_COMPOSE_IMAGE_NAME}:release .; \
+	fi
 	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
@@ -43,6 +56,15 @@ all:			## Launch all services with their up-to-date release version
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
 	@if [ "${BUILD}" = "true" ]; then make build-latest; fi
+	@if [ ! "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes' 2> /dev/null)" = "yes" ]; then \
+		docker build --progress plain \
+			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+			--build-arg K6_VERSION=${K6_VERSION} \
+			--build-arg CACHE_DATE="$(shell date)" \
+			--target latest \
+			-t ${CONTAINER_COMPOSE_IMAGE_NAME}:latest .; \
+	fi
 	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
@@ -102,7 +124,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-latest >/dev/null 2>&1
 	@docker rm -f ${CONTAINER_COMPOSE_NAME}-release >/dev/null 2>&1
 	@EDITION= docker compose down -v
-	@if [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes')" = "yes" ]; then \
+	@if [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:latest --format='yes' 2> /dev/null)" = "yes" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
@@ -111,7 +133,7 @@ down:			## Stop all services and remove all service containers and volumes
 					/bin/sh -c 'cd /instill-ai/core && make down'; \
 				fi \
 			"; \
-	elif [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release --format='yes')" = "yes" ]; then \
+	elif [ "$$(docker image inspect ${CONTAINER_COMPOSE_IMAGE_NAME}:release --format='yes' 2> /dev/null)" = "yes" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			--name ${CONTAINER_COMPOSE_NAME} \
