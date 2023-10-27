@@ -337,7 +337,7 @@ endif
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		${DOCKER_HELM_IT_EXTRA_PARAMS} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
-		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
+		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd /instill-ai/core && helm uninstall core --namespace ${HELM_NAMESPACE}' \
 		"
 	@kubectl delete namespace instill-ai
