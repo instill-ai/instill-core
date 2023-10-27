@@ -15,7 +15,7 @@
 
 💧 **Instill VDP (Versatile Data Pipeline)** is a source-available tool, designed to streamline your data processing pipelines from inception to completion. If your goal is to develop versatile AI features using Large Language Models (LLM), Generative AI, Vision, or Audio models, Instill VDP empowers you to:
 
-- Effortlessly **connect** to your unstructured data
+- Effortlessly **connect** with your unstructured data
 - **Build** pipelines to enable diverse AI functionalities in your applications
 - Visually **test** pipelines with a single click, viewing output at each stage
 - Easily **share** your pipelines to showcase your work
