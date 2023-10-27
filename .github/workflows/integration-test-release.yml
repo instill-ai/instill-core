@@ -2,11 +2,6 @@ name: Integration Test (release)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release-please--branches--main
-    tags:
-      - v*
 
 jobs:
   backend:
