@@ -15,23 +15,23 @@
 
 💧 **Instill VDP (Versatile Data Pipeline)** is a source-available tool, designed to streamline your data processing pipelines from inception to completion. If your goal is to develop versatile AI features using Large Language Models (LLM), Generative AI, Vision, or Audio models, Instill VDP empowers you to:
 
-- Effortlessly **connect** to your unstructured data
-- **Build** pipelines to enable diverse AI functionalities in your applications
-- Visually **test** pipelines with a single click, viewing output at each stage
-- Easily **share** your pipelines to showcase your work
+- Effortlessly **connect** to your unstructured data.
+- **Build** pipelines to enable diverse AI functionalities in your applications.
+- Visually **test** pipelines with a single click, viewing output at each stage.
+- Easily **share** your pipelines to showcase your work.
 
 **☁️ [Instill Cloud](https://console.instill.tech)** offers a fully managed public cloud service, providing you with access to all the fantastic features of Instill VDP without the burden of infrastructure management.
 
 ## Highlights
 
-- 🚀 Accelerate AI applications by building end-to-end AI-powered pipelines for unstructured data up to 10 times faster
-- 🔌 Utilize pre-built connectors to access data from various sources, powerful AI models, and third-party tools
-- 🌟 Benefit from a no-code drag-and-drop pipeline builder, enabling quick and customizable application development
-- 🪢 Choose between real-time inference (SYNC) and on-demand workload (ASYNC) processing modes
-- 🧁 Enjoy a scalable API-first microservice design, offering an excellent developer experience
-- ⚡️ Leverage high-performing backends implemented in Go
-- 📊 Gain visibility into pipeline performance through a detailed dashboard
-- 🤠 Access no-/low-code interfaces, making VDP suitable for every AI and data practitioner
+- 🚀 Accelerate AI applications by building end-to-end AI-powered pipelines for unstructured data up to 10 times faster.
+- 🔌 Utilize pre-built connectors to access data from various sources, powerful AI models, and third-party tools.
+- 🌟 Benefit from a no-code drag-and-drop pipeline builder, enabling quick and customizable application development.
+- 🪢 Choose between real-time inference (SYNC) and on-demand workload (ASYNC) processing modes.
+- 🧁 Enjoy a scalable API-first microservice design, offering an excellent developer experience.
+- ⚡️ Leverage high-performing backends implemented in Go.
+- 📊 Gain visibility into pipeline performance through a detailed dashboard.
+- 🤠 Access no-/low-code interfaces, making VDP suitable for every AI and data practitioner.
 
 ## Prerequisites
 
