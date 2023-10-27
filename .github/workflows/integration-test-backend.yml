@@ -102,7 +102,7 @@ jobs:
 
       - name: remove existing docker container
         run: |
-          docker rm -f $(docker ps -a -q)  
+          docker rm -f $(docker ps -a -q) || true
 
       - name: Set up environment
         run: |
@@ -306,7 +306,7 @@ jobs:
 
       - name: remove existing docker container
         run: |
-          docker rm -f $(docker ps -a -q)  
+          docker rm -f $(docker ps -a -q) || true
 
       - name: Set up environment
         run: |
