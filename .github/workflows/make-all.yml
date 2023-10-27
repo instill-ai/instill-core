@@ -2,11 +2,6 @@ name: Make All
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - release-please--branches--main
-    tags:
-      - v*
 
 jobs:
   make-all:

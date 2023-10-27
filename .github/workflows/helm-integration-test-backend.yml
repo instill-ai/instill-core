@@ -14,7 +14,11 @@ jobs:
   helm-integration-test-latest-linux:
     if: inputs.target == 'latest'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.0
+
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
         run: |
@@ -112,7 +116,11 @@ jobs:
   helm-integration-test-latest-mac:
     if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, vdp]
+    timeout-minutes: 20
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.0
+
       - name: Set up environment
         run: |
           brew install make
@@ -235,7 +243,11 @@ jobs:
   helm-integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.0
+
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
         run: |
@@ -339,7 +351,11 @@ jobs:
   helm-integration-test-release-mac:
     if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, vdp]
+    timeout-minutes: 20
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.0
+
       - name: Set up environment
         run: |
           brew install make
