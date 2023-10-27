@@ -31,7 +31,7 @@
 - 🧁 Enjoy a scalable API-first microservice design, offering an excellent developer experience
 - ⚡️ Leverage high-performing backends implemented in Go
 - 📊 Gain visibility into pipeline performance through a detailed dashboard
-- 🤠 Access no-/low-code interfaces, making VDP suitable for every AI and data practitioner
+- 🤠 Access no-code/low-code interfaces, making VDP suitable for every AI and data practitioner
 
 ## Prerequisites
 
@@ -109,7 +109,7 @@ Explore our open-source unstructured data infrastructure stack, comprising a col
   **Instill Model**, or simply **Model**, emerges as an advanced ModelOps platform. Here, the focus is on empowering you to seamlessly import, train, and serve Machine Learning (ML) models for inference purposes. Like other projects, Instill Model's source code is available for your exploration.
 </details>
 
-## No-/Low-code Access & Support
+## No-Code/Low-code Access & Support
 
 To dive into Instill Core and Instill Cloud, we provide:
 
