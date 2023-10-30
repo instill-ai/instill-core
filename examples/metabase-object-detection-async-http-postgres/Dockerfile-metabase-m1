@@ -17,7 +17,7 @@ RUN apt-get update -yq && apt-get install -yq bash fonts-dejavu-core fonts-dejav
 
 WORKDIR /app
 
-# copy app from the offical image
+# copy app from the official image
 COPY --from=metabase/metabase:latest /app /app
 
 RUN chown -R metabase /app
