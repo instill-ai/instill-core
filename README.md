@@ -66,14 +66,14 @@ $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 $ make latest PROFILE=all
 ```
 
-🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
+🚀 That's it! Once all the services are up to date with their health status, the UI is ready to go at http://localhost:3000!
 
 To shut down all running services:
 ```
 $ make down
 ```
 
-Explore our [documentation](https://www.instill.tech/docs/vdp/deployment/overview) to discover all available deployment options.
+Explore our [documentation](https://www.instill.tech/docs/vdp/deployment/overview) to discover all the available deployment options.
 
 ## Dive into the Projects
 
