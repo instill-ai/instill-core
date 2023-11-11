@@ -224,7 +224,7 @@ integration-test-release:			## Run integration test on the release VDP
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
-	@make build-latest
+	# @make build-latest
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run --rm \
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -260,7 +260,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@kubectl rollout status deployment vdp-connector-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
-	@sleep 10
+	@sleep 30
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
