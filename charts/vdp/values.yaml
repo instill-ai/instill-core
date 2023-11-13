@@ -63,7 +63,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.16.1-alpha
+    tag: 0.16.2-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -138,7 +138,7 @@ connectorBackend:
   # -- The image of connector-backend
   image:
     repository: instill/connector-backend
-    tag: 0.15.0-alpha
+    tag: 0.15.1-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
