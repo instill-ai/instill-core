@@ -73,7 +73,7 @@ To shut down all running services:
 $ make down
 ```
 
-Explore our [documentation](https://www.instill.tech/docs/vdp/deployment/overview) to discover all available deployment options.
+Explore our [documentation](https://www.instill.tech/docs) to discover all available deployment options.
 
 ## Dive into the Projects
 
