@@ -87,18 +87,53 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
+        - name: pipeline-backend-init
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          {{- if .Values.pipelineBackend.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.init }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            - name: host-docker-socket-volume
+              mountPath: /var/run/docker.sock
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          env:
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- if .Values.pipelineBackend.copyHostDocker }}
+        - name: copy-docker
+          image: alpine:3.14
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+          - >
+            cp -r /tmp/docker/* /var/lib/docker/
+          volumeMounts:
+            - name: host-docker-volume
+              mountPath: /tmp/docker
+            - name: docker-volume
+              mountPath: /var/lib/docker
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+        {{- end }}
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
           args:
           - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
-            - name: CONNECTOR_BACKEND_HOST
-              value: "{{ template "vdp.connectorBackend" . }}"
-            - name: CONNECTOR_BACKEND_PORT
-              value: "{{ template "vdp.connectorBackend.publicPort" . }}"
             - name: MGMT_BACKEND_HOST
               value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
@@ -107,6 +142,25 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
+        - name: dind-daemon
+          image: docker:dind
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+                cpu: 20m
+                memory: 512Mi
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
+          volumeMounts:
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
         - name: pipeline-backend-worker
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
@@ -119,10 +173,22 @@ spec:
             {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
           {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.worker }}]
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+            - name: docker-volume
+              mountPath: /var/lib/docker
             {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -152,10 +218,22 @@ spec:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "vdp.pipelineBackend.publicPort" . }}
               protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+            - name: docker-volume
+              mountPath: /var/lib/docker
             {{- if .Values.internalTLS.enabled }}
             - name: pipeline-internal-certs
               mountPath: "/etc/instill-ai/vdp/ssl/pipeline"
@@ -163,17 +241,26 @@ spec:
             {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          env:
-          {{- if .Values.pipelineBackend.extraEnv }}
-            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
-          {{- end }}
         {{- with .Values.pipelineBackend.sidecarContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
+        - name: host-docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        - name: host-docker-volume
+          hostPath:
+            path: /var/lib/docker
         - name: config
           configMap:
             name: {{ template "vdp.pipelineBackend" . }}
+        - name: docker-volume
+          emptyDir: {}
+        - name: vdp
+          emptyDir: {}
+        - name: airbyte
+          emptyDir: {}
         {{- if .Values.internalTLS.enabled }}
         - name: pipeline-internal-certs
           secret:

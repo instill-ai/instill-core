@@ -11,15 +11,6 @@ services:
         GOLANG_VERSION: ${GOLANG_VERSION}
         K6_VERSION: ${K6_VERSION}
 
-  connector_backend:
-    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
-    build:
-      context: ./${CONNECTOR_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${CONNECTOR_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
-
   controller_vdp:
     image: ${CONTROLLER_VDP_IMAGE}:${CONTROLLER_VDP_VERSION}
     build:

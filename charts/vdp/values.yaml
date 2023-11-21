@@ -37,14 +37,6 @@ internalTLS:
     crt: ""
     # Content of pipeline-backend's TLS key file, only available when `certSource` is "manual"
     key: ""
-  # connector-backend related cert configuration
-  connector-backend:
-    # secret name for connector-backend's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of connector-backend's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of connector-backend's TLS key file, only available when `certSource` is "manual"
-    key: ""
   # controller-vdp related cert configuration
   controllerVDP:
     # secret name for controller-vdp's tls certs, only available when `certSource` is "secret"
@@ -70,85 +62,18 @@ pipelineBackend:
   # -- The command names to be executed
   commandName:
     migration: pipeline-backend-migrate
+    init: pipeline-backend-init
     main: pipeline-backend
     worker: pipeline-backend-worker
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 7
+  dbVersion: 8
   # -- workflow setting
   workflow:
     maxWorkflowTimeout: 3600 # in seconds
     maxWorkflowRetry: 3
     maxActivityRetry: 1
-  # -- The configuration of Temporal Cloud
-  temporal:
-    hostPort:
-    namespace:
-    ca:
-    cert:
-    key:
-    serverName:
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for pipeline-backend
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-connectorBackend:
-  # -- The image of connector-backend
-  image:
-    repository: instill/connector-backend
-    tag: 0.15.1-alpha
-    pullPolicy: IfNotPresent
-  # -- The command names to be executed
-  commandName:
-    migration: connector-backend-migrate
-    init: connector-backend-init
-    main: connector-backend
-  # -- The path of configuration file for connector-backend
-  configPath: /connector-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 5
   # -- Load the pre-built connector or not
   prebuiltConnectorEnabled: false
   excludelocalconnector: true
@@ -164,7 +89,7 @@ connectorBackend:
   serviceAccountName: ""
   # -- Mount the service account token
   automountServiceAccountToken: false
-  # -- The number of replica for connector-backend
+  # -- The number of replica for pipeline-backend
   replicaCount: 1
   # -- Add extra env variables
   extraEnv: []

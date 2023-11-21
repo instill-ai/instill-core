@@ -58,7 +58,6 @@ jobs:
         run: |
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/core/v1alpha/health/mgmt
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/pipeline
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/connector
 
       - name: Tear down Instill VDP (release)
         run: |
