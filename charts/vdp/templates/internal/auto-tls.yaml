@@ -2,8 +2,6 @@
 {{- $ca := genCA "vdp-internal-ca" 365 }}
 {{- $pipelineCN := (include "vdp.pipelineBackend" .) }}
 {{- $pipelineCrt := genSignedCert $pipelineCN (list "127.0.0.1") (list "localhost" $pipelineCN) 365 $ca }}
-{{- $connectorCN := (include "vdp.connectorBackend" .) }}
-{{- $connectorCrt := genSignedCert $connectorCN (list "127.0.0.1") (list "localhost" $connectorCN) 365 $ca }}
 {{- $modelCN := (include "vdp.model" .) }}
 {{- $modelCrt := genSignedCert $modelCN (list "127.0.0.1") (list "localhost" $modelCN) 365 $ca }}
 {{- $mgmtCN := (include "core.mgmtBackend" .) }}
@@ -20,16 +18,5 @@ type: kubernetes.io/tls
 data:
   tls.crt: {{ $pipelineCrt.Cert | b64enc | quote }}
   tls.key: {{ $pipelineCrt.Key | b64enc | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "vdp.internalTLS.connectorBackend.secretName" . }}"
-  labels:
-    {{- include "vdp.labels" . | nindent 4 }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ $connectorCrt.Cert | b64enc | quote }}
-  tls.key: {{ $connectorCrt.Key | b64enc | quote }}
 ---
 {{- end }}

@@ -76,7 +76,6 @@ jobs:
         run: |
           source .env
           yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/vdp/values.yaml
-          yq ".connectorBackend.image.tag=\"$CONNECTOR_BACKEND_VERSION\"" -i charts/vdp/values.yaml
           yq ".controllerVDP.image.tag=\"$CONTROLLER_VDP_VERSION\"" -i charts/vdp/values.yaml
       - name: Get current chart version
         id: get-current-chart-version

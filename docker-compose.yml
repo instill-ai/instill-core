@@ -23,24 +23,41 @@ services:
       CFG_DATABASE_PASSWORD: password
     entrypoint: ./pipeline-backend-migrate
 
+  pipeline_backend_init:
+    container_name: ${PIPELINE_BACKEND_HOST}-init
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    entrypoint: ./pipeline-backend-init
+    depends_on:
+      pipeline_backend_migrate:
+        condition: service_completed_successfully
+
   pipeline_backend:
     container_name: ${PIPELINE_BACKEND_HOST}
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
+      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_VDP: vdp
+      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_CONNECTORBACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
-      CFG_CONNECTORBACKEND_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
-      CFG_CONNECTORBACKEND_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
       CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
       CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
@@ -48,6 +65,9 @@ services:
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend
+    volumes:
+      - vdp:/vdp
+      - airbyte:/airbyte
     depends_on:
       pipeline_backend_migrate:
         condition: service_completed_successfully
@@ -57,19 +77,19 @@ services:
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
+      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
+      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_VDP: vdp
+      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_CONNECTORBACKEND_HOST: ${CONNECTOR_BACKEND_HOST}
-      CFG_CONNECTORBACKEND_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
-      CFG_CONNECTORBACKEND_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
       CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
       CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
       CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
@@ -77,68 +97,11 @@ services:
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend-worker
-    depends_on:
-      pipeline_backend_migrate:
-        condition: service_completed_successfully
-
-  connector_backend_migrate:
-    container_name: ${CONNECTOR_BACKEND_HOST}-migrate
-    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
-    restart: on-failure
-    environment:
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-    entrypoint: ./connector-backend-migrate
-
-  connector_backend_init:
-    container_name: ${CONNECTOR_BACKEND_HOST}-init
-    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
-    restart: on-failure
-    environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./connector-backend-init
-    depends_on:
-      connector_backend_migrate:
-        condition: service_completed_successfully
-
-  connector_backend:
-    container_name: ${CONNECTOR_BACKEND_HOST}
-    image: ${CONNECTOR_BACKEND_IMAGE}:${CONNECTOR_BACKEND_VERSION}
-    restart: unless-stopped
-    environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_VDP: vdp
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_AIRBYTE: airbyte
-      CFG_SERVER_PRIVATEPORT: ${CONNECTOR_BACKEND_PRIVATEPORT}
-      CFG_SERVER_PUBLICPORT: ${CONNECTOR_BACKEND_PUBLICPORT}
-      CFG_SERVER_DEBUG: "false"
-      CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
-      CFG_SERVER_EDITION: ${EDITION}
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
-      CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
-      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
-      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
-      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./connector-backend
     volumes:
       - vdp:/vdp
       - airbyte:/airbyte
     depends_on:
-      connector_backend_init:
+      pipeline_backend_migrate:
         condition: service_completed_successfully
 
   controller_vdp:

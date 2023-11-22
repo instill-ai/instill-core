@@ -97,11 +97,9 @@ jobs:
           helm install vdp charts/vdp --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
-            --set connectorBackend.image.tag=latest \
-            --set connectorBackend.excludelocalconnector=false \
+            --set pipelineBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=latest \
             --set tags.observability=false 
-          kubectl rollout status deployment vdp-connector-backend --namespace instill-ai
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
           kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai
           sleep 10
@@ -218,11 +216,9 @@ jobs:
           helm install vdp charts/vdp --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
-            --set connectorBackend.image.tag=latest \
-            --set connectorBackend.excludelocalconnector=false \
+            --set pipelineBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=latest \
             --set tags.observability=false
-          kubectl rollout status deployment vdp-connector-backend --namespace instill-ai --timeout=120s
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
           kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai --timeout=120s
           sleep 10
@@ -331,11 +327,9 @@ jobs:
           helm install vdp charts/vdp --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-            --set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
-            --set connectorBackend.excludelocalconnector=false \
+            --set pipelineBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
-          kubectl rollout status deployment vdp-connector-backend --namespace instill-ai
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
           kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai
           sleep 10
@@ -458,11 +452,9 @@ jobs:
           helm install vdp charts/vdp --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-            --set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
-            --set connectorBackend.excludelocalconnector=false \
+            --set pipelineBackend.excludelocalconnector=false \
             --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
-          kubectl rollout status deployment vdp-connector-backend --namespace instill-ai --timeout=120s
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
           kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai --timeout=120s
           sleep 10

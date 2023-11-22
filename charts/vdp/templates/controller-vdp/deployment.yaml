@@ -52,17 +52,12 @@ spec:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ETCD_HOST}:${ETCD_CLIENT_PORT}/health)" != "200" ]]; do echo waiting for etcd; sleep 1; done &&
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1alpha/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${CONNECTOR_BACKEND_HOST}:${CONNECTOR_BACKEND_PORT}/v1alpha/health/connector)" != "200" ]]; do echo waiting for connector-backend; sleep 1; done &&
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
             - name: PIPELINE_BACKEND_HOST
               value: "{{ template "vdp.pipelineBackend" . }}"
             - name: PIPELINE_BACKEND_PORT
               value: "{{ template "vdp.pipelineBackend.publicPort" . }}"
-            - name: CONNECTOR_BACKEND_HOST
-              value: "{{ template "vdp.connectorBackend" . }}"
-            - name: CONNECTOR_BACKEND_PORT
-              value: "{{ template "vdp.connectorBackend.publicPort" . }}"
             - name: MGMT_BACKEND_HOST
               value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT

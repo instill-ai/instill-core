@@ -8,7 +8,17 @@ services:
       - api-gateway
       - mgmt
       - console
-      - connector
+      - controller-vdp
+      - model
+      - controller-model
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
+
+  pipeline_backend_init:
+    profiles:
+      - all
+      - api-gateway
+      - mgmt
+      - console
       - controller-vdp
       - model
       - controller-model
@@ -20,7 +30,6 @@ services:
       - api-gateway
       - mgmt
       - console
-      - connector
       - controller-vdp
       - model
       - controller-model
@@ -38,7 +47,6 @@ services:
       - api-gateway
       - mgmt
       - console
-      - connector
       - controller-vdp
       - model
       - controller-model
@@ -47,48 +55,6 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
 
-  connector_backend_migrate:
-    profiles:
-      - all
-      - api-gateway
-      - mgmt
-      - console
-      - pipeline
-      - controller-vdp
-      - model
-      - controller-model
-    image: ${CONNECTOR_BACKEND_IMAGE}:latest
-
-  connector_backend_init:
-    profiles:
-      - all
-      - api-gateway
-      - mgmt
-      - console
-      - pipeline
-      - controller-vdp
-      - model
-      - controller-model
-    image: ${CONNECTOR_BACKEND_IMAGE}:latest
-
-  connector_backend:
-    profiles:
-      - all
-      - api-gateway
-      - mgmt
-      - console
-      - pipeline
-      - controller-vdp
-      - model
-      - controller-model
-    image: ${CONNECTOR_BACKEND_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
-    ports:
-      - ${CONNECTOR_BACKEND_PRIVATEPORT}:${CONNECTOR_BACKEND_PRIVATEPORT}
-      - ${CONNECTOR_BACKEND_PUBLICPORT}:${CONNECTOR_BACKEND_PUBLICPORT}
-
   controller_vdp:
     profiles:
       - all
@@ -96,7 +62,6 @@ services:
       - mgmt
       - console
       - pipeline
-      - connector
       - model
       - controller-model
     image: ${CONTROLLER_VDP_IMAGE}:latest

@@ -31,7 +31,6 @@ all:			## Launch all services with their up-to-date release version
 			--build-arg CACHE_DATE="$(shell date)" \
 			--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 			--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 			--target release \
 			-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .; \
@@ -165,7 +164,6 @@ build-latest:				## Build latest images for all VDP components
 		--name ${CONTAINER_BUILD_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			PIPELINE_BACKEND_VERSION=latest \
-			CONNECTOR_BACKEND_VERSION=latest \
 			CONTROLLER_VDP_VERSION=latest \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
@@ -179,7 +177,6 @@ build-release:				## Build release images for all VDP components
 		--build-arg CACHE_DATE="$(shell date)" \
 		--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-		--build-arg CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 		--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 		--target release \
 		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .
@@ -191,7 +188,6 @@ build-release:				## Build release images for all VDP components
 		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			CONNECTOR_BACKEND_VERSION=${CONNECTOR_BACKEND_VERSION} \
 			CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
@@ -204,7 +200,6 @@ integration-test-latest:			## Run integration test on the latest VDP
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
@@ -217,14 +212,13 @@ integration-test-release:			## Run integration test on the release VDP
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
-	# @make build-latest
+	@make build-latest
 	@export TMP_CONFIG_DIR=$(shell mktemp -d) && docker run --rm \
 		-v ${HOME}/.kube/config:/root/.kube/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -246,31 +240,27 @@ helm-integration-test-latest:                       ## Run integration test on t
 					--set tags.prometheusStack=false' \
 			/bin/sh -c 'rm -rf $${TMP_CONFIG_DIR}/*' \
 		" && rm -rf $${TMP_CONFIG_DIR}
-	@kubectl rollout status deployment core-api-gateway --namespace ${HELM_NAMESPACE} --timeout=120s
+	@kubectl rollout status deployment core-api-gateway --namespace ${HELM_NAMESPACE} --timeout=180s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=latest \
-		--set connectorBackend.image.tag=latest \
-		--set connectorBackend.excludelocalconnector=false \
+		--set pipelineBackend.excludelocalconnector=false \
 		--set controllerVDP.image.tag=latest \
 		--set tags.observability=false
-	@kubectl rollout status deployment vdp-connector-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
 	@sleep 30
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 endif
@@ -304,31 +294,27 @@ helm-integration-test-release:                       ## Run integration test on 
 					--set tags.observability=false \
 					--set tags.prometheusStack=false' \
 		"
-	@kubectl rollout status deployment core-api-gateway --namespace ${HELM_NAMESPACE} --timeout=120s
+	@kubectl rollout status deployment core-api-gateway --namespace ${HELM_NAMESPACE} --timeout=180s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-		--set connectorBackend.image.tag=${CONNECTOR_BACKEND_VERSION} \
-		--set connectorBackend.excludelocalconnector=false \
+		--set pipelineBackend.excludelocalconnector=false \
 		--set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
 		--set tags.observability=false
-	@kubectl rollout status deployment vdp-connector-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
 	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
 	@sleep 10
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd connector-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 endif

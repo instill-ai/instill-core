@@ -24,15 +24,15 @@ data:
         cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
         key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
       {{- end }}
-    connectorbackend:
-      host: {{ template "vdp.connectorBackend" . }}
-      publicport: {{ template "vdp.connectorBackend.publicPort" . }}
-      privateport: {{ template "vdp.connectorBackend.privatePort" . }}
-      {{- if .Values.internalTLS.enabled }}
-      https:
-        cert: /etc/instill-ai/vdp/ssl/connector/tls.crt
-        key: /etc/instill-ai/vdp/ssl/connector/tls.key
-      {{- end }}
+    connector:
+      airbyte:
+        mountsource:
+          vdp: /vdp
+          airbyte: /airbyte
+        mounttarget:
+          vdp: /vdp
+          airbyte: /local
+        excludelocalconnector: {{ .Values.pipelineBackend.excludelocalconnector }}
     mgmtbackend:
       host: {{ template "core.mgmtBackend" . }}
       privateport: {{ template "core.mgmtBackend.privatePort" . }}
