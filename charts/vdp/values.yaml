@@ -55,7 +55,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.16.2-alpha
+    tag: 0.17.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -135,7 +135,7 @@ controllerVDP:
   # -- The image of controller
   image:
     repository: instill/controller-vdp
-    tag: 0.1.5-alpha
+    tag: 0.1.6-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
