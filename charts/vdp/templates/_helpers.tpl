@@ -104,6 +104,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- print "core-mgmt-backend" -}}
 {{- end -}}
 
+{{- define "core.openfga" -}}
+  {{- printf "core-openfga" -}}
+{{- end -}}
+
 {{- define "vdp.pipelineBackend" -}}
   {{- printf "%s-pipeline-backend" (include "vdp.fullname" .) -}}
 {{- end -}}
