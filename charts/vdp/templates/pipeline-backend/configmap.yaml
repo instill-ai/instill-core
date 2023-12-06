@@ -86,3 +86,6 @@ data:
       otelcollector:
         host: {{ template "core.otel" . }}
         port: {{ template "core.otel.port" . }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8080
