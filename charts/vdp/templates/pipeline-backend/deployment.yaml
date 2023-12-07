@@ -132,7 +132,7 @@ spec:
           command: ['sh', '-c']
           args:
           - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1alpha/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1beta/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
             - name: MGMT_BACKEND_HOST
               value: "{{ template "core.mgmtBackend" . }}"
@@ -197,14 +197,14 @@ spec:
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
           readinessProbe:
             httpGet:
-              path: /v1alpha/__readiness
+              path: /v1beta/__readiness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /v1alpha/__liveness
+              path: /v1beta/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
