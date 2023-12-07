@@ -60,9 +60,9 @@ jobs:
 
       - name: Curl to vdp services healthcheck endpoint
         run: |
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/core/v1alpha/health/mgmt
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1alpha/health/pipeline
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3085/v1alpha/health/controller
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/core/v1beta/health/mgmt
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1beta/health/pipeline
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:3085/v1beta/health/controller
 
       - name: Tear down Instill VDP (latest)
         run: |
