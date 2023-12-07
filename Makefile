@@ -42,13 +42,12 @@ all:			## Launch all services with their up-to-date release version
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 			-v $${SYSTEM_CONFIG_PATH}:$${SYSTEM_CONFIG_PATH} \
-			-e BUILD=${BUILD} \
 			--name ${CONTAINER_COMPOSE_NAME}-release \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make all BUILD=${BUILD} PROJECT=core EDITION=$${EDITION:=local-ce} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+				/bin/sh -c 'cd /instill-ai/core && make all BUILD=$${BUILD} PROJECT=core EDITION=$${EDITION:=local-ce} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 				rm -rf $${TMP_CONFIG_DIR}/* \
 			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
@@ -64,14 +63,12 @@ latest:			## Lunch all dependent services with their latest codebase
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v $${TMP_CONFIG_DIR}:$${TMP_CONFIG_DIR} \
 			-v $${SYSTEM_CONFIG_PATH}:$${SYSTEM_CONFIG_PATH} \
-			-e BUILD=${BUILD} \
-			-e PROFILE=${PROFILE} \
 			--name ${CONTAINER_COMPOSE_NAME}-latest \
 			${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make latest BUILD=${BUILD} PROJECT=core PROFILE=$${PROFILE} EDITION=$${EDITION:=local-ce:latest} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
+				/bin/sh -c 'cd /instill-ai/core && make latest PROJECT=core PROFILE=$${PROFILE} EDITION=$${EDITION:=local-ce:latest} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
 				rm -rf $${TMP_CONFIG_DIR}/* \
 			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
