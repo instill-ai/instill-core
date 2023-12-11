@@ -30,4 +30,22 @@ spec:
           type: AverageValue
           averageValue: {{ . }}
 {{- end }}
+{{- with .Values.pipelineBackend.autoscaling.pipelineBackendWorkerMemoryUtilization }}
+    - type: ContainerResource
+      containerResource:
+        name: memory
+        container: pipeline-backend-worker
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.pipelineBackend.autoscaling.pipelineBackendMemoryUtilization }}
+    - type: ContainerResource
+      containerResource:
+        name: memory
+        container: pipeline-backend
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
 {{- end }}

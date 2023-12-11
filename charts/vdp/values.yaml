@@ -180,6 +180,8 @@ controllerVDP:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetAverageMemoryUtilization:
+    pipelineBackendWorkerMemoryUtilization:
+    pipelineBackendMemoryUtilization:
   nodeSelector: {}
   tolerations: []
   affinity: {}
