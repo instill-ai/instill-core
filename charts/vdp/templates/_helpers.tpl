@@ -117,6 +117,10 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-controller-vdp" (include "vdp.fullname" .) -}}
 {{- end -}}
 
+{{- define "model.modelBackend" -}}
+  {{- print "model-model-backend" -}}
+{{- end -}}
+
 {{- define "core.database" -}}
   {{- printf "core-database" -}}
 {{- end -}}
@@ -156,6 +160,11 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{/* mgmt-backend service and container private port */}}
 {{- define "core.mgmtBackend.privatePort" -}}
   {{- printf "3084" -}}
+{{- end -}}
+
+{{/* model-backend service and container public port */}}
+{{- define "model.modelBackend.publicPort" -}}
+  {{- printf "8083" -}}
 {{- end -}}
 
 {{/* temporal container frontend gRPC port */}}
