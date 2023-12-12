@@ -32,7 +32,7 @@ RUN git clone https://github.com/instill-ai/core.git
 
 WORKDIR /instill-ai/vdp
 
-RUN git clone https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b huitang/ins-2889 https://github.com/instill-ai/pipeline-backend.git
 RUN git clone https://github.com/instill-ai/controller-vdp.git
 
 FROM alpine:${ALPINE_VERSION} AS release
