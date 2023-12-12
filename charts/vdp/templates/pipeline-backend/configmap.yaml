@@ -42,6 +42,14 @@ data:
         cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
         key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
       {{- end }}
+    modelbackend:
+      host: {{ template "model.modelBackend" . }}
+      publicport: {{ template "model.modelBackend.publicPort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/model/tls.crt
+        key: /etc/instill-ai/vdp/ssl/model/tls.key
+      {{- end }}
     controller:
       host: {{ template "vdp.controllerVDP" . }}
       privateport: {{ template "vdp.controllerVDP.privatePort" . }}
