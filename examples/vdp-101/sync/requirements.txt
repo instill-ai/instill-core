@@ -1,6 +1,0 @@
-opencv-python-headless==4.6.0.66
-numpy==1.23.5
-requests==2.31.0
-argparse==1.4.0
-scikit-image==0.19.3
-matplotlib==3.7.1
