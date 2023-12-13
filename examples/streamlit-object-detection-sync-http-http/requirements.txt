@@ -1,6 +1,0 @@
-opencv-python-headless==4.6.0.66
-streamlit==1.18.0
-numpy==1.23.5
-pandas==1.5.2
-requests==2.31.0
-argparse==1.4.0
