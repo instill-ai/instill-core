@@ -10,7 +10,11 @@ metadata:
 spec:
   strategy:
     type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "Recreate" }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
     rollingUpdate: null
     {{- end }}
   {{- if not .Values.controllerVDP.autoscaling.enabled }}

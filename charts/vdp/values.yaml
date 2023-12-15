@@ -8,6 +8,9 @@ fullnameOverride: ""
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
   type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
 # -- Enable development mode
