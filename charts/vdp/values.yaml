@@ -172,7 +172,11 @@ controllerVDP:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-  resources: {}
+  containers:
+    pipelineBackend:
+      resources: {}
+    pipelineBackendWorker:
+      resources: {}
   loopinterval: 3
   autoscaling:
     enabled: false
@@ -180,6 +184,8 @@ controllerVDP:
     maxReplicas:
     targetCPUUtilizationPercentage:
     targetAverageMemoryUtilization:
+    pipelineBackendWorkerMemoryUtilization:
+    pipelineBackendMemoryUtilization:
   nodeSelector: {}
   tolerations: []
   affinity: {}

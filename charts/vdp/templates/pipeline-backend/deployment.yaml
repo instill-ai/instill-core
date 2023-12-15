@@ -168,9 +168,9 @@ spec:
             initialDelaySeconds: 120
             tcpSocket:
               port: rpc
-          {{- if .Values.pipelineBackend.resources }}
+          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
           resources:
-            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackendWorker.resources | nindent 12 }}
           {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.worker }}]
           env:
@@ -209,9 +209,9 @@ spec:
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             initialDelaySeconds: 5
             periodSeconds: 10
-          {{- if .Values.pipelineBackend.resources }}
+          {{- if .Values.pipelineBackend.containers.pipelineBackend.resources }}
           resources:
-            {{- toYaml .Values.pipelineBackend.resources | nindent 12 }}
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
           {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.main }}]
           ports:
