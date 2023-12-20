@@ -2,8 +2,8 @@ apiVersion: v2
 name: vdp
 description: The Helm chart of Instill VDP
 type: application
-version: 0.1.19-alpha #! auto-updated by the CI workflow
-appVersion: 0.19.0-beta #! auto-updated by the CI workflow
+version: 0.1.20-alpha #! auto-updated by the CI workflow
+appVersion: 0.19.1-beta #! auto-updated by the CI workflow
 keywords:
   - unstructured data
   - pipeline
