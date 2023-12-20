@@ -50,7 +50,7 @@ Execute the following commands to start pre-built images with all the dependenci
 
 <!-- x-release-please-start-version -->
 ```bash
-$ git clone -b v0.19.0-beta https://github.com/instill-ai/vdp.git && cd vdp
+$ git clone -b v0.19.1-beta https://github.com/instill-ai/vdp.git && cd vdp
 
 # Launch all services
 $ make all
