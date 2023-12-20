@@ -21,7 +21,7 @@ FROM alpine:${ALPINE_VERSION} AS latest
 COPY --from=base /etc /etc
 COPY --from=base /usr /usr
 COPY --from=base /lib /lib
-COPY --from=docker:dind /usr/local/bin /usr/local/bin
+COPY --from=docker:24.0.6-dind /usr/local/bin /usr/local/bin
 
 ARG CACHE_DATE
 RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
@@ -40,7 +40,7 @@ FROM alpine:${ALPINE_VERSION} AS release
 COPY --from=base /etc /etc
 COPY --from=base /usr /usr
 COPY --from=base /lib /lib
-COPY --from=docker:dind /usr/local/bin /usr/local/bin
+COPY --from=docker:24.0.6-dind /usr/local/bin /usr/local/bin
 
 ARG CACHE_DATE
 RUN echo "VDP release codebase cloned on ${CACHE_DATE}"

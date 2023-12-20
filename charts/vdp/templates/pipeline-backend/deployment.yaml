@@ -147,7 +147,7 @@ spec:
         {{- end }}
       containers:
         - name: dind-daemon
-          image: docker:dind
+          image: docker:24.0.6-dind
           imagePullPolicy: IfNotPresent
           resources:
             requests:
