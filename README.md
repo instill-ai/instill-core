@@ -66,7 +66,7 @@ $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 $ make latest PROFILE=all
 ```
 
-🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000!
+🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000! The login detail needed to start the onboarding process is in the documentation's [Quickstart](https://www.instill.tech/docs/v0.6.0-alpha/quickstart#self-hosted-instill-core) section.
 
 To shut down all running services:
 ```
