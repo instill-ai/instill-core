@@ -84,7 +84,7 @@ jobs:
       - name: Bump SemVer
         id: bump-semver
         run: |
-          echo "next-version=$(semver bump patch ${{ steps.get-current-chart-version.outputs.version }})-alpha" >> $GITHUB_OUTPUT
+          echo "next-version=$(semver bump patch ${{ steps.get-current-chart-version.outputs.version }})-beta" >> $GITHUB_OUTPUT
       - name: Bump up Helm chart version
         run: |
           yq ".version=\"${{ steps.bump-semver.outputs.next-version }}\"" -i charts/vdp/Chart.yaml
