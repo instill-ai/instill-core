@@ -33,7 +33,6 @@ RUN git clone https://github.com/instill-ai/core.git
 WORKDIR /instill-ai/vdp
 
 RUN git clone https://github.com/instill-ai/pipeline-backend.git
-RUN git clone https://github.com/instill-ai/controller-vdp.git
 
 FROM alpine:${ALPINE_VERSION} AS release
 
@@ -52,6 +51,5 @@ RUN git clone -b v${INSTILL_CORE_VERSION} -c advice.detachedHead=false https://g
 
 WORKDIR /instill-ai/vdp
 
-ARG PIPELINE_BACKEND_VERSION CONTROLLER_VDP_VERSION
+ARG PIPELINE_BACKEND_VERSION
 RUN git clone -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
-RUN git clone -b v${CONTROLLER_VDP_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/controller-vdp.git
