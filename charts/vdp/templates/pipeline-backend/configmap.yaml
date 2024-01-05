@@ -50,14 +50,6 @@ data:
         cert: /etc/instill-ai/vdp/ssl/model/tls.crt
         key: /etc/instill-ai/vdp/ssl/model/tls.key
       {{- end }}
-    controller:
-      host: {{ template "vdp.controllerVDP" . }}
-      privateport: {{ template "vdp.controllerVDP.privatePort" . }}
-      {{- if .Values.internalTLS.enabled }}
-      https:
-        cert: /etc/instill-ai/vdp/ssl/controller/tls.crt
-        key: /etc/instill-ai/vdp/ssl/controller/tls.key
-      {{- end }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.username }}
       password: {{ default (include "core.database.rawPassword" .) .Values.database.password }}

@@ -108,22 +108,6 @@ services:
       pipeline_backend_migrate:
         condition: service_completed_successfully
 
-  controller_vdp:
-    container_name: ${CONTROLLER_VDP_HOST}
-    image: ${CONTROLLER_VDP_IMAGE}:${CONTROLLER_VDP_VERSION}
-    restart: unless-stopped
-    environment:
-      CFG_SERVER_DEBUG: "false"
-      CFG_SERVER_EDITION: ${EDITION}
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./controller-vdp
-
   socat:
     container_name: ${SOCAT_HOST}
     image: ${SOCAT_IMAGE}:${SOCAT_VERSION}

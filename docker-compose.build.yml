@@ -10,12 +10,3 @@ services:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
         K6_VERSION: ${K6_VERSION}
-
-  controller_vdp:
-    image: ${CONTROLLER_VDP_IMAGE}:${CONTROLLER_VDP_VERSION}
-    build:
-      context: ./${CONTROLLER_VDP_HOST}
-      args:
-        SERVICE_NAME: ${CONTROLLER_VDP_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}

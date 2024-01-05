@@ -98,10 +98,8 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
             --set pipelineBackend.excludelocalconnector=false \
-            --set controllerVDP.image.tag=latest \
             --set tags.observability=false 
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
-          kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai
           sleep 10
 
       - name: Run ${{ inputs.component }} integration test (latest)
@@ -219,10 +217,8 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=latest \
             --set pipelineBackend.excludelocalconnector=false \
-            --set controllerVDP.image.tag=latest \
             --set tags.observability=false
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
-          kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai --timeout=120s
           sleep 10
 
       - name: Run ${{ inputs.component }} integration test (latest)
@@ -330,10 +326,8 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set pipelineBackend.excludelocalconnector=false \
-            --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
-          kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai
           sleep 10
 
       - name: Run ${{ inputs.component }} integration test (release)
@@ -457,10 +451,8 @@ jobs:
             --set edition=k8s-ce:test \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set pipelineBackend.excludelocalconnector=false \
-            --set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
             --set tags.observability=false
           kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
-          kubectl rollout status deployment vdp-controller-vdp --namespace instill-ai --timeout=120s
           sleep 10
 
       - name: Run ${{ inputs.component }} integration test (release)

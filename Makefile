@@ -31,7 +31,6 @@ all:			## Launch all services with their up-to-date release version
 			--build-arg CACHE_DATE="$(shell date)" \
 			--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 			--target release \
 			-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .; \
 	fi
@@ -161,7 +160,6 @@ build-latest:				## Build latest images for all VDP components
 		--name ${CONTAINER_BUILD_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			PIPELINE_BACKEND_VERSION=latest \
-			CONTROLLER_VDP_VERSION=latest \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
@@ -174,7 +172,6 @@ build-release:				## Build release images for all VDP components
 		--build-arg CACHE_DATE="$(shell date)" \
 		--build-arg INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-		--build-arg CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 		--target release \
 		-t ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} .
 	@docker run --rm \
@@ -185,7 +182,6 @@ build-release:				## Build release images for all VDP components
 		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			CONTROLLER_VDP_VERSION=${CONTROLLER_VDP_VERSION} \
 			docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
@@ -196,8 +192,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
 
@@ -208,8 +203,7 @@ integration-test-release:			## Run integration test on the release VDP
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
 
@@ -245,20 +239,16 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
-		--set controllerVDP.image.tag=latest \
 		--set tags.observability=false
 	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
-	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
 	@sleep 30
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
@@ -299,20 +289,16 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set edition=k8s-ce:test \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
-		--set controllerVDP.image.tag=${CONTROLLER_VDP_VERSION} \
 		--set tags.observability=false
 	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
-	@kubectl rollout status deployment vdp-controller-vdp --namespace ${HELM_NAMESPACE} --timeout=120s
 	@sleep 10
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-vdp && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
