@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0-beta](https://github.com/instill-ai/vdp/compare/v0.20.0-beta...v0.21.0-beta) (2024-01-05)
+
+
+### Features
+
+* **docker-compose,helm:** remove controller-vdp ([#416](https://github.com/instill-ai/vdp/issues/416)) ([5615a95](https://github.com/instill-ai/vdp/commit/5615a95123cb5e4b8f5bcd4a3724c468bf09d755))
+
 ## [0.20.0-beta](https://github.com/instill-ai/vdp/compare/v0.19.1-beta...v0.20.0-beta) (2024-01-02)
 
 
