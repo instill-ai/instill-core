@@ -40,14 +40,6 @@ internalTLS:
     crt: ""
     # Content of pipeline-backend's TLS key file, only available when `certSource` is "manual"
     key: ""
-  # controller-vdp related cert configuration
-  controllerVDP:
-    # secret name for controller-vdp's tls certs, only available when `certSource` is "secret"
-    secretName: ""
-    # Content of controller-vdp's TLS key file, only available when `certSource` is "manual"
-    crt: ""
-    # Content of controller-vdp's TLS key file, only available when `certSource` is "manual"
-    key: ""
 # -- The usage collector configuration
 usage:
   enabled: true
@@ -138,65 +130,6 @@ pipelineBackend:
       minAvailable:
       maxUnavailable:
   copyHostDocker: false
-controllerVDP:
-  # -- The image of controller
-  image:
-    repository: instill/controller-vdp
-    tag: 0.1.7-beta
-    pullPolicy: IfNotPresent
-  # -- The command names to be executed
-  commandName:
-    main: controller-vdp
-  # -- The path of configuration file for mgmt-backend
-  configPath: /controller-vdp/config/config.yaml
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for controller
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  resources: {}
-  loopinterval: 3
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
-    pipelineBackendWorkerMemoryUtilization:
-    pipelineBackendMemoryUtilization:
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
 database:
   # -- The host of database
   host:

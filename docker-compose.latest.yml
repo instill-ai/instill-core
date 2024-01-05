@@ -8,7 +8,6 @@ services:
       - api-gateway
       - mgmt
       - console
-      - controller-vdp
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -19,7 +18,6 @@ services:
       - api-gateway
       - mgmt
       - console
-      - controller-vdp
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -30,7 +28,6 @@ services:
       - api-gateway
       - mgmt
       - console
-      - controller-vdp
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
@@ -47,26 +44,9 @@ services:
       - api-gateway
       - mgmt
       - console
-      - controller-vdp
       - model
       - controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
-
-  controller_vdp:
-    profiles:
-      - all
-      - api-gateway
-      - mgmt
-      - console
-      - pipeline
-      - model
-      - controller-model
-    image: ${CONTROLLER_VDP_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
-    ports:
-      - ${CONTROLLER_VDP_PRIVATEPORT}:${CONTROLLER_VDP_PRIVATEPORT}

@@ -112,11 +112,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
   {{- printf "%s-pipeline-backend" (include "vdp.fullname" .) -}}
 {{- end -}}
 
-
-{{- define "vdp.controllerVDP" -}}
-  {{- printf "%s-controller-vdp" (include "vdp.fullname" .) -}}
-{{- end -}}
-
 {{- define "model.modelBackend" -}}
   {{- print "model-model-backend" -}}
 {{- end -}}
@@ -145,11 +140,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
 {{/* pipeline service and container private port */}}
 {{- define "vdp.pipelineBackend.privatePort" -}}
   {{- printf "3081" -}}
-{{- end -}}
-
-{{/* controller service and container private port */}}
-{{- define "vdp.controllerVDP.privatePort" -}}
-  {{- printf "3085" -}}
 {{- end -}}
 
 {{/* mgmt-backend service and container public port */}}
@@ -206,14 +196,6 @@ app.kubernetes.io/name: {{ include "vdp.name" . }}
     {{- .Values.internalTLS.pipelineBackend.secretName -}}
   {{- else -}}
     {{- printf "%s-pipeline-backend-internal-tls" (include "vdp.fullname" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "vdp.internalTLS.controllerVDP.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.controllerVDP.secretName -}}
-  {{- else -}}
-    {{- printf "%s-controller-vdp-internal-tls" (include "vdp.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 
