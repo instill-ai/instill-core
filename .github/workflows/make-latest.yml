@@ -2,6 +2,11 @@ name: Make Latest
 
 on:
   workflow_dispatch:
+    inputs:
+      disableConsoleBuild:
+        description: 'Disable console'
+        required: true
+        default: "true"
   pull_request:
   push:
     branches:
@@ -51,7 +56,11 @@ jobs:
 
       - name: Launch Instill VDP (latest)
         run: |
-          make latest BUILD=true PROFILE=all EDITION=local-ce:test
+          if "${{ github.event.inputs.disableConsoleBuild }}"; then
+          make latest BUILD=true PROFILE=console EDITION=local-ce:test
+          else
+            make latest BUILD=true PROFILE=all EDITION=local-ce:test
+          fi
 
       - name: List all docker containers
         run: |
