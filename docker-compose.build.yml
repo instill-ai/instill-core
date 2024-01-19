@@ -10,3 +10,10 @@ services:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
         K6_VERSION: ${K6_VERSION}
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
