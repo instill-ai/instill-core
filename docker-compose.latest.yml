@@ -5,31 +5,31 @@ services:
   pipeline_backend_migrate:
     profiles:
       - all
-      - api-gateway
-      - mgmt
-      - console
-      - model
-      - controller-model
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
 
   pipeline_backend_init:
     profiles:
       - all
-      - api-gateway
-      - mgmt
-      - console
-      - model
-      - controller-model
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
 
   pipeline_backend:
     profiles:
       - all
-      - api-gateway
-      - mgmt
-      - console
-      - model
-      - controller-model
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -41,11 +41,11 @@ services:
   pipeline_backend_worker:
     profiles:
       - all
-      - api-gateway
-      - mgmt
-      - console
-      - model
-      - controller-model
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
