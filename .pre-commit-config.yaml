@@ -1,13 +1,13 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.5.0
     hooks:
       - id: check-yaml
         exclude: ^charts
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.4.0
+    rev: v0.5.1
     hooks:
       - id: golangci-lint
       - id: go-mod-tidy
@@ -23,7 +23,7 @@ repos:
         entry: bash -c 'helm lint --strict charts/**'
         language: system
   - repo: https://github.com/norwoodj/helm-docs
-    rev: v1.11.0
+    rev: v1.12.0
     hooks:
       - id: helm-docs
         args:
