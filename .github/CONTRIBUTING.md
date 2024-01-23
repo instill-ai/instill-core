@@ -31,7 +31,7 @@ $ make latest PROFILE=all
 The env variable `PROFILE` is intended to specify which service component you want to develop on
 - `all`
 
-  When you set `PROFILE=all`, the whole `Instill Core` and `Instill VDP` stack will be launched, meaning you want to test the system as a whole
+  When you set `PROFILE=all`, the whole `Instill Core` and `Instill VDP` stack will be launched, meaning you want to test the system as a whole.
 
 - `{service}`
 
