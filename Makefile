@@ -46,7 +46,7 @@ all:			## Launch all services with their up-to-date release version
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make all BUILD=$${BUILD} PROJECT=core EDITION=$${EDITION:=local-ce} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
+				/bin/sh -c 'cd /instill-ai/core && make all BUILD=${BUILD} PROJECT=core EDITION=$${EDITION:=local-ce} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}' && \
 				rm -rf $${TMP_CONFIG_DIR}/* \
 			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
@@ -54,7 +54,7 @@ all:			## Launch all services with their up-to-date release version
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-	@make build-latest
+	@make build-latest PROFILE=${PROFILE}
 	@if ! docker compose ls -q | grep -q "instill-core"; then \
 		export TMP_CONFIG_DIR=$(shell mktemp -d) && \
 		export SYSTEM_CONFIG_PATH=$(shell eval echo ${SYSTEM_CONFIG_PATH}) && \
@@ -67,11 +67,11 @@ latest:			## Lunch all dependent services with their latest codebase
 				cp /instill-ai/core/.env $${TMP_CONFIG_DIR}/.env && \
 				cp /instill-ai/core/docker-compose.build.yml $${TMP_CONFIG_DIR}/docker-compose.build.yml && \
 				cp -r /instill-ai/core/configs/influxdb $${TMP_CONFIG_DIR} && \
-				/bin/sh -c 'cd /instill-ai/core && make latest PROJECT=core PROFILE=$${PROFILE} EDITION=$${EDITION:=local-ce:latest} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
+				/bin/sh -c 'cd /instill-ai/core && make latest PROFILE=${PROFILE} PROJECT=core EDITION=$${EDITION:=local-ce:latest} INSTILL_CORE_HOST=$${INSTILL_CORE_HOST} SYSTEM_CONFIG_PATH=$${SYSTEM_CONFIG_PATH} BUILD_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR} OBSERVE_CONFIG_DIR_PATH=$${TMP_CONFIG_DIR}'&& \
 				rm -rf $${TMP_CONFIG_DIR}/* \
 			" && rm -rf $${TMP_CONFIG_DIR}; \
 	fi
-	@COMPOSE_PROFILES=$(PROFILE) EDITION=$${EDITION:=local-ce:latest} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -160,7 +160,7 @@ build-latest:				## Build latest images for all VDP components
 		--name ${CONTAINER_BUILD_NAME}-latest \
 		${CONTAINER_COMPOSE_IMAGE_NAME}:latest /bin/sh -c " \
 			PIPELINE_BACKEND_VERSION=latest \
-			docker compose -f docker-compose.build.yml build --progress plain \
+			COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: build-release
@@ -182,12 +182,12 @@ build-release:				## Build release images for all VDP components
 		${CONTAINER_COMPOSE_IMAGE_NAME}:${INSTILL_VDP_VERSION} /bin/sh -c " \
 			INSTILL_CORE_VERSION=${INSTILL_CORE_VERSION} \
 			PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			docker compose -f docker-compose.build.yml build --progress plain \
+			COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose.build.yml build --progress plain \
 		"
 
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
-	@make latest BUILD=true PROFILE=all EDITION=local-ce:test
+	@make latest EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
