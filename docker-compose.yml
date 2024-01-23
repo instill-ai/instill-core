@@ -107,6 +107,8 @@ services:
     depends_on:
       pipeline_backend_migrate:
         condition: service_completed_successfully
+      temporal_admin_tools_pipeline:
+        condition: service_completed_successfully
 
   socat:
     container_name: ${SOCAT_HOST}

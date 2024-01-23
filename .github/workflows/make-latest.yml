@@ -50,8 +50,9 @@ jobs:
           envFile: .env
 
       - name: Launch Instill VDP (latest)
-        run: make latest PROFILE=exclude-console EDITION=local-ce:test
-        
+        run: |
+          make latest PROFILE=exclude-console EDITION=local-ce:test
+
       - name: List all docker containers
         run: |
           docker ps -a

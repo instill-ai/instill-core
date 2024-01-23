@@ -1,15 +1,7 @@
 version: "3.9"
 
 services:
-
   pipeline_backend:
-    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
-    build:
-      context: ./${PIPELINE_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
     profiles:
       - all
       - exclude-api-gateway
@@ -17,3 +9,10 @@ services:
       - exclude-console
       - exclude-model
       - exclude-controller-model
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
+    build:
+      context: ./${PIPELINE_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
