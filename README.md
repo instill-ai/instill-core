@@ -41,12 +41,9 @@
 
 ## Quick Start
 
-> **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
+**Use stable release version**
 
-Execute the following commands to start pre-built images with all the dependencies:
-
-**The stable release version**
+Execute the following commands to pull pre-built images with all the dependencies to launch:
 
 <!-- x-release-please-start-version -->
 ```bash
@@ -57,7 +54,9 @@ $ make all
 ```
 <!-- x-release-please-end -->
 
-**The latest version for development**
+**Use latest version for local development**
+
+Execute the following commands to build images with all the dependencies to launch:
 
 ```bash
 $ git clone https://github.com/instill-ai/vdp.git && cd vdp
@@ -65,6 +64,9 @@ $ git clone https://github.com/instill-ai/vdp.git && cd vdp
 # Launch all services
 $ make latest PROFILE=all
 ```
+
+> **Note**
+> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/vdp/releases).
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000. Please find the default login credentials in the [documentation](https://www.instill.tech/docs/latest/quickstart#self-hosted-instill-core).
 
