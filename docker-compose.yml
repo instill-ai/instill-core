@@ -107,7 +107,7 @@ services:
     depends_on:
       pipeline_backend_migrate:
         condition: service_completed_successfully
-      temporal_admin_tools_pipeline:
+      temporal_admin_tools_vdp:
         condition: service_completed_successfully
 
   socat:
