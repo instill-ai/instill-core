@@ -52,4 +52,4 @@ RUN git clone -b v${INSTILL_CORE_VERSION} -c advice.detachedHead=false https://g
 WORKDIR /instill-ai/vdp
 
 ARG PIPELINE_BACKEND_VERSION
-RUN git clone -b poc/0124 -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
