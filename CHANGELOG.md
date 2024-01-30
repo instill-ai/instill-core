@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0-beta](https://github.com/instill-ai/vdp/compare/v0.21.0-beta...v0.22.0-beta) (2024-01-30)
+
+
+### Miscellaneous Chores
+
+* release v0.22.0-beta ([0901010](https://github.com/instill-ai/vdp/commit/09010106a6ed46da4b08d1aee29a668634790401))
+
 ## [0.21.0-beta](https://github.com/instill-ai/vdp/compare/v0.20.0-beta...v0.21.0-beta) (2024-01-15)
 
 
