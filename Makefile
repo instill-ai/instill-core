@@ -188,6 +188,7 @@ build-release:				## Build release images for all VDP components
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
 	@make latest EDITION=local-ce:test
+	@sleep 3
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
@@ -199,6 +200,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test on the release VDP
 	@make all BUILD=true EDITION=local-ce:test
+	@sleep 3
 	@docker run --rm \
 		--network instill-network \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
