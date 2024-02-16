@@ -47,7 +47,7 @@ Execute the following commands to pull pre-built images with all the dependencie
 
 <!-- x-release-please-start-version -->
 ```bash
-$ git clone -b v0.22.1-beta https://github.com/instill-ai/vdp.git && cd vdp
+$ git clone -b v0.23.0-beta https://github.com/instill-ai/vdp.git && cd vdp
 
 # Launch all services
 $ make all
