@@ -46,7 +46,7 @@ $ make down
 
 ### Build the local images
 
-We use Docker multi-stage builds to build a `instill/vdp-compose:{latest,release}` image which will be based on to run dind (docker-in-docker) to build all the images of `Instill VDP` defined in the compose file [docker-compose.build.yml](../docker-compose.build.yml).
+We use Docker multi-stage builds to build a `instill/vdp-compose:{latest,release}` image which will be based on to run dind (docker-in-docker) to build all the images of `Instill VDP` defined in the compose file [docker-compose-build.yml](../docker-compose-build.yml).
 
 You can build the images by simply running:
 

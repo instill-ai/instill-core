@@ -61,10 +61,10 @@ jobs:
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
 
       - name: Checkout repo (vdp)
         uses: actions/checkout@v3
@@ -80,10 +80,10 @@ jobs:
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
 
       - name: Run ${{ inputs.component }} integration test (latest)
         if: inputs.target == 'latest'
@@ -94,7 +94,7 @@ jobs:
 
   integration-test-latest-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, vdp]
     timeout-minutes: 20
@@ -151,7 +151,7 @@ jobs:
           docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
           docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
           docker rm -f core-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
           sleep 60
 
       - name: Launch Instill Core (latest)
@@ -159,10 +159,10 @@ jobs:
           make build-latest
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
 
       - name: Checkout repo (vdp)
         uses: actions/checkout@v3
@@ -178,10 +178,10 @@ jobs:
         run: |
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml up -d --quiet-pull
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose.latest.yml rm -f
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
 
       - name: Run ${{ inputs.component }} integration test (latest)
         if: inputs.target == 'latest'
@@ -212,7 +212,7 @@ jobs:
           docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
           docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
           docker rm -f core-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
           sleep 60
 
   integration-test-release-linux:
@@ -300,7 +300,7 @@ jobs:
 
   integration-test-release-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, vdp]
     timeout-minutes: 20
@@ -357,7 +357,7 @@ jobs:
           docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
           docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
           docker rm -f core-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
           sleep 60
 
       - name: Launch Instill Core (release)
@@ -420,5 +420,5 @@ jobs:
           docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
           docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
           docker rm -f core-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose.observe.yml down -v
+          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
           sleep 60

@@ -3,42 +3,139 @@ version: "3.9"
 networks:
   default:
     name: instill-network
-    external: true
 
 volumes:
   vdp:
     name: vdp
   airbyte:
     name: airbyte
+  model_repository:
+    name: model-repository
+  model_cache:
+    name: model-cache
+  ray_conda:
+    name: ray-conda
+  elasticsearch_data:
+    name: elasticsearch-data
 
 services:
-  pipeline_backend_migrate:
-    container_name: ${PIPELINE_BACKEND_HOST}-migrate
-    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
-    restart: on-failure
+  api_gateway:
+    container_name: ${API_GATEWAY_HOST}
+    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
+    restart: unless-stopped
     environment:
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-    entrypoint: ./pipeline-backend-migrate
+      LOG_LEVEL: INFO
+      API_GATEWAY_HOST: ${API_GATEWAY_HOST}
+      API_GATEWAY_PORT: ${API_GATEWAY_PORT}
+      API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
+      API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
+      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      INFLUXDB_HOST: ${INFLUXDB_HOST}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
+      JAEGER_ENABLED: ${OBSERVE_ENABLED}
+      JAEGER_HOST: ${JAEGER_HOST}
+      JAEGER_PORT: ${JAEGER_LISTEN_THRIFT_PORT}
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+      - ${API_GATEWAY_STATS_PORT}:${API_GATEWAY_STATS_PORT}
+      - ${API_GATEWAY_METRICS_PORT}:${API_GATEWAY_METRICS_PORT}
+    command: /bin/bash -c "
+      envsubst <config/.env.envsubst >config/.env &&
+      make config &&
+      krakend run -c krakend.json"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}/__health",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      influxdb:
+        condition: service_healthy
 
-  pipeline_backend_init:
-    container_name: ${PIPELINE_BACKEND_HOST}-init
-    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
-    restart: on-failure
+  mgmt_backend:
+    container_name: ${MGMT_BACKEND_HOST}
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
+    restart: unless-stopped
     environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
+      CFG_SERVER_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_SERVER_DEFAULTUSERUID: ${DEFAULT_USER_UID}
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./pipeline-backend-init
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./mgmt-backend-migrate
+        ./mgmt-backend-init
+        ./mgmt-backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PUBLICPORT}/v1beta/health/mgmt",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
     depends_on:
-      pipeline_backend_migrate:
-        condition: service_completed_successfully
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+      openfga:
+        condition: service_started
+
+  mgmt_backend_worker:
+    container_name: ${MGMT_BACKEND_HOST}-worker
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    entrypoint: ./mgmt-backend-worker
+    depends_on:
+      mgmt_backend:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
 
   pipeline_backend:
     container_name: ${PIPELINE_BACKEND_HOST}
@@ -66,13 +163,36 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./pipeline-backend
     volumes:
       - vdp:/vdp
       - airbyte:/airbyte
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./pipeline-backend-migrate
+        ./pipeline-backend-init
+        ./pipeline-backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PUBLICPORT}/v1beta/health/pipeline",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
     depends_on:
-      pipeline_backend_migrate:
-        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      openfga:
+        condition: service_started
 
   pipeline_backend_worker:
     container_name: ${PIPELINE_BACKEND_HOST}-worker
@@ -105,9 +225,345 @@ services:
       - vdp:/vdp
       - airbyte:/airbyte
     depends_on:
-      pipeline_backend_migrate:
-        condition: service_completed_successfully
-      temporal_admin_tools_vdp:
+      pipeline_backend:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+
+  model_backend:
+    container_name: ${MODEL_BACKEND_HOST}
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${MODEL_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
+      CFG_SERVER_ITMODE_ENABLED: ${ITMODE_ENABLED}
+      CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_RAYSERVER_GRPCURI: ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_GRPC_PORT}
+      CFG_RAYSERVER_MODELSTORE: /model-repository
+      CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
+      CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    volumes:
+      - model_repository:/model-repository
+      - model_cache:/.cache
+      - ray_conda:/ray-conda
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./model-backend-migrate
+        ./model-backend-init
+        ./model-backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PUBLICPORT}/v1alpha/health/model",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      model_backend_worker:
+        condition: service_started
+      ray_server:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      openfga:
+        condition: service_started
+
+  model_backend_worker:
+    container_name: ${MODEL_BACKEND_HOST}-worker
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_ITMODE_ENABLED: ${ITMODE_ENABLED}
+      CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_TEMPORAL_CLIENTOPTIONS_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    volumes:
+      - model_repository:/model-repository
+      - model_cache:/.cache
+      - ray_conda:/ray-conda
+    entrypoint: ./model-backend-worker
+    depends_on:
+      temporal:
+        condition: service_healthy
+
+  model_backend_init_model:
+    container_name: ${MODEL_BACKEND_HOST}-init-model
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    restart: on-failure
+    environment:
+      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    entrypoint: ./model-backend-init-model
+    depends_on:
+      model_backend:
+        condition: service_healthy
+
+  controller_model:
+    container_name: ${CONTROLLER_MODEL_HOST}
+    image: ${CONTROLLER_MODEL_IMAGE}:${CONTROLLER_MODEL_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_ETCD_HOST: ${ETCD_HOST}
+      CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    entrypoint: ./controller-model
+    volumes:
+      - model_repository:/model-repository
+
+  console:
+    container_name: ${CONSOLE_HOST}
+    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_GENERAL_API_VERSION: v1beta
+      NEXT_PUBLIC_MODEL_API_VERSION: v1alpha
+      NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}
+      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
+      NEXT_PUBLIC_CONSOLE_BASE_URL: http://${INSTILL_CORE_HOST}:${CONSOLE_PORT}
+      NEXT_PUBLIC_API_GATEWAY_URL: http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT}
+      NEXT_SERVER_API_GATEWAY_URL: http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}
+      NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME: instill-ai-user
+      NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION: "false"
+      NODE_ENV: production
+    ports:
+      - ${CONSOLE_PORT}:3000
+    entrypoint: ./entrypoint.sh
+
+  temporal:
+    container_name: temporal
+    image: ${TEMPORAL_IMAGE}:${TEMPORAL_VERSION}
+    restart: unless-stopped
+    environment:
+      DB: postgresql
+      DB_PORT: ${POSTGRESQL_PORT}
+      POSTGRES_USER: postgres
+      POSTGRES_PWD: password
+      POSTGRES_SEEDS: ${POSTGRESQL_HOST}
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
+      ENABLE_ES: "true"
+      ES_SEEDS: elasticsearch
+      ES_VERSION: v7
+    ports:
+      - ${TEMPORAL_PORT}:7233
+    healthcheck:
+      test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  temporal_ui:
+    container_name: ${TEMPORAL_UI_HOST}
+    image: ${TEMPORAL_UI_IMAGE}:${TEMPORAL_UI_VERSION}
+    restart: unless-stopped
+    environment:
+      TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+    ports:
+      - ${TEMPORAL_UI_PORT}:8080
+    depends_on:
+      temporal:
+        condition: service_healthy
+
+  ray_server:
+    container_name: ${RAY_SERVER_HOST}
+    image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
+    restart: unless-stopped
+    environment:
+      - RAY_ADDRESS=0.0.0.0:6379
+      - RAY_REDIS_ADDRESS=redis:6379
+      - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
+      - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
+      - RAY_GRAFANA_IFRAME_HOST=http://localhost:${GRAFANA_PORT}
+    entrypoint: ["/bin/bash", "-c"]
+    command: |
+      'ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
+      serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
+      tail -f /dev/null'
+    volumes:
+      - model_repository:/model-repository
+      - ray_conda:/home/ray/anaconda3/
+    healthcheck:
+      test: ["CMD", "ray", "status"]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    shm_size: 4gb
+    ports:
+      - ${RAY_SERVER_DASHBOARD_PORT}:${RAY_SERVER_DASHBOARD_PORT}
+
+  pg_sql:
+    container_name: ${POSTGRESQL_HOST}
+    image: ${POSTGRESQL_IMAGE}:${POSTGRESQL_VERSION}-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ${CONFIG_DIR_PATH}/postgresql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    container_name: ${REDIS_HOST}
+    image: ${REDIS_IMAGE}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
+    restart: unless-stopped
+    environment:
+      ALLOW_EMPTY_PASSWORD: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --raw incr ping"]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    container_name: ${ELASTICSEARCH_HOST}
+    image: ${ELASTICSEARCH_IMAGE}:${ELASTICSEARCH_VERSION}
+    restart: unless-stopped
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/var/lib/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://${ELASTICSEARCH_HOST}:9200/_cluster/health",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  influxdb:
+    container_name: ${INFLUXDB_HOST}
+    image: ${INFLUXDB_IMAGE}:${INFLUXDB_VERSION}-alpine
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: password
+      DOCKER_INFLUXDB_INIT_ORG: instill-ai
+      DOCKER_INFLUXDB_INIT_BUCKET: krakend
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: i-love-instill-ai
+      DOCKER_INFLUXDB_BUCKET_VDP: instill-ai
+    volumes:
+      - ${CONFIG_DIR_PATH}/influxdb:/docker-entrypoint-initdb.d
+    ports:
+      - ${INFLUXDB_PORT}:8086
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f http://${INFLUXDB_HOST}:${INFLUXDB_PORT}/health"]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  redoc_openapi:
+    container_name: redoc-openapi
+    image: ${REDOC_IMAGE}:${REDOC_OPENAPI_VERSION}
+    environment:
+      - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
+    ports:
+      - ${REDOC_OPENAPI_PORT}:80
+
+  etcd:
+    container_name: ${ETCD_HOST}
+    image: ${ETCD_IMAGE}:v${ETCD_VERSION}
+    restart: unless-stopped
+    environment:
+      ETCD_NAME: ${ETCD_HOST}
+      ETCD_ADVERTISE_CLIENT_URLS: http://${ETCD_HOST}:${ETCD_CLIENT_PORT}
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:${ETCD_CLIENT_PORT}
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:${ETCD_PEER_PORT}
+      ETCD_INITIAL_CLUSTER_TOKEN: ${ETCD_CLUSTER_TOKEN}
+      ETCD_INITIAL_CLUSTER_STATE: ${ETCD_CLUSTER_STATE}
+      ETCD_INITIAL_CLUSTER: ${ETCD_HOST}=http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCDCTL_API: ${ETCDCTL_API}
+      ETCD_AUTO_COMPACTION_MODE: ${ETCD_AUTO_COMPACTION_MODE}
+      ETCD_AUTO_COMPACTION_RETENTION: ${ETCD_AUTO_COMPACTION_RETENTION}
+
+  openfga_migrate:
+    image: ${OPENFGA_IMAGE}:${OPENFGA_VERSION}
+    container_name: ${OPENFGA_HOST}_migrate
+    command: migrate
+    environment:
+      - OPENFGA_DATASTORE_ENGINE=postgres
+      - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
+  openfga:
+    container_name: ${OPENFGA_HOST}
+    image: ${OPENFGA_IMAGE}:${OPENFGA_VERSION}
+    restart: unless-stopped
+    environment:
+      - OPENFGA_DATASTORE_ENGINE=postgres
+      - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
+    command: run
+    depends_on:
+      openfga_migrate:
         condition: service_completed_successfully
 
   socat:
@@ -120,13 +576,3 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
-
-  temporal_admin_tools_vdp:
-    container_name: temporal-admin-tools-vdp
-    image: ${TEMPORAL_ADMIN_TOOLS_IMAGE}:${TEMPORAL_ADMIN_TOOLS_VERSION}
-    restart: on-failure
-    environment:
-      TEMPORAL_CLI_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    entrypoint: ["/bin/bash", "-c"]
-    command: |
-      'if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi'
