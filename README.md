@@ -83,7 +83,8 @@ $ make latest PROFILE=all
 ```
 
 > **Note**
-> Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/core/releases).
+> The code in the `main` branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/core/releases).
+> For accessing older versions (up to `v0.12.0-beta`) of Instill Core, please refer to the [deprecated-core](https://github.com/instill-ai/deprecated-core) repository.
 
 🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000. Please find the default login credentials in the [documentation](https://www.instill.tech/docs/latest/quickstart#self-hosted-instill-core).
 
