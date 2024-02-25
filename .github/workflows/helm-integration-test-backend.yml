@@ -14,7 +14,7 @@ jobs:
   helm-integration-test-latest-linux:
     if: inputs.target == 'latest'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -36,7 +36,7 @@ jobs:
         run: sudo service docker restart
 
       - name: Start Minikube
-        run: minikube start --cpus 2 --memory 6096
+        run: minikube start --cpus 4 --memory 10485
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -49,6 +49,14 @@ jobs:
       - name: Install k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
 
       - name: Launch Helm Instill Core (latest)
         run: |
@@ -79,42 +87,23 @@ jobs:
             --set tags.observability=false \
             --set tags.prometheusStack=false
 
-      - name: Wait for core pods up
+      - name: Wait for all pods up
         run: |
           while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
-
-      # - name: Wait for core pods up
-      #   run: |
-      #     kubectl rollout status deployment core-api-gateway --namespace instill-ai --timeout=600s
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+            echo "$(kubectl get pods --namespace instill-ai)"
+          sleep 10
+          done
+          echo "$(kubectl get pods --namespace instill-ai)"
 
       - name: Port-forward of api-gateway
         run: |
           API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
           kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
           while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill VDP (latest)
-        run: |
-          helm install vdp charts/vdp --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set pipelineBackend.image.tag=latest \
-            --set pipelineBackend.excludelocalconnector=false \
-            --set tags.observability=false 
-          kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
-          sleep 10
 
       - name: Run ${{ inputs.component }} integration test (latest)
         if: inputs.target == 'latest'
@@ -125,7 +114,7 @@ jobs:
 
   helm-integration-test-latest-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, vdp]
     timeout-minutes: 20
@@ -140,7 +129,7 @@ jobs:
   helm-integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -162,7 +151,7 @@ jobs:
         run: sudo service docker restart
 
       - name: Start Minikube
-        run: minikube start --cpus 2 --memory 6096
+        run: minikube start --cpus 4 --memory 10485
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -205,12 +194,17 @@ jobs:
             --set tags.observability=false \
             --set tags.prometheusStack=false
 
-      - name: Wait for core pods up
+      - name: Wait for all pods up
         run: |
           while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+            echo "$(kubectl get pods --namespace instill-ai)"
+            sleep 10
+          done
+          echo "$(kubectl get pods --namespace instill-ai)"
 
       - name: Port-forward of api-gateway
         run: |
@@ -233,7 +227,7 @@ jobs:
 
   helm-integration-test-release-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, vdp]
     timeout-minutes: 20

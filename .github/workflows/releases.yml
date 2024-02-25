@@ -75,26 +75,34 @@ jobs:
       - name: Update component image versions
         run: |
           source .env
-          yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/vdp/values.yaml
+          yq ".apiGateway.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/core/values.yaml
+          yq ".mgmtBackend.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".controllerModel.image.tag=\"$CONTROLLER_MODEL_VERSION\"" -i charts/core/values.yaml
+          yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
+          yq ".rayService.image.tag=\"$RAY_SERVER_VERSION\"" -i charts/core/values.yaml
+          yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
+          yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
       - name: Get current chart version
         id: get-current-chart-version
         run: |
-          echo "version=$(yq .version charts/vdp/Chart.yaml)" >> $GITHUB_OUTPUT
+          echo "version=$(yq .version charts/core/Chart.yaml)" >> $GITHUB_OUTPUT
       - name: Bump SemVer
         id: bump-semver
         run: |
           echo "next-version=$(semver bump patch ${{ steps.get-current-chart-version.outputs.version }})-beta" >> $GITHUB_OUTPUT
       - name: Bump up Helm chart version
         run: |
-          yq ".version=\"${{ steps.bump-semver.outputs.next-version }}\"" -i charts/vdp/Chart.yaml
+          yq ".version=\"${{ steps.bump-semver.outputs.next-version }}\"" -i charts/core/Chart.yaml
       - name: Bump up Helm app version
         run: |
           string=${{ needs.release-please.outputs.TAG_NAME }}
           appVersion=${string#"v"}
-          yq ".appVersion=\"$appVersion\"" -i charts/vdp/Chart.yaml
+          yq ".appVersion=\"$appVersion\"" -i charts/core/Chart.yaml
       - name: Generate helm-doc
         run: |
-          helm-docs charts/vdp
+          helm-docs charts/core
       - name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@v5
         with:
@@ -107,6 +115,6 @@ jobs:
         run: |
           if [[ `git status --porcelain` ]]; then
             git add charts
-            git commit -S -m "chore(helm): bump up chart and app version" -m "triggered by commit: https://github.com/instill-ai/vdp/commit/${{ needs.release-please.outputs.SHA }}"
+            git commit -S -m "chore(helm): bump up chart and app version" -m "triggered by commit: https://github.com/instill-ai/core/commit/${{ needs.release-please.outputs.SHA }}"
             git push
           fi

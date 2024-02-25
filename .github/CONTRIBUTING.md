@@ -31,11 +31,11 @@ $ make latest PROFILE=all
 The env variable `PROFILE` is intended to specify which service component you want to develop on
 - `all`
 
-  When you set `PROFILE=all`, the whole `Instill Core` and `Instill VDP` stack will be launched, meaning you want to test the system as a whole.
+  When you set `PROFILE=all`, the whole `Instill Core` stack will be launched, meaning you want to test the system as a whole.
 
 - `{service}`
 
-  When you set `PROFILE=exclude-{service}`, in which `{service}` can be  `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all its dependencies. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
+  When you set `PROFILE=exclude-{service}`, in which `{service}` can be  `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all other services. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
 
 ### Tear down the local dev system
 
@@ -67,7 +67,7 @@ Please take these general guidelines into consideration when you are sending a P
 4. **Push to Your Branch:** Push your branch to your GitHub repository: `git push origin feat/<your-feature-name>`.
 5. **Open a Pull Request:** Initiate a pull request to our repository. Our team will review your changes and collaborate with you on any necessary refinements.
 
-When you are ready to send a PR, we recommend you to first open a `draft` one. This will trigger a bunch of `integration-test` [workflows](https://github.com/instill-ai/vdp/tree/main/.github/workflows) running a thorough test suite on multiple platforms. After the tests are done and passed, you can now mark the PR `open` to notify the codebase owners to review. We appreciate your endeavour to pass the integration test for your PR to make sure the sanity with respect to the entire scope of **Instill Core**.
+When you are ready to send a PR, we recommend you to first open a `draft` one. This will trigger a bunch of `integration-test` [workflows](https://github.com/instill-ai/instill-core/tree/main/.github/workflows) running a thorough test suite on multiple platforms. After the tests are done and passed, you can now mark the PR `open` to notify the codebase owners to review. We appreciate your endeavour to pass the integration test for your PR to make sure the sanity with respect to the entire scope of **Instill Core**.
 
 ## Last words
 

@@ -14,7 +14,7 @@ jobs:
   integration-test-latest-linux:
     if: inputs.target == 'latest'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -25,10 +25,18 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -41,175 +49,79 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make latest EDITION=local-ce:test ITMODE_ENABLED=true
 
-      - name: Load .env file (core)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill Core (latest)
+      - name: Uppercase component name
+        id: uppercase
         run: |
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill VDP (latest)
-        run: |
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
-
-      - name: Run ${{ inputs.component }} integration test (latest)
-        if: inputs.target == 'latest'
+      - name: Run ${{ inputs.component }} integration test (release)
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
+
+      - name: Make down Instill Core
+        run: |
+          make down
 
   integration-test-latest-mac:
     if: false
     # disable the mac test temporary
-    # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, macOS, vdp]
-    timeout-minutes: 20
+    #if: inputs.target == 'latest'
+    runs-on: macos-latest
+    timeout-minutes: 120
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
 
-      - name: remove existing docker container
-        run: |
-          docker rm -f $(docker ps -a -q) || true
-
-      - name: Set up environment
+      - name: Install homebrew dependencies
         run: |
           brew install make
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Make down vdp
-        run: |
-          docker rm -f vdp-build-latest >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f vdp-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose down -v
-          sleep 60
-
-      - name: Install k6
-        run: |
           brew install k6
+          brew install docker docker-buildx docker-compose
+          mkdir -p ~/.docker/cli-plugins
+          ln -sfn $(which docker-buildx) ~/.docker/cli-plugins
+          ln -sfn $(which docker-compose) ~/.docker/cli-plugins
+
+      - name: Install and start Colima
+        run: |
+          brew install colima
+          colima version
+          colima start --cpu 3 --memory 14 --disk 100 --mount-type=sshfs
 
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
-
-      - name: Make down core
-        run: |
-          docker rm -f core-build-latest >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f core-console-integration-test-latest >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f core-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-          sleep 60
 
       - name: Launch Instill Core (latest)
         run: |
-          make build-latest
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+          make latest EDITION=local-ce:test ITMODE_ENABLED=true
 
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill VDP (latest)
+      - name: Uppercase component name
+        id: uppercase
         run: |
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
-          COMPOSE_PROFILES=all \
-          EDITION=local-ce:test \
-          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
-      - name: Run ${{ inputs.component }} integration test (latest)
-        if: inputs.target == 'latest'
+      - name: Run ${{ inputs.component }} integration test (release)
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
 
-      - name: Make down vdp
+      - name: Make down Instill Core
         run: |
-          docker rm -f vdp-build-latest >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f vdp-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose down -v
-          sleep 60
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Make down core
-        run: |
-          docker rm -f core-build-latest >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-latest >/dev/null 2>&1
-          docker rm -f core-console-integration-test-latest >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f core-console-integration-test-helm-latest >/dev/null 2>&1
-          docker rm -f core-dind-latest >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-          sleep 60
+          make down
 
   integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -220,10 +132,18 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -242,44 +162,14 @@ jobs:
           rm --recursive --force "$AGENT_TOOLSDIRECTORY"
           df --human-readable
 
-      - name: Checkout repo (core)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file (core)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill Core (latest)
+      - name: Launch Instill Core (release)
         run: |
-          EDITION=local-ce:test \
-          docker compose up -d --quiet-pull
-          EDITION=local-ce:test \
-          docker compose rm -f
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
+          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
 
       - name: Uppercase component name
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Launch Instill VDP (release)
-        run: |
-          EDITION=local-ce:test \
-          docker compose up -d --quiet-pull
-          EDITION=local-ce:test \
-          docker compose rm -f
 
       - name: Run ${{ inputs.component }} integration test (release)
         env:
@@ -288,98 +178,56 @@ jobs:
           git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
+
+      - name: Make down Instill Core
+        run: |
+          make down
 
   integration-test-release-mac:
     if: false
     # disable the mac test temporary
     # if: inputs.target == 'release'
-    runs-on: [self-hosted, macOS, vdp]
-    timeout-minutes: 20
+    runs-on: macos-latest
+    timeout-minutes: 120
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
 
-      - name: remove existing docker container
-        run: |
-          docker rm -f $(docker ps -a -q) || true
-
-      - name: Set up environment
+      - name: Install homebrew dependencies
         run: |
           brew install make
+          brew install k6
+          brew install docker docker-buildx docker-compose
+          mkdir -p ~/.docker/cli-plugins
+          ln -sfn $(which docker-buildx) ~/.docker/cli-plugins
+          ln -sfn $(which docker-compose) ~/.docker/cli-plugins
+
+      - name: Install and start Colima
+        run: |
+          brew install colima
+          colima version
+          colima start --cpu 3 --memory 14 --disk 100 --mount-type=sshfs --dns=1.1.1.1
 
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
-
-      - name: Make down vdp
-        run: |
-          docker rm -f vdp-build-release >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f vdp-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose down -v
-          sleep 60
 
       - name: Install k6
         run: |
-          brew install k6
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Make down core
-        run: |
-          docker rm -f core-build-release >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f core-console-integration-test-release >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f core-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-          sleep 60
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
       - name: Launch Instill Core (release)
         run: |
-          make build-release
-          EDITION=local-ce:test \
-          docker compose up -d --quiet-pull
-          EDITION=local-ce:test \
-          docker compose rm -f
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
+          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
 
       - name: Uppercase component name
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Launch Instill VDP (release)
-        run: |
-          EDITION=local-ce:test \
-          docker compose up -d --quiet-pull
-          EDITION=local-ce:test \
-          docker compose rm -f
 
       - name: Run ${{ inputs.component }} integration test (release)
         env:
@@ -389,27 +237,6 @@ jobs:
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
 
-      - name: Make down vdp
+      - name: Make down Instill Core
         run: |
-          docker rm -f vdp-build-release >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f vdp-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f vdp-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose down -v
-          sleep 60
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Make down core
-        run: |
-          docker rm -f core-build-release >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-release >/dev/null 2>&1
-          docker rm -f core-console-integration-test-release >/dev/null 2>&1
-          docker rm -f core-backend-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f core-console-integration-test-helm-release >/dev/null 2>&1
-          docker rm -f core-dind-release >/dev/null 2>&1
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-          sleep 60
+          make down
