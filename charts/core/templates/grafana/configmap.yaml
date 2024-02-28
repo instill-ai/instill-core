@@ -1,0 +1,16 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dashboards
+  labels:
+    app.kubernetes.io/component: grafana
+data:
+  data_grafana_dashboard.json: |
+{{ .Files.Get "grafana-dashboards/data_grafana_dashboard.json" | indent 4 }}
+  default_grafana_dashboard.json: |
+{{ .Files.Get "grafana-dashboards/default_grafana_dashboard.json" | indent 4 }}
+  serve_deployment_grafana_dashboard.json: |
+{{ .Files.Get "grafana-dashboards/serve_deployment_grafana_dashboard.json" | indent 4 }}
+  serve_grafana_dashboard.json: |
+{{ .Files.Get "grafana-dashboards/serve_grafana_dashboard.json" | indent 4 }}

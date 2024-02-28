@@ -8,7 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [pipeline-backend]
+        component:
+          [mgmt-backend, pipeline-backend, model-backend, controller-model]
     uses: instill-ai/vdp/.github/workflows/helm-integration-test-backend.yml@main
     with:
       component: ${{ matrix.component }}

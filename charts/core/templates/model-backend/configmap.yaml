@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.modelBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.modelBackend.privatePort" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      itmode:
+        enabled: {{ .Values.itMode.enabled }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
+      workflow:
+        maxworkflowtimeout: {{ .Values.modelBackend.temporal.workflow.maxWorkflowTimeout }}
+        maxworkflowretry: {{ .Values.modelBackend.temporal.workflow.maxWorkflowRetry }}
+        maxactivityretry: {{ .Values.modelBackend.temporal.workflow.maxActivityRetry }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/model/tls.crt
+        key: /etc/instill-ai/model/ssl/model/tls.key
+      {{- end }}
+    github:
+      patenabled: {{ .Values.modelBackend.github.patenabled }}
+      pat: {{ .Values.modelBackend.github.pat }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
+    mgmtbackend:
+      host: {{ template "core.mgmtBackend" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/model/ssl/mgmt/tls.key
+      {{- end }}
+    controller:
+      host: {{ template "core.controllerModel" . }}
+      privateport: {{ template "core.controllerModel.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/controller/tls.crt
+        key: /etc/instill-ai/model/ssl/controller/tls.key
+      {{- end }}
+    rayserver:
+      grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
+      modelstore: /model-repository
+      vram: {{ .Values.rayService.vram }}
+    database:
+      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      name: model
+      version: {{ .Values.modelBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+      model:
+        {{- toYaml .Values.modelBackend.cache | nindent 8 }}
+    maxbatchsizelimitation:
+      unspecified: 2
+      classification: 16
+      detection: 8
+      keypoint: 8
+      ocr: 2
+      instancesegmentation: 8
+      semanticsegmentation: 8
+      textgeneration: 1
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
+      namespace: {{ default "model-backend" .Values.modelBackend.temporal.namespace }}
+      retention: {{ default "1d" .Values.modelBackend.temporal.retention }}
+      ca: {{ default "" .Values.modelBackend.temporal.ca }}
+      cert: {{ default "" .Values.modelBackend.temporal.cert }}
+      key: {{ default "" .Values.modelBackend.temporal.key }}
+      serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
+    initmodel:
+      {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8080

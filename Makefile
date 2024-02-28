@@ -39,7 +39,7 @@ INSTILL_CORE_BUILD_CONTAINER_NAME := instill-core-build
 INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME := instill-core-integration-test
 
 HELM_NAMESPACE := instill-ai
-HELM_RELEASE_NAME := instill-ai
+HELM_RELEASE_NAME := core
 
 #============================================================================
 
@@ -223,13 +223,6 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
-		--set pipelineBackend.image.tag=latest \
-		--set pipelineBackend.excludelocalconnector=false \
-		--set tags.observability=false
-	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
-	@sleep 30
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
@@ -246,13 +239,6 @@ else ifeq ($(UNAME_S),Linux)
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
-	@docker run --rm \
-		-v ${HOME}/.kube/config:/root/.kube/config \
-		${DOCKER_HELM_IT_EXTRA_PARAMS} \
-		--name ${CONTAINER_INTEGRATION_TEST_NAME}-latest \
-		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd /instill-core && helm uninstall core --namespace ${HELM_NAMESPACE}' \
-		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down
@@ -278,13 +264,6 @@ helm-integration-test-release:                       ## Run integration test on 
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-	@helm install ${HELM_RELEASE_NAME} charts/vdp --namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
-		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-		--set pipelineBackend.excludelocalconnector=false \
-		--set tags.observability=false
-	@kubectl rollout status deployment vdp-pipeline-backend --namespace ${HELM_NAMESPACE} --timeout=120s
-	@sleep 10
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
@@ -301,13 +280,6 @@ else ifeq ($(UNAME_S),Linux)
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
-	@docker run --rm \
-		-v ${HOME}/.kube/config:/root/.kube/config \
-		${DOCKER_HELM_IT_EXTRA_PARAMS} \
-		--name ${CONTAINER_INTEGRATION_TEST_NAME}-latest \
-		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd /instill-core && helm uninstall core --namespace ${HELM_NAMESPACE}' \
-		"
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down

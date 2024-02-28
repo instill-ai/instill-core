@@ -11,8 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [pipeline-backend]
-    uses: instill-ai/vdp/.github/workflows/helm-integration-test-backend.yml@main
+        component:
+          [mgmt-backend, pipeline-backend, model-backend, controller-model]
+    # uses: instill-ai/vdp/.github/workflows/helm-integration-test-backend.yml@main
+    uses: instill-ai/instill-core/.github/workflows/helm-integration-test-backend.yml@pinglin/unify-core
     with:
       component: ${{ matrix.component }}
       target: latest

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.controllerModel" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-model
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.controllerModel.privatePort" . }}
+      edition: {{ .Values.edition }}
+      loopinterval: {{ .Values.controllerModel.loopinterval }}
+      timeout: 120
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/controller/tls.crt
+        key: /etc/instill-ai/model/ssl/controller/tls.key
+      {{- end }}
+    etcd:
+      host: {{ template "core.etcd" . }}
+      port: {{ template "core.etcd.clientPort" . }}
+      timeout: 5
+    modelbackend:
+      host: {{ template "core.modelBackend" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
+      privateport: {{ template "core.modelBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/model/tls.crt
+        key: /etc/instill-ai/model/ssl/model/tls.key
+      {{- end }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+      model:
+        {{- toYaml .Values.modelBackend.cache | nindent 8 }}
+    mgmtbackend:
+      host: {{ template "core.mgmtBackend" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/model/ssl/mgmt/tls.key
+      {{- end }}

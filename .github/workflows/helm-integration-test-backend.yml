@@ -25,21 +25,21 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
 
       - name: Start Minikube
         run: minikube start --cpus 2 --memory 6096
 
-      - name: Checkout repo (vdp)
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -50,24 +50,34 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-      - name: Checkout repo (core)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file (core)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
       - name: Launch Helm Instill Core (latest)
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
+            --set itMode.enabled=true \
             --set apiGateway.image.tag=latest \
             --set mgmtBackend.image.tag=latest \
+            --set pipelineBackend.image.tag=latest \
+            --set pipelineBackend.excludelocalconnector=false \
+            --set modelBackend.image.tag=latest \
+            --set controllerModel.image.tag=latest \
             --set console.image.tag=latest \
-            --set tags.observability=false
+            --set rayService.image.tag=${RAY_SERVER_VERSION} \
+            --set rayService.headGroupSpec.resources.limits.cpu=0 \
+            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+            --set rayService.headGroupSpec.resources.requests.cpu=0 \
+            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].replicas=1 \
+            --set rayService.workerGroupSpecs[0].minReplicas=1 \
+            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+            --set rayService.workerGroupSpecs[0].groupName=test-group \
+            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+            --set tags.observability=false \
+            --set tags.prometheusStack=false
 
       - name: Wait for core pods up
         run: |
@@ -75,6 +85,10 @@ jobs:
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
+
+      # - name: Wait for core pods up
+      #   run: |
+      #     kubectl rollout status deployment core-api-gateway --namespace instill-ai --timeout=600s
 
       - name: Port-forward of api-gateway
         run: |
@@ -123,117 +137,6 @@ jobs:
         run: |
           brew install make
 
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if VDP Helm release exists
-        id: check-vdp-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'vdp'; then
-            echo "Helm release 'vdp' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'vdp' not found."
-          fi
-
-      - name: Uninstall VDP Helm Release
-        if: steps.check-vdp-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall vdp --namespace instill-ai
-
-      - name: Install k6
-        run: |
-          brew install k6
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if Core Helm release exists
-        id: check-core-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'core'; then
-            echo "Helm release 'core' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'core' not found."
-          fi
-
-      - name: Uninstall Core Helm Release
-        if: steps.check-core-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-
-      - name: Launch Helm Instill Core (latest)
-        run: |
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set apiGateway.image.tag=latest \
-            --set mgmtBackend.image.tag=latest \
-            --set console.image.tag=latest \
-            --set tags.observability=false
-
-      - name: Wait for core pods up
-        run: |
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-            sleep 10
-          done
-
-      - name: Port-forward of api-gateway
-        run: |
-          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill VDP (latest)
-        run: |
-          make build-latest
-          helm install vdp charts/vdp --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set pipelineBackend.image.tag=latest \
-            --set pipelineBackend.excludelocalconnector=false \
-            --set tags.observability=false
-          kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
-          sleep 10
-
-      - name: Run ${{ inputs.component }} integration test (latest)
-        if: inputs.target == 'latest'
-        run: |
-          git clone https://github.com/instill-ai/${{ inputs.component }}.git
-          cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
-
-      - name: Uninstall Core and VDP Helm Release
-        run: |
-          helm uninstall vdp --namespace instill-ai
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-
   helm-integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
@@ -248,21 +151,21 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
 
       - name: Start Minikube
         run: minikube start --cpus 2 --memory 6096
 
-      - name: Checkout repo (vdp)
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -273,22 +176,32 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-      - name: Checkout repo (core)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file (core)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
       - name: Launch Helm Instill Core (release)
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
-            --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+            --set itMode.enabled=true \
             --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+            --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+            --set pipelineBackend.excludelocalconnector=false \
+            --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+            --set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
+            --set console.image.tag=${CONSOLE_VERSION} \
+            --set rayService.image.tag=${RAY_SERVER_VERSION} \
+            --set rayService.headGroupSpec.resources.limits.cpu=0 \
+            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+            --set rayService.headGroupSpec.resources.requests.cpu=0 \
+            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].replicas=1 \
+            --set rayService.workerGroupSpecs[0].minReplicas=1 \
+            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+            --set rayService.workerGroupSpecs[0].groupName=test-group \
+            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
             --set tags.observability=false \
             --set tags.prometheusStack=false
 
@@ -305,30 +218,10 @@ jobs:
           kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
           while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
       - name: Uppercase component name
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Launch Helm Instill VDP (release)
-        run: |
-          helm install vdp charts/vdp --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-            --set pipelineBackend.excludelocalconnector=false \
-            --set tags.observability=false
-          kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai
-          sleep 10
 
       - name: Run ${{ inputs.component }} integration test (release)
         env:
@@ -351,120 +244,3 @@ jobs:
       - name: Set up environment
         run: |
           brew install make
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if VDP Helm release exists
-        id: check-vdp-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'vdp'; then
-            echo "Helm release 'vdp' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'vdp' not found."
-          fi
-
-      - name: Uninstall VDP Helm Release
-        if: steps.check-vdp-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall vdp --namespace instill-ai
-
-      - name: Install k6
-        run: |
-          brew install k6
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if Core Helm release exists
-        id: check-core-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'core'; then
-            echo "Helm release 'core' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'core' not found."
-          fi
-
-      - name: Uninstall Core Helm Release
-        if: steps.check-core-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-
-      - name: Launch Helm Instill Core (release)
-        run: |
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
-            --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false
-
-      - name: Wait for core pods up
-        run: |
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-            sleep 10
-          done
-
-      - name: Port-forward of core-api-gateway
-        run: |
-          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file (vdp)
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Uppercase component name
-        id: uppercase
-        run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Launch Helm Instill VDP (release)
-        run: |
-          make build-release
-          helm install vdp charts/vdp --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-            --set pipelineBackend.excludelocalconnector=false \
-            --set tags.observability=false
-          kubectl rollout status deployment vdp-pipeline-backend --namespace instill-ai --timeout=120s
-          sleep 10
-
-      - name: Run ${{ inputs.component }} integration test (release)
-        env:
-          COMPONENT_VERSION: ${{ env[format('{0}_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
-        run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
-          cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
-
-      - name: Uninstall Core and VDP Helm Release
-        run: |
-          helm uninstall vdp --namespace instill-ai
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai

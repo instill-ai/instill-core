@@ -1,0 +1,91 @@
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+{{- if .Values.modelBackend.initModel.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "core.modelBackend" . }}-init-model
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: model-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/model-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.modelBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.modelBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.modelBackend.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.modelBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done
+          env:
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "core.modelBackend" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "core.modelBackend.publicPort" . }}"
+      containers:
+      - name: model-backend-init-model
+        image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
+        imagePullPolicy: {{ .Values.modelBackend.image.pullPolicy }}
+        command: [./{{ .Values.modelBackend.commandName.initModel }}]
+        volumeMounts:
+          - name: config
+            mountPath: {{ .Values.modelBackend.configPath }}
+            subPath: config.yaml
+          - name: model-repository
+            mountPath: /model-repository
+        env:
+          - name: MODEL_BACKEND_HOST
+            value: "{{ template "core.modelBackend" . }}"
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.modelBackend" . }}
+        - name: model-repository
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $modelRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $modelRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "core.modelRepositoryDataVolume" . }}
+        {{- end }}
+      {{- with .Values.modelBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.modelBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.modelBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,27 @@
+dependencies:
+- name: kuberay-operator
+  repository: https://ray-project.github.io/kuberay-helm/
+  version: 1.0.0
+- name: etcd
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.8.1
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 7.17.3
+- name: influxdb2
+  repository: https://helm.influxdata.com
+  version: 2.1.1
+- name: jaeger
+  repository: https://jaegertracing.github.io/helm-charts
+  version: 0.71.2
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.59.1
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 48.2.1
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 7.0.19
+digest: sha256:e7dccde76e808e60c69a3bfcd6071106b4daab9e2b5fe352f0146814fc64fa61
+generated: "2024-02-26T22:55:15.548288Z"

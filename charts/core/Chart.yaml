@@ -1,0 +1,54 @@
+apiVersion: v2
+name: core
+description: The Helm chart of Instill Core
+type: application
+version: 0.1.26-beta #! auto-updated by the CI workflow
+appVersion: 0.24.0-beta #! auto-updated by the CI workflow
+keywords:
+  - unstructured data
+  - pipeline
+  - ETL/ELT
+  - AI
+  - Data
+sources:
+  - https://github.com/instill-ai/instill-core
+home: "https://www.instill.tech"
+icon: https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/helm-core-logo.png
+maintainers:
+  - name: Instill AI LTD
+    url: https://github.com/instill-ai
+dependencies:
+  - name: kuberay-operator
+    repository: https://ray-project.github.io/kuberay-helm/
+    version: 1.0.0
+  - name: etcd
+    repository: https://charts.bitnami.com/bitnami
+    version: 8.8.1
+    condition: etcd.enabled
+  - name: elasticsearch
+    repository: https://helm.elastic.co
+    version: 7.17.3
+    condition: elasticsearch.enabled
+  - name: influxdb2
+    repository: https://helm.influxdata.com
+    version: 2.1.1
+  - name: jaeger
+    repository: https://jaegertracing.github.io/helm-charts
+    version: 0.71.2
+    tags:
+      - observability
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.59.1
+    tags:
+      - observability
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 48.2.1
+    tags:
+      - prometheusStack
+  - name: grafana
+    repository: https://grafana.github.io/helm-charts
+    version: 7.0.19
+    tags:
+      - prometheusStack

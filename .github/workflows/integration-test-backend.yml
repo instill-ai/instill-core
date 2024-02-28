@@ -39,18 +39,9 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-      - name: Free disk space
+      - name: Launch Instill Core (release)
         run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
-
-      - name: Checkout repo (core)
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
+          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
 
       - name: Load .env file (core)
         uses: cardinalby/export-env-action@v2

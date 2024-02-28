@@ -1,0 +1,13 @@
+{{- if and .Values.temporal.enabled .Values.temporal.server.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "core.temporal" . }}-dynamic-config
+  labels:
+    {{- include "core.labels" $ | nindent 4 }}
+data:
+  dynamic_config.yaml: |-
+  {{- if $.Values.temporal.server.dynamicConfig }}
+    {{- toYaml .Values.temporal.server.dynamicConfig | nindent 4 }}
+  {{- end }}
+{{- end }}
