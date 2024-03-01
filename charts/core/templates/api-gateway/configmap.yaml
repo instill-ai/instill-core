@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.apiGateway" . }}
+data:
+  .env: |-
+    LOG_LEVEL={{ upper .Values.logLevel }}
+
+    # api-gateway
+    API_GATEWAY_HOST={{ template "core.apiGateway" . }}
+    API_GATEWAY_PORT={{ template "core.apiGateway.httpPort" . }}
+    API_GATEWAY_STATS_PORT={{ template "core.apiGateway.statsPort" . }}
+    API_GATEWAY_METRICS_PORT={{ template "core.apiGateway.metricsPort" . }}
+    {{- if .Values.apiGateway.tls.enabled }}
+    API_GATEWAY_CERT_FILE=/etc/instill-ai/core/ssl/api-gateway/tls.crt
+    API_GATEWAY_KEY_FILE=/etc/instill-ai/core/ssl/api-gateway/tls.key
+    {{- end }}
+
+    # mgmt-backend
+    MGMT_BACKEND_HOST={{ template "core.mgmtBackend" . }}
+    MGMT_BACKEND_PUBLICPORT={{ template "core.mgmtBackend.publicPort" . }}
+
+    # pipeline-backend
+    PIPELINE_BACKEND_HOST={{ template "core.pipelineBackend" . }}
+    PIPELINE_BACKEND_PUBLICPORT={{ template "core.pipelineBackend.publicPort" . }}
+
+    # model-backend
+    MODEL_BACKEND_HOST={{ template "core.modelBackend" . }}
+    MODEL_BACKEND_PUBLICPORT={{ template "core.modelBackend.publicPort" . }}
+
+    # influxdb
+    INFLUXDB_HOST={{ template "core.influxdb" . }}
+    INFLUXDB_PORT={{ template "core.influxdb.port" . }}
+
+    # jaeger
+    JAEGER_ENABLED={{ .Values.tags.observability }}
+    JAEGER_HOST={{ template "core.jaeger" . }}
+    JAEGER_PORT={{ template "core.jaeger.port" . }}

@@ -1,0 +1,97 @@
+version: "3.9"
+
+services:
+  api_gateway:
+    profiles:
+      - all
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
+    build:
+      context: ./${API_GATEWAY_HOST}
+      args:
+        SERVICE_NAME: api-gateway
+        GOLANG_VERSION: 1.21.3
+        ALPINE_VERSION: 3.18
+        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
+
+  mgmt_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
+    build:
+      context: ./${MGMT_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  pipeline_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
+    image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
+    build:
+      context: ./${PIPELINE_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  model_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-controller-model
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    build:
+      context: ./${MODEL_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+        UBUNTU_VERSION: ${UBUNTU_VERSION}
+        ARTIVC_VERSION: ${ARTIVC_VERSION}
+
+  controller_model:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+    image: ${CONTROLLER_MODEL_IMAGE}:${CONTROLLER_MODEL_VERSION}
+    build:
+      context: ./${CONTROLLER_MODEL_HOST}
+      args:
+        SERVICE_NAME: ${CONTROLLER_MODEL_HOST}
+        GOLANG_VERSION: ${GOLANG_VERSION}
+        K6_VERSION: ${K6_VERSION}
+
+  console:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
+    build:
+      context: ./${CONSOLE_HOST}

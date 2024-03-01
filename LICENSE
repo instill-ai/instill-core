@@ -1,14 +1,3 @@
-The Instill VDP project uses a polyrepo structure with multiple licenses.
-
-The license for a piece of source code is defined with the following prioritized rules:
-1. LICENSE present in the file
-2. LICENSE file in the same directory as the file
-3. First LICENSE file found in the parent directories up to the top level
-4. By default to the Elastic License 2.0 (ELv2)
-
-If you have any question regarding licenses, please [contact us](mailto:hello@instill.tech).
-
-------------------------------------------------------------------------------------
 Elastic License 2.0 (ELv2)
 
 **Acceptance**

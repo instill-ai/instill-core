@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  otel_collector:
+    container_name: ${OTEL_COLLECTOR_HOST}
+    image: ${OTEL_COLLECTOR_IMAGE}:${OTEL_COLLECTOR_VERSION}
+    command: --config=/configs/otel-collector/config.yaml
+    volumes:
+      - ${CONFIG_DIR_PATH}:/configs
+    depends_on:
+      - jaeger
+      - prometheus
+
+  jaeger:
+    container_name: ${JAEGER_HOST}
+    image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
+    ports:
+      - ${JAEGER_PORT}:16686 # Web HTTP
+
+  prometheus:
+    container_name: ${PROMETHEUS_HOST}
+    image: ${PROMETHEUS_IMAGE}:v${PROMETHEUS_VERSION}
+    command:
+      - --config.file=/configs/prometheus/config.yaml
+    volumes:
+      - ${CONFIG_DIR_PATH}:/configs
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+
+  grafana:
+    container_name: ${GRAFANA_HOST}
+    image: ${GRAFANA_IMAGE}:${GRAFANA_VERSION}
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=true
+    volumes:
+      - ${CONFIG_DIR_PATH}/grafana/datasources/all.yml:/etc/grafana/provisioning/datasources/all.yml
+      - ${CONFIG_DIR_PATH}/grafana/dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yml
+      - ${CONFIG_DIR_PATH}/grafana/krakend:/var/lib/grafana/dashboards/krakend
+      - ${CONFIG_DIR_PATH}/grafana/ray:/var/lib/grafana/dashboards/ray
+    ports:
+      - ${GRAFANA_PORT}:3000

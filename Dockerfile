@@ -1,7 +1,7 @@
 ARG ALPINE_VERSION
 FROM alpine:${ALPINE_VERSION} AS base
 
-RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl
+RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
 
 # Install k6
 ARG TARGETARCH K6_VERSION
@@ -21,35 +21,36 @@ FROM alpine:${ALPINE_VERSION} AS latest
 COPY --from=base /etc /etc
 COPY --from=base /usr /usr
 COPY --from=base /lib /lib
-COPY --from=docker:24.0.6-dind /usr/local/bin /usr/local/bin
+COPY --from=docker:dind /usr/local/bin /usr/local/bin
 
 ARG CACHE_DATE
-RUN echo "VDP latest codebase cloned on ${CACHE_DATE}"
+RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
-WORKDIR /instill-ai
+WORKDIR /instill-core
 
-RUN git clone https://github.com/instill-ai/core.git
-
-WORKDIR /instill-ai/vdp
-
+RUN git clone https://github.com/instill-ai/api-gateway.git
+RUN git clone https://github.com/instill-ai/mgmt-backend.git
+RUN git clone https://github.com/instill-ai/console.git
 RUN git clone https://github.com/instill-ai/pipeline-backend.git
+RUN git clone https://github.com/instill-ai/model-backend.git
+RUN git clone https://github.com/instill-ai/controller-model.git
 
 FROM alpine:${ALPINE_VERSION} AS release
 
 COPY --from=base /etc /etc
 COPY --from=base /usr /usr
 COPY --from=base /lib /lib
-COPY --from=docker:24.0.6-dind /usr/local/bin /usr/local/bin
+COPY --from=docker:dind /usr/local/bin /usr/local/bin
 
 ARG CACHE_DATE
-RUN echo "VDP release codebase cloned on ${CACHE_DATE}"
+RUN echo "Instill Core release codebase cloned on ${CACHE_DATE}"
 
-WORKDIR /instill-ai
+WORKDIR /instill-core
 
-ARG INSTILL_CORE_VERSION
-RUN git clone -b v${INSTILL_CORE_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/core.git
-
-WORKDIR /instill-ai/vdp
-
-ARG PIPELINE_BACKEND_VERSION
+ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION CONTROLLER_MODEL_VERSION
+RUN git clone -b v${API_GATEWAY_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
+RUN git clone -b v${MGMT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/mgmt-backend.git
+RUN git clone -b v${CONSOLE_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/console.git
 RUN git clone -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b v${MODEL_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/model-backend.git
+RUN git clone -b v${CONTROLLER_MODEL_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/controller-model.git
