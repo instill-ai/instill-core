@@ -22,7 +22,7 @@ Please refer to [here](../README.md#prerequisites) to make sure your environment
 Clone the repo and launch the `latest` version of the codebase for all dependencies:
 
 ```bash
-$ git clone https://github.com/instill-ai/vdp.git && cd vdp
+$ git clone https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # launch all latest service components
 $ make latest PROFILE=all
@@ -46,7 +46,7 @@ $ make down
 
 ### Build the local images
 
-We use Docker multi-stage builds to build a `instill/vdp-compose:{latest,release}` image which will be based on to run dind (docker-in-docker) to build all the images of `Instill VDP` defined in the compose file [docker-compose-build.yml](../docker-compose-build.yml).
+We use Docker multi-stage builds to build a `instill/core:{latest,release}` image which will be based on to run dind (docker-in-docker) to build all the images of `Instill Core` defined in the compose file [docker-compose-build.yml](../docker-compose-build.yml).
 
 You can build the images by simply running:
 
