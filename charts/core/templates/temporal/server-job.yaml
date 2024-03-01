@@ -1,0 +1,58 @@
+{{- if and .Values.temporal.enabled .Values.temporal.server.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name:  {{ include "core.temporal" . }}-es
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: temporal-es
+spec:
+  ttlSecondsAfterFinished: 0
+  template:
+    metadata:
+      name:  {{ include "core.temporal" . }}-es
+      labels:
+        {{- include "core.labels" . | nindent 8 }}
+        app.kubernetes.io/component: temporal-es
+    spec:
+      {{- with .Values.temporal.server.serviceAccountName }}
+      serviceAccountName: {{- toYaml . }}
+      {{- end }}
+      restartPolicy: "OnFailure"
+      initContainers:
+        - name: check-elasticsearch
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ['sh', '-c', 'until curl --silent --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }} 2>&1 > /dev/null; do echo waiting for elasticsearch to start; sleep 1; done;']
+          env:
+            - name: ELASTIC_USERNAME
+              value: "elastic"
+            - name: ELASTIC_PASSWORD
+              value: "password"
+      containers:
+        - name: create-elasticsearch-index
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ['sh', '-c']
+          args:
+            - >
+              curl -X PUT --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }}/_template/temporal_visibility_v1_template -H "Content-Type: application/json" --data-binary "@schema/elasticsearch/visibility/index_template_{{ .Values.elasticsearch.version }}.json" 2>&1 &&
+              curl -X PUT --fail --user ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD} -k {{ $.Values.elasticsearch.protocol }}://{{ .Values.elasticsearch.clusterName }}-master:{{ .Values.elasticsearch.httpPort }}/{{ .Values.elasticsearch.visibilityIndex }} 2>&1
+          env:
+            - name: ELASTIC_USERNAME
+              value: "elastic"
+            - name: ELASTIC_PASSWORD
+              value: "password"
+      {{- with .Values.temporal.admintools.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.admintools.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.temporal.admintools.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

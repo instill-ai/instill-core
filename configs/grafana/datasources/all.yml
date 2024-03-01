@@ -1,0 +1,25 @@
+apiVersion: 1
+
+datasources:
+  # InfluxDB v2.x
+  - access: "proxy"
+    editable: true
+    isDefault: true
+    name: "influx"
+    orgId: 1
+    type: "influxdb"
+    url: "http://influxdb:8086"
+    version: 1
+    database: krakend
+    basicAuth: false
+    jsonData:
+      defaultBucket: krakend
+      httpMode: POST
+      organization: instill-ai
+      version: Flux
+    secureJsonData:
+      token: i-love-instill-ai
+  - name: Prometheus
+    url: http://prometheus:9090
+    type: prometheus
+    access: proxy

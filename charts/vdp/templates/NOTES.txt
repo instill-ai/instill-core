@@ -1,5 +1,0 @@
-You have installed/deployed:
-
-  Chart name: {{ .Chart.Name }}
-  Release name: {{ .Release.Name }}
-  Fullname of k8s objects: {{ include "vdp.fullname" . }}

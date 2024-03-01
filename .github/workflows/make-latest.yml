@@ -31,25 +31,25 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
-
-      - name: Checkout repo (vdp)
-        uses: actions/checkout@v3
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
         with:
-          repository: instill-ai/vdp
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
 
-      - name: Load .env file (vdp)
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Launch Instill VDP (latest)
+      - name: Launch Instill Core (latest)
         run: |
           make latest PROFILE=exclude-console EDITION=local-ce:test
 
@@ -58,11 +58,13 @@ jobs:
           docker ps -a
           sleep 30
 
-      - name: Curl to vdp services healthcheck endpoint
+      - name: Curl to Instill Core services healthcheck endpoint
         run: |
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/core/v1beta/health/mgmt
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1beta/health/pipeline
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/model/v1beta/health/model
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/model/v1beta/health/model-controller
 
-      - name: Tear down Instill VDP (latest)
+      - name: Tear down Instill Core (latest)
         run: |
           make down

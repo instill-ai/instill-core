@@ -1,0 +1,33 @@
+{{- if .Values.mgmtBackend.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "core.mgmtBackend" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "core.mgmtBackend" . }}
+    labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+  minReplicas: {{ .Values.mgmtBackend.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.mgmtBackend.autoscaling.maxReplicas }}
+  metrics:
+{{- with .Values.mgmtBackend.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.mgmtBackend.autoscaling.targetAverageMemoryUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: AverageValue
+          averageValue: {{ . }}
+{{- end }}
+{{- end }}

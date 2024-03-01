@@ -1,0 +1,284 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.pipelineBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.pipelineBackend.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.pipelineBackend.autoscaling.enabled }}
+  replicas: {{ .Values.pipelineBackend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pipeline-backend
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pipeline-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/pipeline-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.pipelineBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.pipelineBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.pipelineBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.pipelineBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "core.database" . }}
+            - name: PGUSER
+              value: {{ template "core.database.username" . }}
+        {{- end }}
+        {{- if not .Values.pipelineBackend.temporal.hostPort }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
+              if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+        {{- end }}
+        - name: pipeline-backend-migration
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.migration }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+        - name: pipeline-backend-init
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackendWorker.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.init }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            - name: host-docker-socket-volume
+              mountPath: /var/run/docker.sock
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          env:
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- if .Values.pipelineBackend.copyHostDocker }}
+        - name: copy-docker
+          image: alpine:3.14
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+          - >
+            cp -r /tmp/docker/* /var/lib/docker/
+          volumeMounts:
+            - name: host-docker-volume
+              mountPath: /tmp/docker
+            - name: docker-volume
+              mountPath: /var/lib/docker
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+        {{- end }}
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1beta/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
+          env:
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "core.mgmtBackend" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "core.mgmtBackend.publicPort" . }}"
+        {{- with .Values.pipelineBackend.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: dind-daemon
+          image: docker:24.0.6-dind
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+                cpu: 20m
+                memory: 512Mi
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
+          volumeMounts:
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+        - name: pipeline-backend-worker
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: rpc
+          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackendWorker.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.worker }}]
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        - name: pipeline-backend
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1beta/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1beta/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+          {{- if .Values.pipelineBackend.containers.pipelineBackend.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.pipelineBackend.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "core.pipelineBackend.publicPort" . }}
+              protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackend.configPath }}
+              subPath: config.yaml
+            - name: vdp
+              mountPath: /vdp
+            - name: airbyte
+              mountPath: /airbyte
+            - name: docker-volume
+              mountPath: /var/lib/docker
+            {{- if .Values.internalTLS.enabled }}
+            - name: pipeline-internal-certs
+              mountPath: "/etc/instill-ai/vdp/ssl/pipeline"
+            {{- end }}
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- with .Values.pipelineBackend.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: host-docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        - name: host-docker-volume
+          hostPath:
+            path: /var/lib/docker
+        - name: config
+          configMap:
+            name: {{ template "core.pipelineBackend" . }}
+        - name: docker-volume
+          emptyDir: {}
+        - name: vdp
+          emptyDir: {}
+        - name: airbyte
+          emptyDir: {}
+        {{- if .Values.internalTLS.enabled }}
+        - name: pipeline-internal-certs
+          secret:
+            secretName: {{ template "core.internalTLS.pipelineBackend.secretName" . }}
+        {{- end }}
+        {{- with .Values.pipelineBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.pipelineBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,169 @@
+version: "3.9"
+
+services:
+  api_gateway:
+    profiles:
+      - all
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${API_GATEWAY_IMAGE}:latest
+    environment:
+      LOG_LEVEL: DEBUG
+
+  mgmt_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${MGMT_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${MGMT_BACKEND_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
+      - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
+
+  mgmt_backend_worker:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${MGMT_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+
+  pipeline_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
+      - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
+
+  pipeline_backend_worker:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-model
+      - exclude-controller-model
+    image: ${PIPELINE_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+
+  model_backend_worker:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-controller-model
+    image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+
+  model_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-controller-model
+    image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
+      - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
+
+  model_backend_init_model:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-controller-model
+    image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
+      CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/model/main/model-hub/model_hub_cpu.json
+
+  controller_model:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+    image: ${CONTROLLER_MODEL_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${CONTROLLER_MODEL_PRIVATEPORT}:${CONTROLLER_MODEL_PRIVATEPORT}
+
+  console:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${CONSOLE_IMAGE}:latest
+    environment:
+      NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}
+      NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
+      NODE_ENV: development
+    ports:
+      - ${CONSOLE_PORT}:${CONSOLE_PORT}
+
+  temporal:
+    ports:
+      - ${TEMPORAL_PORT}:7233
+
+  ray_server:
+    image: ${RAY_SERVER_IMAGE}:${RAY_LATEST_TAG}
+    ports:
+      - ${RAY_SERVER_CLIENT_PORT}:${RAY_SERVER_CLIENT_PORT}
+      - ${RAY_SERVER_DASHBOARD_PORT}:${RAY_SERVER_DASHBOARD_PORT}
+      - ${RAY_SERVER_SERVE_PORT}:${RAY_SERVER_SERVE_PORT}
+      - ${RAY_SERVER_SERVE_GRPC_PORT}:${RAY_SERVER_SERVE_GRPC_PORT}
+      - ${RAY_SERVER_PROMETHEUS_PORT}:${RAY_SERVER_PROMETHEUS_PORT}
+
+  pg_sql:
+    ports:
+      - ${POSTGRESQL_PORT}:5432
+
+  redis:
+    ports:
+      - ${REDIS_PORT}:6379
+
+  etcd:
+    ports:
+      - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}
