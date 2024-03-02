@@ -257,7 +257,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.10.0-beta
+    tag: 0.11.0-beta
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -314,7 +314,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.11.0-beta
+    tag: 0.12.0-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -385,7 +385,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.22.0-beta
+    tag: 0.23.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -470,7 +470,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.22.0-alpha
+    tag: 0.23.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -620,7 +620,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.39.0-beta
+    tag: 0.40.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -1017,6 +1017,8 @@ temporal:
       routing:
         default_to_namespace: default
         issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
+  image:
+    tag: 1.22.3
 # -- The configuration of PostgreSQL
 database:
   # -- If external database is used, set "enabled" to false
@@ -1175,6 +1177,7 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   mode: deployment
