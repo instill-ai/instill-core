@@ -70,7 +70,7 @@ $ make all
 <!-- x-release-please-end -->
 
 > [!NOTE]
-> We have restructured our project repositories. If you need to access Instill Core projects up to version `v0.13.0-beta``, please refer to the [instill-ai/deprecated-core](https://github.com/instill-ai/deprecated-core) repository.
+> We have restructured our project repositories. If you need to access Instill Core projects up to version `v0.13.0-beta`, please refer to the [instill-ai/deprecated-core](https://github.com/instill-ai/deprecated-core) repository.
 
 **Use the latest version for local development**
 
