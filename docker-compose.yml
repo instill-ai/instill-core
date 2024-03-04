@@ -411,6 +411,14 @@ services:
   ray_server:
     container_name: ${RAY_SERVER_HOST}
     image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
+    # for dind podman
+    cap_add:
+      - sys_admin
+      - mknod
+    devices:
+      - "/dev/fuse"
+    security_opt:
+      - "seccomp=unconfined"
     restart: unless-stopped
     environment:
       - RAY_ADDRESS=0.0.0.0:6379
@@ -426,6 +434,8 @@ services:
     volumes:
       - model_repository:/model-repository
       - ray_conda:/home/ray/anaconda3/
+      - /var/lib/containers:/var/lib/containers
+      - ${CONFIG_DIR_PATH}/registry/registries.conf:/etc/containers/registries.conf
     healthcheck:
       test: ["CMD", "ray", "status"]
       start_period: 20s
