@@ -576,3 +576,13 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+
+  registry:
+    container_name: ${REGISTRY_HOST}
+    image: ${REGISTRY_IMAGE}:${REGISTRY_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
+    depends_on:
+      redis:
+        condition: service_healthy
