@@ -31,7 +31,7 @@ WORKDIR /instill-core
 RUN git clone https://github.com/instill-ai/api-gateway.git
 RUN git clone https://github.com/instill-ai/mgmt-backend.git
 RUN git clone https://github.com/instill-ai/console.git
-RUN git clone https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b huitang/ins-3341 https://github.com/instill-ai/pipeline-backend.git
 RUN git clone https://github.com/instill-ai/model-backend.git
 RUN git clone https://github.com/instill-ai/controller-model.git
 
