@@ -385,6 +385,21 @@ openfga
 {{- end -}}
 
 {{/*
+registry
+*/}}
+{{- define "core.registry" -}}
+  {{- printf "%s-registry" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.registry.port" -}}
+  {{- printf "5000" -}}
+{{- end -}}
+
+{{- define "core.registry.metricsPort" -}}
+  {{- printf "5001" -}}
+{{- end -}}
+
+{{/*
 internal TLS secret names
 */}}
 {{- define "core.internalTLS.apiGateway.secretName" -}}

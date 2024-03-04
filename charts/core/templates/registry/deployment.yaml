@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.registry" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.registry.autoscaling.enabled }}
+  replicas: {{ .Values.registry.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: registry
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: registry
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/etc/docker/registry/config.yml") . | sha256sum }}
+        {{- with .Values.registry.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      {{- if .Values.registry.serviceAccountName }}
+      serviceAccountName: {{ .Values.registry.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.registry.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-redis
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${REDIS_ADDR}" != "200" ]]; do echo waiting for redis; sleep 1; done
+          env:
+            - name: REDIS_ADDR
+              value: "{{ template "core.redis.addr" . }}"
+      containers:
+        - name: registry
+          image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - /bin/registry
+          - serve
+          - {{ .Values.registry.configPath }}
+          readinessProbe:
+            httpGet:
+              path: /
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ template "core.registry.port" . }}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ template "core.registry.port" . }}
+            periodSeconds: 10
+          {{- if .Values.registry.resources }}
+          resources:
+            {{- toYaml .Values.registry.resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ template "core.registry.port" . }}
+              protocol: TCP
+            - containerPort: {{ template "core.registry.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.registry.configPath }}
+              subPath: config.yaml
+          {{- with .Values.registry.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.registry" . }}
+        {{- with .Values.registry.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.registry.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.registry.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.registry.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
