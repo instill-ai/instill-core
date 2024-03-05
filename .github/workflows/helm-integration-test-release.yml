@@ -10,7 +10,11 @@ jobs:
       matrix:
         component:
           [mgmt-backend, pipeline-backend, model-backend, controller-model]
-    uses: instill-ai/vdp/.github/workflows/helm-integration-test-backend.yml@main
+    uses: instill-ai/instill-core/.github/workflows/helm-integration-test-backend.yml@main
     with:
       component: ${{ matrix.component }}
+      target: release
+  console:
+    uses: instill-ai/instill-core/.github/workflows/helm-integration-test-console.yml@main
+    with:
       target: release

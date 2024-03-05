@@ -40,6 +40,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -49,14 +51,6 @@ jobs:
       - name: Install k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
 
       - name: Launch Helm Instill Core (latest)
         run: |
@@ -155,6 +149,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
