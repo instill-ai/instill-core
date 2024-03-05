@@ -49,6 +49,7 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
+          INSTILL_CORE_HOST=api-gateway \
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
@@ -114,6 +115,7 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
+          INSTILL_CORE_HOST=api-gateway \
           COMPOSE_PROFILES=all \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
@@ -195,6 +197,7 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
+          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose up -d --quiet-pull
@@ -258,6 +261,7 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
+          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose up -d --quiet-pull
