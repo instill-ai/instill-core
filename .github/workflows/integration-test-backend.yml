@@ -49,7 +49,7 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
-      - name: Launch Instill Core (release)
+      - name: Launch Instill Core (latest)
         run: |
           make latest EDITION=local-ce:test ITMODE_ENABLED=true
 
@@ -58,7 +58,7 @@ jobs:
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
-      - name: Run ${{ inputs.component }} integration test (release)
+      - name: Run ${{ inputs.component }} integration test (latest)
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
@@ -112,7 +112,7 @@ jobs:
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
-      - name: Run ${{ inputs.component }} integration test (release)
+      - name: Run ${{ inputs.component }} integration test (latest)
         run: |
           git clone https://github.com/instill-ai/${{ inputs.component }}.git
           cd ${{ inputs.component }}
