@@ -50,7 +50,6 @@ jobs:
       - name: Launch Instill Core (latest)
         run: |
           COMPOSE_PROFILES=all \
-          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
@@ -78,7 +77,7 @@ jobs:
 
   integration-test-latest-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, core]
     timeout-minutes: 20
@@ -116,7 +115,6 @@ jobs:
       - name: Launch Instill Core (latest)
         run: |
           COMPOSE_PROFILES=all \
-          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull
@@ -197,7 +195,6 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose up -d --quiet-pull
@@ -224,7 +221,7 @@ jobs:
 
   integration-test-release-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, core]
     timeout-minutes: 30
@@ -261,7 +258,6 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          INSTILL_CORE_HOST=api-gateway \
           EDITION=local-ce:test \
           RAY_LATEST_TAG=latest \
           docker compose up -d --quiet-pull
