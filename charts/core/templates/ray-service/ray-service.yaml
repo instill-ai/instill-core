@@ -1,3 +1,4 @@
+{{- if and .Values.rayService.enabled }}
 {{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
 {{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: ray.io/v1
@@ -212,3 +213,4 @@ data:
     serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
 
     echo "INFO: Start ray serve"
+{{- end }}

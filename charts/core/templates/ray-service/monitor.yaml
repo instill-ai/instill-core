@@ -1,3 +1,4 @@
+{{- if and .Values.rayService.enabled }}
 {{- if .Values.tags.prometheusStack }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -46,4 +47,5 @@ spec:
   # A list of endpoints allowed as part of this PodMonitor.
   podMetricsEndpoints:
   - port: metrics
+{{- end }}
 {{- end }}

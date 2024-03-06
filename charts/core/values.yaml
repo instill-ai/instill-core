@@ -676,6 +676,7 @@ kuberay-operator:
     - "instill-ai"
 # -- The configuration of Ray
 rayService:
+  enabled: true
   vram:
   spec:
     autoscalerOptions:
