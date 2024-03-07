@@ -32,7 +32,7 @@ RUN git clone https://github.com/instill-ai/api-gateway.git
 RUN git clone https://github.com/instill-ai/mgmt-backend.git
 RUN git clone https://github.com/instill-ai/console.git
 RUN git clone https://github.com/instill-ai/pipeline-backend.git
-RUN git clone https://github.com/instill-ai/model-backend.git
+RUN git clone -b INS-3825 https://github.com/instill-ai/model-backend.git
 RUN git clone https://github.com/instill-ai/controller-model.git
 
 FROM alpine:${ALPINE_VERSION} AS release

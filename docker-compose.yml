@@ -426,9 +426,10 @@ services:
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://localhost:${GRAFANA_PORT}
+      - RAY_worker_register_timeout_seconds=360
     entrypoint: ["/bin/bash", "-c"]
     command: |
-      'ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --RAY_worker_register_timeout_seconds=360 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
+      'ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
