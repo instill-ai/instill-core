@@ -37,6 +37,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -93,6 +95,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -144,6 +148,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -202,6 +208,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2

@@ -13,20 +13,6 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/vdp
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -37,15 +23,19 @@ jobs:
       - name: Restart docker
         run: sudo service docker restart
 
-      - name: Checkout repo (core)
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          repository: instill-ai/
+          repository: instill-ai/instill-core
 
-      - name: Load .env file (core)
+      - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
       - name: Launch Instill Core (release)
         run: |
