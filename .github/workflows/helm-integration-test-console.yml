@@ -37,6 +37,8 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -152,10 +154,12 @@ jobs:
       - name: Start Minikube
         run: minikube start --cpus 4 --memory 10485
 
-      - name: Checkout repo (instill-core)
+      - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          repository: instill-ai/instill-core
 
-      - name: Load .env file (instill-core)
+      - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
