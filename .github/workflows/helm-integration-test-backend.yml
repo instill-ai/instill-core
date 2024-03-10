@@ -40,8 +40,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -111,7 +109,7 @@ jobs:
     # disable the mac test temporary
     # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, vdp]
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -149,8 +147,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          repository: instill-ai/core
 
       - name: Load .env file
         uses: cardinalby/export-env-action@v2
@@ -226,7 +222,7 @@ jobs:
     # disable the mac test temporary
     # if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, vdp]
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0

@@ -11,7 +11,7 @@ jobs:
   helm-integration-test-latest-linux:
     if: inputs.target == 'latest'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -22,48 +22,67 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
 
       - name: Start Minikube
-        run: minikube start --cpus 2 --memory 6096
+        run: minikube start --cpus 4 --memory 10485
 
-      - name: Checkout repo (instill-core)
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Load .env file (instill-core)
+      - name: Load .env file
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
 
-      - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
-      - name: Launch Instill Core (latest)
+      - name: Launch Helm Instill Core (latest)
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false \
+            --set itMode.enabled=true \
             --set apiGateway.image.tag=latest \
             --set mgmtBackend.image.tag=latest \
+            --set pipelineBackend.image.tag=latest \
+            --set pipelineBackend.excludelocalconnector=false \
+            --set modelBackend.image.tag=latest \
+            --set controllerModel.image.tag=latest \
             --set console.image.tag=latest \
-            --set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
-            --set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
-            --set consoleURL=http://localhost:${CONSOLE_PORT}
+            --set rayService.image.tag=${RAY_SERVER_VERSION} \
+            --set rayService.headGroupSpec.resources.limits.cpu=0 \
+            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+            --set rayService.headGroupSpec.resources.requests.cpu=0 \
+            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].replicas=1 \
+            --set rayService.workerGroupSpecs[0].minReplicas=1 \
+            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+            --set rayService.workerGroupSpecs[0].groupName=test-group \
+            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+            --set tags.observability=false \
+            --set tags.prometheusStack=false
 
-      - name: Wait for core pods up
+      - name: Wait for all pods up
         run: |
           while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+            echo "$(kubectl get pods --namespace instill-ai)"
+          sleep 10
+          done
+          echo "$(kubectl get pods --namespace instill-ai)"
 
       - name: Port-forward of core api-gateway and console
         run: |
@@ -97,7 +116,7 @@ jobs:
     # disable the mac test temporary
     # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -106,99 +125,10 @@ jobs:
         run: |
           brew install make
 
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if Instill Core Helm release exists
-        id: check-core-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'core'; then
-            echo "Helm release 'core' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'core' not found."
-          fi
-
-      - name: Uninstall Instill Core Helm Release
-        if: steps.check-core-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-
-      - name: Install k6
-        run: |
-          brew install k6
-
-      - name: Launch Instill Core (latest)
-        run: |
-          make build-latest
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false \
-            --set apiGateway.image.tag=latest \
-            --set mgmtBackend.image.tag=latest \
-            --set console.image.tag=latest \
-            --set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            --set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            --set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
-
-      - name: Wait for core pods up
-        run: |
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-            sleep 10
-          done
-
-      - name: Port-forward of core api-gateway and console
-        run: |
-          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-          CONSOLE_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${CONSOLE_POD_NAME} ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-          while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Run console integration test (latest)
-        run: |
-          git clone https://github.com/instill-ai/console.git
-          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
-          docker run -t --rm \
-            -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
-            -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
-            -e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:${CONSOLE_PORT} \
-            -e NEXT_PUBLIC_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            -e NEXT_SERVER_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-            --entrypoint ./entrypoint-playwright.sh \
-            --name core-console-integration-test-latest \
-            console-playwright:latest
-
-      - name: Make down core helm chart
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Make down build-latest
-        run: |
-          pkill -f "port-forward"
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-
   helm-integration-test-release-linux:
     if: inputs.target == 'release'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -209,16 +139,18 @@ jobs:
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
 
-      - name: Free disk space
-        run: |
-          df --human-readable
-          sudo apt clean
-          docker rmi $(docker image ls --all --quiet)
-          rm --recursive --force "$AGENT_TOOLSDIRECTORY"
-          df --human-readable
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          overprovision-lvm: "true"
+          remove-dotnet: "true"
+          build-mount-path: "/var/lib/docker/"
+
+      - name: Restart docker
+        run: sudo service docker restart
 
       - name: Start Minikube
-        run: minikube start --cpus 2 --memory 6096
+        run: minikube start --cpus 4 --memory 10485
 
       - name: Checkout repo (instill-core)
         uses: actions/checkout@v3
@@ -228,29 +160,46 @@ jobs:
         with:
           envFile: .env
 
-      - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
-      - name: Launch Instill Core (release)
+      - name: Launch Helm Instill Core (release)
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false \
+            --set itMode.enabled=true \
             --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
             --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+            --set pipelineBackend.excludelocalconnector=false \
+            --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+            --set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
             --set console.image.tag=${CONSOLE_VERSION} \
-            --set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
-            --set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
-            --set consoleURL=http://localhost:${CONSOLE_PORT}
+            --set rayService.image.tag=${RAY_SERVER_VERSION} \
+            --set rayService.headGroupSpec.resources.limits.cpu=0 \
+            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+            --set rayService.headGroupSpec.resources.requests.cpu=0 \
+            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].replicas=1 \
+            --set rayService.workerGroupSpecs[0].minReplicas=1 \
+            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+            --set rayService.workerGroupSpecs[0].groupName=test-group \
+            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+            --set tags.observability=false \
+            --set tags.prometheusStack=false
 
-      - name: Wait for core pods up
+      - name: Wait for all pods up
         run: |
           while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+            echo "$(kubectl get pods --namespace instill-ai)"
+            sleep 10
+          done
+          echo "$(kubectl get pods --namespace instill-ai)"
 
       - name: Port-forward of core api-gateway and console
         run: |
@@ -281,10 +230,10 @@ jobs:
 
   helm-integration-test-release-mac:
     if: false
-    # disable the mac test temporary 
+    # disable the mac test temporary
     # if: inputs.target == 'release'
     runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.0
@@ -292,92 +241,3 @@ jobs:
       - name: Set up environment
         run: |
           brew install make
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Check if Instill Core Helm release exists
-        id: check-core-helm-release
-        run: |
-          if helm ls -n instill-ai | grep -q 'core'; then
-            echo "Helm release 'core' found."
-            echo "release_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Helm release 'core' not found."
-          fi
-
-      - name: Uninstall Instill Core Helm Release
-        if: steps.check-core-helm-release.outputs.release_exists == 'true'
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
-
-      - name: Install k6
-        run: |
-          brew install k6
-
-      - name: Launch Instill Core (release)
-        run: |
-          make build-release
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false \
-            --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
-            --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
-            --set console.image.tag=${CONSOLE_VERSION} \
-            --set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            --set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            --set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
-
-      - name: Wait for core pods up
-        run: |
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-            sleep 10
-          done
-
-      - name: Port-forward of core api-gateway and console
-        run: |
-          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-          CONSOLE_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${CONSOLE_POD_NAME} ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-          while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Run console integration test (release)
-        run: |
-          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
-          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
-          docker run -t --rm \
-            -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
-            -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
-            -e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:${CONSOLE_PORT} \
-            -e NEXT_PUBLIC_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            -e NEXT_SERVER_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
-            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-            --entrypoint ./entrypoint-playwright.sh \
-            --name core-console-integration-test-release \
-            console-playwright:${{ env.CONSOLE_VERSION }}
-
-      - name: Make down core helm chart
-        run: |
-          helm uninstall core --namespace instill-ai
-          kubectl delete namespace instill-ai
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Make down build-release
-        run: |
-          pkill -f "port-forward"
-          EDITION=NULL docker compose -f docker-compose.yml -f docker-compose-observe.yml down -v
