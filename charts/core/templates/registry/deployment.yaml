@@ -30,7 +30,7 @@ spec:
         {{- include "core.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: registry
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/etc/docker/registry/config.yml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/registry/configmap.yaml") . | sha256sum }}
         {{- with .Values.registry.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -49,18 +49,18 @@ spec:
       {{- end }}
       initContainers:
         - name: wait-for-redis
-          image: curlimages/curl:8.00.1
-          command: ['sh', '-c']
+          image:  {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          command: ['redis-cli', '-h']
           args:
-          - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${REDIS_ADDR}" != "200" ]]; do echo waiting for redis; sleep 1; done
+            - '$(REDIS_HOST)'
+            - 'ping'
           env:
-            - name: REDIS_ADDR
-              value: "{{ template "core.redis.addr" . }}"
+            - name: REDIS_HOST
+              value: "{{ template "core.redis" . }}"
       containers:
         - name: registry
           image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
           command:
           - /bin/registry
           - serve
@@ -82,9 +82,11 @@ spec:
             {{- toYaml .Values.registry.resources | nindent 12 }}
           {{- end }}
           ports:
-            - containerPort: {{ template "core.registry.port" . }}
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "core.registry.port" . }}
               protocol: TCP
-            - containerPort: {{ template "core.registry.metricsPort" . }}
+            - name: metrics
+              containerPort: {{ template "core.registry.metricsPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config

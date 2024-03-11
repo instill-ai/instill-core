@@ -6,5 +6,23 @@ metadata:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry
 data:
-  config.yaml: |-
-{{ toYaml .Values.registry.config}}
+  config.yaml: |+
+    version: {{ .Values.registry.config.version }}
+    log:
+      {{- toYaml .Values.registry.config.log | nindent 6 }}
+    storage:
+      {{- toYaml .Values.registry.config.storage | nindent 6 }}
+    http:
+      {{- toYaml .Values.registry.config.http | nindent 6 }}
+    redis:
+      {{- toYaml .Values.registry.config.redis | nindent 6 }}
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+      tcp:
+        - addr: {{ template "core.redis.addr" . }}
+          timeout: 3s
+          interval: 30s
+          threshold: 3

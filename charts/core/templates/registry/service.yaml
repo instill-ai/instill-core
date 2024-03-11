@@ -11,9 +11,11 @@ metadata:
   {{- end }}
 spec:
   ports:
-    - port: {{ template "core.registry.port" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ template "core.registry.port" . }}
       targetPort: {{ template "core.registry.port" . }}
-    - port: {{ template "core.registry.metricsPort" . }}
+    - name: metrics
+      port: {{ template "core.registry.metricsPort" . }}
       targetPort: {{ template "core.registry.metricsPort" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}

@@ -1177,7 +1177,6 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   mode: deployment
@@ -1386,37 +1385,16 @@ registry:
     tag: 2.8.3
     pullPolicy: IfNotPresent
   configPath: /etc/docker/registry/config.yml
-  # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
-  # -- Mount the service account token
   automountServiceAccountToken: false
-  # -- The number of replica for mgmt-backend
   replicaCount: 1
-  # -- Add extra env variables
   extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
   extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
   extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init containers
   extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
   sidecarContainers: {}
-  # -- Additional deployment annotations
   podAnnotations: {}
-  # -- Additional service annotations
   serviceAnnotations: {}
-  # -- The pod resource
   resources: {}
   nodeSelector: {}
   tolerations: []
@@ -1439,7 +1417,7 @@ registry:
       formatter: text
       fields:
         service: registry
-        environment: local:ce
+        environment: k8s:ce
     storage:
       filesystem:
         rootdirectory: /var/lib/registry
@@ -1460,13 +1438,13 @@ registry:
         readonly:
           enabled: false
     http:
-      addr: core-registry:5000
+      addr: 0.0.0.0:5000
       prefix: /
-      secret:
+      secret: i-love-instill-ai
       relativeurls: false
       draintimeout: 60s
       debug:
-        addr: core-registry:5001
+        addr: 0.0.0.0:5001
         prometheus:
           enabled: true
           path: /metrics
@@ -1487,16 +1465,6 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
-    health:
-      storagedriver:
-        enabled: true
-        interval: 10s
-        threshold: 3
-      tcp:
-        - addr: core-redis:6379
-          timeout: 3s
-          interval: 30s
-          threshold: 3
 tags:
   observability: true
   prometheusStack: false
