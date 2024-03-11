@@ -68,6 +68,9 @@ metadata:
   {{- range $key, $value := $registry.annotations }}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry

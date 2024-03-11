@@ -55,16 +55,24 @@ spec:
               items:
                 - key: cp_conda_env.sh
                   path: cp_conda_env.sh
-          - name: registry-configmap
+          - name: podman-configmap
             configMap:
-              name: registry
+              name: podman
               defaultMode: 0666
               items:
                 - key: registries.conf
                   path: registries.conf
+                - key: policy.json
+                  path: policy.json
+                - key: storage.conf
+                  path: storage.conf
         containers:
           - name: ray-head
             image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}
+            securityContext:
+              # for mounting /dev/fuse
+              # TODO: maybe implement a fuse-device-plugin-daemonset
+              privileged: true
             imagePullPolicy: Always
             {{- if .Values.rayService.headGroupSpec.resources }}
             resources:
@@ -77,13 +85,15 @@ spec:
                 value: http://core-grafana:80
               - name: RAY_PROMETHEUS_HOST
                 value: http://core-prometheus:9090
+              - name: RAY_worker_register_timeout_seconds
+                value: "360"
             volumeMounts:
               - mountPath: /ray-conda-pack
                 name: ray-conda
               - mountPath: /home/ray/script
                 name: cp-conda-env-configmap
               - mountPath: /etc/containers/
-                name: registry-configmap
+                name: podman-configmap
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -143,13 +153,15 @@ spec:
                 items:
                   - key: start_ray_serve.sh
                     path: start_ray_serve.sh
-            - name: registry-configmap
+            - name: podman-configmap
               configMap:
-                name: registry
+                name: podman
                 defaultMode: 0666
                 items:
                   - key: registries.conf
                     path: registries.conf
+                  - key: policy.json
+                    path: policy.json
           containers:
             - name: ray-worker
               image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}
@@ -179,7 +191,7 @@ spec:
                 - mountPath: /model-repository
                   name: model-repository
                 - mountPath: /etc/containers/
-                  name: registry-configmap
+                  name: podman-configmap
   {{- end }}
 ---
 apiVersion: v1
@@ -234,7 +246,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: registry
+  name: podman
 data:
   registries.conf: |
     unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
@@ -242,3 +254,19 @@ data:
     [[registry]]
     location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
     insecure = true
+  policy.json: |
+    {
+      "default": [
+        {
+          "type": "insecureAcceptAnything"
+        }
+      ],
+      "transports": {
+        "docker-daemon": {
+          "": [{ "type": "insecureAcceptAnything" }]
+        }
+      }
+    }
+  storage.conf: |
+    [storage]
+    driver = "overlay"
