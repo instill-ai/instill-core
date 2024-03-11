@@ -1,3 +1,4 @@
+{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,8 +37,9 @@ spec:
         {{- end }}
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
       {{- if .Values.registry.serviceAccountName }}
       serviceAccountName: {{ .Values.registry.serviceAccountName }}
       {{- end }}
@@ -92,6 +94,8 @@ spec:
             - name: config
               mountPath: {{ .Values.registry.configPath }}
               subPath: config.yaml
+            - name: data-volume
+              mountPath: /var/lib/registry
           {{- with .Values.registry.extraEnv }}
           env:
             {{- toYaml . | nindent 12 }}
@@ -100,6 +104,16 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.registry" . }}
+        - name: data-volume
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $registry.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $registry.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "core.registryDataVolume" . }}
+        {{- end }}
         {{- with .Values.registry.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

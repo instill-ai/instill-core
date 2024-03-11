@@ -55,6 +55,13 @@ spec:
               items:
                 - key: cp_conda_env.sh
                   path: cp_conda_env.sh
+          - name: registry-configmap
+            configMap:
+              name: registry
+              defaultMode: 0666
+              items:
+                - key: registries.conf
+                  path: registries.conf
         containers:
           - name: ray-head
             image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}
@@ -75,6 +82,8 @@ spec:
                 name: ray-conda
               - mountPath: /home/ray/script
                 name: cp-conda-env-configmap
+              - mountPath: /etc/containers/
+                name: registry-configmap
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -134,6 +143,13 @@ spec:
                 items:
                   - key: start_ray_serve.sh
                     path: start_ray_serve.sh
+            - name: registry-configmap
+              configMap:
+                name: registry
+                defaultMode: 0666
+                items:
+                  - key: registries.conf
+                    path: registries.conf
           containers:
             - name: ray-worker
               image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}
@@ -162,6 +178,8 @@ spec:
                   name: start-ray-serve-configmap
                 - mountPath: /model-repository
                   name: model-repository
+                - mountPath: /etc/containers/
+                  name: registry-configmap
   {{- end }}
 ---
 apiVersion: v1
@@ -212,3 +230,15 @@ data:
     serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
 
     echo "INFO: Start ray serve"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry
+data:
+  registries.conf: |
+    unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
+
+    [[registry]]
+    location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
+    insecure = true

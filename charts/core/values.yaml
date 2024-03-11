@@ -245,6 +245,13 @@ persistence:
       accessMode: ReadWriteOnce
       size: 128Mi
       annotations: {}
+    registry:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 250Gi
+      annotations: {}
 # -- The usage collector configuration
 usage:
   usageidentifieruid:
@@ -1080,7 +1087,7 @@ etcd:
 # -- The configuration of Redis
 redis:
   # -- If external Redis is used, set "enabled" to false
-  # and fill the connection informations in "external" section
+  # and fill the connection information in "external" section
   enabled: true
   # -- The image of redis
   image:
@@ -1109,7 +1116,7 @@ redis:
 # -- The configuration of Elasticsearch
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
-  # and fill the connection informations in "external" section
+  # and fill the connection information in "external" section
   enabled: true
   clusterName: core-elasticsearch
   replicas: 1

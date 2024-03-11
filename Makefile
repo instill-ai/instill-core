@@ -47,13 +47,13 @@ HELM_RELEASE_NAME := core
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
+	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@make build-release BUILD=${BUILD}
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		docker run --rm --name uuidgen ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@docker inspect --type=image instill/ray:${RAY_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
 		EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
 else
@@ -62,13 +62,13 @@ endif
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
+	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@make build-latest PROFILE=${PROFILE} BUILD=${BUILD}
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		docker run --rm --name uuidgen ${INSTILL_CORE_IMAGE_NAME}:latest uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
 		COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml -f - up -d --quiet-pull
 else

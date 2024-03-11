@@ -461,6 +461,10 @@ Persistent Volume Claims
   {{- printf "%s-ray-conda-data-volume" (include "core.fullname" .) -}}
 {{- end -}}
 
+{{- define "core.registryDataVolume" -}}
+  {{- printf "%s-registry-data-volume" (include "core.fullname" .) -}}
+{{- end -}}
+
 {{- define "core.databaseDataVolume" -}}
   {{- printf "%s-database-data-volume" (include "core.fullname" .) -}}
 {{- end -}}

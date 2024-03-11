@@ -57,6 +57,34 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
+{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
+{{- if not $registry.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "core.registryDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $registry.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+spec:
+  accessModes:
+    - {{ $registry.accessMode }}
+  resources:
+    requests:
+      storage: {{ $registry.size }}
+  {{- if $registry.storageClass }}
+    {{- if eq "-" $registry.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $registry.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- $database := .Values.persistence.persistentVolumeClaim.database -}}
 {{- if and (not $database.existingClaim) .Values.database.enabled }}
 ---
