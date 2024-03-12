@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.26.0-beta](https://github.com/instill-ai/instill-core/compare/v0.25.0-beta...v0.26.0-beta) (2024-03-12)
+
+
+### Features
+
+* **model:** support Llava 13b ([#442](https://github.com/instill-ai/instill-core/issues/442)) ([39bbf8c](https://github.com/instill-ai/instill-core/commit/39bbf8c21d055c791e21cccaa9ccdd14243ca094))
+
+
+### Bug Fixes
+
+* **docker-compose:** add `INSTILL_CORE_HOST` back for Console to connect to the backend properly ([#441](https://github.com/instill-ai/instill-core/issues/441)) ([601f963](https://github.com/instill-ai/instill-core/commit/601f96309bdd76e11faf6508874e2c220ccca8d8))
+
 ## [0.25.0-beta](https://github.com/instill-ai/instill-core/compare/v0.24.0-beta...v0.25.0-beta) (2024-03-02)
 
 
