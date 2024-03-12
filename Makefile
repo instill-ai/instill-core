@@ -37,6 +37,8 @@ INSTILL_CORE_VERSION := $(shell git tag --sort=committerdate | grep -E '[0-9]' |
 
 INSTILL_CORE_BUILD_CONTAINER_NAME := instill-core-build
 INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME := instill-core-integration-test
+INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME := instill-core-console-integration-test
+INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME := instill/console-playwright
 
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := core
@@ -74,7 +76,7 @@ else
 endif
 
 .PHONY: build-latest
-build-latest:				## Build latest images for all VDP components
+build-latest:				## Build latest images for all Instill Core components
 	@docker build --progress plain \
 		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -100,7 +102,7 @@ build-latest:				## Build latest images for all VDP components
 	fi
 
 .PHONY: build-release
-build-release:				## Build release images for all VDP components
+build-release:				## Build release images for all Instill Core components
 	@docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -278,6 +280,198 @@ else ifeq ($(UNAME_S),Linux)
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"
+endif
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
+
+.PHONY: console-integration-test-latest
+console-integration-test-latest:			## Run console integration test on the latest Instill Core
+	@make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@docker run --rm \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://${CONSOLE_HOST}:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		--network instill-network \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:latest
+	@make down
+
+.PHONY: console-integration-test-release
+console-integration-test-release:			## Run console integration test on the release Instill Core
+	@make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@docker run --rm \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://${CONSOLE_HOST}:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		--network instill-network \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-release \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:${CONSOLE_VERSION}
+	@make down
+
+.PHONY: console-helm-integration-test-latest
+console-helm-integration-test-latest:                       ## Run console integration test on the Helm latest for Instill Core
+	@make build-latest  BUILD=true
+ifeq ($(UNAME_S),Darwin)
+	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set itMode.enabled=true \
+		--set tags.observability=false \
+		--set tags.prometheusStack=false \
+		--set apiGateway.image.tag=latest \
+		--set mgmtBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.excludelocalconnector=false \
+		--set modelBackend.image.tag=latest \
+		--set controllerModel.image.tag=latest \
+		--set console.image.tag=latest \
+		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
+else ifeq ($(UNAME_S),Linux)
+	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set itMode.enabled=true \
+		--set tags.observability=false \
+		--set tags.prometheusStack=false \
+		--set apiGateway.image.tag=latest \
+		--set mgmtBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.excludelocalconnector=false \
+		--set modelBackend.image.tag=latest \
+		--set controllerModel.image.tag=latest \
+		--set console.image.tag=latest \
+		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
+		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
+		--set consoleURL=http://localhost:${CONSOLE_PORT}
+endif
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${CONSOLE_POD_NAME} ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
+ifeq ($(UNAME_S),Darwin)
+	@docker run --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:latest
+else ifeq ($(UNAME_S),Linux)
+	@docker run --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--network host \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:latest
+endif
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
+
+.PHONY: console-helm-integration-test-release
+console-helm-integration-test-release:                       ## Run console integration test on the Helm release for Instill Core
+	@make build-release  BUILD=true
+ifeq ($(UNAME_S),Darwin)
+	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set itMode.enabled=true \
+		--set tags.observability=false \
+		--set tags.prometheusStack=false \
+		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set pipelineBackend.excludelocalconnector=false \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
+else ifeq ($(UNAME_S),Linux)
+	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set itMode.enabled=true \
+		--set tags.observability=false \
+		--set tags.prometheusStack=false \
+		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set pipelineBackend.excludelocalconnector=false \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
+		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
+		--set consoleURL=http://localhost:${CONSOLE_PORT}
+endif
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${CONSOLE_POD_NAME} ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
+	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+	@while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
+ifeq ($(UNAME_S),Darwin)
+	@docker run --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://host.docker.internal:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://host.docker.internal:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:${CONSOLE_VERSION}
+else ifeq ($(UNAME_S),Linux)
+	@docker run --rm \
+		-e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:${CONSOLE_PORT} \
+		-e NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
+		-e NEXT_SERVER_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
+		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
+		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
+		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
+		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
+		-e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
+		--network host \
+		--entrypoint ./entrypoint-playwright.sh \
+		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:${CONSOLE_VERSION}
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
 	@kubectl delete namespace instill-ai
