@@ -1417,6 +1417,10 @@ registry:
     spec:
       minAvailable:
       maxUnavailable:
+  garbageCollect:
+    enabled: false
+    deleteUntagged: true
+    schedule: "@midnight"
   config:
     version: 0.1
     log:
@@ -1438,7 +1442,7 @@ registry:
         blobdescriptorsize: 10000
       maintenance:
         uploadpurging:
-          enabled: false
+          enabled: true
           age: 168h
           interval: 24h
           dryrun: false
