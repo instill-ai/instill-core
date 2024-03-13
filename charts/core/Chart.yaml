@@ -2,8 +2,8 @@ apiVersion: v2
 name: core
 description: The Helm chart of Instill Core
 type: application
-version: 0.1.27-beta #! auto-updated by the CI workflow
-appVersion: 0.25.0-beta #! auto-updated by the CI workflow
+version: 0.1.28-beta #! auto-updated by the CI workflow
+appVersion: 0.26.0-beta #! auto-updated by the CI workflow
 keywords:
   - unstructured data
   - pipeline
