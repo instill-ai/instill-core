@@ -412,13 +412,9 @@ services:
     container_name: ${RAY_SERVER_HOST}
     image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
     # for dind podman
-    cap_add:
-      - sys_admin
-      - mknod
+    privileged: true
     devices:
       - "/dev/fuse"
-    security_opt:
-      - "seccomp=unconfined"
     restart: unless-stopped
     environment:
       - RAY_ADDRESS=0.0.0.0:6379
@@ -429,7 +425,10 @@ services:
       - RAY_worker_register_timeout_seconds=360
     entrypoint: ["/bin/bash", "-c"]
     command: |
-      'ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
+      'if [[ $${NVIDIA_VISIBLE_DEVICES} == all ]]; then
+        sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+      fi &&
+      ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
