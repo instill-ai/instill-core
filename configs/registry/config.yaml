@@ -1,0 +1,73 @@
+version: 0.1
+log:
+  level: debug
+  formatter: text
+  fields:
+    service: registry
+    environment: local:ce
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+    maxthreads: 100
+  delete:
+    enabled: true
+  redirect:
+    disable: false
+  cache:
+    blobdescriptor: redis
+    blobdescriptorsize: 10000
+  maintenance:
+    uploadpurging:
+      enabled: false
+      age: 168h
+      interval: 24h
+      dryrun: false
+    readonly:
+      enabled: false
+http:
+  addr: 0.0.0.0:5000
+  prefix: /
+  secret: asecretforlocaldevelopment
+  relativeurls: false
+  draintimeout: 60s
+  debug:
+    addr: 0.0.0.0:5001
+    prometheus:
+      enabled: true
+      path: /metrics
+  headers:
+    X-Content-Type-Options: [nosniff]
+  http2:
+    disabled: false
+  h2c:
+    enabled: false
+redis:
+  addr: redis:6379
+  dialtimeout: 100ms
+  readtimeout: 100ms
+  writetimeout: 100ms
+  pool:
+    maxidle: 16
+    maxactive: 128
+    idletimeout: 300s
+  tls:
+    enabled: false
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+  http:
+    #  Check Instill Artifact
+    # - uri: http://server.to.check/must/return/200
+    #   headers:
+    #     Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
+    #   statuscode: 200
+    #   timeout: 3s
+    #   interval: 10s
+    #   threshold: 3
+  tcp:
+    - addr: redis:6379
+      timeout: 3s
+      interval: 30s
+      threshold: 3

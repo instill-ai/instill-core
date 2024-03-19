@@ -245,6 +245,13 @@ persistence:
       accessMode: ReadWriteOnce
       size: 128Mi
       annotations: {}
+    registry:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 250Gi
+      annotations: {}
 # -- The usage collector configuration
 usage:
   usageidentifieruid:
@@ -1080,7 +1087,7 @@ etcd:
 # -- The configuration of Redis
 redis:
   # -- If external Redis is used, set "enabled" to false
-  # and fill the connection informations in "external" section
+  # and fill the connection information in "external" section
   enabled: true
   # -- The image of redis
   image:
@@ -1109,7 +1116,7 @@ redis:
 # -- The configuration of Elasticsearch
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
-  # and fill the connection informations in "external" section
+  # and fill the connection information in "external" section
   enabled: true
   clusterName: core-elasticsearch
   replicas: 1
@@ -1177,7 +1184,6 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   mode: deployment
@@ -1379,6 +1385,97 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
+  # -- The configuration of registry
+registry:
+  image:
+    repository: registry
+    tag: 2.8.3
+    pullPolicy: IfNotPresent
+  configPath: /etc/docker/registry/config.yml
+  serviceAccountName: ""
+  automountServiceAccountToken: false
+  replicaCount: 1
+  extraEnv: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  extraInitContainers: []
+  sidecarContainers: {}
+  podAnnotations: {}
+  serviceAnnotations: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetAverageMemoryUtilization:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+  garbageCollect:
+    enabled: false
+    deleteUntagged: true
+    schedule: "@midnight"
+  config:
+    version: 0.1
+    log:
+      level: Info
+      formatter: text
+      fields:
+        service: registry
+        environment: k8s:ce
+    storage:
+      filesystem:
+        rootdirectory: /var/lib/registry
+        maxthreads: 100
+      delete:
+        enabled: true
+      redirect:
+        disable: false
+      cache:
+        blobdescriptor: redis
+        blobdescriptorsize: 10000
+      maintenance:
+        uploadpurging:
+          enabled: true
+          age: 168h
+          interval: 24h
+          dryrun: false
+        readonly:
+          enabled: false
+    http:
+      addr: 0.0.0.0:5000
+      prefix: /
+      secret: i-love-instill-ai
+      relativeurls: false
+      draintimeout: 60s
+      debug:
+        addr: 0.0.0.0:5001
+        prometheus:
+          enabled: true
+          path: /metrics
+      headers:
+        X-Content-Type-Options: [nosniff]
+      http2:
+        disabled: false
+      h2c:
+        enabled: false
+    redis:
+      addr: core-redis:6379
+      dialtimeout: 100ms
+      readtimeout: 100ms
+      writetimeout: 100ms
+      pool:
+        maxidle: 16
+        maxactive: 128
+        idletimeout: 300s
+      tls:
+        enabled: false
 tags:
   observability: true
   prometheusStack: false

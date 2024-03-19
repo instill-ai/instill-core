@@ -95,3 +95,6 @@ data:
     openfga:
       host: {{ template "core.openfga" . }}
       port: 8080
+    registry:
+      host: {{ template "core.registry" . }}
+      port: {{ template "core.registry.port" . }}

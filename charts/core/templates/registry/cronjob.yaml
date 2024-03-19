@@ -1,0 +1,70 @@
+{{- if .Values.registry.garbageCollect.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "core.registry" . }}-garbage-collector
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+spec:
+  concurrencyPolicy: Forbid
+  schedule: {{ .Values.registry.garbageCollect.schedule | quote }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: registry
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/registry/configmap.yaml") . | sha256sum }}
+        {{- with .Values.registry.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      template:
+        spec:
+          {{- if .Values.registry.serviceAccountName }}
+          serviceAccountName: {{ .Values.registry.serviceAccountName }}
+          {{- end }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+          containers:
+            - name: garbage-collect
+              image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
+              imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
+              command:
+              - /bin/registry
+              - garbage-collect
+              - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
+              - /etc/docker/registry/config.yml
+              securityContext:
+                runAsUser: 65534
+                runAsGroup: 65534
+                fsGroup: 65534
+              volumeMounts:
+                - name: config
+                  mountPath: {{ .Values.registry.configPath }}
+                  subPath: config.yaml
+          restartPolicy: OnFailure
+          {{- with .Values.registry.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.registry.affinity }}
+          affinity:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.registry.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          volumes:
+            - name: config
+              configMap:
+                name: {{ template "core.registry" . }}
+{{- end }}
