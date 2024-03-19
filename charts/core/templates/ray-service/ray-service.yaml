@@ -169,7 +169,14 @@ spec:
               lifecycle:
                 postStart:
                   exec:
-                    command: ["/bin/sh","-c","/home/ray/script/start_ray_serve.sh"]
+                    command:
+                      - "/bin/bash"
+                      - "-c"
+                      - >
+                        if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                          sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+                        fi;
+                        /home/ray/script/start_ray_serve.sh
                 preStop:
                   exec:
                     command: ["/bin/sh","-c","ray stop"]
