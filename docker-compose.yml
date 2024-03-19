@@ -411,6 +411,10 @@ services:
   ray_server:
     container_name: ${RAY_SERVER_HOST}
     image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
+    # for dind podman
+    privileged: true
+    devices:
+      - "/dev/fuse"
     restart: unless-stopped
     environment:
       - RAY_ADDRESS=0.0.0.0:6379
@@ -418,14 +422,20 @@ services:
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://localhost:${GRAFANA_PORT}
+      - RAY_worker_register_timeout_seconds=360
     entrypoint: ["/bin/bash", "-c"]
     command: |
-      'ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
+      'if [[ $${NVIDIA_VISIBLE_DEVICES} == all ]]; then
+        sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+      fi &&
+      ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
       - model_repository:/model-repository
       - ray_conda:/home/ray/anaconda3/
+      - /var/lib/containers:/var/lib/containers
+      - ${CONFIG_DIR_PATH}/registry/registries.conf:/etc/containers/registries.conf
     healthcheck:
       test: ["CMD", "ray", "status"]
       start_period: 20s
@@ -576,3 +586,13 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+
+  registry:
+    container_name: ${REGISTRY_HOST}
+    image: ${REGISTRY_IMAGE}:${REGISTRY_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
+    depends_on:
+      redis:
+        condition: service_healthy

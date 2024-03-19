@@ -385,6 +385,21 @@ openfga
 {{- end -}}
 
 {{/*
+registry
+*/}}
+{{- define "core.registry" -}}
+  {{- printf "%s-registry" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.registry.port" -}}
+  {{- printf "5000" -}}
+{{- end -}}
+
+{{- define "core.registry.metricsPort" -}}
+  {{- printf "5001" -}}
+{{- end -}}
+
+{{/*
 internal TLS secret names
 */}}
 {{- define "core.internalTLS.apiGateway.secretName" -}}
@@ -444,6 +459,10 @@ Persistent Volume Claims
 
 {{- define "core.rayCondaDataVolume" -}}
   {{- printf "%s-ray-conda-data-volume" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.registryDataVolume" -}}
+  {{- printf "%s-registry-data-volume" (include "core.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.databaseDataVolume" -}}

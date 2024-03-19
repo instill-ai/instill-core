@@ -167,3 +167,7 @@ services:
   etcd:
     ports:
       - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}
+
+  registry:
+    ports:
+      - ${REGISTRY_PORT}:5000
