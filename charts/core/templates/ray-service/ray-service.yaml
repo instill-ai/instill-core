@@ -112,7 +112,14 @@ spec:
             lifecycle:
               postStart:
                 exec:
-                  command: ["/bin/sh","-c","/home/ray/script/cp_conda_env.sh"]
+                  command:
+                    - "/bin/bash"
+                    - "-c"
+                    - >
+                      if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                        sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+                      fi;
+                      /home/ray/script/cp_conda_env.sh
               preStop:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
@@ -165,7 +172,13 @@ spec:
           containers:
             - name: ray-worker
               image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}
+              securityContext:
+                # for newuidmap
+                privileged: true
               imagePullPolicy: Always
+              env:
+                - name: RAY_worker_register_timeout_seconds
+                  value: "360"
               lifecycle:
                 postStart:
                   exec:
