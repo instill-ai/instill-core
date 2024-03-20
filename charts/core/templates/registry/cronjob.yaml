@@ -1,3 +1,4 @@
+{{- if .Values.registry.enabled -}}
 {{- if .Values.registry.garbageCollect.enabled }}
 apiVersion: batch/v1
 kind: CronJob
@@ -67,4 +68,5 @@ spec:
             - name: config
               configMap:
                 name: {{ template "core.registry" . }}
+{{- end }}
 {{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.registry.enabled -}}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -129,3 +130,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.registry.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,3 +27,4 @@ data:
           timeout: 3s
           interval: 30s
           threshold: 3
+{{- end }}
