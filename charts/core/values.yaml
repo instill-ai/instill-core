@@ -1387,6 +1387,7 @@ openfga:
       maxUnavailable:
   # -- The configuration of registry
 registry:
+  enabled: false
   image:
     repository: registry
     tag: 2.8.3

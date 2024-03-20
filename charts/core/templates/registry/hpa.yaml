@@ -1,3 +1,4 @@
+{{- if .Values.registry.enabled -}}
 {{- if .Values.registry.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -29,5 +30,6 @@ spec:
         target:
           type: AverageValue
           averageValue: {{ . }}
+{{- end }}
 {{- end }}
 {{- end }}
