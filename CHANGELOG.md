@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.1-beta](https://github.com/instill-ai/instill-core/compare/v0.26.0-beta...v0.26.1-beta) (2024-03-20)
+
+
+### Miscellaneous Chores
+
+* release v0.26.1-beta ([1a7506c](https://github.com/instill-ai/instill-core/commit/1a7506cf1fa14297cba957903c16c149a1ec89ad))
+
 ## [0.26.0-beta](https://github.com/instill-ai/instill-core/compare/v0.25.0-beta...v0.26.0-beta) (2024-03-13)
 
 
