@@ -68,7 +68,8 @@ spec:
                   path: storage.conf
         containers:
           - name: ray-head
-            image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}
+            # we need to have access to GPU for some reason in order to `podman run` gpu container in worker node
+            image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}-gpu
             securityContext:
               # for mounting /dev/fuse
               # TODO: maybe implement a fuse-device-plugin-daemonset
@@ -130,8 +131,11 @@ spec:
       maxReplicas: {{ $workerGroupSpecs.maxReplicas }}
       groupName: {{ $workerGroupSpecs.groupName }}
       rayStartParams:
+        {{- if $workerGroupSpecs.gpuWorkerGroup.customResource }}
+        resources: {{ $workerGroupSpecs.gpuWorkerGroup.customResource }}
+        {{- end }}
         disable-usage-stats: "true"
-      #pod template
+      # pod template
       template:
         spec:
           {{- with $workerGroupSpecs.nodeSelector }}
@@ -171,7 +175,7 @@ spec:
                     path: policy.json
           containers:
             - name: ray-worker
-              image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}
+              image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}{{ ternary "-gpu" "" $workerGroupSpecs.gpuWorkerGroup.enabled }}
               securityContext:
                 # for newuidmap
                 privileged: true
