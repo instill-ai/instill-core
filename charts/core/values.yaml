@@ -700,11 +700,13 @@ rayService:
   headGroupSpec:
     resources:
       limits:
-        cpu: "2"
+        cpu: "0"
         memory: "4Gi"
+        nvidia.com/gpu: 0
       requests:
-        cpu: "2"
+        cpu: "0"
         memory: "4Gi"
+        nvidia.com/gpu: 0
     affinity: {}
     nodeSelector: {}
   workerGroupSpecs:
@@ -714,6 +716,8 @@ rayService:
       groupName: "cpu-group"
       gpuWorkerGroup:
         enabled: false
+        # https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/kuberay/ray-cluster.complete.yaml#L39
+        customResource: # "'\"{\\\"3060\\\": 1}\"'"
         resources:
           limits:
             cpu: "2"
