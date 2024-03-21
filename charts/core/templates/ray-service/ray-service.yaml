@@ -68,8 +68,14 @@ spec:
                   path: storage.conf
         containers:
           - name: ray-head
-            # we need to have access to GPU for some reason in order to `podman run` gpu container in worker node
-            image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}-gpu
+            # ray-head need to have access to GPU for some reason in order to `podman run` gpu container in ray-worker node
+            {{- $gpuTag := "" }}
+            {{- range $workerGroupSpecs := .Values.rayService.workerGroupSpecs }}
+              {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
+                {{- $gpuTag = "-gpu" }}
+              {{- end }}
+            {{- end }}
+            image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}{{ $gpuTag }}
             securityContext:
               # for mounting /dev/fuse
               # TODO: maybe implement a fuse-device-plugin-daemonset
