@@ -19,6 +19,7 @@ data:
     # mgmt-backend
     MGMT_BACKEND_HOST={{ template "core.mgmtBackend" . }}
     MGMT_BACKEND_PUBLICPORT={{ template "core.mgmtBackend.publicPort" . }}
+    MGMT_BACKEND_PRIVATEPORT={{ template "core.mgmtBackend.privatePort" . }}
 
     # pipeline-backend
     PIPELINE_BACKEND_HOST={{ template "core.pipelineBackend" . }}
@@ -36,3 +37,7 @@ data:
     JAEGER_ENABLED={{ .Values.tags.observability }}
     JAEGER_HOST={{ template "core.jaeger" . }}
     JAEGER_PORT={{ template "core.jaeger.port" . }}
+
+    # registry
+    REGISTRY_HOST={{ template "core.registry" . }}
+    REGISTRY_PORT={{ template "core.registry.port" . }}
