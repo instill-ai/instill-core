@@ -1,3 +1,4 @@
+{{- if .Values.tags.model -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -46,3 +47,4 @@ data:
         cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
         key: /etc/instill-ai/model/ssl/mgmt/tls.key
       {{- end }}
+{{- end }}

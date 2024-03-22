@@ -1482,5 +1482,6 @@ registry:
       tls:
         enabled: false
 tags:
+  model: true
   observability: true
   prometheusStack: false

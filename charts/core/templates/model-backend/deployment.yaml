@@ -1,3 +1,4 @@
+{{- if .Values.tags.model -}}
 {{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
 {{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: apps/v1
@@ -248,3 +249,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
