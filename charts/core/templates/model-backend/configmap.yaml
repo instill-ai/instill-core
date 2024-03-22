@@ -1,3 +1,4 @@
+{{- if .Values.tags.model -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -98,3 +99,4 @@ data:
     registry:
       host: {{ template "core.registry" . }}
       port: {{ template "core.registry.port" . }}
+{{- end }}

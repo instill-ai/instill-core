@@ -1,3 +1,4 @@
+{{- if .Values.tags.model -}}
 {{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
 {{- if .Values.modelBackend.initModel.enabled -}}
 apiVersion: batch/v1
@@ -88,4 +89,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}

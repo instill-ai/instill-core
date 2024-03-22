@@ -21,10 +21,14 @@ dependencies:
   - name: kuberay-operator
     repository: https://ray-project.github.io/kuberay-helm/
     version: 1.0.0
+    tags:
+      - model
   - name: etcd
     repository: https://charts.bitnami.com/bitnami
     version: 8.8.1
     condition: etcd.enabled
+    tags:
+      - model
   - name: elasticsearch
     repository: https://helm.elastic.co
     version: 7.17.3
