@@ -336,25 +336,6 @@ services:
       model_backend:
         condition: service_healthy
 
-  controller_model:
-    container_name: ${CONTROLLER_MODEL_HOST}
-    image: ${CONTROLLER_MODEL_IMAGE}:${CONTROLLER_MODEL_VERSION}
-    restart: unless-stopped
-    environment:
-      CFG_SERVER_DEBUG: "false"
-      CFG_SERVER_EDITION: ${EDITION}
-      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
-      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
-      CFG_DATABASE_USERNAME: postgres
-      CFG_DATABASE_PASSWORD: password
-      CFG_ETCD_HOST: ${ETCD_HOST}
-      CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    entrypoint: ./controller-model
-    volumes:
-      - model_repository:/model-repository
-
   artifact_backend:
     container_name: ${ARTIFACT_BACKEND_HOST}
     image: ${ARTIFACT_BACKEND_IMAGE}:${ARTIFACT_BACKEND_VERSION}

@@ -44,14 +44,6 @@ data:
         cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
         key: /etc/instill-ai/model/ssl/mgmt/tls.key
       {{- end }}
-    controller:
-      host: {{ template "core.controllerModel" . }}
-      privateport: {{ template "core.controllerModel.privatePort" . }}
-      {{- if .Values.internalTLS.enabled }}
-      https:
-        cert: /etc/instill-ai/model/ssl/controller/tls.crt
-        key: /etc/instill-ai/model/ssl/controller/tls.key
-      {{- end }}
     rayserver:
       grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
       modelstore: /model-repository

@@ -154,18 +154,6 @@ model-backend
 {{- end -}}
 
 {{/*
-controller-model
-*/}}
-{{- define "core.controllerModel" -}}
-  {{- printf "%s-controller-model" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{/* controller-model service and container private port */}}
-{{- define "core.controllerModel.privatePort" -}}
-  {{- printf "3086" -}}
-{{- end -}}
-
-{{/*
 artifact-backend
 */}}
 {{- define "core.artifactBackend" -}}
@@ -448,14 +436,6 @@ internal TLS secret names
     {{- .Values.internalTLS.modelBackend.secretName -}}
   {{- else -}}
     {{- printf "%s-model-backend-internal-tls" (include "core.fullname" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.internalTLS.controllerModel.secretName" -}}
-  {{- if eq .Values.internalTLS.certSource "secret" -}}
-    {{- .Values.internalTLS.controllerModel.secretName -}}
-  {{- else -}}
-    {{- printf "%s-controller-model-internal-tls" (include "core.fullname" .) -}}
   {{- end -}}
 {{- end -}}
 

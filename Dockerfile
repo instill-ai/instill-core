@@ -33,7 +33,6 @@ RUN git clone https://github.com/instill-ai/mgmt-backend.git
 RUN git clone https://github.com/instill-ai/console.git
 RUN git clone https://github.com/instill-ai/pipeline-backend.git
 RUN git clone https://github.com/instill-ai/model-backend.git
-RUN git clone https://github.com/instill-ai/controller-model.git
 RUN git clone https://github.com/instill-ai/artifact-backend.git
 
 FROM alpine:${ALPINE_VERSION} AS release
@@ -48,11 +47,10 @@ RUN echo "Instill Core release codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION CONTROLLER_MODEL_VERSION ARTIFACT_BACKEND_VERSION
+ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION ARTIFACT_BACKEND_VERSION
 RUN git clone -b v${API_GATEWAY_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
 RUN git clone -b v${MGMT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/mgmt-backend.git
 RUN git clone -b v${CONSOLE_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/console.git
 RUN git clone -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
 RUN git clone -b v${MODEL_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/model-backend.git
-RUN git clone -b v${CONTROLLER_MODEL_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/controller-model.git
 RUN git clone -b v${ARTIFACT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/artifact-backend.git
