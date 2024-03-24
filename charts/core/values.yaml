@@ -1435,9 +1435,25 @@ registry:
         service: registry
         environment: k8s:ce
     storage:
+      type: filesystem
       filesystem:
         rootdirectory: /var/lib/registry
         maxthreads: 100
+      gcs:
+        bucket:
+        keyfile:
+        credentials:
+          type:
+          project_id:
+          private_key_id:
+          private_key:
+          client_email:
+          client_id:
+          auth_uri:
+          token_uri:
+          auth_provider_x509_cert_url:
+          client_x509_cert_url:
+        rootdirectory:
       delete:
         enabled: true
       redirect:

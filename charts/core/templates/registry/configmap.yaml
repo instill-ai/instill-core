@@ -12,7 +12,13 @@ data:
     log:
       {{- toYaml .Values.registry.config.log | nindent 6 }}
     storage:
-      {{- toYaml .Values.registry.config.storage | nindent 6 }}
+      {{- if eq .Values.registry.config.storage.type "gcs" }}
+      gcs:
+        {{- toYaml .Values.registry.config.storage.gcs | nindent 8 }}
+      {{- else }}
+      filesystem:
+        {{- toYaml .Values.registry.config.storage.filesystem | nindent 8 }}
+      {{- end }}
     http:
       {{- toYaml .Values.registry.config.http | nindent 6 }}
     redis:
