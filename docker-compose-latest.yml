@@ -165,10 +165,6 @@ services:
     ports:
       - ${REDIS_PORT}:6379
 
-  etcd:
-    ports:
-      - ${ETCD_CLIENT_PORT}:${ETCD_CLIENT_PORT}
-
   registry:
     ports:
       - ${REGISTRY_EXTERNAL_PORT}:5000

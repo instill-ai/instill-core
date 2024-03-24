@@ -39,16 +39,6 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         volumes:
-          - name: ray-conda
-          {{- if not $.Values.persistence.enabled }}
-            emptyDir: {}
-          {{- else if $rayConda.existingClaim }}
-            persistentVolumeClaim:
-              claimName: {{ $rayConda.existingClaim }}
-          {{- else }}
-            persistentVolumeClaim:
-              claimName: {{ template "core.rayCondaDataVolume" . }}
-          {{- end }}
           - name: cp-conda-env-configmap
             configMap:
               name: cp-conda-env
@@ -96,8 +86,6 @@ spec:
               - name: RAY_worker_register_timeout_seconds
                 value: "360"
             volumeMounts:
-              - mountPath: /ray-conda-pack
-                name: ray-conda
               - mountPath: /home/ray/script
                 name: cp-conda-env-configmap
               - mountPath: /etc/containers/
@@ -224,32 +212,6 @@ spec:
                 - mountPath: /etc/containers/
                   name: podman-configmap
   {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-conda-env
-data:
-  cp_conda_env.sh: |
-    #!/bin/bash
-
-    # wait for ray cluster to finish initialization
-    while true; do
-        ray health-check 2>/dev/null
-        if [ "$?" = "0" ]; then
-            break
-        else
-            echo "INFO: waiting for ray head to start"
-            sleep 1
-        fi
-    done
-
-    echo "INFO: copying Conda env to the shared folder /ray-conda-pack"
-
-    sudo chown -R 1000:100 /ray-conda-pack
-    cp -r /home/ray/anaconda3/* /ray-conda-pack
-
-    echo "INFO: Conda env copying done"
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -1091,15 +1091,6 @@ database:
     port:
     username:
     password:
-# -- The configuration of etcd
-etcd:
-  persistence:
-    enabled: false
-  auth:
-    rbac:
-      create: false
-  autoCompactionMode: revision
-  autoCompactionRetention: 1
 # -- The configuration of Redis
 redis:
   # -- If external Redis is used, set "enabled" to false

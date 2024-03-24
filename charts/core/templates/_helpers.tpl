@@ -335,21 +335,6 @@ redis address host:port
 {{- end -}}
 
 {{/*
-etcd
-*/}}
-{{- define "core.etcd" -}}
-  {{- printf "%s-etcd" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.etcd.clientPort" -}}
-  {{- printf "2379" -}}
-{{- end -}}
-
-{{- define "core.etcd.peerPort" -}}
-  {{- printf "2380" -}}
-{{- end -}}
-
-{{/*
 influxdb
 */}}
 {{- define "core.influxdb" -}}
@@ -452,10 +437,6 @@ Persistent Volume Claims
 */}}
 {{- define "core.modelRepositoryDataVolume" -}}
   {{- printf "%s-model-repository-data-volume" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.rayCondaDataVolume" -}}
-  {{- printf "%s-ray-conda-data-volume" (include "core.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.registryDataVolume" -}}
