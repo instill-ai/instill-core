@@ -8,7 +8,6 @@ The Helm chart of Instill Core
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | etcd | 8.8.1 |
 | https://grafana.github.io/helm-charts | grafana | 7.0.19 |
 | https://helm.elastic.co | elasticsearch | 7.17.3 |
 | https://helm.influxdata.com | influxdb2 | 2.1.1 |
