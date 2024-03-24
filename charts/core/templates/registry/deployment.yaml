@@ -95,8 +95,10 @@ spec:
             - name: config
               mountPath: {{ .Values.registry.configPath }}
               subPath: config.yaml
+            {{- if eq .Values.registry.config.storage.type "filesystem" }}
             - name: data-volume
               mountPath: /var/lib/registry
+            {{- end }}
           {{- with .Values.registry.extraEnv }}
           env:
             {{- toYaml . | nindent 12 }}
@@ -105,6 +107,7 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.registry" . }}
+        {{- if eq .Values.registry.config.storage.type "filesystem" }}
         - name: data-volume
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
@@ -114,6 +117,7 @@ spec:
         {{- else }}
           persistentVolumeClaim:
             claimName: {{ template "core.registryDataVolume" . }}
+        {{- end }}
         {{- end }}
         {{- with .Values.registry.extraVolumes }}
         {{- toYaml . | nindent 8 }}
