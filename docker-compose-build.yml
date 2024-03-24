@@ -8,7 +8,6 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-model
-      - exclude-controller-model
     image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     build:
       context: ./${API_GATEWAY_HOST}
@@ -25,7 +24,6 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-model
-      - exclude-controller-model
     image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     build:
       context: ./${MGMT_BACKEND_HOST}
@@ -41,7 +39,6 @@ services:
       - exclude-mgmt
       - exclude-console
       - exclude-model
-      - exclude-controller-model
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     build:
       context: ./${PIPELINE_BACKEND_HOST}
@@ -57,7 +54,6 @@ services:
       - exclude-mgmt
       - exclude-console
       - exclude-pipeline
-      - exclude-controller-model
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     build:
       context: ./${MODEL_BACKEND_HOST}
@@ -68,22 +64,6 @@ services:
         UBUNTU_VERSION: ${UBUNTU_VERSION}
         ARTIVC_VERSION: ${ARTIVC_VERSION}
 
-  controller_model:
-    profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-    image: ${CONTROLLER_MODEL_IMAGE}:${CONTROLLER_MODEL_VERSION}
-    build:
-      context: ./${CONTROLLER_MODEL_HOST}
-      args:
-        SERVICE_NAME: ${CONTROLLER_MODEL_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
-
   console:
     profiles:
       - all
@@ -91,7 +71,6 @@ services:
       - exclude-mgmt
       - exclude-pipeline
       - exclude-model
-      - exclude-controller-model
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     build:
       context: ./${CONSOLE_HOST}
@@ -103,7 +82,6 @@ services:
       - exclude-mgmt
       - exclude-pipeline
       - exclude-model
-      - exclude-controller-model
     image: ${CONSOLE_IMAGE}-playwright:${CONSOLE_VERSION}
     build:
       context: ./${CONSOLE_HOST}
