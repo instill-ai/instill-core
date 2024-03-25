@@ -100,6 +100,12 @@ spec:
           imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
           args: ['run']
           env:
+            - name: OPENFGA_PLAYGROUND_ENABLED
+              value: "false"
+            - name: OPENFGA_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_METRICS_ENABLED
+              value: "false"
             - name: OPENFGA_DATASTORE_ENGINE
               value: postgres
             - name: PGDATABASE
@@ -115,6 +121,38 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+        {{- if .Values.database.external_replica }}
+        - name: openfga-read-replica
+          image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
+          imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          args: ['run']
+          env:
+            - name: OPENFGA_HTTP_ADDR
+              value: 0.0.0.0:8082
+            - name: OPENFGA_GRPC_ADDR
+              value: 0.0.0.0:8083
+            - name: OPENFGA_PLAYGROUND_ENABLED
+              value: "false"
+            - name: OPENFGA_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_ENGINE
+              value: postgres
+            - name: PGDATABASE
+              value: openfga
+            - name: PGHOST
+              value: "{{ default (include "core.database.host" .) .Values.database.external_replica.host }}"
+            - name: PGPORT
+              value: "{{ default (include "core.database.port" .) .Values.database.external_replica.port }}"
+            - name: PGUSER
+              value: "{{ default (include "core.database.username" .) .Values.database.external_replica.username }}"
+            - name: PGPASSWORD
+              value: "{{ default (include "core.database.rawPassword" .) .Values.database.external_replica.password }}"
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          {{- end }}
       {{- with .Values.openfga.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

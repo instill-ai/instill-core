@@ -97,3 +97,8 @@ data:
     openfga:
       host: {{ template "core.openfga" . }}
       port: 8080
+      {{- if .Values.database.external_replica }}
+      replica:
+        host: {{ template "core.openfga" . }}
+        port: 8082
+      {{- end }}
