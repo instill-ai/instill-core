@@ -1079,6 +1079,11 @@ database:
     port:
     username:
     password:
+  external_replica:
+    host:
+    port:
+    username:
+    password:
 # -- The configuration of etcd
 etcd:
   persistence:

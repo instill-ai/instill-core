@@ -55,6 +55,13 @@ data:
       password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
       host: {{ default (include "core.database.host" .) .Values.database.external.host }}
       port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      {{- if .Values.database.external_replica }}
+      replica:
+        username: {{ .Values.database.external_replica.username | default "" }}
+        password: {{ .Values.database.external_replica.password | default ""  }}
+        host: {{ .Values.database.external_replica.host | default ""  }}
+        port: {{ .Values.database.external_replica.port | default ""  }}
+      {{- end }}
       name: pipeline
       version: {{ .Values.pipelineBackend.dbVersion }}
       timezone: Etc/UTC
