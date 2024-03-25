@@ -170,4 +170,4 @@ services:
 
   registry:
     ports:
-      - ${REGISTRY_PORT}:5000
+      - ${REGISTRY_EXTERNAL_PORT}:5000
