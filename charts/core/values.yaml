@@ -207,20 +207,6 @@ persistence:
   # and redis components, i.e. they are never deleted automatically)
   resourcePolicy: "keep"
   persistentVolumeClaim:
-    modelRepository:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 500Gi
-      annotations: {}
-    rayConda:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 20Gi
-      annotations: {}
     # If external database is used, the following settings for database will be ignored
     database:
       existingClaim: ""
@@ -512,13 +498,6 @@ modelBackend:
     ownerid: admin
     enabled: false
     path: https://raw.githubusercontent.com/instill-ai/model/main/model-hub/model_hub_cpu.json
-  cache:
-    enabled: false
-    cache_dir: /model-repository/.cache/models
-    retentionperiod: 24h
-  github:
-    patenabled: false
-    pat:
   # -- Add extra env variables
   extraEnv: []
   # -- Mount external volumes

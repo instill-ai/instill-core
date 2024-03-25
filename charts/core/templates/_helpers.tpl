@@ -435,10 +435,6 @@ internal TLS secret names
 {{/*
 Persistent Volume Claims
 */}}
-{{- define "core.modelRepositoryDataVolume" -}}
-  {{- printf "%s-model-repository-data-volume" (include "core.fullname" .) -}}
-{{- end -}}
-
 {{- define "core.registryDataVolume" -}}
   {{- printf "%s-registry-data-volume" (include "core.fullname" .) -}}
 {{- end -}}

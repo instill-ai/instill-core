@@ -1,6 +1,4 @@
 {{- if .Values.tags.model -}}
-{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
-{{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
@@ -142,16 +140,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumes:
-            - name: model-repository
-            {{- if not $.Values.persistence.enabled }}
-              emptyDir: {}
-            {{- else if $modelRepository.existingClaim }}
-              persistentVolumeClaim:
-                claimName: {{ $modelRepository.existingClaim }}
-            {{- else }}
-              persistentVolumeClaim:
-                claimName: core-model-repository-data-volume
-            {{- end }}
             - name: start-ray-serve-configmap
               configMap:
                 name: start-ray-serve
@@ -207,8 +195,6 @@ spec:
               volumeMounts:
                 - mountPath: /home/ray/script
                   name: start-ray-serve-configmap
-                - mountPath: /model-repository
-                  name: model-repository
                 - mountPath: /etc/containers/
                   name: podman-configmap
   {{- end }}

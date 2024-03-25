@@ -9,10 +9,6 @@ volumes:
     name: vdp
   airbyte:
     name: airbyte
-  model_repository:
-    name: model-repository
-  model_cache:
-    name: model-cache
   elasticsearch_data:
     name: elasticsearch-data
 
@@ -248,7 +244,7 @@ services:
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
       CFG_RAYSERVER_GRPCURI: ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_GRPC_PORT}
-      CFG_RAYSERVER_MODELSTORE: /model-repository
+      CFG_RAYSERVER_MODELSTORE: /model-backend
       CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
@@ -260,9 +256,6 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    volumes:
-      - model_repository:/model-repository
-      - model_cache:/.cache
     command:
       - /bin/sh
       - -c
@@ -311,9 +304,6 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    volumes:
-      - model_repository:/model-repository
-      - model_cache:/.cache
     entrypoint: ./model-backend-worker
     depends_on:
       temporal:
@@ -455,7 +445,6 @@ services:
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
-      - model_repository:/model-repository
       - /var/lib/containers:/var/lib/containers
       - ${CONFIG_DIR_PATH}/registry/registries.conf:/etc/containers/registries.conf
     healthcheck:
