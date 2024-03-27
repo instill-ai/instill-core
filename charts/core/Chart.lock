@@ -1,7 +1,7 @@
 dependencies:
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm/
-  version: 1.0.0
+  version: 1.1.0
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 7.17.3
@@ -20,5 +20,5 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 7.0.19
-digest: sha256:cc5d2baa4d56e12db43d69005b7dadf02945026b89b5f011983b40d66116b58b
-generated: "2024-03-25T04:49:48.771126+08:00"
+digest: sha256:4fb82be1b3bba10a4ea2eae4c55164882c24086f17110bb33df2d8acc93062a5
+generated: "2024-03-28T02:23:03.306364+08:00"

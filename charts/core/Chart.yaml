@@ -20,7 +20,7 @@ maintainers:
 dependencies:
   - name: kuberay-operator
     repository: https://ray-project.github.io/kuberay-helm/
-    version: 1.0.0
+    version: 1.1.0
     tags:
       - model
   - name: elasticsearch
