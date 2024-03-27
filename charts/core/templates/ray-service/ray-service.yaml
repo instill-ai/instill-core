@@ -37,13 +37,6 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         volumes:
-          - name: cp-conda-env-configmap
-            configMap:
-              name: cp-conda-env
-              defaultMode: 0777
-              items:
-                - key: cp_conda_env.sh
-                  path: cp_conda_env.sh
           - name: podman-configmap
             configMap:
               name: podman
@@ -84,8 +77,6 @@ spec:
               - name: RAY_worker_register_timeout_seconds
                 value: "360"
             volumeMounts:
-              - mountPath: /home/ray/script
-                name: cp-conda-env-configmap
               - mountPath: /etc/containers/
                 name: podman-configmap
             ports:
@@ -110,10 +101,9 @@ spec:
                     - "/bin/bash"
                     - "-c"
                     - >
-                      if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                      if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                       fi;
-                      /home/ray/script/cp_conda_env.sh
               preStop:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
@@ -173,7 +163,7 @@ spec:
                       - "/bin/bash"
                       - "-c"
                       - >
-                        if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                        if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                           sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                         fi;
                         /home/ray/script/start_ray_serve.sh
