@@ -13,7 +13,7 @@ spec:
     upscalingMode: Default
     # idleTimeoutSeconds is the number of seconds to wait before scaling down a worker pod which is not using Ray resources.
     idleTimeoutSeconds: 60
-    imagePullPolicy: Always
+    imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
     securityContext: {}
     env: []
     envFrom: []
@@ -62,7 +62,7 @@ spec:
               # for mounting /dev/fuse
               # TODO: maybe implement a fuse-device-plugin-daemonset
               privileged: true
-            imagePullPolicy: Always
+            imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
             {{- if .Values.rayService.headGroupSpec.resources }}
             resources:
               {{- toYaml .Values.rayService.headGroupSpec.resources | nindent 14 }}
@@ -130,13 +130,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumes:
-            - name: start-ray-serve-configmap
-              configMap:
-                name: start-ray-serve
-                defaultMode: 0777
-                items:
-                  - key: start_ray_serve.sh
-                    path: start_ray_serve.sh
             - name: podman-configmap
               configMap:
                 name: podman
@@ -152,7 +145,7 @@ spec:
               securityContext:
                 # for newuidmap
                 privileged: true
-              imagePullPolicy: Always
+              imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
               env:
                 - name: RAY_worker_register_timeout_seconds
                   value: "360"
@@ -166,7 +159,14 @@ spec:
                         if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                           sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                         fi;
-                        /home/ray/script/start_ray_serve.sh
+                        while true; do
+                          ray health-check 2>/dev/null;
+                          if [ "$?" = "0" ]; then
+                              break;
+                          fi;
+                          sleep 1;
+                        done;
+                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
                 preStop:
                   exec:
                     command: ["/bin/sh","-c","ray stop"]
@@ -183,34 +183,9 @@ spec:
                 {{- toYaml $workerGroupSpecs.resources | nindent 16 }}
               {{- end }}
               volumeMounts:
-                - mountPath: /home/ray/script
-                  name: start-ray-serve-configmap
                 - mountPath: /etc/containers/
                   name: podman-configmap
   {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: start-ray-serve
-data:
-  start_ray_serve.sh: |
-    #!/bin/bash
-
-    # wait for ray cluster to finish initialization
-    while true; do
-        ray health-check 2>/dev/null
-        if [ "$?" = "0" ]; then
-            break
-        else
-            echo "INFO: waiting for ray head to start"
-            sleep 1
-        fi
-    done
-
-    serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
-
-    echo "INFO: Start ray serve"
 ---
 apiVersion: v1
 kind: ConfigMap
