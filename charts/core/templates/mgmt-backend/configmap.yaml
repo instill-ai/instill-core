@@ -38,6 +38,7 @@ data:
         password: {{ .Values.database.external_replica.password | default ""  }}
         host: {{ .Values.database.external_replica.host | default ""  }}
         port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
       {{- end }}
       name: mgmt
       version: {{ .Values.mgmtBackend.dbVersion }}
@@ -71,6 +72,7 @@ data:
       replica:
         host: {{ template "core.openfga" . }}
         port: 8082
+        replicationtimeframe: 1
       {{- end }}
     temporal:
       hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}

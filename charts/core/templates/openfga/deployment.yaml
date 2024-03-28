@@ -84,16 +84,8 @@ spec:
           env:
             - name: OPENFGA_DATASTORE_ENGINE
               value: postgres
-            - name: PGDATABASE
-              value: openfga
-            - name: PGHOST
-              value: "{{ default (include "core.database.host" .) .Values.database.external.host }}"
-            - name: PGPORT
-              value: "{{ default (include "core.database.port" .) .Values.database.external.port }}"
-            - name: PGUSER
-              value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
-            - name: PGPASSWORD
-              value: "{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}"
+            - name: OPENFGA_DATASTORE_URI
+              value: postgres://{{ .Values.database.external.username }}:{{ .Values.database.external.password }}@{{ .Values.database.external.host }}:{{ .Values.database.external.port }}/openfga?sslmode=disable
       containers:
         - name: openfga
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
@@ -120,6 +112,8 @@ spec:
               value: "{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}"
           ports:
             - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8081
               protocol: TCP
         {{- if .Values.database.external_replica }}
         - name: openfga-read-replica
@@ -151,6 +145,8 @@ spec:
               value: "{{ default (include "core.database.rawPassword" .) .Values.database.external_replica.password }}"
           ports:
             - containerPort: 8082
+              protocol: TCP
+            - containerPort: 8083
               protocol: TCP
           {{- end }}
       {{- with .Values.openfga.nodeSelector }}

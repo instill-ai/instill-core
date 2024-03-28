@@ -67,6 +67,7 @@ data:
         password: {{ .Values.database.external_replica.password | default ""  }}
         host: {{ .Values.database.external_replica.host | default ""  }}
         port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
       {{- end }}
       name: model
       version: {{ .Values.modelBackend.dbVersion }}
@@ -107,6 +108,7 @@ data:
       replica:
         host: {{ template "core.openfga" . }}
         port: 8082
+        replicationtimeframe: 1
       {{- end }}
     registry:
       host: {{ template "core.registry" . }}

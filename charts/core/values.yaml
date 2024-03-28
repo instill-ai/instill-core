@@ -1346,7 +1346,7 @@ grafana:
 openfga:
   image:
     repository: openfga/openfga
-    tag: v1.3.7
+    tag: v1.5.1
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""

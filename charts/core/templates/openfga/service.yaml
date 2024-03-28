@@ -14,10 +14,16 @@ spec:
     - name: openfga
       port: 8080
       targetPort: 8080
+    - name: openfga-grpc
+      port: 8081
+      targetPort: 8081
     {{- if .Values.database.external_replica }}
     - name: openfga-read-replica
       port: 8082
       targetPort: 8082
+    - name: openfga-read-replica-grpc
+      port: 8083
+      targetPort: 8083
     {{- end }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}

@@ -61,6 +61,7 @@ data:
         password: {{ .Values.database.external_replica.password | default ""  }}
         host: {{ .Values.database.external_replica.host | default ""  }}
         port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
       {{- end }}
       name: pipeline
       version: {{ .Values.pipelineBackend.dbVersion }}
@@ -96,9 +97,10 @@ data:
         port: {{ template "core.otel.port" . }}
     openfga:
       host: {{ template "core.openfga" . }}
-      port: 8080
+      port: 8081
       {{- if .Values.database.external_replica }}
       replica:
         host: {{ template "core.openfga" . }}
-        port: 8082
+        port: 8083
+        replicationtimeframe: 1
       {{- end }}
