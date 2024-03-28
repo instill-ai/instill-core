@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.27.0-beta](https://github.com/instill-ai/instill-core/compare/v0.26.1-beta...v0.27.0-beta) (2024-03-28)
+
+
+### Features
+
+* **helm,docker-compose:** add registry service ([#435](https://github.com/instill-ai/instill-core/issues/435)) ([8f56582](https://github.com/instill-ai/instill-core/commit/8f565827856c91ea5efca33562cd4445a4203c1e))
+* **helm:** add configuration for read-replica database ([#455](https://github.com/instill-ai/instill-core/issues/455)) ([ba80559](https://github.com/instill-ai/instill-core/commit/ba805598e1b0fbc9a835ec1103196617554a06c2))
+* **model:** support new models ([#457](https://github.com/instill-ai/instill-core/issues/457)) ([7e311d5](https://github.com/instill-ai/instill-core/commit/7e311d5499f2476bacd902ea037470f1d1e3587d))
+
 ## [0.26.1-beta](https://github.com/instill-ai/instill-core/compare/v0.26.0-beta...v0.26.1-beta) (2024-03-20)
 
 
