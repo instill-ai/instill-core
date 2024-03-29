@@ -64,6 +64,18 @@ jobs:
             --name console-integration-test \
             console-playwright:latest
 
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp console-integration-test:/app/apps/console/test-results ./test-results
+    
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results
+          retention-days: 1
+
       - name: Make down Instill Core
         run: |
           make down
@@ -143,6 +155,18 @@ jobs:
             --entrypoint ./entrypoint-playwright.sh \
             --name console-integration-test \
             console-playwright:${{ env.CONSOLE_VERSION }}
+      
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp console-integration-test:/app/apps/console/test-results ./test-results
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results
+          retention-days: 1
 
       - name: Make down Instill Core
         run: |
