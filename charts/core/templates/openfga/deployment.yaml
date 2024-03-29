@@ -85,7 +85,7 @@ spec:
             - name: OPENFGA_DATASTORE_ENGINE
               value: postgres
             - name: OPENFGA_DATASTORE_URI
-              value: postgres://{{ .Values.database.external.username }}:{{ .Values.database.external.password }}@{{ .Values.database.external.host }}:{{ .Values.database.external.port }}/openfga?sslmode=disable
+              value: postgres://{{ default (include "core.database.username" .) .Values.database.external.username }}:{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}@{{ default (include "core.database.host" .) .Values.database.external.host }}:{{ default (include "core.database.port" .) .Values.database.external.port }}/openfga?sslmode=disable
       containers:
         - name: openfga
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
