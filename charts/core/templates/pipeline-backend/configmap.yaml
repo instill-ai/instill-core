@@ -43,8 +43,8 @@ data:
         key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
       {{- end }}
     modelbackend:
-      host: {{ template "core.modelBackend" . }}
-      publicport: {{ template "core.modelBackend.publicPort" . }}
+      host: {{ default (include "core.modelBackend" . ) .Values.pipelineBackend.modelBackendHostOverride }}
+      publicport: {{ default (include "core.modelBackend.publicPort" . ) .Values.pipelineBackend.modelBackendPortOverride }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/model/tls.crt
