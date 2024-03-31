@@ -472,6 +472,8 @@ pipelineBackend:
       minAvailable:
       maxUnavailable:
   copyHostDocker: false
+  modelBackendHostOverride:
+  modelBackendPortOverride:
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
