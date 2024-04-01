@@ -127,8 +127,8 @@ jobs:
 
       - name: Stop and remove console playwright
         run: |
-          docker stop console-integration-test
-          docker rm console-integration-test
+          docker stop core-console-integration-test-latest
+          docker rm core-console-integration-test-latest
 
   helm-integration-test-latest-mac:
     if: false
@@ -263,8 +263,8 @@ jobs:
 
       - name: Stop and remove console playwright
         run: |
-          docker stop console-integration-test
-          docker rm console-integration-test
+          docker stop core-console-integration-test-release
+          docker rm core-console-integration-test-release
 
   helm-integration-test-release-mac:
     if: false
