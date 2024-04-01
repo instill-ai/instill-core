@@ -113,6 +113,18 @@ jobs:
             --name core-console-integration-test-latest \
             console-playwright:latest
 
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp core-console-integration-test-latest:/app/apps/console/test-results ./test-results
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-integration-test-latest-linux-test-results
+          path: test-results
+          retention-days: 1
+
   helm-integration-test-latest-mac:
     if: false
     # disable the mac test temporary
@@ -231,6 +243,18 @@ jobs:
             --entrypoint ./entrypoint-playwright.sh \
             --name core-console-integration-test-release \
             console-playwright:${{ env.CONSOLE_VERSION }}
+
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp core-console-integration-test-release:/app/apps/console/test-results ./test-results
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-integration-test-release-linux-test-results
+          path: test-results
+          retention-days: 1
 
   helm-integration-test-release-mac:
     if: false
