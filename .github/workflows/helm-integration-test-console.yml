@@ -99,7 +99,7 @@ jobs:
         run: |
           git clone https://github.com/instill-ai/console.git
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
-          docker run -t --rm \
+          docker run -t \
             -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
             -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
             -e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
@@ -112,6 +112,23 @@ jobs:
             --entrypoint ./entrypoint-playwright.sh \
             --name core-console-integration-test-latest \
             console-playwright:latest
+
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp core-console-integration-test-latest:/app/apps/console/test-results ./test-results
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-integration-test-latest-linux-test-results
+          path: test-results
+          retention-days: 1
+
+      - name: Stop and remove console playwright
+        run: |
+          docker stop core-console-integration-test-latest
+          docker rm core-console-integration-test-latest
 
   helm-integration-test-latest-mac:
     if: false
@@ -218,7 +235,7 @@ jobs:
         run: |
           git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
-          docker run -t --rm \
+          docker run -t \
             -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
             -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
             -e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
@@ -231,6 +248,23 @@ jobs:
             --entrypoint ./entrypoint-playwright.sh \
             --name core-console-integration-test-release \
             console-playwright:${{ env.CONSOLE_VERSION }}
+
+      - name: Copy the test-result to host
+        if: always()
+        run: docker cp core-console-integration-test-release:/app/apps/console/test-results ./test-results
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-integration-test-release-linux-test-results
+          path: test-results
+          retention-days: 1
+
+      - name: Stop and remove console playwright
+        run: |
+          docker stop core-console-integration-test-release
+          docker rm core-console-integration-test-release
 
   helm-integration-test-release-mac:
     if: false
