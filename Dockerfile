@@ -28,7 +28,7 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-RUN git clone -b heiru/INS-3998  https://github.com/instill-ai/api-gateway.git
+RUN git clone https://github.com/instill-ai/api-gateway.git
 RUN git clone https://github.com/instill-ai/mgmt-backend.git
 RUN git clone https://github.com/instill-ai/console.git
 RUN git clone https://github.com/instill-ai/pipeline-backend.git
