@@ -96,6 +96,7 @@ build-latest:				## Build latest images for all Instill Core components
 				PIPELINE_BACKEND_VERSION=latest \
 				MODEL_BACKEND_VERSION=latest \
 				CONTROLLER_MODEL_VERSION=latest \
+				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
@@ -113,6 +114,7 @@ build-release:				## Build release images for all Instill Core components
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
+			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 			--target release \
 			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .
@@ -128,6 +130,7 @@ build-release:				## Build release images for all Instill Core components
 				PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 				CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
+				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 				CONSOLE_VERSION=${CONSOLE_VERSION} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
