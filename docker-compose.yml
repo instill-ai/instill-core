@@ -355,6 +355,45 @@ services:
     volumes:
       - model_repository:/model-repository
 
+  artifact_backend:
+    container_name: ${ARTIFACT_BACKEND_HOST}
+    image: ${ARTIFACT_BACKEND_IMAGE}:${ARTIFACT_BACKEND_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_PRIVATEPORT: ${ARTIFACT_BACKEND_PRIVATEPORT}
+      CFG_SERVER_PUBLICPORT: ${ARTIFACT_BACKEND_PUBLICPORT}
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_REGISTRY_HOST: ${REGISTRY_HOST}
+      CFG_REGISTRY_PORT: ${REGISTRY_PORT}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./artifact-backend-migrate
+        ./artifact-backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PUBLICPORT}/v1alpha/health/artifact",
+        ]
+      start_period: 20s
+      start_interval: 1s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+
   console:
     container_name: ${CONSOLE_HOST}
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}

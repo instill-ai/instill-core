@@ -216,6 +216,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -257,6 +258,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
@@ -336,6 +338,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -353,6 +356,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -414,6 +418,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
@@ -431,6 +436,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
