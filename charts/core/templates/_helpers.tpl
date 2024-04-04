@@ -166,6 +166,23 @@ controller-model
 {{- end -}}
 
 {{/*
+artifact-backend
+*/}}
+{{- define "core.artifactBackend" -}}
+{{- printf "%s-artifact-backend" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{/* artifact-backend service and container public port */}}
+{{- define "core.artifactBackend.publicPort" -}}
+{{- printf "8085" -}}
+{{- end -}}
+
+{{/* artifact-backend service and container private port */}}
+{{- define "core.artifactBackend.privatePort" -}}
+{{- printf "3085" -}}
+{{- end -}}
+{{/*
+
 console
 */}}
 {{- define "core.console" -}}
