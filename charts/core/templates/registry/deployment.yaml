@@ -59,7 +59,7 @@ spec:
             - 'ping'
           env:
             - name: REDIS_HOST
-              value: "{{ template "core.redis" . }}"
+              value: "{{ .Values.registry.config.redis.addr }}"
       containers:
         - name: registry
           image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
@@ -98,6 +98,9 @@ spec:
             {{- if eq .Values.registry.config.storage.type "filesystem" }}
             - name: data-volume
               mountPath: /var/lib/registry
+            {{- end }}
+            {{- with .Values.registry.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.registry.extraEnv }}
           env:
