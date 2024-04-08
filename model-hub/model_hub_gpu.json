@@ -36,7 +36,7 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-llava-13b-dvc",
-      "tag": "f16-gpuAuto-transformer-ray-v0.11.0"
+      "tag": "f16-gpuAuto-transformer-ray-v0.11.0-hotfix3"
     }
   },
   {
@@ -46,16 +46,6 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-diffusion-xl-dvc",
-      "tag": "f16-gpuAuto-diffusers-ray-v0.8.0"
-    }
-  },
-  {
-    "id": "controlnet-canny",
-    "description": "ControlNet-Canny Version, from Lvmin, is trained to generate image based on your prompts and images.",
-    "task": "TASK_IMAGE_TO_IMAGE",
-    "model_definition": "model-definitions/github",
-    "configuration": {
-      "repository": "instill-ai/model-controlnet-dvc",
       "tag": "f16-gpuAuto-diffusers-ray-v0.8.0"
     }
   },
@@ -86,17 +76,7 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-zephyr-7b-dvc",
-      "tag": "f16-1gpu-transformer-ray-v0.11.0"
-    }
-  },
-  {
-    "id": "llamacode-7b",
-    "description": "Llamacode-7b, from Huggingface, is trained to generate text based on your prompts.",
-    "task": "TASK_TEXT_GENERATION_CHAT",
-    "model_definition": "model-definitions/github",
-    "configuration": {
-      "repository": "instill-ai/model-codellama-7b-dvc",
-      "tag": "f16-1gpu-transformer-ray-v0.11.0"
+      "tag": "f32-cpu-transformer-ray-v0.8.0"
     }
   }
 ]
