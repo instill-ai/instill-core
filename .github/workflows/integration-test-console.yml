@@ -13,9 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
         run: |
@@ -108,9 +105,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
         run: |
