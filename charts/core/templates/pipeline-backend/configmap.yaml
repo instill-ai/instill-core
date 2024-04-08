@@ -33,6 +33,8 @@ data:
           vdp: /vdp
           airbyte: /local
         excludelocalconnector: {{ .Values.pipelineBackend.excludelocalconnector }}
+      instill:
+        usestaticmodellist: {{ .Values.pipelineBackend.useStaticModelList }}
     mgmtbackend:
       host: {{ template "core.mgmtBackend" . }}
       publicport: {{ template "core.mgmtBackend.publicPort" . }}

@@ -414,6 +414,7 @@ pipelineBackend:
   # -- Load the pre-built connector or not
   prebuiltConnectorEnabled: false
   excludelocalconnector: false
+  useStaticModelList: false
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
