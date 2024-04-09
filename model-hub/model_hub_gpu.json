@@ -56,7 +56,7 @@
     "model_definition": "model-definitions/github",
     "configuration": {
       "repository": "instill-ai/model-llama2-7b-dvc",
-      "tag": "f16-gpu-transformer-ray-v0.8.0"
+      "tag": "f32-cpu-transformer-ray-v0.8.0"
     }
   },
   {
@@ -77,6 +77,16 @@
     "configuration": {
       "repository": "instill-ai/model-zephyr-7b-dvc",
       "tag": "f32-cpu-transformer-ray-v0.8.0"
+    }
+  },
+  {
+    "id": "controlnet-canny",
+    "description": "ControlNet-Canny Version, from Lvmin, is trained to generate image based on your prompts and images.",
+    "task": "TASK_IMAGE_TO_IMAGE",
+    "model_definition": "model-definitions/github",
+    "configuration": {
+      "repository": "instill-ai/model-controlnet-dvc",
+      "tag": "f16-gpuAuto-diffusers-ray-v0.8.0"
     }
   }
 ]
