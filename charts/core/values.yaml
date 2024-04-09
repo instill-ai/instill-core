@@ -392,7 +392,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.25.0-beta
+    tag: 0.26.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -630,7 +630,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.42.3-beta
+    tag: 0.43.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
