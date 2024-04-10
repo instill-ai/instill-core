@@ -79,7 +79,6 @@ jobs:
           yq ".mgmtBackend.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/core/values.yaml
           yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/core/values.yaml
           yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
-          yq ".controllerModel.image.tag=\"$CONTROLLER_MODEL_VERSION\"" -i charts/core/values.yaml
           yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
           yq ".rayService.image.tag=\"$RAY_SERVER_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml

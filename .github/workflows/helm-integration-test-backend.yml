@@ -59,7 +59,6 @@ jobs:
             --set pipelineBackend.image.tag=latest \
             --set pipelineBackend.excludelocalconnector=false \
             --set modelBackend.image.tag=latest \
-            --set controllerModel.image.tag=latest \
             --set console.image.tag=latest \
             --set rayService.image.tag=${RAY_SERVER_VERSION} \
             --set rayService.headGroupSpec.resources.limits.cpu=0 \
@@ -84,7 +83,7 @@ jobs:
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=model-backend,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
           sleep 10
           done
@@ -165,7 +164,6 @@ jobs:
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set pipelineBackend.excludelocalconnector=false \
             --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-            --set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
             --set console.image.tag=${CONSOLE_VERSION} \
             --set rayService.image.tag=${RAY_SERVER_VERSION} \
             --set rayService.headGroupSpec.resources.limits.cpu=0 \
@@ -190,7 +188,7 @@ jobs:
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=controller-model,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
+          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=model-backend,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
             echo "$(kubectl get pods --namespace instill-ai)"
             sleep 10
           done

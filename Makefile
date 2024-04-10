@@ -95,7 +95,6 @@ build-latest:				## Build latest images for all Instill Core components
 				MGMT_BACKEND_VERSION=latest \
 				PIPELINE_BACKEND_VERSION=latest \
 				MODEL_BACKEND_VERSION=latest \
-				CONTROLLER_MODEL_VERSION=latest \
 				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
@@ -113,7 +112,6 @@ build-release:				## Build release images for all Instill Core components
 			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-			--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 			--target release \
@@ -129,7 +127,6 @@ build-release:				## Build release images for all Instill Core components
 				MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
 				PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-				CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 				CONSOLE_VERSION=${CONSOLE_VERSION} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
@@ -188,8 +185,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
 
@@ -202,8 +198,7 @@ integration-test-release:			## Run integration test on the release VDP
 		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
 
@@ -220,7 +215,6 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
-		--set controllerModel.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set tags.observability=false \
@@ -233,15 +227,13 @@ ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
@@ -262,7 +254,6 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-		--set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set tags.observability=false \
@@ -275,15 +266,13 @@ ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
 	@docker run --rm --network host --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd controller-model && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"
 endif
 	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
@@ -342,7 +331,6 @@ ifeq ($(UNAME_S),Darwin)
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
-		--set controllerModel.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
@@ -360,7 +348,6 @@ else ifeq ($(UNAME_S),Linux)
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
-		--set controllerModel.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
@@ -422,7 +409,6 @@ ifeq ($(UNAME_S),Darwin)
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-		--set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
@@ -440,7 +426,6 @@ else ifeq ($(UNAME_S),Linux)
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-		--set controllerModel.image.tag=${CONTROLLER_MODEL_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \

@@ -1,6 +1,4 @@
 {{- if .Values.tags.model -}}
-{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
-{{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -127,15 +125,6 @@ spec:
               value: "{{ template "core.ray" . }}"
             - name: RAY_SERVER_SERVE_PORT
               value: "{{ template "core.ray.servePort" . }}"
-        - name: chmod-model-repostiroy
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-          image: busybox
-          command: ["sh", "-c", "chmod -R 777 /model-repository"]
-          volumeMounts:
-          - name: model-repository
-            mountPath: /model-repository
       containers:
         - name: model-backend-worker
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
@@ -152,10 +141,6 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-repository
-              mountPath: /model-repository
-            - name: ray-conda
-              mountPath: /ray-conda
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -187,10 +172,6 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-repository
-              mountPath: /model-repository
-            - name: ray-conda
-              mountPath: /ray-conda
             {{- if .Values.internalTLS.enabled }}
             - name: model-internal-certs
               mountPath: "/etc/instill-ai/model/ssl/model"
@@ -209,26 +190,6 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.modelBackend" . }}
-        - name: model-repository
-        {{- if not .Values.persistence.enabled }}
-          emptyDir: {}
-        {{- else if $modelRepository.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $modelRepository.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: core-model-repository-data-volume
-        {{- end }}
-        - name: ray-conda
-        {{- if not .Values.persistence.enabled }}
-          emptyDir: {}
-        {{- else if $rayConda.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $rayConda.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ template "core.rayCondaDataVolume" . }}
-        {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs
           secret:

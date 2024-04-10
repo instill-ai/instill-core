@@ -1,6 +1,4 @@
 {{- if .Values.tags.model -}}
-{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
-{{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
@@ -15,7 +13,7 @@ spec:
     upscalingMode: Default
     # idleTimeoutSeconds is the number of seconds to wait before scaling down a worker pod which is not using Ray resources.
     idleTimeoutSeconds: 60
-    imagePullPolicy: Always
+    imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
     securityContext: {}
     env: []
     envFrom: []
@@ -39,23 +37,6 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         volumes:
-          - name: ray-conda
-          {{- if not $.Values.persistence.enabled }}
-            emptyDir: {}
-          {{- else if $rayConda.existingClaim }}
-            persistentVolumeClaim:
-              claimName: {{ $rayConda.existingClaim }}
-          {{- else }}
-            persistentVolumeClaim:
-              claimName: {{ template "core.rayCondaDataVolume" . }}
-          {{- end }}
-          - name: cp-conda-env-configmap
-            configMap:
-              name: cp-conda-env
-              defaultMode: 0777
-              items:
-                - key: cp_conda_env.sh
-                  path: cp_conda_env.sh
           - name: podman-configmap
             configMap:
               name: podman
@@ -81,7 +62,7 @@ spec:
               # for mounting /dev/fuse
               # TODO: maybe implement a fuse-device-plugin-daemonset
               privileged: true
-            imagePullPolicy: Always
+            imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
             {{- if .Values.rayService.headGroupSpec.resources }}
             resources:
               {{- toYaml .Values.rayService.headGroupSpec.resources | nindent 14 }}
@@ -96,10 +77,6 @@ spec:
               - name: RAY_worker_register_timeout_seconds
                 value: "360"
             volumeMounts:
-              - mountPath: /ray-conda-pack
-                name: ray-conda
-              - mountPath: /home/ray/script
-                name: cp-conda-env-configmap
               - mountPath: /etc/containers/
                 name: podman-configmap
             ports:
@@ -124,10 +101,9 @@ spec:
                     - "/bin/bash"
                     - "-c"
                     - >
-                      if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                      if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                       fi;
-                      /home/ray/script/cp_conda_env.sh
               preStop:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
@@ -154,23 +130,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumes:
-            - name: model-repository
-            {{- if not $.Values.persistence.enabled }}
-              emptyDir: {}
-            {{- else if $modelRepository.existingClaim }}
-              persistentVolumeClaim:
-                claimName: {{ $modelRepository.existingClaim }}
-            {{- else }}
-              persistentVolumeClaim:
-                claimName: core-model-repository-data-volume
-            {{- end }}
-            - name: start-ray-serve-configmap
-              configMap:
-                name: start-ray-serve
-                defaultMode: 0777
-                items:
-                  - key: start_ray_serve.sh
-                    path: start_ray_serve.sh
             - name: podman-configmap
               configMap:
                 name: podman
@@ -186,7 +145,7 @@ spec:
               securityContext:
                 # for newuidmap
                 privileged: true
-              imagePullPolicy: Always
+              imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
               env:
                 - name: RAY_worker_register_timeout_seconds
                   value: "360"
@@ -197,10 +156,17 @@ spec:
                       - "/bin/bash"
                       - "-c"
                       - >
-                        if [[ -n $${NVIDIA_VISIBLE_DEVICES} ]]; then
+                        if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                           sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                         fi;
-                        /home/ray/script/start_ray_serve.sh
+                        while true; do
+                          ray health-check 2>/dev/null;
+                          if [ "$?" = "0" ]; then
+                              break;
+                          fi;
+                          sleep 1;
+                        done;
+                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
                 preStop:
                   exec:
                     command: ["/bin/sh","-c","ray stop"]
@@ -217,62 +183,9 @@ spec:
                 {{- toYaml $workerGroupSpecs.resources | nindent 16 }}
               {{- end }}
               volumeMounts:
-                - mountPath: /home/ray/script
-                  name: start-ray-serve-configmap
-                - mountPath: /model-repository
-                  name: model-repository
                 - mountPath: /etc/containers/
                   name: podman-configmap
   {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-conda-env
-data:
-  cp_conda_env.sh: |
-    #!/bin/bash
-
-    # wait for ray cluster to finish initialization
-    while true; do
-        ray health-check 2>/dev/null
-        if [ "$?" = "0" ]; then
-            break
-        else
-            echo "INFO: waiting for ray head to start"
-            sleep 1
-        fi
-    done
-
-    echo "INFO: copying Conda env to the shared folder /ray-conda-pack"
-
-    sudo chown -R 1000:100 /ray-conda-pack
-    cp -r /home/ray/anaconda3/* /ray-conda-pack
-
-    echo "INFO: Conda env copying done"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: start-ray-serve
-data:
-  start_ray_serve.sh: |
-    #!/bin/bash
-
-    # wait for ray cluster to finish initialization
-    while true; do
-        ray health-check 2>/dev/null
-        if [ "$?" = "0" ]; then
-            break
-        else
-            echo "INFO: waiting for ray head to start"
-            sleep 1
-        fi
-    done
-
-    serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
-
-    echo "INFO: Start ray serve"
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -59,7 +59,7 @@ spec:
             - 'ping'
           env:
             - name: REDIS_HOST
-              value: "{{ .Values.registry.config.redis.addr }}"
+              value: "{{ (split ":" .Values.registry.config.redis.addr)._0 }}"
       containers:
         - name: registry
           image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
