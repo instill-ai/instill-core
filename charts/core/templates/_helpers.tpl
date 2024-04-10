@@ -162,12 +162,12 @@ artifact-backend
 
 {{/* artifact-backend service and container public port */}}
 {{- define "core.artifactBackend.publicPort" -}}
-{{- printf "8085" -}}
+{{- printf "8082" -}}
 {{- end -}}
 
 {{/* artifact-backend service and container private port */}}
 {{- define "core.artifactBackend.privatePort" -}}
-{{- printf "3085" -}}
+{{- printf "3082" -}}
 {{- end -}}
 {{/*
 
