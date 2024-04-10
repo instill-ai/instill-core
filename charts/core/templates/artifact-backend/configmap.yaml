@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.artifactBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.artifactBackend.privatePort" . }}
+      publicport: {{ template "core.artifactBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/core/ssl/artifact/tls.crt
+        key: /etc/instill-ai/core/ssl/artifact/tls.key
+      {{- end }}
+    database:
+      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      {{- if .Values.database.external_replica }}
+      replica:
+        username: {{ .Values.database.external_replica.username | default "" }}
+        password: {{ .Values.database.external_replica.password | default ""  }}
+        host: {{ .Values.database.external_replica.host | default ""  }}
+        port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
+      {{- end }}
+      name: artifact
+      version: {{ .Values.artifactBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10 # In seconds for non-blocking batch mode
+      https:
+        cert:
+        key:
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8080
+      {{- if .Values.database.external_replica }}
+      replica:
+        host: {{ template "core.openfga" . }}
+        port: 8082
+        replicationtimeframe: 1
+      {{- end }}
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.artifactBackend.temporal.hostPort }}
+      namespace: {{ default "artifact-backend" .Values.artifactBackend.temporal.namespace }}
+      ca: {{ default "" .Values.artifactBackend.temporal.ca }}
+      cert: {{ default "" .Values.artifactBackend.temporal.cert }}
+      key: {{ default "" .Values.artifactBackend.temporal.key }}
+      serverName: {{ default "" .Values.artifactBackend.temporal.serverName }}
+    registry:
+      host: {{ template "core.registry" . }}
+      port: {{ template "core.registry.port" . }}

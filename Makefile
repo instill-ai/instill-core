@@ -96,6 +96,7 @@ build-latest:				## Build latest images for all Instill Core components
 				PIPELINE_BACKEND_VERSION=latest \
 				MODEL_BACKEND_VERSION=latest \
 				CONTROLLER_MODEL_VERSION=latest \
+				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
@@ -113,6 +114,7 @@ build-release:				## Build release images for all Instill Core components
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
+			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 			--target release \
 			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .
@@ -128,6 +130,7 @@ build-release:				## Build release images for all Instill Core components
 				PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 				CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
+				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 				CONSOLE_VERSION=${CONSOLE_VERSION} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
@@ -213,6 +216,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -254,6 +258,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
@@ -333,6 +338,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -350,6 +356,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=latest \
@@ -411,6 +418,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
@@ -428,6 +436,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \

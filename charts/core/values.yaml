@@ -623,6 +623,76 @@ controllerModel:
     spec:
       minAvailable:
       maxUnavailable:
+# -- The configuration of artifact-backend
+artifactBackend:
+  # -- The image of artifact-backend
+  image:
+    repository: instill/artifact-backend
+    tag: 0.2.1-alpha
+    pullPolicy: IfNotPresent
+  # -- The command names to be executed
+  commandName:
+    migration: artifact-backend-migrate
+    main: artifact-backend
+    worker: artifact-backend-worker
+  # -- The path of configuration file for artifact-backend
+  configPath: /artifact-backend/config/config.yaml
+  # -- The database migration version
+  dbVersion: 1
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for artifact-backend
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  # -- The pod resource
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetAverageMemoryUtilization:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+  # -- The configuration of Temporal Cloud
+  temporal:
+    hostPort:
+    namespace:
+    ca:
+    cert:
+    key:
+    serverName:
 # -- The configuration of console
 console:
   # -- Enable console deployment or not

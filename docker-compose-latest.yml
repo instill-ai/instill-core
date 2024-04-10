@@ -9,6 +9,7 @@ services:
       - exclude-pipeline
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${API_GATEWAY_IMAGE}:latest
     environment:
       LOG_LEVEL: DEBUG
@@ -21,6 +22,7 @@ services:
       - exclude-pipeline
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -37,6 +39,7 @@ services:
       - exclude-pipeline
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -50,6 +53,7 @@ services:
       - exclude-console
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -66,6 +70,7 @@ services:
       - exclude-console
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -79,6 +84,7 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-controller-model
+      - exclude-artifact
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -91,6 +97,7 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-controller-model
+      - exclude-artifact
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -107,10 +114,28 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-controller-model
+      - exclude-artifact
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
       CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/model/main/model-hub/model_hub_cpu.json
+
+  artifact_backend:
+    profiles:
+      - all
+      - exclude-api-gateway
+      - exclude-mgmt
+      - exclude-console
+      - exclude-pipeline
+      - exclude-model
+      - exclude-controller-model
+    image: ${ARTIFACT_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${ARTIFACT_BACKEND_PRIVATEPORT}:${ARTIFACT_BACKEND_PRIVATEPORT}
+      - ${ARTIFACT_BACKEND_PUBLICPORT}:${ARTIFACT_BACKEND_PUBLICPORT}
 
   controller_model:
     profiles:
@@ -120,6 +145,7 @@ services:
       - exclude-console
       - exclude-pipeline
       - exclude-model
+      - exclude-artifact
     image: ${CONTROLLER_MODEL_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -135,6 +161,7 @@ services:
       - exclude-pipeline
       - exclude-model
       - exclude-controller-model
+      - exclude-artifact
     image: ${CONSOLE_IMAGE}:latest
     environment:
       NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}

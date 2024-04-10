@@ -28,6 +28,12 @@ data:
     # model-backend
     MODEL_BACKEND_HOST={{ template "core.modelBackend" . }}
     MODEL_BACKEND_PUBLICPORT={{ template "core.modelBackend.publicPort" . }}
+    MODEL_BACKEND_PRIVATEPORT={{ template "core.modelBackend.privatePort" . }}
+
+    # artifact-backend
+    ARTIFACT_BACKEND_HOST={{ template "core.artifactBackend" . }}
+    ARTIFACT_BACKEND_PUBLICPORT={{ template "core.artifactBackend.publicPort" . }}
+    ARTIFACT_BACKEND_PRIVATEPORT={{ template "core.artifactBackend.privatePort" . }}
 
     # influxdb
     INFLUXDB_HOST={{ template "core.influxdb" . }}
