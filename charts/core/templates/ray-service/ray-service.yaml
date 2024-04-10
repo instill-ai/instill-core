@@ -114,6 +114,9 @@ spec:
       maxReplicas: {{ $workerGroupSpecs.maxReplicas }}
       groupName: {{ $workerGroupSpecs.groupName }}
       rayStartParams:
+        {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
+        num-cpus: "0"
+        {{- end }}
         {{- if $workerGroupSpecs.gpuWorkerGroup.customResource }}
         resources: {{ $workerGroupSpecs.gpuWorkerGroup.customResource }}
         {{- end }}
