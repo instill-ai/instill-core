@@ -311,6 +311,7 @@ mgmtBackend:
   configPath: /mgmt-backend/config/config.yaml
   # -- The database migration version
   dbVersion: 5
+  instillCoreHost:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
