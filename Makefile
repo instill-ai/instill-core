@@ -211,6 +211,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
@@ -250,6 +251,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set itMode.enabled=true \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
@@ -327,6 +329,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
@@ -344,6 +347,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.excludelocalconnector=false \
@@ -405,6 +409,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
@@ -422,6 +427,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
