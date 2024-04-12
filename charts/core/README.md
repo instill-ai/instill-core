@@ -1,6 +1,6 @@
 # core
 
-![Version: 0.1.31-beta](https://img.shields.io/badge/Version-0.1.31--beta-informational?style=flat-square) ![AppVersion: 0.28.0-beta](https://img.shields.io/badge/AppVersion-0.28.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.32-beta](https://img.shields.io/badge/Version-0.1.32--beta-informational?style=flat-square) ![AppVersion: 0.29.0-beta](https://img.shields.io/badge/AppVersion-0.29.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill Core
 
@@ -8,6 +8,7 @@ The Helm chart of Instill Core
 
 | Repository | Name | Version |
 |------------|------|---------|
+| https://charts.bitnami.com/bitnami | etcd | 8.8.1 |
 | https://grafana.github.io/helm-charts | grafana | 7.0.19 |
 | https://helm.elastic.co | elasticsearch | 7.17.3 |
 | https://helm.influxdata.com | influxdb2 | 2.1.1 |
