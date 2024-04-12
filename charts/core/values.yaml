@@ -195,6 +195,14 @@ internalTLS:
     crt: ""
     # Content of ray's TLS key file, only available when `certSource` is "manual"
     key: ""
+  # controller-model related cert configuration
+  controllerModel:
+    # secret name for controller-model's tls certs, only available when `certSource` is "secret"
+    secretName: ""
+    # Content of controller-model's TLS key file, only available when `certSource` is "manual"
+    crt: ""
+    # Content of controller-model's TLS key file, only available when `certSource` is "manual"
+    key: ""
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
@@ -229,6 +237,20 @@ persistence:
       subPath: ""
       accessMode: ReadWriteOnce
       size: 250Gi
+      annotations: {}
+    modelRepository:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 500Gi
+      annotations: {}
+    rayConda:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 20Gi
       annotations: {}
 # -- The usage collector configuration
 usage:
@@ -473,7 +495,7 @@ modelBackend:
   # -- The path of configuration file for model-backend
   configPath: /model-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 5
+  dbVersion: 4
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
@@ -499,6 +521,13 @@ modelBackend:
     ownerid: admin
     enabled: false
     path: https://raw.githubusercontent.com/instill-ai/model/main/model-hub/model_hub_cpu.json
+  cache:
+    enabled: false
+    cache_dir: /model-repository/.cache/models
+    retentionperiod: 24h
+  github:
+    patenabled: false
+    pat:
   # -- Add extra env variables
   extraEnv: []
   # -- Mount external volumes
@@ -537,6 +566,63 @@ modelBackend:
     enabled: false
     spec:
       minAvailable:
+controllerModel:
+  # -- The image of controller
+  image:
+    repository: instill/controller-model
+    tag: 0.4.0-alpha
+    pullPolicy: IfNotPresent
+  # -- The command names to be executed
+  commandName:
+    main: controller-model
+  # -- The path of configuration file for mgmt-backend
+  configPath: /controller-model/config/config.yaml
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for controller
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: {}
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  resources: {}
+  loopinterval: 3
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetAverageMemoryUtilization:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- Enable artifact-backend deployment
@@ -1484,6 +1570,15 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
+# -- The configuration of etcd
+etcd:
+  persistence:
+    enabled: false
+  auth:
+    rbac:
+      create: false
+  autoCompactionMode: revision
+  autoCompactionRetention: 1
 tags:
   model: true
   observability: true

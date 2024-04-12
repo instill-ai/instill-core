@@ -453,3 +453,50 @@ Allow KubeVersion to be overridden.
 {{- define "core.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version .Values.expose.ingress.kubeVersionOverride -}}
 {{- end -}}
+
+
+{{/*
+Deprecated soon
+*/}}
+{{/*
+controller-model
+*/}}
+{{- define "core.controllerModel" -}}
+  {{- printf "%s-controller-model" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{/* controller-model service and container private port */}}
+{{- define "core.controllerModel.privatePort" -}}
+  {{- printf "3086" -}}
+{{- end -}}
+
+{{/*
+etcd
+*/}}
+{{- define "core.etcd" -}}
+  {{- printf "%s-etcd" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.etcd.clientPort" -}}
+  {{- printf "2379" -}}
+{{- end -}}
+
+{{- define "core.etcd.peerPort" -}}
+  {{- printf "2380" -}}
+{{- end -}}
+
+{{- define "core.internalTLS.controllerModel.secretName" -}}
+  {{- if eq .Values.internalTLS.certSource "secret" -}}
+    {{- .Values.internalTLS.controllerModel.secretName -}}
+  {{- else -}}
+    {{- printf "%s-controller-model-internal-tls" (include "core.fullname" .) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.modelRepositoryDataVolume" -}}
+  {{- printf "%s-model-repository-data-volume" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.rayCondaDataVolume" -}}
+  {{- printf "%s-ray-conda-data-volume" (include "core.fullname" .) -}}
+{{- end -}}

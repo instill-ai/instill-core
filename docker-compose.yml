@@ -11,6 +11,12 @@ volumes:
     name: airbyte
   elasticsearch_data:
     name: elasticsearch-data
+  model_repository:
+    name: model-repository
+  model_cache:
+    name: model-cache
+  ray_conda:
+    name: ray-conda
 
 services:
   api_gateway:
@@ -245,7 +251,7 @@ services:
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
       CFG_RAYSERVER_GRPCURI: ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_GRPC_PORT}
-      CFG_RAYSERVER_MODELSTORE: /model-backend
+      CFG_RAYSERVER_MODELSTORE: /model-repository
       CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
@@ -264,6 +270,10 @@ services:
         ./model-backend-migrate
         ./model-backend-init
         ./model-backend
+    volumes:
+      - model_repository:/model-repository
+      - model_cache:/.cache
+      - ray_conda:/ray-conda
     healthcheck:
       test:
         [
@@ -305,6 +315,10 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    volumes:
+      - model_repository:/model-repository
+      - model_cache:/.cache
+      - ray_conda:/ray-conda
     entrypoint: ./model-backend-worker
     depends_on:
       temporal:
@@ -446,6 +460,8 @@ services:
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
+      - model_repository:/model-repository
+      - ray_conda:/home/ray/anaconda3/
       - /var/lib/containers:/var/lib/containers
       - ${CONFIG_DIR_PATH}/registry/registries.conf:/etc/containers/registries.conf
     healthcheck:
@@ -591,3 +607,39 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+  controller_model:
+    container_name: ${CONTROLLER_MODEL_HOST}
+    image: ${CONTROLLER_MODEL_IMAGE}:${CONTROLLER_MODEL_VERSION}
+    restart: unless-stopped
+    environment:
+      CFG_SERVER_DEBUG: "false"
+      CFG_SERVER_EDITION: ${EDITION}
+      CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
+      CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
+      CFG_DATABASE_USERNAME: postgres
+      CFG_DATABASE_PASSWORD: password
+      CFG_ETCD_HOST: ${ETCD_HOST}
+      CFG_ETCD_PORT: ${ETCD_CLIENT_PORT}
+      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
+      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    entrypoint: ./controller-model
+    volumes:
+      - model_repository:/model-repository
+
+  etcd:
+    container_name: ${ETCD_HOST}
+    image: ${ETCD_IMAGE}:v${ETCD_VERSION}
+    restart: unless-stopped
+    environment:
+      ETCD_NAME: ${ETCD_HOST}
+      ETCD_ADVERTISE_CLIENT_URLS: http://${ETCD_HOST}:${ETCD_CLIENT_PORT}
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:${ETCD_CLIENT_PORT}
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:${ETCD_PEER_PORT}
+      ETCD_INITIAL_CLUSTER_TOKEN: ${ETCD_CLUSTER_TOKEN}
+      ETCD_INITIAL_CLUSTER_STATE: ${ETCD_CLUSTER_STATE}
+      ETCD_INITIAL_CLUSTER: ${ETCD_HOST}=http://${ETCD_HOST}:${ETCD_PEER_PORT}
+      ETCDCTL_API: ${ETCDCTL_API}
+      ETCD_AUTO_COMPACTION_MODE: ${ETCD_AUTO_COMPACTION_MODE}
+      ETCD_AUTO_COMPACTION_RETENTION: ${ETCD_AUTO_COMPACTION_RETENTION}

@@ -1,0 +1,150 @@
+{{- if .Values.tags.model -}}
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.controllerModel" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-model
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.controllerModel.autoscaling.enabled }}
+  replicas: {{ .Values.controllerModel.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller-model
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller-model
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/controller-model/configmap.yaml") . | sha256sum }}
+        {{- with .Values.controllerModel.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # distroless users
+      # root:x:0:0:root:/root:/sbin/nologin
+      # nobody:x:65534:65534:nobody:/nonexistent:/sbin/nologin
+      # nonroot:x:65532:65532:nonroot:/home/nonroot:/sbin/nologin
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+      {{- if .Values.controllerModel.serviceAccountName }}
+      serviceAccountName: {{ .Values.controllerModel.serviceAccountName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.controllerModel.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ETCD_HOST}:${ETCD_CLIENT_PORT}/health)" != "200" ]]; do echo waiting for etcd; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done
+          env:
+            - name: MODEL_BACKEND_HOST
+              value: "{{ template "core.modelBackend" . }}"
+            - name: MODEL_BACKEND_PORT
+              value: "{{ template "core.modelBackend.publicPort" . }}"
+            - name: ETCD_HOST
+              value: "{{ template "core.etcd" . }}"
+            - name: ETCD_CLIENT_PORT
+              value: "{{ template "core.etcd.clientPort" . }}"
+      containers:
+        - name: controller-model
+          image: {{ .Values.controllerModel.image.repository }}:{{ .Values.controllerModel.image.tag }}
+          imagePullPolicy: {{ .Values.controllerModel.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+            periodSeconds: 10
+          {{- if .Values.controllerModel.resources }}
+          resources:
+            {{- toYaml .Values.controllerModel.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.controllerModel.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+              containerPort: {{ template "core.controllerModel.privatePort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.controllerModel.configPath }}
+              subPath: config.yaml
+            - name: model-repository
+              mountPath: /model-repository
+            {{- if .Values.internalTLS.enabled }}
+            - name: controller-internal-certs
+              mountPath: "/etc/instill-ai/model/ssl/controller"
+            {{- end }}
+            {{- with .Values.controllerModel.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.controllerModel.extraEnv }}
+          env:
+            {{- toYaml .Values.controllerModel.extraEnv | nindent 12 }}
+          {{- end }}
+        {{- with .Values.controllerModel.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.controllerModel" . }}
+        - name: controller-internal-certs
+          secret:
+            secretName: {{ template "core.internalTLS.controllerModel.secretName" . }}
+        - name: model-repository
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $modelRepository.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $modelRepository.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "core.modelRepositoryDataVolume" . }}
+        {{- end }}
+        {{- with .Values.controllerModel.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.controllerModel.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controllerModel.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controllerModel.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

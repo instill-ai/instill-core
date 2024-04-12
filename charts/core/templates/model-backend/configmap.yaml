@@ -43,7 +43,7 @@ data:
       {{- end }}
     rayserver:
       grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
-      modelstore: /model-backend
+      modelstore: /model-repository
       vram: {{ .Values.rayService.vram }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
@@ -69,6 +69,8 @@ data:
       redis:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+      model:
+        {{- toYaml .Values.modelBackend.cache | nindent 8 }}
     maxbatchsizelimitation:
       unspecified: 2
       classification: 16
@@ -100,4 +102,15 @@ data:
     registry:
       host: {{ template "core.registry" . }}
       port: {{ template "core.registry.port" . }}
+    github:
+      patenabled: {{ .Values.modelBackend.github.patenabled }}
+      pat: {{ .Values.modelBackend.github.pat }}
+    controller:
+      host: {{ template "core.controllerModel" . }}
+      privateport: {{ template "core.controllerModel.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/controller/tls.crt
+        key: /etc/instill-ai/model/ssl/controller/tls.key
+      {{- end }}
 {{- end }}
