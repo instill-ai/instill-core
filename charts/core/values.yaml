@@ -539,6 +539,8 @@ modelBackend:
       minAvailable:
 # -- The configuration of artifact-backend
 artifactBackend:
+  # -- Enable artifact-backend deployment
+  enabled: false
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
