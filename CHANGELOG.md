@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.29.0-beta](https://github.com/instill-ai/instill-core/compare/v0.28.0-beta...v0.29.0-beta) (2024-04-12)
+
+
+### Features
+
+* **artifact:** include artifact-backend ([#464](https://github.com/instill-ai/instill-core/issues/464)) ([dc0eea0](https://github.com/instill-ai/instill-core/commit/dc0eea0c0fc86513a18cc88f46c2bd3d930d9d60))
+
 ## [0.28.0-beta](https://github.com/instill-ai/instill-core/compare/v0.27.0-beta...v0.28.0-beta) (2024-04-09)
 
 
