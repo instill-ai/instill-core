@@ -62,12 +62,14 @@ spec:
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             periodSeconds: 10
+            initialDelaySeconds: 60
           livenessProbe:
             httpGet:
               path: /api/health
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}
             periodSeconds: 10
+            initialDelaySeconds: 60
           {{- if .Values.console.resources }}
           resources:
             {{- toYaml .Values.console.resources | nindent 12 }}

@@ -117,12 +117,14 @@ spec:
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             periodSeconds: 10
+            initialDelaySeconds: 60
           livenessProbe:
             httpGet:
               path: /v1beta/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             periodSeconds: 10
+            initialDelaySeconds: 60
           {{- if .Values.mgmtBackend.resources }}
           resources:
             {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
