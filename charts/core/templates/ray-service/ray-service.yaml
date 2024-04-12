@@ -1,4 +1,6 @@
 {{- if .Values.tags.model -}}
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+{{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
@@ -48,6 +50,23 @@ spec:
                   path: policy.json
                 - key: storage.conf
                   path: storage.conf
+          - name: ray-conda
+          {{- if not $.Values.persistence.enabled }}
+            emptyDir: {}
+          {{- else if $rayConda.existingClaim }}
+            persistentVolumeClaim:
+              claimName: {{ $rayConda.existingClaim }}
+          {{- else }}
+            persistentVolumeClaim:
+              claimName: {{ template "core.rayCondaDataVolume" . }}
+          {{- end }}
+          - name: cp-conda-env-configmap
+            configMap:
+              name: cp-conda-env
+              defaultMode: 0777
+              items:
+                - key: cp_conda_env.sh
+                  path: cp_conda_env.sh
         containers:
           - name: ray-head
             # ray-head need to have access to GPU for some reason in order to `podman run` gpu container in ray-worker node
@@ -79,6 +98,10 @@ spec:
             volumeMounts:
               - mountPath: /etc/containers/
                 name: podman-configmap
+              - mountPath: /ray-conda-pack
+                name: ray-conda
+              - mountPath: /home/ray/script
+                name: cp-conda-env-configmap
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -104,6 +127,7 @@ spec:
                       if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
                         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
                       fi;
+                      /home/ray/script/cp_conda_env.sh
               preStop:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
@@ -142,6 +166,16 @@ spec:
                     path: registries.conf
                   - key: policy.json
                     path: policy.json
+            - name: model-repository
+            {{- if not $.Values.persistence.enabled }}
+              emptyDir: {}
+            {{- else if $modelRepository.existingClaim }}
+              persistentVolumeClaim:
+                claimName: {{ $modelRepository.existingClaim }}
+            {{- else }}
+              persistentVolumeClaim:
+                claimName: core-model-repository-data-volume
+            {{- end }}
           containers:
             - name: ray-worker
               image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}{{ ternary "-gpu" "" $workerGroupSpecs.gpuWorkerGroup.enabled }}
@@ -188,7 +222,31 @@ spec:
               volumeMounts:
                 - mountPath: /etc/containers/
                   name: podman-configmap
+                - mountPath: /model-repository
+                  name: model-repository
   {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cp-conda-env
+data:
+  cp_conda_env.sh: |
+    #!/bin/bash
+    # wait for ray cluster to finish initialization
+    while true; do
+        ray health-check 2>/dev/null
+        if [ "$?" = "0" ]; then
+            break
+        else
+            echo "INFO: waiting for ray head to start"
+            sleep 1
+        fi
+    done
+    echo "INFO: copying Conda env to the shared folder /ray-conda-pack"
+    sudo chown -R 1000:100 /ray-conda-pack
+    cp -r /home/ray/anaconda3/* /ray-conda-pack
+    echo "INFO: Conda env copying done"
 ---
 apiVersion: v1
 kind: ConfigMap

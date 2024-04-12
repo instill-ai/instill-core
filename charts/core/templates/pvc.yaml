@@ -1,4 +1,64 @@
 {{- if .Values.persistence.enabled }}
+{{- if .Values.tags.model -}}
+{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
+{{- if not $modelRepository.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "core.modelRepositoryDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $modelRepository.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+spec:
+  accessModes:
+    - {{ $modelRepository.accessMode }}
+  resources:
+    requests:
+      storage: {{ $modelRepository.size }}
+  {{- if $modelRepository.storageClass }}
+    {{- if eq "-" $modelRepository.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $modelRepository.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $rayConda := .Values.persistence.persistentVolumeClaim.rayConda -}}
+{{- if not $rayConda.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "core.rayCondaDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $rayConda.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+spec:
+  accessModes:
+    - {{ $rayConda.accessMode }}
+  resources:
+    requests:
+      storage: {{ $rayConda.size }}
+  {{- if $rayConda.storageClass }}
+    {{- if eq "-" $rayConda.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $rayConda.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
 {{- if eq .Values.registry.config.storage.type "filesystem" }}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
 {{- if not $registry.existingClaim }}
