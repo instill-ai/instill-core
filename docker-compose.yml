@@ -643,3 +643,17 @@ services:
       ETCDCTL_API: ${ETCDCTL_API}
       ETCD_AUTO_COMPACTION_MODE: ${ETCD_AUTO_COMPACTION_MODE}
       ETCD_AUTO_COMPACTION_RETENTION: ${ETCD_AUTO_COMPACTION_RETENTION}
+
+  minio:
+    container_name: ${MINIO_HOST}
+    image: ${MINIO_IMAGE}:${MINIO_VERSION}
+    restart: unless-stopped
+    environment:
+      MINIO_CONSOLE_PORT: ${MINIO_CONSOLE_PORT}
+    volumes:
+      - ${MINIO_DATA_DIR}:/data
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":${MINIO_CONSOLE_PORT}"
