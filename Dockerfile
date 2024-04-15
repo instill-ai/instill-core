@@ -28,14 +28,14 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG MODEL_BACKEND_VERSION CONTROLLER_MODEL_VERSION
+ARG CONTROLLER_MODEL_VERSION
+RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/console.git
 RUN git clone --depth=1 https://github.com/instill-ai/pipeline-backend.git
-RUN git clone --depth=1 -b v${MODEL_BACKEND_VERSION} https://github.com/instill-ai/model-backend.git
+RUN git clone --depth=1 https://github.com/instill-ai/model-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
-RUN git clone --depth=1 -b v${CONTROLLER_MODEL_VERSION} https://github.com/instill-ai/controller-model.git
 
 FROM alpine:${ALPINE_VERSION} AS release
 
@@ -56,4 +56,3 @@ RUN git clone --depth=1 -b v${CONSOLE_VERSION} -c advice.detachedHead=false http
 RUN git clone --depth=1 -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
 RUN git clone --depth=1 -b v${MODEL_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/model-backend.git
 RUN git clone --depth=1 -b v${ARTIFACT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/artifact-backend.git
-RUN git clone --depth=1 -b v${CONTROLLER_MODEL_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/controller-model.git

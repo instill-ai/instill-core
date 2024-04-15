@@ -116,7 +116,6 @@ build-release:				## Build release images for all Instill Core components
 			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
-			--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 			--target release \
 			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .
 	@if [ "${BUILD}" = "true" ]; then \

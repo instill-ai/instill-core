@@ -1,6 +1,5 @@
 {{- if .Values.tags.model -}}
 {{- if .Values.modelBackend.initModel.enabled -}}
-{{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -58,8 +57,6 @@ spec:
           - name: config
             mountPath: {{ .Values.modelBackend.configPath }}
             subPath: config.yaml
-          - name: model-repository
-            mountPath: /model-repository
         env:
           - name: MODEL_BACKEND_HOST
             value: "{{ template "core.modelBackend" . }}"
@@ -67,16 +64,6 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.modelBackend" . }}
-        - name: model-repository
-        {{- if not .Values.persistence.enabled }}
-          emptyDir: {}
-        {{- else if $modelRepository.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $modelRepository.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ template "core.modelRepositoryDataVolume" . }}
-        {{- end }}
       {{- with .Values.modelBackend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -166,19 +166,3 @@ services:
   registry:
     ports:
       - ${REGISTRY_EXTERNAL_PORT}:5000
-
-  controller_model:
-    profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
-    image: ${CONTROLLER_MODEL_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
-    ports:
-      - ${CONTROLLER_MODEL_PRIVATEPORT}:${CONTROLLER_MODEL_PRIVATEPORT}
