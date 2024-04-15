@@ -636,7 +636,6 @@ artifactBackend:
   commandName:
     migration: artifact-backend-migrate
     main: artifact-backend
-    worker: artifact-backend-worker
   # -- The path of configuration file for artifact-backend
   configPath: /artifact-backend/config/config.yaml
   # -- The database migration version
@@ -687,14 +686,6 @@ artifactBackend:
     spec:
       minAvailable:
       maxUnavailable:
-  # -- The configuration of Temporal Cloud
-  temporal:
-    hostPort:
-    namespace:
-    ca:
-    cert:
-    key:
-    serverName:
 # -- The configuration of console
 console:
   # -- Enable console deployment or not

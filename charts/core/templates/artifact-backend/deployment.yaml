@@ -61,22 +61,6 @@ spec:
             - name: PGUSER
               value: {{ template "core.database.username" . }}
         {{- end }}
-        {{- if not .Values.artifactBackend.temporal.hostPort }}
-        - name: temporal-admin-tools
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
-          command: ["/bin/bash", "-c"]
-          args:
-            - >
-              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
-              if [[ ! $(tctl --namespace artifact-backend namespace list | grep artifact-backend) ]]; then tctl --namespace artifact-backend namespace register; fi
-          env:
-            - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
-        {{- end }}
         - name: artifact-backend-migration
           image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
           imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
@@ -120,32 +104,6 @@ spec:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
               containerPort: {{ template "core.artifactBackend.publicPort" . }}
               protocol: TCP
-          volumeMounts:
-            - name: config
-              mountPath: {{ .Values.artifactBackend.configPath }}
-              subPath: config.yaml
-            {{- if .Values.internalTLS.enabled }}
-            - name: artifact-internal-certs
-              mountPath: "/etc/instill-ai/core/ssl/artifact"
-            {{- end }}
-            {{- with .Values.artifactBackend.extraVolumeMounts }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
-          {{- with .Values.artifactBackend.extraEnv }}
-          env:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-        - name: artifact-backend-worker
-          image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
-          imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
-          livenessProbe:
-            tcpSocket:
-              port: rpc
-          {{- if .Values.artifactBackend.resources }}
-          resources:
-            {{- toYaml .Values.artifactBackend.resources | nindent 12 }}
-          {{- end }}
-          command: [./{{ .Values.artifactBackend.commandName.worker }}]
           volumeMounts:
             - name: config
               mountPath: {{ .Values.artifactBackend.configPath }}
