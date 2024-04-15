@@ -66,13 +66,6 @@ data:
         port: 8082
         replicationtimeframe: 1
       {{- end }}
-    temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.artifactBackend.temporal.hostPort }}
-      namespace: {{ default "artifact-backend" .Values.artifactBackend.temporal.namespace }}
-      ca: {{ default "" .Values.artifactBackend.temporal.ca }}
-      cert: {{ default "" .Values.artifactBackend.temporal.cert }}
-      key: {{ default "" .Values.artifactBackend.temporal.key }}
-      serverName: {{ default "" .Values.artifactBackend.temporal.serverName }}
     registry:
       host: {{ template "core.registry" . }}
       port: {{ template "core.registry.port" . }}
