@@ -1,0 +1,112 @@
+[
+  {
+    "id": "dummy-cls",
+    "description": "A classification model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "CLASSIFICATION"
+    }
+  },
+  {
+    "id": "dummy-det",
+    "description": "A object detection model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "DETECTION"
+    }
+  },
+  {
+    "id": "dummy-image-to-image",
+    "description": "A image to image model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "IMAGE_TO_IMAGE"
+    }
+  },
+  {
+    "id": "dummy-instance-segmentation",
+    "description": "A instance segmentation model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "INSTANCE_SEGMENTATION"
+    }
+  },
+  {
+    "id": "dummy-keypoint",
+    "description": "A keypoint detection model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "KEYPOINT"
+    }
+  },
+  {
+    "id": "dummy-semantic-segmentation",
+    "description": "A semantic segmentation model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "SEMANTIC_SEGMENTATION"
+    }
+  },
+  {
+    "id": "dummy-text-generation",
+    "description": "A text generation model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "TEXT_GENERATION"
+    }
+  },
+  {
+    "id": "dummy-text-generation-chat",
+    "description": "A text generation chat model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "TEXT_GENERATION_CHAT"
+    }
+  },
+  {
+    "id": "dummy-text-to-image",
+    "description": "A text to image model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "TEXT_TO_IMAGE"
+    }
+  },
+  {
+    "id": "dummy-visual-question-answering",
+    "description": "A visual question answering model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "CPU",
+    "configuration": {
+      "task": "VISUAL_QUESTION_ANSWERING"
+    }
+  }
+]
