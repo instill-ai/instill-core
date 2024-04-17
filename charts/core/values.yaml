@@ -520,7 +520,7 @@ modelBackend:
     ownertype: users
     ownerid: admin
     enabled: false
-    path: https://raw.githubusercontent.com/instill-ai/model/main/model-hub/model_hub_cpu.json
+    path: https://raw.githubusercontent.com/instill-ai/instill-core/main/model-hub/model_hub_test.json
   cache:
     enabled: false
     cache_dir: /model-repository/.cache/models
