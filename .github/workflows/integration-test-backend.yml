@@ -48,7 +48,68 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
-          make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make latest BUILD=true EDITION=local-ce:test
+
+      - name: Login to DockerHub
+        if: inputs.component == 'model-backend'
+        uses: docker/login-action@v3
+        with:
+          username: dropletbot
+          password: ${{ secrets.botDockerHubPassword }}
+
+      - name: Pull Test Models
+        if: inputs.component == 'model-backend'
+        run: |
+          docker pull instill/dummy-cls:test
+          docker pull instill/dummy-det:test
+          docker pull instill/dummy-image-to-image:test
+          docker pull instill/dummy-instance-segmentation:test
+          docker pull instill/dummy-keypoint:test
+          docker pull instill/dummy-semantic-segmentation:test
+          docker pull instill/dummy-text-generation:test
+          docker pull instill/dummy-text-generation-chat:test
+          docker pull instill/dummy-text-to-image:test
+          docker pull instill/dummy-visual-question-answering:test
+          docker tag instill/dummy-cls:test localhost:5001/admin/dummy-cls:test
+          docker tag instill/dummy-det:test localhost:5001/admin/dummy-det:test
+          docker tag instill/dummy-image-to-image:test localhost:5001/admin/dummy-image-to-image:test
+          docker tag instill/dummy-instance-segmentation:test localhost:5001/admin/dummy-instance-segmentation:test
+          docker tag instill/dummy-keypoint:test localhost:5001/admin/dummy-keypoint:test
+          docker tag instill/dummy-semantic-segmentation:test localhost:5001/admin/dummy-semantic-segmentation:test
+          docker tag instill/dummy-text-generation:test localhost:5001/admin/dummy-text-generation:test
+          docker tag instill/dummy-text-generation-chat:test localhost:5001/admin/dummy-text-generation-chat:test
+          docker tag instill/dummy-text-to-image:test localhost:5001/admin/dummy-text-to-image:test
+          docker tag instill/dummy-visual-question-answering:test localhost:5001/admin/dummy-visual-question-answering:test
+          docker push localhost:5001/admin/dummy-cls:test
+          docker push localhost:5001/admin/dummy-det:test
+          docker push localhost:5001/admin/dummy-image-to-image:test
+          docker push localhost:5001/admin/dummy-instance-segmentation:test
+          docker push localhost:5001/admin/dummy-keypoint:test
+          docker push localhost:5001/admin/dummy-semantic-segmentation:test
+          docker push localhost:5001/admin/dummy-text-generation:test
+          docker push localhost:5001/admin/dummy-text-generation-chat:test
+          docker push localhost:5001/admin/dummy-text-to-image:test
+          docker push localhost:5001/admin/dummy-visual-question-answering:test
+
+      - name: Launch Init Model Pod
+        if: inputs.component == 'model-backend'
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          RAY_LATEST_TAG=latest \
+          INITMODEL_ENABLED=true \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull model_backend_init_model
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+
+      - name: Wait for model initialization
+        if: inputs.component == 'model-backend'
+        run: |
+          while [[ "$(docker inspect -f {{.State.Status}} model-backend-init-model)" != "exited" ]]; do \
+            echo $(docker inspect -f {{.State.Status}} model-backend-init-model); \
+            sleep 5; \
+          done
 
       - name: Uppercase component name
         id: uppercase
@@ -102,7 +163,68 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
-          make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make latest BUILD=true EDITION=local-ce:test
+
+      - name: Login to DockerHub
+        if: inputs.component == 'model-backend'
+        uses: docker/login-action@v3
+        with:
+          username: dropletbot
+          password: ${{ secrets.botDockerHubPassword }}
+
+      - name: Pull Test Models
+        if: inputs.component == 'model-backend'
+        run: |
+          docker pull instill/dummy-cls:test
+          docker pull instill/dummy-det:test
+          docker pull instill/dummy-image-to-image:test
+          docker pull instill/dummy-instance-segmentation:test
+          docker pull instill/dummy-keypoint:test
+          docker pull instill/dummy-semantic-segmentation:test
+          docker pull instill/dummy-text-generation:test
+          docker pull instill/dummy-text-generation-chat:test
+          docker pull instill/dummy-text-to-image:test
+          docker pull instill/dummy-visual-question-answering:test
+          docker tag instill/dummy-cls:test localhost:5001/admin/dummy-cls:test
+          docker tag instill/dummy-det:test localhost:5001/admin/dummy-det:test
+          docker tag instill/dummy-image-to-image:test localhost:5001/admin/dummy-image-to-image:test
+          docker tag instill/dummy-instance-segmentation:test localhost:5001/admin/dummy-instance-segmentation:test
+          docker tag instill/dummy-keypoint:test localhost:5001/admin/dummy-keypoint:test
+          docker tag instill/dummy-semantic-segmentation:test localhost:5001/admin/dummy-semantic-segmentation:test
+          docker tag instill/dummy-text-generation:test localhost:5001/admin/dummy-text-generation:test
+          docker tag instill/dummy-text-generation-chat:test localhost:5001/admin/dummy-text-generation-chat:test
+          docker tag instill/dummy-text-to-image:test localhost:5001/admin/dummy-text-to-image:test
+          docker tag instill/dummy-visual-question-answering:test localhost:5001/admin/dummy-visual-question-answering:test
+          docker push localhost:5001/admin/dummy-cls:test
+          docker push localhost:5001/admin/dummy-det:test
+          docker push localhost:5001/admin/dummy-image-to-image:test
+          docker push localhost:5001/admin/dummy-instance-segmentation:test
+          docker push localhost:5001/admin/dummy-keypoint:test
+          docker push localhost:5001/admin/dummy-semantic-segmentation:test
+          docker push localhost:5001/admin/dummy-text-generation:test
+          docker push localhost:5001/admin/dummy-text-generation-chat:test
+          docker push localhost:5001/admin/dummy-text-to-image:test
+          docker push localhost:5001/admin/dummy-visual-question-answering:test
+
+      - name: Launch Init Model Pod
+        if: inputs.component == 'model-backend'
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          RAY_LATEST_TAG=latest \
+          INITMODEL_ENABLED=true \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull model_backend_init_model
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+
+      - name: Wait for model initialization
+        if: inputs.component == 'model-backend'
+        run: |
+          while [[ "$(docker inspect -f {{.State.Status}} model-backend-init-model)" != "exited" ]]; do \
+            echo $(docker inspect -f {{.State.Status}} model-backend-init-model); \
+            sleep 5; \
+          done
 
       - name: Uppercase component name
         id: uppercase
@@ -158,7 +280,68 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make all BUILD=true EDITION=local-ce:test
+
+      - name: Login to DockerHub
+        if: inputs.component == 'model-backend'
+        uses: docker/login-action@v3
+        with:
+          username: dropletbot
+          password: ${{ secrets.botDockerHubPassword }}
+
+      - name: Pull Test Models
+        if: inputs.component == 'model-backend'
+        run: |
+          docker pull instill/dummy-cls:test
+          docker pull instill/dummy-det:test
+          docker pull instill/dummy-image-to-image:test
+          docker pull instill/dummy-instance-segmentation:test
+          docker pull instill/dummy-keypoint:test
+          docker pull instill/dummy-semantic-segmentation:test
+          docker pull instill/dummy-text-generation:test
+          docker pull instill/dummy-text-generation-chat:test
+          docker pull instill/dummy-text-to-image:test
+          docker pull instill/dummy-visual-question-answering:test
+          docker tag instill/dummy-cls:test localhost:5001/admin/dummy-cls:test
+          docker tag instill/dummy-det:test localhost:5001/admin/dummy-det:test
+          docker tag instill/dummy-image-to-image:test localhost:5001/admin/dummy-image-to-image:test
+          docker tag instill/dummy-instance-segmentation:test localhost:5001/admin/dummy-instance-segmentation:test
+          docker tag instill/dummy-keypoint:test localhost:5001/admin/dummy-keypoint:test
+          docker tag instill/dummy-semantic-segmentation:test localhost:5001/admin/dummy-semantic-segmentation:test
+          docker tag instill/dummy-text-generation:test localhost:5001/admin/dummy-text-generation:test
+          docker tag instill/dummy-text-generation-chat:test localhost:5001/admin/dummy-text-generation-chat:test
+          docker tag instill/dummy-text-to-image:test localhost:5001/admin/dummy-text-to-image:test
+          docker tag instill/dummy-visual-question-answering:test localhost:5001/admin/dummy-visual-question-answering:test
+          docker push localhost:5001/admin/dummy-cls:test
+          docker push localhost:5001/admin/dummy-det:test
+          docker push localhost:5001/admin/dummy-image-to-image:test
+          docker push localhost:5001/admin/dummy-instance-segmentation:test
+          docker push localhost:5001/admin/dummy-keypoint:test
+          docker push localhost:5001/admin/dummy-semantic-segmentation:test
+          docker push localhost:5001/admin/dummy-text-generation:test
+          docker push localhost:5001/admin/dummy-text-generation-chat:test
+          docker push localhost:5001/admin/dummy-text-to-image:test
+          docker push localhost:5001/admin/dummy-visual-question-answering:test
+
+      - name: Launch Init Model Pod
+        if: inputs.component == 'model-backend'
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          RAY_LATEST_TAG=latest \
+          INITMODEL_ENABLED=true \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull model_backend_init_model
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+
+      - name: Wait for model initialization
+        if: inputs.component == 'model-backend'
+        run: |
+          while [[ "$(docker inspect -f {{.State.Status}} model-backend-init-model)" != "exited" ]]; do \
+            echo $(docker inspect -f {{.State.Status}} model-backend-init-model); \
+            sleep 5; \
+          done
 
       - name: Uppercase component name
         id: uppercase
@@ -220,7 +403,68 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make all BUILD=true EDITION=local-ce:test
+
+      - name: Login to DockerHub
+        if: inputs.component == 'model-backend'
+        uses: docker/login-action@v3
+        with:
+          username: dropletbot
+          password: ${{ secrets.botDockerHubPassword }}
+
+      - name: Pull Test Models
+        if: inputs.component == 'model-backend'
+        run: |
+          docker pull instill/dummy-cls:test
+          docker pull instill/dummy-det:test
+          docker pull instill/dummy-image-to-image:test
+          docker pull instill/dummy-instance-segmentation:test
+          docker pull instill/dummy-keypoint:test
+          docker pull instill/dummy-semantic-segmentation:test
+          docker pull instill/dummy-text-generation:test
+          docker pull instill/dummy-text-generation-chat:test
+          docker pull instill/dummy-text-to-image:test
+          docker pull instill/dummy-visual-question-answering:test
+          docker tag instill/dummy-cls:test localhost:5001/admin/dummy-cls:test
+          docker tag instill/dummy-det:test localhost:5001/admin/dummy-det:test
+          docker tag instill/dummy-image-to-image:test localhost:5001/admin/dummy-image-to-image:test
+          docker tag instill/dummy-instance-segmentation:test localhost:5001/admin/dummy-instance-segmentation:test
+          docker tag instill/dummy-keypoint:test localhost:5001/admin/dummy-keypoint:test
+          docker tag instill/dummy-semantic-segmentation:test localhost:5001/admin/dummy-semantic-segmentation:test
+          docker tag instill/dummy-text-generation:test localhost:5001/admin/dummy-text-generation:test
+          docker tag instill/dummy-text-generation-chat:test localhost:5001/admin/dummy-text-generation-chat:test
+          docker tag instill/dummy-text-to-image:test localhost:5001/admin/dummy-text-to-image:test
+          docker tag instill/dummy-visual-question-answering:test localhost:5001/admin/dummy-visual-question-answering:test
+          docker push localhost:5001/admin/dummy-cls:test
+          docker push localhost:5001/admin/dummy-det:test
+          docker push localhost:5001/admin/dummy-image-to-image:test
+          docker push localhost:5001/admin/dummy-instance-segmentation:test
+          docker push localhost:5001/admin/dummy-keypoint:test
+          docker push localhost:5001/admin/dummy-semantic-segmentation:test
+          docker push localhost:5001/admin/dummy-text-generation:test
+          docker push localhost:5001/admin/dummy-text-generation-chat:test
+          docker push localhost:5001/admin/dummy-text-to-image:test
+          docker push localhost:5001/admin/dummy-visual-question-answering:test
+
+      - name: Launch Init Model Pod
+        if: inputs.component == 'model-backend'
+        run: |
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          RAY_LATEST_TAG=latest \
+          INITMODEL_ENABLED=true \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml up -d --quiet-pull model_backend_init_model
+          COMPOSE_PROFILES=all \
+          EDITION=local-ce:test \
+          docker compose -f docker-compose.yml -f docker-compose-latest.yml rm -f
+
+      - name: Wait for model initialization
+        if: inputs.component == 'model-backend'
+        run: |
+          while [[ "$(docker inspect -f {{.State.Status}} model-backend-init-model)" != "exited" ]]; do \
+            echo $(docker inspect -f {{.State.Status}} model-backend-init-model); \
+            sleep 5; \
+          done
 
       - name: Uppercase component name
         id: uppercase
