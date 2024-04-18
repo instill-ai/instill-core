@@ -81,7 +81,6 @@ build-latest:				## Build latest images for all Instill Core components
 		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
-		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 		--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
