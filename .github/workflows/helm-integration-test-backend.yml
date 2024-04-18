@@ -57,9 +57,9 @@ jobs:
             --set apiGateway.image.tag=latest \
             --set mgmtBackend.image.tag=latest \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set pipelineBackend.image.tag=latest \
+            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
             --set pipelineBackend.excludelocalconnector=false \
-            --set modelBackend.image.tag=latest \
+            --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
             --set console.image.tag=latest \
             --set rayService.image.tag=${RAY_SERVER_VERSION} \
             --set rayService.headGroupSpec.resources.limits.cpu=0 \

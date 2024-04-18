@@ -81,6 +81,9 @@ build-latest:				## Build latest images for all Instill Core components
 		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+		--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
 		-t ${INSTILL_CORE_IMAGE_NAME}:latest .
@@ -93,8 +96,8 @@ build-latest:				## Build latest images for all Instill Core components
 			${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 				API_GATEWAY_VERSION=latest \
 				MGMT_BACKEND_VERSION=latest \
-				PIPELINE_BACKEND_VERSION=latest \
-				MODEL_BACKEND_VERSION=latest \
+				PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
@@ -214,9 +217,9 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
-		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
-		--set modelBackend.image.tag=latest \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set tags.observability=false \
@@ -332,9 +335,9 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
-		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
-		--set modelBackend.image.tag=latest \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
@@ -350,9 +353,9 @@ else ifeq ($(UNAME_S),Linux)
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
-		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.excludelocalconnector=false \
-		--set modelBackend.image.tag=latest \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
