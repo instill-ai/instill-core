@@ -182,7 +182,7 @@ doc:			## Run Redoc for OpenAPI spec at http://localhost:3001
 
 .PHONY: integration-test-latest
 integration-test-latest:			## Run integration test on the latest VDP
-	@make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+	@make latest BUILD=true EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
@@ -195,7 +195,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 
 .PHONY: integration-test-release
 integration-test-release:			## Run integration test on the release VDP
-	@make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+	@make all BUILD=true EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release \
@@ -212,7 +212,6 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -252,7 +251,6 @@ helm-integration-test-release:                       ## Run integration test on 
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -288,7 +286,7 @@ endif
 
 .PHONY: console-integration-test-latest
 console-integration-test-latest:			## Run console integration test on the latest Instill Core
-	@make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -306,7 +304,7 @@ console-integration-test-latest:			## Run console integration test on the latest
 
 .PHONY: console-integration-test-release
 console-integration-test-release:			## Run console integration test on the release Instill Core
-	@make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -328,7 +326,6 @@ console-helm-integration-test-latest:                       ## Run console integ
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
@@ -346,7 +343,6 @@ ifeq ($(UNAME_S),Darwin)
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=latest \
@@ -408,7 +404,6 @@ console-helm-integration-test-release:                       ## Run console inte
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
@@ -426,7 +421,6 @@ ifeq ($(UNAME_S),Darwin)
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set itMode.enabled=true \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \

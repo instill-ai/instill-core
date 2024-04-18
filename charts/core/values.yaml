@@ -18,11 +18,6 @@ logLevel: info
 edition: k8s-ce
 # -- The maximum data payload to Model cluster (MB)
 maxDataSizeMB: 32
-# -- Set true to enable integration test mode
-# The model-backend will use dummy models
-# The mgmt-backend will set a mock up customer_id
-itMode:
-  enabled: false
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:
