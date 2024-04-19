@@ -49,6 +49,10 @@ jobs:
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
 
+      - name: Build Instill Core (latest)
+        run: |
+          make build-latest BUILD=true
+
       - name: Launch Helm Instill Core (latest)
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
@@ -154,6 +158,10 @@ jobs:
       - name: Install k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+
+      - name: Build Instill Core (latest)
+        run: |
+          make build-latest BUILD=true
 
       - name: Launch Helm Instill Core (release)
         run: |
