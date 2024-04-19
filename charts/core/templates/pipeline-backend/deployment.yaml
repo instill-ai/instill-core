@@ -103,8 +103,6 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
-            - name: host-docker-socket-volume
-              mountPath: /var/run/docker.sock
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -113,24 +111,6 @@ spec:
           {{- if .Values.pipelineBackend.extraEnv }}
             {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
           {{- end }}
-        {{- if .Values.pipelineBackend.copyHostDocker }}
-        - name: copy-docker
-          image: alpine:3.14
-          imagePullPolicy: IfNotPresent
-          command: ['sh', '-c']
-          args:
-          - >
-            cp -r /tmp/docker/* /var/lib/docker/
-          volumeMounts:
-            - name: host-docker-volume
-              mountPath: /tmp/docker
-            - name: docker-volume
-              mountPath: /var/lib/docker
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-            privileged: true
-        {{- end }}
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
@@ -146,25 +126,6 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
-        - name: dind-daemon
-          image: docker:24.0.6-dind
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-                cpu: 20m
-                memory: 512Mi
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-            privileged: true
-          command: ["dockerd", "--host", "tcp://127.0.0.1:2375"]
-          volumeMounts:
-            - name: docker-volume
-              mountPath: /var/lib/docker
-            - name: vdp
-              mountPath: /vdp
-            - name: airbyte
-              mountPath: /airbyte
         - name: pipeline-backend-worker
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
@@ -177,8 +138,6 @@ spec:
           {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.worker }}]
           env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
           {{- if .Values.pipelineBackend.extraEnv }}
             {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
           {{- end }}
@@ -186,12 +145,6 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
-            - name: vdp
-              mountPath: /vdp
-            - name: airbyte
-              mountPath: /airbyte
-            - name: docker-volume
-              mountPath: /var/lib/docker
             {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -222,8 +175,6 @@ spec:
               containerPort: {{ template "core.pipelineBackend.publicPort" . }}
               protocol: TCP
           env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
           {{- if .Values.pipelineBackend.extraEnv }}
             {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
           {{- end }}
@@ -231,12 +182,6 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
-            - name: vdp
-              mountPath: /vdp
-            - name: airbyte
-              mountPath: /airbyte
-            - name: docker-volume
-              mountPath: /var/lib/docker
             {{- if .Values.internalTLS.enabled }}
             - name: pipeline-internal-certs
               mountPath: "/etc/instill-ai/vdp/ssl/pipeline"
@@ -248,22 +193,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       volumes:
-        - name: host-docker-socket-volume
-          hostPath:
-            path: /var/run/docker.sock
-            type: Socket
-        - name: host-docker-volume
-          hostPath:
-            path: /var/lib/docker
         - name: config
           configMap:
             name: {{ template "core.pipelineBackend" . }}
-        - name: docker-volume
-          emptyDir: {}
-        - name: vdp
-          emptyDir: {}
-        - name: airbyte
-          emptyDir: {}
         {{- if .Values.internalTLS.enabled }}
         - name: pipeline-internal-certs
           secret:
