@@ -96,7 +96,7 @@ build-latest:				## Build latest images for all Instill Core components
 				API_GATEWAY_VERSION=latest \
 				MGMT_BACKEND_VERSION=latest \
 				PIPELINE_BACKEND_VERSION=latest \
-				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+				MODEL_BACKEND_VERSION=latest \
 				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
@@ -220,7 +220,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
@@ -338,7 +338,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
@@ -356,7 +356,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set pipelineBackend.excludelocalconnector=false \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}

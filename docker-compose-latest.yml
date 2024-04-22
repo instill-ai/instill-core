@@ -149,7 +149,7 @@ services:
       - ${TEMPORAL_PORT}:7233
 
   ray_server:
-    image: ${RAY_SERVER_IMAGE}:${RAY_LATEST_TAG}
+    image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
     ports:
       - ${RAY_SERVER_CLIENT_PORT}:${RAY_SERVER_CLIENT_PORT}
       - ${RAY_SERVER_DASHBOARD_PORT}:${RAY_SERVER_DASHBOARD_PORT}
