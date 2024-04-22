@@ -102,7 +102,7 @@ spec:
                     - "-c"
                     - >
                       if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
-                        sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+                        sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
                       fi;
               preStop:
                 exec:
@@ -160,7 +160,7 @@ spec:
                       - "-c"
                       - >
                         if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
-                          sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
+                          sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
                         fi;
                         while true; do
                           ray health-check 2>/dev/null;
