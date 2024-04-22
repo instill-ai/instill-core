@@ -28,11 +28,11 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION CONTROLLER_MODEL_VERSION
+ARG MODEL_BACKEND_VERSION CONTROLLER_MODEL_VERSION
 RUN git clone https://github.com/instill-ai/api-gateway.git
 RUN git clone https://github.com/instill-ai/mgmt-backend.git
 RUN git clone https://github.com/instill-ai/console.git
-RUN git clone -b v${PIPELINE_BACKEND_VERSION} https://github.com/instill-ai/pipeline-backend.git
+RUN git clone https://github.com/instill-ai/pipeline-backend.git
 RUN git clone -b v${MODEL_BACKEND_VERSION} https://github.com/instill-ai/model-backend.git
 RUN git clone https://github.com/instill-ai/artifact-backend.git
 RUN git clone -b v${CONTROLLER_MODEL_VERSION} https://github.com/instill-ai/controller-model.git
