@@ -81,7 +81,6 @@ build-latest:				## Build latest images for all Instill Core components
 		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
-		--build-arg CONTROLLER_MODEL_VERSION=${CONTROLLER_MODEL_VERSION} \
 		--build-arg CACHE_DATE="$(shell date)" \
 		--target latest \
 		-t ${INSTILL_CORE_IMAGE_NAME}:latest .
@@ -215,7 +214,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
-		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set tags.observability=false \
@@ -331,7 +330,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
-		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
