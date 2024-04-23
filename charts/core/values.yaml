@@ -1450,6 +1450,9 @@ registry:
       secret: i-love-instill-ai
       relativeurls: false
       draintimeout: 60s
+      tls:
+        certificate:
+        key:
       debug:
         addr: 0.0.0.0:5001
         prometheus:
