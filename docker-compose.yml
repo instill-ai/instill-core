@@ -5,10 +5,6 @@ networks:
     name: instill-network
 
 volumes:
-  vdp:
-    name: vdp
-  airbyte:
-    name: airbyte
   elasticsearch_data:
     name: elasticsearch-data
   model_repository:
@@ -150,15 +146,12 @@ services:
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_VDP: vdp
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -171,9 +164,6 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-    volumes:
-      - vdp:/vdp
-      - airbyte:/airbyte
     command:
       - /bin/sh
       - -c
@@ -207,15 +197,12 @@ services:
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
     environment:
-      DOCKER_HOST: tcp://${SOCAT_HOST}:${SOCAT_PORT}
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_MAXDATASIZE: ${MAX_DATA_SIZE}
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_VDP: vdp
-      CFG_CONNECTOR_AIRBYTE_MOUNTSOURCE_AIRBYTE: airbyte
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -229,9 +216,6 @@ services:
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./pipeline-backend-worker
-    volumes:
-      - vdp:/vdp
-      - airbyte:/airbyte
     depends_on:
       pipeline_backend:
         condition: service_healthy
@@ -586,17 +570,6 @@ services:
     depends_on:
       openfga_migrate:
         condition: service_completed_successfully
-
-  socat:
-    container_name: ${SOCAT_HOST}
-    image: ${SOCAT_IMAGE}:${SOCAT_VERSION}
-    restart: unless-stopped
-    command: tcp-listen:${SOCAT_PORT},fork,reuseaddr unix-connect:/var/run/docker.sock
-    user: root
-    volumes:
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
 
   registry:
     container_name: ${REGISTRY_HOST}

@@ -25,14 +25,6 @@ data:
         key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
       {{- end }}
     connector:
-      airbyte:
-        mountsource:
-          vdp: /vdp
-          airbyte: /airbyte
-        mounttarget:
-          vdp: /vdp
-          airbyte: /local
-        excludelocalconnector: {{ .Values.pipelineBackend.excludelocalconnector }}
       instill:
         usestaticmodellist: {{ .Values.pipelineBackend.useStaticModelList }}
     mgmtbackend:
