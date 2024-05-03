@@ -216,7 +216,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set pipelineBackend.image.tag=latest \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set tags.observability=false \
 		--set tags.prometheusStack=false
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
@@ -332,7 +332,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set pipelineBackend.image.tag=latest \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
@@ -347,9 +347,9 @@ else ifeq ($(UNAME_S),Linux)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
-		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set rayService.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}
