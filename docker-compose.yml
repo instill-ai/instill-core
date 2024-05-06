@@ -450,11 +450,10 @@ services:
       - ${CONFIG_DIR_PATH}/registry/registries.conf:/etc/containers/registries.conf
     healthcheck:
       test: ["CMD", "ray", "status"]
-      start_period: 20s
-      start_interval: 1s
-      interval: 1s
+      start_period: 45s
+      interval: 60s
       timeout: 5s
-      retries: 10
+      retries: 2
     shm_size: 4gb
     ports:
       - ${RAY_SERVER_DASHBOARD_PORT}:${RAY_SERVER_DASHBOARD_PORT}
