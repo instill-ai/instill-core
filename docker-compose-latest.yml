@@ -166,3 +166,8 @@ services:
   registry:
     ports:
       - ${REGISTRY_EXTERNAL_PORT}:5000
+
+  milvus:
+    ports:
+      - ${MILVUS_PORT}:19530
+    command: milvus run standalone
