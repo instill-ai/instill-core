@@ -1471,6 +1471,35 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
+# -- The configuration of milvus
+milvus:
+  image:
+    all:
+      repository: milvusdb/milvus
+      tag: v2.4.1
+      pullPolicy: IfNotPresent
+  nodeselector: {}
+  tolerations: []
+  affinity: {}
+  etcd:
+    enabled: false
+  pulsar:
+    bookkeeper:
+      replicaCount: 1
+  externalEtcd:
+    enabled: true
+    endpoints:
+      - core-etcd:2379
+  # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
+  # extraConfigFiles:
+  #   user.yaml: |+
+  #     etcd:
+  #       endpoints: core-etcd:2379
+  #       rootPath: core-milvus
+  #       log:
+  #         level: info
+  #       use:
+  #         embed: false
 tags:
   model: true
   observability: true
