@@ -46,6 +46,7 @@ jobs:
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
+            --set artifactBackend.image.tag=latest \
             --set apiGateway.image.tag=latest \
             --set mgmtBackend.image.tag=latest \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -177,6 +178,7 @@ jobs:
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
+            --set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
             --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
             --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
