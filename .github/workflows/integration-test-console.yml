@@ -41,7 +41,7 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
-          make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=api-gateway
+          make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
 
       - name: Run console integration test (latest)
         run: |
@@ -135,7 +135,7 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true INSTILL_CORE_HOST=api-gateway
+          make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
 
       - name: Run console integration test (release)
         run: |

@@ -76,6 +76,8 @@ spec:
                 value: http://core-prometheus:9090
               - name: RAY_worker_register_timeout_seconds
                 value: "360"
+              # - name: RAY_REDIS_ADDRESS
+              #   value: {{ template "core.redis.addr" . }}
             volumeMounts:
               - mountPath: /etc/containers/
                 name: podman-configmap
@@ -117,6 +119,8 @@ spec:
       rayStartParams:
         {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
         num-cpus: "0"
+        {{- else }}
+        num-cpus: "{{ $workerGroupSpecs.resources.requests.cpu }}"
         {{- end }}
         {{- if $workerGroupSpecs.gpuWorkerGroup.customResource }}
         resources: {{ $workerGroupSpecs.gpuWorkerGroup.customResource }}

@@ -15,8 +15,6 @@ data:
       usage:
         {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode:
-        enabled: {{ .Values.itMode.enabled }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       workflow:
         maxworkflowtimeout: {{ .Values.modelBackend.temporal.workflow.maxWorkflowTimeout }}
@@ -99,11 +97,11 @@ data:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
     openfga:
       host: {{ template "core.openfga" . }}
-      port: 8080
+      port: 8081
       {{- if .Values.database.external_replica }}
       replica:
         host: {{ template "core.openfga" . }}
-        port: 8082
+        port: 8083
         replicationtimeframe: 1
       {{- end }}
     registry:

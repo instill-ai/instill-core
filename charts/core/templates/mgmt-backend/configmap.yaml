@@ -68,11 +68,11 @@ data:
         port: {{ template "core.otel.port" . }}
     openfga:
       host: {{ template "core.openfga" . }}
-      port: 8081
+      port: 8080
       {{- if .Values.database.external_replica }}
       replica:
         host: {{ template "core.openfga" . }}
-        port: 8083
+        port: 8082
         replicationtimeframe: 1
       {{- end }}
     temporal:
