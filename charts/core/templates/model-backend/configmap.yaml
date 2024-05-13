@@ -25,6 +25,7 @@ data:
         cert: /etc/instill-ai/model/ssl/model/tls.crt
         key: /etc/instill-ai/model/ssl/model/tls.key
       {{- end }}
+      instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:

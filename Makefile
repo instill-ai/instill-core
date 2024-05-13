@@ -213,6 +213,7 @@ helm-integration-test-latest:                       ## Run integration test on t
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
@@ -251,6 +252,7 @@ helm-integration-test-release:                       ## Run integration test on 
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
@@ -327,6 +329,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
@@ -343,6 +346,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set rayService.image.tag=${RAY_LATEST_TAG} \
@@ -403,6 +407,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \
@@ -419,6 +424,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set rayService.image.tag=${RAY_RELEASE_TAG} \

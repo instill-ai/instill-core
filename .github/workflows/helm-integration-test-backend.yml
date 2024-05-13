@@ -62,6 +62,7 @@ jobs:
             --set mgmtBackend.image.tag=latest \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set pipelineBackend.image.tag=latest \
+            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set modelBackend.image.tag=latest \
             --set console.image.tag=latest \
             --set rayService.image.tag=latest \
@@ -171,6 +172,7 @@ jobs:
             --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
             --set console.image.tag=${CONSOLE_VERSION} \
             --set rayService.image.tag=${RAY_SERVER_VERSION} \

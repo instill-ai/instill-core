@@ -465,6 +465,7 @@ modelBackend:
   configPath: /model-backend/config/config.yaml
   # -- The database migration version
   dbVersion: 5
+  instillCoreHost:
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
