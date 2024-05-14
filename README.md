@@ -52,7 +52,7 @@ Not quite into self-hosting? We've got you covered with **☁️ [Instill Cloud]
 
 - **macOS or Linux** - Instill Core works on macOS or Linux, but does not support Windows yet.
 
-- **Docker and Docker Compose** - Instill Core uses Docker Compose (specifically, `Compose V2` and `Compose specification`) to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using Instill Core.
+- **Docker and Docker Compose** - Instill Core requires Docker Engine `v25` or later and Docker Compose `v2` or later to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) before using Instill Core.
 
 ## Quick Start
 

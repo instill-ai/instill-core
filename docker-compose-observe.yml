@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   otel_collector:
     container_name: ${OTEL_COLLECTOR_HOST}
