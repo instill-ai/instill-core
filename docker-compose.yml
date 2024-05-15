@@ -345,6 +345,8 @@ services:
     depends_on:
       pg_sql:
         condition: service_healthy
+      mgmt_backend:
+        condition: service_healthy
 
   console:
     container_name: ${CONSOLE_HOST}
