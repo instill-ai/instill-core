@@ -1,6 +1,6 @@
 # core
 
-![Version: 0.1.34-beta](https://img.shields.io/badge/Version-0.1.34--beta-informational?style=flat-square) ![AppVersion: 0.31.0-beta](https://img.shields.io/badge/AppVersion-0.31.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.35-beta](https://img.shields.io/badge/Version-0.1.35--beta-informational?style=flat-square) ![AppVersion: 0.32.0-beta](https://img.shields.io/badge/AppVersion-0.32.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill Core
 
