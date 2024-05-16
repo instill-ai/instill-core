@@ -74,14 +74,14 @@ spec:
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ template "core.registry.port" . }}
             periodSeconds: 10
-            initialDelaySeconds: 60
+            initialDelaySeconds: 10
           livenessProbe:
             httpGet:
               path: /
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ template "core.registry.port" . }}
             periodSeconds: 10
-            initialDelaySeconds: 60
+            initialDelaySeconds: 10
           {{- if .Values.registry.resources }}
           resources:
             {{- toYaml .Values.registry.resources | nindent 12 }}

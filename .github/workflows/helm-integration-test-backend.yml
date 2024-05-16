@@ -57,14 +57,15 @@ jobs:
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
-            --set itMode.enabled=true \
+            --set artifactBackend.image.tag=latest \
             --set apiGateway.image.tag=latest \
             --set mgmtBackend.image.tag=latest \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set pipelineBackend.image.tag=latest \
-            --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+            --set modelBackend.image.tag=latest \
             --set console.image.tag=latest \
-            --set rayService.image.tag=${RAY_SERVER_VERSION} \
+            --set rayService.image.tag=latest \
             --set rayService.headGroupSpec.resources.limits.cpu=0 \
             --set rayService.headGroupSpec.resources.limits.memory=2Gi \
             --set rayService.headGroupSpec.resources.requests.cpu=0 \
@@ -166,11 +167,12 @@ jobs:
         run: |
           helm install core charts/core --namespace instill-ai --create-namespace \
             --set edition=k8s-ce:test \
-            --set itMode.enabled=true \
+            --set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
             --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
             --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
             --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
             --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
             --set console.image.tag=${CONSOLE_VERSION} \
             --set rayService.image.tag=${RAY_SERVER_VERSION} \

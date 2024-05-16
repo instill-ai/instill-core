@@ -48,7 +48,7 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
-          make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make latest BUILD=true EDITION=local-ce:test
 
       - name: Uppercase component name
         id: uppercase
@@ -102,7 +102,7 @@ jobs:
 
       - name: Launch Instill Core (latest)
         run: |
-          make latest BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make latest BUILD=true EDITION=local-ce:test
 
       - name: Uppercase component name
         id: uppercase
@@ -158,7 +158,7 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make all BUILD=true EDITION=local-ce:test
 
       - name: Uppercase component name
         id: uppercase
@@ -220,7 +220,7 @@ jobs:
 
       - name: Launch Instill Core (release)
         run: |
-          make all BUILD=true EDITION=local-ce:test ITMODE_ENABLED=true
+          make all BUILD=true EDITION=local-ce:test
 
       - name: Uppercase component name
         id: uppercase

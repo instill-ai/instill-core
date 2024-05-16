@@ -15,8 +15,6 @@ data:
       usage:
         {{- toYaml .Values.usage | nindent 8 }}
       debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
-      itmode:
-        enabled: {{ .Values.itMode.enabled }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
       workflow:
         maxworkflowtimeout: {{ .Values.modelBackend.temporal.workflow.maxWorkflowTimeout }}
@@ -27,6 +25,7 @@ data:
         cert: /etc/instill-ai/model/ssl/model/tls.crt
         key: /etc/instill-ai/model/ssl/model/tls.key
       {{- end }}
+      instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
@@ -41,9 +40,18 @@ data:
         cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
         key: /etc/instill-ai/model/ssl/mgmt/tls.key
       {{- end }}
+    artifactbackend:
+      host: {{ template "core.artifactBackend" . }}
+      publicport: {{ template "core.artifactBackend.publicPort" . }}
+      privateport: {{ template "core.artifactBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/core/ssl/artifact/tls.crt
+        key: /etc/instill-ai/core/ssl/artifact/tls.key
+      {{- end }}
     rayserver:
       grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
-      modelstore: /model-repository
+      modelstore: /model-backend
       vram: {{ .Values.rayService.vram }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
@@ -69,8 +77,6 @@ data:
       redis:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
-      model:
-        {{- toYaml .Values.modelBackend.cache | nindent 8 }}
     maxbatchsizelimitation:
       unspecified: 2
       classification: 16
@@ -92,25 +98,14 @@ data:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
     openfga:
       host: {{ template "core.openfga" . }}
-      port: 8080
+      port: 8081
       {{- if .Values.database.external_replica }}
       replica:
         host: {{ template "core.openfga" . }}
-        port: 8082
+        port: 8083
         replicationtimeframe: 1
       {{- end }}
     registry:
       host: {{ template "core.registry" . }}
       port: {{ template "core.registry.port" . }}
-    github:
-      patenabled: {{ .Values.modelBackend.github.patenabled }}
-      pat: {{ .Values.modelBackend.github.pat }}
-    controller:
-      host: {{ template "core.controllerModel" . }}
-      privateport: {{ template "core.controllerModel.privatePort" . }}
-      {{- if .Values.internalTLS.enabled }}
-      https:
-        cert: /etc/instill-ai/model/ssl/controller/tls.crt
-        key: /etc/instill-ai/model/ssl/controller/tls.key
-      {{- end }}
 {{- end }}

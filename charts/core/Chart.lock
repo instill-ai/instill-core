@@ -1,10 +1,7 @@
 dependencies:
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm/
-  version: 1.0.0
-- name: etcd
-  repository: https://charts.bitnami.com/bitnami
-  version: 8.8.1
+  version: 1.1.1
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 7.17.3
@@ -23,5 +20,5 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 7.0.19
-digest: sha256:180573d09ca0bf326bd87569c9670c4551da04ee6821541af07190eab68e786f
-generated: "2024-04-12T15:46:04.148469+08:00"
+digest: sha256:54af8013247538db390dec1acf2dfb3b7b0d70c039e1d57763d689b6f48aea8e
+generated: "2024-05-12T04:49:12.15233+08:00"
