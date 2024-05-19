@@ -1,5 +1,5 @@
-# This workflow will open a PR in https://github.com/instill-ai/protobufs
-# updating the API version in the OpenAPI specifications.
+# This workflow will open a PR in https://github.com/instill-ai/instill.tech
+# updating the doc version in the website.
 
 name: Sync release version with instill.tech website
 
