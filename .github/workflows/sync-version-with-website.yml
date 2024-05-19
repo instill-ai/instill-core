@@ -31,8 +31,8 @@ jobs:
       with:
         token: ${{ secrets.botGitHubToken }}
         commit-message: 'chore: update  Instill Core version'
-        title: 'docs(document): Update Instill Core version'
+        title: 'docs(document): update Instill Core version'
         body: Sync version with latest Core release
-        branch: chore/update-api-version
+        branch: chore/update-doc-version
         base: main
         draft: false
