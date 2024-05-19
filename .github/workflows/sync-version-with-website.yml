@@ -4,7 +4,6 @@
 name: Sync release version with instill.tech website
 
 on:
-  push: 
   release:
     types: [published]
 
@@ -26,7 +25,7 @@ jobs:
       run: |
         # On release triggers, GITHUB_REF_NAME is the release name (e.g.
         # 'v0.10.0-beta')
-        sed -i "s/core: \".*\"/core: \"v0.32.0-beta\"/" version.mjs
+        sed -i "s/core: \".*\"/core: \"${GITHUB_REF_NAME}\"/" version.mjs
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
       with:
