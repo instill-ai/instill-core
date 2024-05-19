@@ -1,0 +1,40 @@
+name: Add Comment to Issue
+on:
+  issues:
+    types:
+      - labeled
+jobs:
+  add-comment-to-help-wanted:
+    if: github.event.label.name == 'help wanted'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            This issue is available for anyone to work on.
+
+            - Read our [Contributing Guidelines](https://github.com/instill-ai/.github/blob/main/.github/CONTRIBUTING.md)
+            - Make sure to **reference** this issue in your pull request
+
+            **:sparkles: Thank you for your contribution! :sparkles:**
+  add-comment-to-good-first-issue:
+    if: github.event.label.name == 'good first issue'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            This issue is a great way to kick-start your journey with our project, or to make a positive impact on open-source development. Jump in!
+
+            - Check out our [Contributing Guidelines](https://github.com/instill-ai/.github/blob/main/.github/CONTRIBUTING.md) for a smooth experience
+            - Remember to **[link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)** your pull request to this issue
+
+            **:sparkles: Thank you for your contribution! :sparkles:**
