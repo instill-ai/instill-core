@@ -171,3 +171,8 @@ services:
     ports:
       - ${MILVUS_PORT}:19530
     command: milvus run standalone
+
+  minio:
+    ports:
+      - ${MINIO_EXTERNAL_PORT}:${MINIO_PORT}
+      - ${MINIO_CONSOLE_EXTERNAL_PORT}:${MINIO_CONSOLE_PORT}
