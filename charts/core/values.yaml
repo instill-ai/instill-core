@@ -674,18 +674,18 @@ rayService:
   headGroupSpec:
     resources:
       limits:
-        cpu: "2"
+        cpu: "1"
         memory: "4Gi"
         nvidia.com/gpu: 0
       requests:
-        cpu: "2"
+        cpu: "1"
         memory: "4Gi"
         nvidia.com/gpu: 0
     affinity: {}
     nodeSelector: {}
   workerGroupSpecs:
-    - replicas: 1
-      minReplicas: 1
+    - replicas: 0
+      minReplicas: 0
       maxReplicas: 1
       groupName: "cpu-group"
       gpuWorkerGroup:
@@ -1472,6 +1472,7 @@ registry:
       tls:
         enabled: false
 # -- The configuration of milvus
+# https://github.com/zilliztech/milvus-helm/blob/master/charts/milvus/values.yaml
 milvus:
   image:
     all:
@@ -1481,15 +1482,58 @@ milvus:
   nodeselector: {}
   tolerations: []
   affinity: {}
-  etcd:
+  log:
+    level: "info"
+    file:
+      maxSize: 10   # MB
+      maxAge: 12    # day
+      maxBackups: 2
+    format: "json"  # text/json
+  rootCoordinator:
     enabled: false
+  queryCoordinator:
+    enabled: false
+  indexCoordinator:
+    enabled: false
+  dataCoordinator:
+    enabled: false
+  mixCoordinator:
+    enabled: true
+  minio:
+    replicas: 2
+    persistence:
+      size: 50Gi
+  etcd:
+    enabled: true
+    replicaCount: 1
   pulsar:
     bookkeeper:
       replicaCount: 1
-  externalEtcd:
-    enabled: true
-    endpoints:
-      - core-etcd:2379
+      volumes:
+        journal:
+          name: journal
+          size: 10Gi
+        ledgers:
+          name: ledgers
+          size: 20Gi
+      resources:
+        requests:
+          memory:
+          cpu: 0.5
+  broker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
+  autorecovery:
+    resources:
+      requests:
+        cpu: 0.5
+  proxy:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
   # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
   # extraConfigFiles:
   #   user.yaml: |+

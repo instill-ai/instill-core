@@ -562,8 +562,7 @@ services:
     image: ${MILVUS_IMAGE}:${MILVUS_VERSION}
     restart: unless-stopped
     environment:
-      ETCD_USE_EMBED: false
-      ETCD_ENDPOINTS: ${ETCD_HOST}:${ETCD_CLIENT_PORT}
+      ETCD_USE_EMBED: true
       COMMON_STORAGETYPE: local
     command: milvus run standalone 1> /dev/null
     healthcheck:
