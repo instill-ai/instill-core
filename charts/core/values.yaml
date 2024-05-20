@@ -684,8 +684,8 @@ rayService:
     affinity: {}
     nodeSelector: {}
   workerGroupSpecs:
-    - replicas: 0
-      minReplicas: 0
+    - replicas: 1
+      minReplicas: 1
       maxReplicas: 1
       groupName: "cpu-group"
       gpuWorkerGroup:
@@ -1489,6 +1489,8 @@ milvus:
       maxAge: 12    # day
       maxBackups: 2
     format: "json"  # text/json
+  cluster:
+    enabled: true
   rootCoordinator:
     enabled: false
   queryCoordinator:
@@ -1500,13 +1502,15 @@ milvus:
   mixCoordinator:
     enabled: true
   minio:
-    replicas: 2
+    mode: standalone
+    replicas: 1
     persistence:
       size: 50Gi
   etcd:
     enabled: true
     replicaCount: 1
   pulsar:
+    enabled: false
     bookkeeper:
       replicaCount: 1
       volumes:
@@ -1520,6 +1524,19 @@ milvus:
         requests:
           memory:
           cpu: 0.5
+  kafka:
+    enabled: true
+    replicaCount: 1
+    defaultReplicationFactor: 1
+    offsetsTopicReplicationFactor: 1
+    persistence:
+      enabled: true
+      storageClass:
+      accessMode: ReadWriteOnce
+      size: 30Gi
+    zookeeper:
+      enabled: true
+      replicaCount: 1
   broker:
     replicaCount: 1
     resources:
@@ -1535,15 +1552,16 @@ milvus:
       requests:
         cpu: 0.5
   # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
-  # extraConfigFiles:
-  #   user.yaml: |+
-  #     etcd:
-  #       endpoints: core-etcd:2379
-  #       rootPath: core-milvus
-  #       log:
-  #         level: info
-  #       use:
-  #         embed: false
+  extraConfigFiles:
+    user.yaml: |+
+      etcd:
+        rootPath: core-milvus
+        log:
+          level: info
+      minio:
+        bucketName: core-milvus
+      pulsar:
+        namespace: instill-ai
 tags:
   model: true
   observability: true
