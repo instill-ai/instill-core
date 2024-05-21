@@ -68,6 +68,9 @@ jobs:
             --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
             --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
             --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+            --set milvus.broker.resources.requests.cpu=0.25 \
+            --set milvus.autorecovery.resources.requests.cpu=0.25 \
+            --set milvus.proxy.resources.requests.cpu=0.25 \
             --set tags.observability=false \
             --set tags.prometheusStack=false
 
@@ -201,6 +204,9 @@ jobs:
             --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
             --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
             --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+            --set milvus.broker.resources.requests.cpu=0.25 \
+            --set milvus.autorecovery.resources.requests.cpu=0.25 \
+            --set milvus.proxy.resources.requests.cpu=0.25 \
             --set tags.observability=false \
             --set tags.prometheusStack=false
 
