@@ -674,11 +674,11 @@ rayService:
   headGroupSpec:
     resources:
       limits:
-        cpu: "2"
+        cpu: "1"
         memory: "4Gi"
         nvidia.com/gpu: 0
       requests:
-        cpu: "2"
+        cpu: "1"
         memory: "4Gi"
         nvidia.com/gpu: 0
     affinity: {}
@@ -1471,6 +1471,97 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
+# -- The configuration of milvus
+# https://github.com/zilliztech/milvus-helm/blob/master/charts/milvus/values.yaml
+milvus:
+  image:
+    all:
+      repository: milvusdb/milvus
+      tag: v2.4.1
+      pullPolicy: IfNotPresent
+  nodeselector: {}
+  tolerations: []
+  affinity: {}
+  log:
+    level: "info"
+    file:
+      maxSize: 10   # MB
+      maxAge: 12    # day
+      maxBackups: 2
+    format: "json"  # text/json
+  cluster:
+    enabled: true
+  rootCoordinator:
+    enabled: false
+  queryCoordinator:
+    enabled: false
+  indexCoordinator:
+    enabled: false
+  dataCoordinator:
+    enabled: false
+  mixCoordinator:
+    enabled: true
+  minio:
+    mode: standalone
+    replicas: 1
+    persistence:
+      size: 50Gi
+  etcd:
+    enabled: true
+    replicaCount: 1
+  pulsar:
+    enabled: false
+    bookkeeper:
+      replicaCount: 1
+      volumes:
+        journal:
+          name: journal
+          size: 10Gi
+        ledgers:
+          name: ledgers
+          size: 20Gi
+      resources:
+        requests:
+          memory:
+          cpu: 0.5
+  kafka:
+    enabled: true
+    replicaCount: 1
+    defaultReplicationFactor: 1
+    offsetsTopicReplicationFactor: 1
+    persistence:
+      enabled: true
+      storageClass:
+      accessMode: ReadWriteOnce
+      size: 30Gi
+    zookeeper:
+      enabled: true
+      replicaCount: 1
+  broker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
+  autorecovery:
+    resources:
+      requests:
+        cpu: 0.5
+  proxy:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
+  # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
+  extraConfigFiles:
+    user.yaml: |+
+      etcd:
+        rootPath: core-milvus
+        log:
+          level: info
+      minio:
+        bucketName: core-milvus
+      pulsar:
+        namespace: instill-ai
 tags:
   model: true
   observability: true

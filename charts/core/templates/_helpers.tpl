@@ -390,6 +390,21 @@ registry
 {{- end -}}
 
 {{/*
+milvus
+*/}}
+{{- define "core.milvus" -}}
+  {{- printf "%s-milvus" (include "core.fullname" .) -}}
+{{- end -}}
+
+{{- define "core.milvus.port" -}}
+  {{- printf "19530" -}}
+{{- end -}}
+
+{{- define "core.milvus.metricPort" -}}
+  {{- printf "9091" -}}
+{{- end -}}
+
+{{/*
 internal TLS secret names
 */}}
 {{- define "core.internalTLS.apiGateway.secretName" -}}

@@ -1,4 +1,7 @@
 dependencies:
+- name: milvus
+  repository: https://zilliztech.github.io/milvus-helm/
+  version: 4.1.30
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm/
   version: 1.1.1
@@ -20,5 +23,5 @@ dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 7.0.19
-digest: sha256:54af8013247538db390dec1acf2dfb3b7b0d70c039e1d57763d689b6f48aea8e
-generated: "2024-05-12T04:49:12.15233+08:00"
+digest: sha256:12d974d5198de61d676406882a96f0d7e589bc4eef28e2ae4c303a5b1d787b26
+generated: "2024-05-21T00:12:29.456857+08:00"

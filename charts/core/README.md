@@ -8,14 +8,14 @@ The Helm chart of Instill Core
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | etcd | 8.8.1 |
 | https://grafana.github.io/helm-charts | grafana | 7.0.19 |
 | https://helm.elastic.co | elasticsearch | 7.17.3 |
 | https://helm.influxdata.com | influxdb2 | 2.1.1 |
 | https://jaegertracing.github.io/helm-charts | jaeger | 0.71.2 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.59.1 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 48.2.1 |
-| https://ray-project.github.io/kuberay-helm/ | kuberay-operator | 1.0.0 |
+| https://ray-project.github.io/kuberay-helm | kuberay-operator | 1.1.1 |
+| https://zilliztech.github.io/milvus-helm | milvus | 4.1.30 |
 
 ## Install
 
