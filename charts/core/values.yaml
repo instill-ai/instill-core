@@ -651,6 +651,10 @@ console:
       maxUnavailable:
 # -- The configuration of KubeRay Operator
 kuberay-operator:
+  image:
+    repository: quay.io/kuberay/operatore
+    tag: v1.1.1
+    pullPolicy: IfNotPresent
   fullnameOverride: ""
   watchNamespace:
     - "instill-ai"
