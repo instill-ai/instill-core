@@ -50,7 +50,7 @@
     "visibility": "VISIBILITY_PUBLIC",
     "task": "TASK_TEXT_TO_IMAGE",
     "region": "REGION_GCP_EUROPE_WEST4",
-    "hardware": "NVIDIA_L4",
+    "hardware": "NVIDIA_A100",
     "version": "v0.1.0",
     "configuration": {}
   },
