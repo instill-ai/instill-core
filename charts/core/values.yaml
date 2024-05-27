@@ -652,7 +652,7 @@ console:
 # -- The configuration of KubeRay Operator
 kuberay-operator:
   image:
-    repository: quay.io/kuberay/operatore
+    repository: quay.io/kuberay/operator
     tag: v1.1.1
     pullPolicy: IfNotPresent
   fullnameOverride: ""
