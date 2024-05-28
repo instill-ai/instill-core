@@ -331,7 +331,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f  http://localhost:8082/v1alpha/health/artifact",
+          "curl -f  http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PUBLICPORT}/v1alpha/health/artifact",
         ]
       start_period: 20s
       interval: 30s
