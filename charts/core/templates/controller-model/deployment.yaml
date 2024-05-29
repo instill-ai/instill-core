@@ -1,7 +1,7 @@
 {{- if .Values.tags.model -}}
 {{- $modelRepository := .Values.persistence.persistentVolumeClaim.modelRepository -}}
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ template "core.controllerModel" . }}
   labels:
@@ -11,14 +11,10 @@ metadata:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
   strategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- else}}
-    rollingUpdate: null
-    {{- end }}
+    blueGreen:
+      activeService: {{ template "core.controllerModel" . }}
+      previewService: {{ template "core.controllerModel" . }}-preview
+      scaleDownDelaySeconds: 120
   {{- if not .Values.controllerModel.autoscaling.enabled }}
   replicas: {{ .Values.controllerModel.replicaCount }}
   {{- end }}

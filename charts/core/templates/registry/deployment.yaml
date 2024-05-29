@@ -1,7 +1,7 @@
 {{- if .Values.registry.enabled -}}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ template "core.registry" . }}
   labels:
@@ -11,14 +11,9 @@ metadata:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
   strategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- else}}
-    rollingUpdate: null
-    {{- end }}
+    blueGreen:
+      activeService: {{ template "core.registry" . }}
+      previewService: {{ template "core.registry" . }}-preview
   {{- if not .Values.registry.autoscaling.enabled }}
   replicas: {{ .Values.registry.replicaCount }}
   {{- end }}

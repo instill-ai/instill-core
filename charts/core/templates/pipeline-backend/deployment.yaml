@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ template "core.pipelineBackend" . }}
   labels:
@@ -12,14 +12,10 @@ metadata:
     {{- end }}
 spec:
   strategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- else}}
-    rollingUpdate: null
-    {{- end }}
+    blueGreen:
+      activeService: {{ template "core.pipelineBackend" . }}
+      previewService: {{ template "core.pipelineBackend" . }}-preview
+      scaleDownDelaySeconds: 120
   {{- if not .Values.pipelineBackend.autoscaling.enabled }}
   replicas: {{ .Values.pipelineBackend.replicaCount }}
   {{- end }}

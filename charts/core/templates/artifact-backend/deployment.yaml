@@ -1,6 +1,6 @@
 {{- if and .Values.artifactBackend.enabled }}
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ template "core.artifactBackend" . }}
   labels:
@@ -10,14 +10,9 @@ metadata:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
   strategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- else}}
-    rollingUpdate: null
-    {{- end }}
+    blueGreen:
+      activeService: {{ template "core.artifactBackend" . }}
+      previewService: {{ template "core.artifactBackend" . }}-preview
   {{- if not .Values.artifactBackend.autoscaling.enabled }}
   replicas: {{ .Values.artifactBackend.replicaCount }}
   {{- end }}
