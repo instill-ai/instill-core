@@ -7,11 +7,9 @@ We appreciate your contribution to this amazing project! Any form of engagement 
 - roadmap suggestion
 - ...and so on!
 
-Please refer to the [community contributing section](https://github.com/instill-ai/community#contributing) for more details.
-
 ## Development and codebase contribution
 
-Before delving into the details to come up with your first PR, please familiarise yourself with the project structure of [Instill Core](https://github.com/instill-ai/community#instill-core).
+Before delving into the details to come up with your first PR, please familiarise yourself with the project structure of [Instill Core](https://github.com/instill-ai/instill-core).
 
 ### Prerequisites
 
