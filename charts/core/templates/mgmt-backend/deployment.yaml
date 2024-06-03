@@ -76,6 +76,7 @@ spec:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
+        {{- if .Values.isPrimaryCluster }}
         - name: mgmt-backend-migration
           image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
           imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
@@ -91,6 +92,7 @@ spec:
             {{- with .Values.mgmtBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+        {{- end }}
         - name: mgmt-backend-init
           image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
           imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
