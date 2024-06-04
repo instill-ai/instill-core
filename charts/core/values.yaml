@@ -205,6 +205,13 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     # If external database is used, the following settings for database will be ignored
+    modelConfig:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 512Mi
+      annotations: {}
     database:
       existingClaim: ""
       storageClass: ""
@@ -1431,6 +1438,7 @@ registry:
           auth_provider_x509_cert_url:
           client_x509_cert_url:
         rootdirectory:
+        chunksize:
       delete:
         enabled: true
       redirect:
