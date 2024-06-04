@@ -1,4 +1,5 @@
 {{- if .Values.tags.model -}}
+{{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -125,6 +126,15 @@ spec:
               value: "{{ template "core.ray" . }}"
             - name: RAY_SERVER_SERVE_PORT
               value: "{{ template "core.ray.servePort" . }}"
+        - name: chmod-model-config
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: busybox
+          command: ["sh", "-c", "chmod -R 777 /model-config"]
+          volumeMounts:
+          - name: model-config
+            mountPath: /model-config
       containers:
         - name: model-backend-worker
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
@@ -141,6 +151,8 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
+            - name: model-config
+              mountPath: /model-config
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -174,6 +186,8 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
+            - name: model-config
+              mountPath: /model-config
             {{- if .Values.internalTLS.enabled }}
             - name: model-internal-certs
               mountPath: "/etc/instill-ai/model/ssl/model"
@@ -192,6 +206,16 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.modelBackend" . }}
+        - name: model-config
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $modelConfig.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $modelConfig.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: core-model-config-data-volume
+        {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs
           secret:

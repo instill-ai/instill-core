@@ -5,6 +5,8 @@ networks:
 volumes:
   elasticsearch_data:
     name: elasticsearch-data
+  model_config:
+    name: model-config
 
 services:
   api_gateway:
@@ -224,7 +226,7 @@ services:
       CFG_SERVER_EDITION: ${EDITION}
       CFG_SERVER_INSTILLCOREHOST: http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT}
       CFG_RAYSERVER_GRPCURI: ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_GRPC_PORT}
-      CFG_RAYSERVER_MODELSTORE: /model-backend
+      CFG_RAYSERVER_MODELSTORE: /model-config
       CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
@@ -236,6 +238,8 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    volumes:
+      - model_config:/model-config
     command:
       - /bin/sh
       - -c
@@ -282,6 +286,8 @@ services:
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+    volumes:
+      - model_config:/model-config
     entrypoint: ./model-backend-worker
     depends_on:
       temporal:

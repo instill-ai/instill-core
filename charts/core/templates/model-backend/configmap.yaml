@@ -51,7 +51,7 @@ data:
       {{- end }}
     rayserver:
       grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
-      modelstore: /model-backend
+      modelstore: /model-config
       vram: {{ .Values.rayService.vram }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}

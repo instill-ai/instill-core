@@ -1,4 +1,36 @@
 {{- if .Values.persistence.enabled }}
+{{- if .Values.tags.model -}}
+{{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
+{{- if not $modelConfig.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "core.modelConfigDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $modelConfig.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+spec:
+  accessModes:
+    - {{ $modelConfig.accessMode }}
+  resources:
+    requests:
+      storage: {{ $modelConfig.size }}
+  {{- if $modelConfig.storageClass }}
+    {{- if eq "-" $modelConfig.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $modelConfig.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
 {{- if eq .Values.registry.config.storage.type "filesystem" }}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
 {{- if not $registry.existingClaim }}
