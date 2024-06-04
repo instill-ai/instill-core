@@ -496,8 +496,6 @@ modelBackend:
   replicaCount: 1
   # -- The model initialization configuration
   initModel:
-    ownertype: users
-    ownerid: admin
     enabled: false
     path: https://raw.githubusercontent.com/instill-ai/instill-core/main/model-hub/model_hub_test.json
   # -- Add extra env variables

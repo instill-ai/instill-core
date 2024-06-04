@@ -1,112 +1,132 @@
 [
   {
     "id": "dummy-cls",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A classification model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_CLASSIFICATION",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "CLASSIFICATION"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-det",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A object detection model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_DETECTION",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "DETECTION"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-image-to-image",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A image to image model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_IMAGE_TO_IMAGE",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "IMAGE_TO_IMAGE"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-instance-segmentation",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A instance segmentation model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_INSTANCE_SEGMENTATION",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "INSTANCE_SEGMENTATION"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-keypoint",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A keypoint detection model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_KEYPOINT",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "KEYPOINT"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-semantic-segmentation",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A semantic segmentation model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "SEMANTIC_SEGMENTATION"
-    }
+    "task": "TASK_SEMANTIC_SEGMENTATION",
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-text-generation",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A text generation model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_TEXT_GENERATION",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "TEXT_GENERATION"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-text-generation-chat",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A text generation chat model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_TEXT_GENERATION_CHAT",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "TEXT_GENERATION_CHAT"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-text-to-image",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A text to image model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_TEXT_TO_IMAGE",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "TEXT_TO_IMAGE"
-    }
+    "version": "latest",
+    "configuration": {}
   },
   {
     "id": "dummy-visual-question-answering",
+    "owner_type": "users",
+    "owner_id": "admin",
     "description": "A visual question answering model for integration-test",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "region": "REGION_GCP_EUROPE_WEST_4",
+    "task": "TASK_VISUAL_QUESTION_ANSWERING",
+    "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "configuration": {
-      "task": "VISUAL_QUESTION_ANSWERING"
-    }
+    "version": "latest",
+    "configuration": {}
   }
 ]
