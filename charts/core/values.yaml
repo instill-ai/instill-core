@@ -539,7 +539,7 @@ modelBackend:
       maxUnavailable:
 # -- The configuration of artifact-backend
 artifactBackend:
-  # -- Enable artifact-backend deployment
+  # -- Enable artifact-backend deployment and milvus(and also minIO in milvus chart ) dependency
   enabled: true
   # -- The image of artifact-backend
   image:
@@ -1497,10 +1497,10 @@ milvus:
   log:
     level: "info"
     file:
-      maxSize: 10   # MB
-      maxAge: 12    # day
+      maxSize: 10 # MB
+      maxAge: 12 # day
       maxBackups: 2
-    format: "json"  # text/json
+    format: "json" # text/json
   cluster:
     enabled: true
   rootCoordinator:
@@ -1578,3 +1578,4 @@ tags:
   model: true
   observability: true
   prometheusStack: false
+  milvus: false
