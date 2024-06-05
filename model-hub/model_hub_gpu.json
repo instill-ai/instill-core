@@ -110,7 +110,7 @@
     "description": "Llamacode-7b, from Huggingface, is trained to generate text based on your prompts.",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
-    "task": "TASK_TEXT_GENERATION_CHAT",
+    "task": "TASK_TEXT_GENERATION",
     "region": "REGION_GCP_EUROPE_WEST4",
     "hardware": "NVIDIA_L4",
     "version": "v0.1.0",
