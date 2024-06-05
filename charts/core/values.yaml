@@ -539,7 +539,7 @@ modelBackend:
       maxUnavailable:
 # -- The configuration of artifact-backend
 artifactBackend:
-  # -- Enable artifact-backend deployment and milvus(and also minIO in milvus chart ) dependency
+  # -- Enable artifact-backend deployment
   enabled: true
   # -- The image of artifact-backend
   image:
