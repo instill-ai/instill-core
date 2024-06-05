@@ -32,7 +32,7 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            This issue is a great way to kick-start your journey with our project, or to make a positive impact on open-source development. Jump in!
+            This issue is a great way to kick-start your journey with our project, or to make a positive impact on Instill Core development. Jump in!
 
             - Check out our [Contributing Guidelines](https://github.com/instill-ai/.github/blob/main/.github/CONTRIBUTING.md) for a smooth experience
             - Remember to **[link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)** your pull request to this issue
