@@ -246,7 +246,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.16.0-beta
+    tag: 0.17.0-beta
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -303,7 +303,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.15.2-beta
+    tag: 0.16.0-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -375,7 +375,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.28.0-beta
+    tag: 0.29.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -459,7 +459,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.23.0-alpha
+    tag: 0.24.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -607,7 +607,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.47.0-beta
+    tag: 0.48.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -680,7 +680,7 @@ rayService:
   image:
     repository: instill/ray
     version: "2.21.0"
-    tag: 0.3.0-alpha
+    tag: 0.4.0-alpha
     pullPolicy: IfNotPresent
   headGroupSpec:
     resources:
@@ -1565,7 +1565,7 @@ milvus:
         cpu: 0.5
   # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
   extraConfigFiles:
-    user.yaml: |+
+    user.yaml: |
       etcd:
         rootPath: core-milvus
         log:

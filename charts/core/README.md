@@ -1,6 +1,6 @@
 # core
 
-![Version: 0.1.35-beta](https://img.shields.io/badge/Version-0.1.35--beta-informational?style=flat-square) ![AppVersion: 0.32.0-beta](https://img.shields.io/badge/AppVersion-0.32.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.36-beta](https://img.shields.io/badge/Version-0.1.36--beta-informational?style=flat-square) ![AppVersion: 0.33.0-beta](https://img.shields.io/badge/AppVersion-0.33.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill Core
 
@@ -14,8 +14,8 @@ The Helm chart of Instill Core
 | https://jaegertracing.github.io/helm-charts | jaeger | 0.71.2 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.59.1 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 48.2.1 |
-| https://ray-project.github.io/kuberay-helm | kuberay-operator | 1.1.1 |
-| https://zilliztech.github.io/milvus-helm | milvus | 4.1.30 |
+| https://ray-project.github.io/kuberay-helm/ | kuberay-operator | 1.1.1 |
+| https://zilliztech.github.io/milvus-helm/ | milvus | 4.1.30 |
 
 ## Install
 
