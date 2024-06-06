@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.33.0-beta](https://github.com/instill-ai/instill-core/compare/v0.32.0-beta...v0.33.0-beta) (2024-06-06)
+
+
+### Features
+
+* **artifact:** add minio and milvus for artifact storage ([#999](https://github.com/instill-ai/instill-core/issues/999)) ([14713d9](https://github.com/instill-ai/instill-core/commit/14713d924a15828caf7cbfbe567f43c9edd0f71c))
+* **mgmt:** run migration only on main cluster in mgmt-backend ([#1007](https://github.com/instill-ai/instill-core/issues/1007)) ([26fedff](https://github.com/instill-ai/instill-core/commit/26fedff640814ad68eb353706c142fc8dd1e2b39))
+* **ray:** update infra to accommodate containerized model serving ([#494](https://github.com/instill-ai/instill-core/issues/494)) ([8c4b3e1](https://github.com/instill-ai/instill-core/commit/8c4b3e1dc08bb93e9a7b008ff41cc620cde96a37))
+
+
+### Bug Fixes
+
+* **artifact:** modify healthy check request ([#1003](https://github.com/instill-ai/instill-core/issues/1003)) ([c4225aa](https://github.com/instill-ai/instill-core/commit/c4225aac0b8f3236474b926ec4f13ef46318f9ba))
+
+
+### Miscellaneous Chores
+
+* release v0.33.0-beta ([1cc19b9](https://github.com/instill-ai/instill-core/commit/1cc19b92ce936983cdd800fd7e3e7b23badb6038))
+
 ## [0.32.0-beta](https://github.com/instill-ai/instill-core/compare/v0.31.0-beta...v0.32.0-beta) (2024-05-16)
 
 
