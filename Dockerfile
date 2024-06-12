@@ -29,12 +29,12 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 WORKDIR /instill-core
 
 ARG CONTROLLER_MODEL_VERSION
-RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
+RUN git clone -b huitang/ins-4725 --depth=1 https://github.com/instill-ai/artifact-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
-RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
+RUN git clone -b huitang/ins-4725 --depth=1 https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/console.git
-RUN git clone --depth=1 https://github.com/instill-ai/pipeline-backend.git
-RUN git clone --depth=1 https://github.com/instill-ai/model-backend.git
+RUN git clone -b huitang/ins-4725 --depth=1 https://github.com/instill-ai/pipeline-backend.git
+RUN git clone -b huitang/ins-4725 --depth=1 https://github.com/instill-ai/model-backend.git
 
 FROM alpine:${ALPINE_VERSION} AS release
 
