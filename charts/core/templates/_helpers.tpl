@@ -472,3 +472,10 @@ Allow KubeVersion to be overridden.
 {{- define "core.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version .Values.expose.ingress.kubeVersionOverride -}}
 {{- end -}}
+
+{{/*
+minio
+*/}}
+{{- define "core.minio" -}}
+  {{- printf "%s-minio" (include "core.fullname" .) -}}
+{{- end -}}

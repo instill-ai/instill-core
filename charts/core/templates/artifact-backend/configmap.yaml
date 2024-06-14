@@ -69,3 +69,9 @@ data:
     registry:
       host: {{ template "core.registry" . }}
       port: {{ template "core.registry.port" . }}
+    minio:
+      host: {{ template "core.minio" . }}
+      port: {{ .Values.artifactBackend.minio.port }}
+      rootuser: {{ .Values.artifactBackend.minio.rootuser }}
+      rootpwd: {{ .Values.artifactBackend.minio.rootpwd }}
+      bucketname: {{ .Values.artifactBackend.minio.bucketname }}
