@@ -57,7 +57,7 @@ data:
       token: {{ .Values.influxdbCloud.token }}
       org: {{ .Values.influxdbCloud.organization }}
       bucket: {{ .Values.influxdbCloud.bucket }}
-      flushinterval: 10 # In seconds for non-blocking batch mode
+      flushinterval: 10s
       https:
         cert:
         key:
