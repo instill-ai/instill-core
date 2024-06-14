@@ -600,6 +600,11 @@ artifactBackend:
     spec:
       minAvailable:
       maxUnavailable:
+  minio:
+    port: 9000
+    rootuser: minioadmin
+    rootpwd: minioadmin
+    bucketname: instill-ai-knowledge-bases
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
@@ -1578,4 +1583,4 @@ tags:
   model: true
   observability: true
   prometheusStack: false
-  milvus: false
+  milvus: true
