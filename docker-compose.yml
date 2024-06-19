@@ -41,6 +41,8 @@ services:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
       - ${API_GATEWAY_STATS_PORT}:${API_GATEWAY_STATS_PORT}
       - ${API_GATEWAY_METRICS_PORT}:${API_GATEWAY_METRICS_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: /bin/bash -c "
       envsubst <config/.env.envsubst >config/.env &&
       make config &&
@@ -560,6 +562,8 @@ services:
       - OPENFGA_DATASTORE_ENGINE=postgres
       - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
     command: run
+    ports:
+      - 8060:8081
     depends_on:
       openfga_migrate:
         condition: service_completed_successfully
@@ -584,7 +588,10 @@ services:
     command: milvus run standalone 1> /dev/null
     healthcheck:
       test:
-        ["CMD-SHELL", "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz"]
+        [
+          "CMD-SHELL",
+          "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz",
+        ]
       start_period: 20s
       interval: 30s
       timeout: 5s

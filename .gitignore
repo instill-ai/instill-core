@@ -42,3 +42,5 @@ __pycache__
 
 # Helm rendered test templates
 rendered-test-template.yaml
+
+.idea
