@@ -19,12 +19,12 @@ services:
       API_GATEWAY_PORT: ${API_GATEWAY_PORT}
       API_GATEWAY_STATS_PORT: ${API_GATEWAY_STATS_PORT}
       API_GATEWAY_METRICS_PORT: ${API_GATEWAY_METRICS_PORT}
-      MGMT_BACKEND_HOST: ${MGMT_BACKEND_HOST}
+      MGMT_BACKEND_HOST: host.docker.internal
       MGMT_BACKEND_PUBLICPORT: ${MGMT_BACKEND_PUBLICPORT}
       MGMT_BACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
-      PIPELINE_BACKEND_HOST: ${PIPELINE_BACKEND_HOST}
+      PIPELINE_BACKEND_HOST: host.docker.internal
       PIPELINE_BACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
-      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
+      MODEL_BACKEND_HOST: host.docker.internal
       MODEL_BACKEND_PUBLICPORT: ${MODEL_BACKEND_PUBLICPORT}
       MODEL_BACKEND_PRIVATEPORT: ${MODEL_BACKEND_PRIVATEPORT}
       ARTIFACT_BACKEND_HOST: ${ARTIFACT_BACKEND_HOST}
@@ -43,6 +43,8 @@ services:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
       - ${API_GATEWAY_STATS_PORT}:${API_GATEWAY_STATS_PORT}
       - ${API_GATEWAY_METRICS_PORT}:${API_GATEWAY_METRICS_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: /bin/bash -c "
       envsubst <config/.env.envsubst >config/.env &&
       make config &&
@@ -550,6 +552,8 @@ services:
       - OPENFGA_DATASTORE_ENGINE=postgres
       - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
     command: run
+    ports:
+      - 8060:8081
     depends_on:
       openfga_migrate:
         condition: service_completed_successfully
@@ -574,7 +578,10 @@ services:
     command: milvus run standalone 1> /dev/null
     healthcheck:
       test:
-        ["CMD-SHELL", "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz"]
+        [
+          "CMD-SHELL",
+          "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz",
+        ]
       start_period: 20s
       interval: 30s
       timeout: 5s
