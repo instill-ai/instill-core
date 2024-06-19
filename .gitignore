@@ -39,3 +39,4 @@ __pycache__
 
 # Macbook
 .DS_Store
+.idea
