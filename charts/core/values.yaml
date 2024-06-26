@@ -1410,9 +1410,10 @@ registry:
       minAvailable:
       maxUnavailable:
   garbageCollect:
-    enabled: false
+    enabled: true
     deleteUntagged: true
-    schedule: "@midnight"
+    schedule: "10 0 * * 1"
+    maintenanceSchedule: "*/30 0 * * 1"
   config:
     version: 0.1
     log:
