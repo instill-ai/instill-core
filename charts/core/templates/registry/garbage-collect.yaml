@@ -15,42 +15,40 @@ spec:
       labels:
         {{- include "core.matchLabels" . | nindent 8 }}
         app.kubernetes.io/component: registry
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/registry/configmap.yaml") . | sha256sum }}
-        {{- with .Values.registry.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
       template:
         spec:
-          {{- if .Values.registry.serviceAccountName }}
-          serviceAccountName: {{ .Values.registry.serviceAccountName }}
-          {{- end }}
-          {{- with .Values.imagePullSecrets }}
-          imagePullSecrets:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           securityContext:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+          {{- if .Values.registry.serviceAccountName }}
+          serviceAccountName: {{ .Values.registry.serviceAccountName }}
+          {{- end }}
+          automountServiceAccountToken: {{ .Values.registry.automountServiceAccountToken | default false }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           containers:
             - name: garbage-collect
               image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
               imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
               command:
-              - /bin/registry
-              - garbage-collect
-              - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
-              - /etc/docker/registry/config.yml
-              securityContext:
-                runAsUser: 65534
-                runAsGroup: 65534
-                fsGroup: 65534
+                - /bin/registry
+                - garbage-collect
+                - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
+                - {{ .Values.registry.configPath }}
+              {{- if .Values.registry.resources }}
+              resources:
+                {{- toYaml .Values.registry.resources | nindent 12 }}
+              {{- end }}
               volumeMounts:
                 - name: config
                   mountPath: {{ .Values.registry.configPath }}
-                  subPath: config.yaml
+                  subPath: config.yml
           restartPolicy: OnFailure
           {{- with .Values.registry.nodeSelector }}
           nodeSelector:

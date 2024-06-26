@@ -96,7 +96,7 @@ spec:
           volumeMounts:
             - name: config
               mountPath: {{ .Values.registry.configPath }}
-              subPath: config.yaml
+              subPath: config.yml
             {{- if eq .Values.registry.config.storage.type "filesystem" }}
             - name: data-volume
               mountPath: /var/lib/registry

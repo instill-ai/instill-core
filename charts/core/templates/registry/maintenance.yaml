@@ -16,7 +16,7 @@ rules:
     verbs: ["get", "patch", "list", "watch"]
   - apiGroups: [""]
     resources: ["configmaps"]
-    verbs: ["get", "update"]
+    verbs: ["get", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -50,20 +50,19 @@ spec:
       activeDeadlineSeconds: 600
       template:
         spec:
+          restartPolicy: Never
           serviceAccountName: {{ template "core.registry" . }}-maintenance
           containers:
             - name: kubectl
               image: bitnami/kubectl
-              command:
-                - bash
-                - -c
-                - >-
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
                   TMP_CONFIGMAP_FILE="/tmp/configmap.yaml"
                   kubectl get configmap {{ template "core.registry" . }} -n {{ template "core.namespace" . }} -o yaml > $TMP_CONFIGMAP_FILE
-                  sed -i 's/\(readonly:.*enabled: \)\(true\|false\)/\1\2/' $TMP_CONFIGMAP_FILE
-                  kubectl apply -f $TMP_CONFIGMAP_FILE
+                  sed -i '/readonly:/,/enabled:/s/enabled: true/enabled: TEMP/; /readonly:/,/enabled:/s/enabled: false/enabled: true/; /readonly:/,/enabled:/s/enabled: TEMP/enabled: false/' $TMP_CONFIGMAP_FILE
+                  kubectl apply -n {{ template "core.namespace" . }} -f $TMP_CONFIGMAP_FILE
                   kubectl rollout restart -n {{ template "core.namespace" . }} deployment/{{ template "core.registry" . }} &&
                   kubectl rollout status -n {{ template "core.namespace" . }} deployment/{{ template "core.registry" . }}
-          restartPolicy: Never
 {{- end }}
 {{- end }}

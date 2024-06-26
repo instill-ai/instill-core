@@ -7,7 +7,7 @@ metadata:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry
 data:
-  config.yaml: |+
+  config.yml: |+
     version: {{ .Values.registry.config.version }}
     log:
       {{- toYaml .Values.registry.config.log | nindent 6 }}
