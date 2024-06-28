@@ -7,7 +7,7 @@ metadata:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry
 data:
-  config.yaml: |+
+  config.yml: |+
     version: {{ .Values.registry.config.version }}
     log:
       {{- toYaml .Values.registry.config.log | nindent 6 }}
@@ -19,6 +19,14 @@ data:
       filesystem:
         {{- toYaml .Values.registry.config.storage.filesystem | nindent 8 }}
       {{- end }}
+      delete:
+        {{- toYaml .Values.registry.config.storage.delete | nindent 8 }}
+      redirect:
+        {{- toYaml .Values.registry.config.storage.redirect | nindent 8 }}
+      cache:
+        {{- toYaml .Values.registry.config.storage.cache | nindent 8 }}
+      maintenance:
+        {{- toYaml .Values.registry.config.storage.maintenance | nindent 8 }}
     http:
       {{- toYaml .Values.registry.config.http | nindent 6 }}
     redis:
