@@ -1,5 +1,6 @@
 {{- if .Values.registry.enabled -}}
 {{- if .Values.registry.garbageCollect.enabled }}
+{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -49,6 +50,13 @@ spec:
                 - name: config
                   mountPath: {{ .Values.registry.configPath }}
                   subPath: config.yml
+                {{- if eq .Values.registry.config.storage.type "filesystem" }}
+                - name: data-volume
+                  mountPath: /var/lib/registry
+                {{- end }}
+                {{- with .Values.registry.extraVolumeMounts }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
           restartPolicy: OnFailure
           {{- with .Values.registry.nodeSelector }}
           nodeSelector:
@@ -66,5 +74,20 @@ spec:
             - name: config
               configMap:
                 name: {{ template "core.registry" . }}
+            {{- if eq .Values.registry.config.storage.type "filesystem" }}
+            - name: data-volume
+            {{- if not .Values.persistence.enabled }}
+              emptyDir: {}
+            {{- else if $registry.existingClaim }}
+              persistentVolumeClaim:
+                claimName: {{ $registry.existingClaim }}
+            {{- else }}
+              persistentVolumeClaim:
+                claimName: {{ template "core.registryDataVolume" . }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.registry.extraVolumes }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
 {{- end }}
 {{- end }}
