@@ -37,13 +37,13 @@ spec:
               image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
               imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
               command:
-                - /bin/registry
-                - garbage-collect
-                - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
-                - {{ .Values.registry.configPath }}
+              - /bin/registry
+              - garbage-collect
+              - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
+              - {{ .Values.registry.configPath }}
               {{- if .Values.registry.resources }}
               resources:
-                {{- toYaml .Values.registry.resources | nindent 12 }}
+                {{- toYaml .Values.registry.resources | nindent 16 }}
               {{- end }}
               volumeMounts:
                 - name: config
@@ -52,15 +52,15 @@ spec:
           restartPolicy: OnFailure
           {{- with .Values.registry.nodeSelector }}
           nodeSelector:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.registry.affinity }}
           affinity:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.registry.tolerations }}
           tolerations:
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           volumes:
             - name: config
