@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.0-beta](https://github.com/instill-ai/instill-core/compare/v0.34.0-beta...v0.35.0-beta) (2024-07-02)
+
+
+### Features
+
+* **helm:** support registry image deletion and garbage-collect ([#1029](https://github.com/instill-ai/instill-core/issues/1029)) ([04b8c86](https://github.com/instill-ai/instill-core/commit/04b8c861ceb750fe70382b1384527a6191ce0b80))
+
 ## [0.34.0-beta](https://github.com/instill-ai/instill-core/compare/v0.33.0-beta...v0.34.0-beta) (2024-06-19)
 
 
