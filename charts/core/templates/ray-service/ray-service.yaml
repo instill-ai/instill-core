@@ -74,6 +74,8 @@ spec:
                 value: http://core-grafana:80
               - name: RAY_PROMETHEUS_HOST
                 value: http://core-prometheus:9090
+              - name: RAY_TASK_MAX_RETRIES
+                value: "2"
               - name: RAY_worker_register_timeout_seconds
                 value: "3600"
               # - name: RAY_REDIS_ADDRESS
@@ -155,6 +157,8 @@ spec:
                 privileged: true
               imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
               env:
+                - name: RAY_TASK_MAX_RETRIES
+                  value: "2"
                 - name: RAY_worker_register_timeout_seconds
                   value: "3600"
               lifecycle:
