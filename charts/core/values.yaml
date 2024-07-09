@@ -212,6 +212,13 @@ persistence:
       accessMode: ReadWriteOnce
       size: 512Mi
       annotations: {}
+    rayContainer:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteMany
+      size: 250Gi
+      annotations: {}
     database:
       existingClaim: ""
       storageClass: ""

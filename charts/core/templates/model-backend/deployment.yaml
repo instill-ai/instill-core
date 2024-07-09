@@ -214,7 +214,7 @@ spec:
             claimName: {{ $modelConfig.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: core-model-config-data-volume
+            claimName: {{ template "core.modelConfigDataVolume" . }}
         {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs

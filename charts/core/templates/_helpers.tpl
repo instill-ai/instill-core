@@ -454,6 +454,10 @@ Persistent Volume Claims
   {{- printf "%s-model-config-data-volume" (include "core.fullname" .) -}}
 {{- end -}}
 
+{{- define "core.rayContainerVolume" -}}
+  {{- printf "%s-ray-container-volume" (include "core.fullname" .) -}}
+{{- end -}}
+
 {{- define "core.registryDataVolume" -}}
   {{- printf "%s-registry-data-volume" (include "core.fullname" .) -}}
 {{- end -}}

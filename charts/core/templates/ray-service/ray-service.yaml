@@ -1,4 +1,6 @@
 {{- if .Values.tags.model -}}
+{{- $rayContainer := .Values.persistence.persistentVolumeClaim.rayContainer -}}
+{{- $persistenceEnabled := .Values.persistence.enabled -}}
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
@@ -48,6 +50,16 @@ spec:
                   path: policy.json
                 - key: storage.conf
                   path: storage.conf
+          - name: container-volume
+          {{- if not .Values.persistence.enabled }}
+            emptyDir: {}
+          {{- else if $rayContainer.existingClaim }}
+            persistentVolumeClaim:
+              claimName: {{ $rayContainer.existingClaim }}
+          {{- else }}
+            persistentVolumeClaim:
+              claimName: {{ template "core.rayContainerVolume" . }}
+          {{- end }}
         containers:
           - name: ray-head
             # ray-head need to have access to GPU for some reason in order to `podman run` gpu container in ray-worker node
@@ -81,8 +93,10 @@ spec:
               # - name: RAY_REDIS_ADDRESS
               #   value: {{ template "core.redis.addr" . }}
             volumeMounts:
-              - mountPath: /etc/containers/
-                name: podman-configmap
+              - name: podman-configmap
+                mountPath: /etc/containers/
+              - name: container-volume
+                mountPath: /home/ray/.local/share/containers/storage
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -149,6 +163,16 @@ spec:
                     path: registries.conf
                   - key: policy.json
                     path: policy.json
+            - name: container-volume
+            {{- if not $persistenceEnabled }}
+              emptyDir: {}
+            {{- else if $rayContainer.existingClaim }}
+              persistentVolumeClaim:
+                claimName: {{ $rayContainer.existingClaim }}
+            {{- else }}
+              persistentVolumeClaim:
+                claimName: core-ray-container-volume
+            {{- end }}
           containers:
             - name: ray-worker
               image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}{{ ternary "-gpu" "" $workerGroupSpecs.gpuWorkerGroup.enabled }}
@@ -196,8 +220,10 @@ spec:
                 {{- toYaml $workerGroupSpecs.resources | nindent 16 }}
               {{- end }}
               volumeMounts:
-                - mountPath: /etc/containers/
-                  name: podman-configmap
+                - name: podman-configmap
+                  mountPath: /etc/containers/
+                - name: container-volume
+                  mountPath: /home/ray/.local/share/containers/storage
   {{- end }}
 ---
 apiVersion: v1

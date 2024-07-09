@@ -30,6 +30,37 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
+{{- $rayContainer := .Values.persistence.persistentVolumeClaim.rayContainer -}}
+{{- if not $rayContainer.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "core.rayContainerVolume" . }}
+  annotations:
+  {{- range $key, $value := $rayContainer.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ray
+spec:
+  accessModes:
+    - {{ $rayContainer.accessMode }}
+  resources:
+    requests:
+      storage: {{ $rayContainer.size }}
+  {{- if $rayContainer.storageClass }}
+    {{- if eq "-" $rayContainer.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $rayContainer.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- end }}
 {{- if eq .Values.registry.config.storage.type "filesystem" }}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
