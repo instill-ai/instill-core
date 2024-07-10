@@ -79,3 +79,12 @@ data:
       host: {{ template "core.mgmtBackend" . }}
       publicport: {{ template "core.mgmtBackend.publicPort" . }}
       privateport: {{ template "core.mgmtBackend.privatePort" . }}
+    pipelinebackend:
+      host: {{ template "core.pipelineBackend" . }}
+      publicport: {{ template "core.pipelineBackend.publicPort" . }}
+      privateport: {{ template "core.pipelineBackend.privatePort" . }}
+    milvus:
+      host: {{ template "core.milvus" . }}
+      port: {{ template "core.milvus.port" . }}
+    filetoembeddingworker:
+      numberofworkers: {{ .Values.artifactBackend.numberOfWorkers }}

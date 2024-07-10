@@ -39,3 +39,6 @@ __pycache__
 
 # Macbook
 .DS_Store
+
+# Helm rendered test templates
+rendered-test-template.yaml

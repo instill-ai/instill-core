@@ -605,6 +605,7 @@ artifactBackend:
     rootuser: minioadmin
     rootpwd: minioadmin
     bucketname: instill-ai-knowledge-bases
+  numberOfWorkers: 20
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
