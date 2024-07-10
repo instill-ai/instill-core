@@ -19,6 +19,7 @@ data:
         maxworkflowtimeout: {{ .Values.pipelineBackend.workflow.maxWorkflowTimeout }}
         maxworkflowretry: {{ .Values.pipelineBackend.workflow.maxWorkflowRetry }}
         maxactivityretry: {{ .Values.pipelineBackend.workflow.maxActivityRetry }}
+      instillcorehost: {{ .Values.pipelineBackend.instillCoreHost }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt

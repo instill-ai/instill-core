@@ -395,6 +395,7 @@ pipelineBackend:
     maxWorkflowRetry: 3
     maxActivityRetry: 1
   useStaticModelList: false
+  instillCoreHost:
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
