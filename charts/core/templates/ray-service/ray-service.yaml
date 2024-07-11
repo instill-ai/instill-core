@@ -126,6 +126,16 @@ spec:
               preStop:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
+        initContainers:
+          - name: chown-container-volume
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+            image: busybox
+            command: ["sh", "-c", "chown -R 1000:100 /home/ray/.local/share/containers/storage"]
+            volumeMounts:
+              - name: container-volume
+                mountPath: /home/ray/.local/share/containers/storage
   workerGroupSpecs:
   {{- range $workerGroupSpecs := .Values.rayService.workerGroupSpecs }}
     - replicas: {{ $workerGroupSpecs.replicas }}
