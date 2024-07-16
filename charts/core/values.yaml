@@ -1521,15 +1521,21 @@ milvus:
     enabled: false
   mixCoordinator:
     enabled: true
+
+  # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
+  # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
   minio:
     mode: standalone
+    nodeSelector: {}
     replicas: 1
     persistence:
       size: 50Gi
   etcd:
+    nodeSelector: {}
     enabled: true
     replicaCount: 1
   pulsar:
+    nodeSelector: {}
     enabled: false
     bookkeeper:
       replicaCount: 1
@@ -1545,6 +1551,7 @@ milvus:
           memory:
           cpu: 0.5
   kafka:
+    nodeSelector: {}
     enabled: true
     replicaCount: 1
     defaultReplicationFactor: 1
@@ -1555,6 +1562,7 @@ milvus:
       accessMode: ReadWriteOnce
       size: 30Gi
     zookeeper:
+      nodeSelector: {}
       enabled: true
       replicaCount: 1
   broker:
