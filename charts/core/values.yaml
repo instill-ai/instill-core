@@ -246,7 +246,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.19.0-beta
+    tag: 0.20.0-beta
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -303,7 +303,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.18.0-beta
+    tag: 0.18.1-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -375,7 +375,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.31.0-beta
+    tag: 0.32.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -460,7 +460,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.26.0-alpha
+    tag: 0.27.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -545,7 +545,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.2.1-alpha
+    tag: 0.6.0-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -614,7 +614,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.50.0-beta
+    tag: 0.51.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -1521,7 +1521,6 @@ milvus:
     enabled: false
   mixCoordinator:
     enabled: true
-
   # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
   # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
   minio:
