@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.36.0-beta](https://github.com/instill-ai/instill-core/compare/v0.35.0-beta...v0.36.0-beta) (2024-07-16)
+
+
+### Bug Fixes
+
+* **core:** make value in yaml compatible with strict parser ([#1037](https://github.com/instill-ai/instill-core/issues/1037)) ([ad6594a](https://github.com/instill-ai/instill-core/commit/ad6594a4f5c1501f7e8bad5d46c9b44f1f803c7c))
+
+
+### Miscellaneous Chores
+
+* release v0.36.0-beta ([55d63a4](https://github.com/instill-ai/instill-core/commit/55d63a4c525a1544f6b9c4875c68a37881c77854))
+
 ## [0.35.0-beta](https://github.com/instill-ai/instill-core/compare/v0.34.0-beta...v0.35.0-beta) (2024-07-02)
 
 
