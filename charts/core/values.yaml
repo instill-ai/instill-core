@@ -1562,6 +1562,7 @@ milvus:
       accessMode: ReadWriteOnce
       size: 30Gi
     zookeeper:
+      nodeSelector: {}
       enabled: true
       replicaCount: 1
   broker:
