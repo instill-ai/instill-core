@@ -1592,6 +1592,6 @@ milvus:
         namespace: instill-ai
 tags:
   model: true
-  observability: true
+  observability: false
   prometheusStack: false
   milvus: true
