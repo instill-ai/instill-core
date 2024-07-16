@@ -83,6 +83,7 @@ jobs:
           yq ".rayService.image.tag=\"$RAY_SERVER_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
+          yq ".artifactBackend.image.tag=\"$ARTIFACT_BACKEND_VERSION\"" -i charts/core/values.yaml
       - name: Get current chart version
         id: get-current-chart-version
         run: |
