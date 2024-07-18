@@ -59,7 +59,17 @@ Not quite into self-hosting? We've got you covered with **☁️ [Instill Cloud]
 
 ## Prerequisites
 
-- **macOS or Linux** - **🔮 Instill Core** works on macOS or Linux, but does not support Windows yet.
+- **macOS or Linux** - **🔮 Instill Core** works on macOS or Linux
+
+- **Windows** - **🔮 Instill Core** works on Windows through Windows Linux Subsystem (WSL2)
+  
+  *WSL specific settings*:
+  
+  (a) The package `yq` is not installed on Ubuntu WSL2 by default, install the lastest version of `yq` from the [official Github Repository](https://github.com/mikefarah/yq).
+  
+  (b) Install the latest version of Docker Desktop on Windows and enable the WSL2 integration following [this tutorial from Microsoft](https://docs.docker.com/desktop/wsl/)
+  
+  (c) Install `cuda-toolkit` on WSL2 following [this tutorial from Nvidia](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2) 
 
 - **Docker and Docker Compose** - **🔮 Instill Core** requires Docker Engine `v25` or later and Docker Compose `v2` or later to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
 
