@@ -1445,6 +1445,29 @@ registry:
           client_x509_cert_url:
         rootdirectory:
         chunksize:
+      s3:
+        accesskey:
+        secretkey:
+        region:
+        regionendpoint:
+        forcepathstyle:
+        accelerate:
+        bucket:
+        encrypt:
+        keyid:
+        secure:
+        skipverify:
+        v4auth:
+        chunksize:
+        storageclass:
+        multipartcopychunksize:
+        multipartcopymaxconcurrency:
+        multipartcopythresholdsize:
+        rootdirectory:
+        usedualstack:
+        useragent:
+        objectacl:
+        loglevel: debug
       delete:
         enabled: true
       redirect:
