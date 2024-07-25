@@ -15,6 +15,9 @@ data:
       {{- if eq .Values.registry.config.storage.type "gcs" }}
       gcs:
         {{- toYaml .Values.registry.config.storage.gcs | nindent 8 }}
+      {{- else if eq .Values.registry.config.storage.type "s3" }}
+      s3:
+        {{- toYaml .Values.registry.config.storage.s3 | nindent 8 }}
       {{- else }}
       filesystem:
         {{- toYaml .Values.registry.config.storage.filesystem | nindent 8 }}
