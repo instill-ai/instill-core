@@ -554,7 +554,7 @@ artifactBackend:
   # -- The path of configuration file for artifact-backend
   configPath: /artifact-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 10
+  dbVersion: 13
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
