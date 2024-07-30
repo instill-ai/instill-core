@@ -1548,9 +1548,9 @@ milvus:
   # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
   # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
   minio:
-    mode: standalone
+    mode: distributed
     nodeSelector: {}
-    replicas: 1
+    replicas: 2
     persistence:
       size: 50Gi
   etcd:
