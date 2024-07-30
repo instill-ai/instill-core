@@ -1550,7 +1550,7 @@ milvus:
   minio:
     mode: distributed
     nodeSelector: {}
-    replicas: 1
+    replicas: 2
     persistence:
       size: 50Gi
   etcd:
