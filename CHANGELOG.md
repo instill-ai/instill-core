@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.37.0-beta](https://github.com/instill-ai/instill-core/compare/v0.36.0-beta...v0.37.0-beta) (2024-07-31)
+
+
+### Features
+
+* **artifact:** update cm for openfga ([#1049](https://github.com/instill-ai/instill-core/issues/1049)) ([004296d](https://github.com/instill-ai/instill-core/commit/004296d198a31a0f7dcde4e0b1fee6956bbb44e8))
+* **minIO:** change distributed mode ([#1055](https://github.com/instill-ai/instill-core/issues/1055)) ([2cce230](https://github.com/instill-ai/instill-core/commit/2cce2301395b73d88eb6ec8d83944ecbebc26063))
+* **registry:** support s3 as storage backend ([#1047](https://github.com/instill-ai/instill-core/issues/1047)) ([c46988e](https://github.com/instill-ai/instill-core/commit/c46988e351bf7178d02c5fdc2febb5e371df7e8a))
+
+
+### Bug Fixes
+
+* **helm:** fix pipeline pod permission ([#1053](https://github.com/instill-ai/instill-core/issues/1053)) ([621cdc7](https://github.com/instill-ai/instill-core/commit/621cdc7c6d58d04938cde6a738aa4a15977cf4bf))
+
 ## [0.36.0-beta](https://github.com/instill-ai/instill-core/compare/v0.35.0-beta...v0.36.0-beta) (2024-07-16)
 
 
