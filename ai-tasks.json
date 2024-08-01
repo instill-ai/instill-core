@@ -1,0 +1,310 @@
+{
+    "TASK_CHAT": {
+        "title": "Chat",
+        "instillShortDescription": "Generate response base on conversation input",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat input",
+            "description": "Input schema of the chat task",
+            "instillShortDescription": "Input schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {
+                        "model": {
+                            "description": "The model to be used.",
+                            "instillShortDescription": "The model to be used.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "title": "Model Name",
+                            "type": "string"
+                        },
+                        "messages": {
+                            "title": "Chat Messages",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "description": "The message content",
+                                        "instillShortDescription": "The message content",
+                                        "title": "Content",
+                                        "type": "array",
+                                        "items": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "text": {
+                                                            "description": "Text message",
+                                                            "instillShortDescription": "Text message",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "text"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "datauri": {
+                                                            "description": "Image message with either url or base64 encoded string",
+                                                            "instillShortDescription": "Image message with either url or base64 encoded string",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "datauri"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "role": {
+                                        "description": "The message role, i.e. 'system', 'user' or 'assistant'",
+                                        "instillShortDescription": "The message role, i.e. 'system', 'user' or 'assistant'",
+                                        "instillAcceptFormats": [
+                                            "string"
+                                        ],
+                                        "title": "Role",
+                                        "type": "string",
+                                        "enum": [
+                                            "system",
+                                            "user",
+                                            "assistant"
+                                        ]
+                                    },
+                                    "name": {
+                                        "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+                                        "instillShortDescription": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+                                        "instillAcceptFormats": [
+                                            "string"
+                                        ],
+                                        "title": "Role",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content",
+                                    "role"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "model",
+                        "messages"
+                    ]
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {
+                        "max-tokens": {
+                            "title": "Max new tokens",
+                            "type": "integer",
+                            "description": "The maximum number of tokens for model to generate",
+                            "instillShortDescription": "The maximum number of tokens for model to generate",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 50
+                        },
+                        "seed": {
+                            "title": "Seed",
+                            "type": "integer",
+                            "description": "The seed, default is 0",
+                            "instillShortDescription": "The seed, default is 0",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 0
+                        },
+                        "n": {
+                            "title": "Number of choices",
+                            "type": "integer",
+                            "description": "How many chat completion choices to generate for each input message.",
+                            "instillShortDescription": "How many chat completion choices to generate for each input message.",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 1
+                        },
+                        "temperature": {
+                            "title": "Temperature",
+                            "type": "number",
+                            "description": "The temperature for sampling",
+                            "instillShortDescription": "The temperature for sampling",
+                            "instillAcceptFormats": [
+                                "number"
+                            ],
+                            "default": 0.7
+                        },
+                        "top-p": {
+                            "title": "Top P",
+                            "type": "integer",
+                            "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.",
+                            "instillShortDescription": "Nucleus sampling",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 1
+                        },
+                        "stream": {
+                            "title": "Stream",
+                            "type": "boolean",
+                            "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only server-sent events as they become available.",
+                            "instillShortDescription": "If set, partial message deltas will be sent",
+                            "instillAcceptFormats": [
+                                "boolean"
+                            ],
+                            "default": false
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat output",
+            "description": "Output schema of the chat task",
+            "instillShortDescription": "Output schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "choices": {
+                            "title": "Choices",
+                            "type": "array",
+                            "description": "List of chat completion choices",
+                            "instillShortDescription": "List of chat completion choices",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "finish-reason": {
+                                        "title": "Finish reason",
+                                        "type": "string",
+                                        "description": "The reason the model stopped generating tokens.",
+                                        "instillShortDescription": "The reason the model stopped generating tokens.",
+                                        "instillFormat": "string",
+                                        "enum": [
+                                            "stop",
+                                            "length"
+                                        ]
+                                    },
+                                    "index": {
+                                        "title": "Index",
+                                        "type": "integer",
+                                        "description": "The index of the choice in the list of choices.",
+                                        "instillShortDescription": "The index of the choice in the list of choices.",
+                                        "instillFormat": "integer"
+                                    },
+                                    "message": {
+                                        "title": "Message",
+                                        "type": "object",
+                                        "description": "A chat message generated by the model.",
+                                        "instillShortDescription": "A chat message generated by the model.",
+                                        "properties": {
+                                            "content": {
+                                                "title": "Content",
+                                                "type": "string",
+                                                "description": "The contents of the message.",
+                                                "instillShortDescription": "The contents of the message.",
+                                                "instillFormat": "string"
+                                            },
+                                            "role": {
+                                                "title": "Role",
+                                                "type": "string",
+                                                "description": "The role of the author of this message.",
+                                                "instillShortDescription": "The role of the author of this message.",
+                                                "instillFormat": "string"
+                                            }
+                                        }
+                                    },
+                                    "created": {
+                                        "title": "Created",
+                                        "type": "integer",
+                                        "description": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillShortDescription": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillFormat": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "finish_reason",
+                                    "index",
+                                    "message",
+                                    "created"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "choices"
+                    ]
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {
+                                "completion-tokens": {
+                                    "title": "Completion tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the generated response.",
+                                    "instillShortDescription": "Number of tokens in the generated response.",
+                                    "instillFormat": "integer"
+                                },
+                                "prompt-tokens": {
+                                    "title": "Prompt tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the prompt.",
+                                    "instillShortDescription": "Number of tokens in the prompt.",
+                                    "instillFormat": "integer"
+                                },
+                                "total-tokens": {
+                                    "title": "Total tokens",
+                                    "type": "integer",
+                                    "description": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillShortDescription": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillFormat": "integer"
+                                }
+                            },
+                            "required": [
+                                "completion-tokens",
+                                "prompt-tokens",
+                                "total-tokens"
+                            ]
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    }
+}
