@@ -90,6 +90,10 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
+          env:
+          {{- if .Values.pipelineBackend.extraEnv }}
+            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
+          {{- end }}
         - name: pipeline-backend-init
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
