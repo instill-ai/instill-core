@@ -318,7 +318,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -343,7 +343,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/classification"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/classification"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -376,7 +376,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -401,7 +401,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/detection"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/detection"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -434,7 +434,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -459,7 +459,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/keypoint"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/keypoint"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -492,7 +492,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -517,7 +517,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/ocr"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/ocr"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -550,7 +550,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -575,7 +575,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/semantic-segmentation"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/semantic-segmentation"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -608,7 +608,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/$defs/vision-input",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/vision-input",
                     "type": "object"
                 },
                 "parameter": {
@@ -633,7 +633,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/instance-segmentation"
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/8d508b1/schema/schema.json#/$defs/instill-types/instance-segmentation"
                 },
                 "metadata": {
                     "description": "Output metadata",
