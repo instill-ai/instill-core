@@ -1,4 +1,64 @@
 {
+    "$defs": {
+        "vision-input": {
+            "description": "Input data",
+            "instillShortDescription": "Input data",
+            "type": "object",
+            "properties": {
+                "model": {
+                    "description": "The model to be used.",
+                    "instillShortDescription": "The model to be used.",
+                    "instillAcceptFormats": [
+                        "string"
+                    ],
+                    "title": "Model Name",
+                    "type": "string"
+                },
+                "image": {
+                    "title": "Input image",
+                    "type": "object",
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "image-url": {
+                                    "description": "Image url",
+                                    "instillShortDescription": "Image url",
+                                    "instillAcceptFormats": [
+                                        "string"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "image-url"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "image-base64": {
+                                    "description": "Image base64 encoded string",
+                                    "instillShortDescription": "Image base64 encoded string",
+                                    "instillAcceptFormats": [
+                                        "string"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "image-base64"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "model",
+                "image"
+            ]
+        }
+    },
     "TASK_CHAT": {
         "title": "Chat",
         "instillShortDescription": "Generate response base on conversation input",
@@ -154,11 +214,11 @@
                         },
                         "top-p": {
                             "title": "Top P",
-                            "type": "integer",
+                            "type": "number",
                             "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.",
                             "instillShortDescription": "Nucleus sampling",
                             "instillAcceptFormats": [
-                                "integer"
+                                "number"
                             ],
                             "default": 1
                         },
@@ -305,6 +365,172 @@
             "required": [
                 "data"
             ]
+        }
+    },
+    "TASK_CLASSIFICATION": {
+        "title": "Classification",
+        "instillShortDescription": "Classify images into predefined categories.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Classification input",
+            "description": "Input schema of the classification task",
+            "instillShortDescription": "Input schema of the classification task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Classification output",
+            "description": "Output schema of the classification task",
+            "instillShortDescription": "Output schema of the classification task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "title": "Category",
+                            "type": "string",
+                            "description": "The detected category.",
+                            "instillShortDescription": "The detected category.",
+                            "instillFormat": "string"
+                        },
+                        "score": {
+                            "title": "Score",
+                            "type": "number",
+                            "description": "The score of the detected category.",
+                            "instillShortDescription": "The score of the detected category.",
+                            "instillFormat": "number"
+                        }
+                    },
+                    "required": [
+                        "category",
+                        "score"
+                    ]
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_DETECTION": {
+        "title": "Detection",
+        "instillShortDescription": "Detect and localize multiple objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Detection input",
+            "description": "Input schema of the detection task",
+            "instillShortDescription": "Input schema of the detection task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Detection output",
+            "description": "Output schema of the detection task",
+            "instillShortDescription": "Output schema of the detection task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "objects": {
+                            "title": "Objects",
+                            "type": "array",
+                            "description": "The detected objects.",
+                            "instillShortDescription": "The detected objects.",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "bounding-box": {},
+                                    "category": {
+                                        "title": "Category",
+                                        "type": "string",
+                                        "description": "The detected category.",
+                                        "instillShortDescription": "The detected category.",
+                                        "instillFormat": "string"
+                                    },
+                                    "score": {
+                                        "title": "Score",
+                                        "type": "number",
+                                        "description": "The score of the detected category.",
+                                        "instillShortDescription": "The score of the detected category.",
+                                        "instillFormat": "number"
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "objects"
+                        ]
+                    },
+                    "metadata": {
+                        "description": "Output metadata",
+                        "instillShortDescription": "Output metadata",
+                        "type": "object",
+                        "properties": {
+                            "usage": {
+                                "description": "Usage statistics for the request.",
+                                "instillShortDescription": "Usage statistics for the request.",
+                                "type": "object",
+                                "properties": {},
+                                "required": []
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "data"
+                ]
+            }
         }
     }
 }
