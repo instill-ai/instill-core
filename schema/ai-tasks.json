@@ -403,26 +403,7 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
-                    "properties": {
-                        "category": {
-                            "title": "Category",
-                            "type": "string",
-                            "description": "The detected category.",
-                            "instillShortDescription": "The detected category.",
-                            "instillFormat": "string"
-                        },
-                        "score": {
-                            "title": "Score",
-                            "type": "number",
-                            "description": "The score of the detected category.",
-                            "instillShortDescription": "The score of the detected category.",
-                            "instillFormat": "number"
-                        }
-                    },
-                    "required": [
-                        "category",
-                        "score"
-                    ]
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/classification"
                 },
                 "metadata": {
                     "description": "Output metadata",
@@ -480,57 +461,258 @@
                     "description": "Output data",
                     "instillShortDescription": "Output data",
                     "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/detection"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
                     "properties": {
-                        "objects": {
-                            "title": "Objects",
-                            "type": "array",
-                            "description": "The detected objects.",
-                            "instillShortDescription": "The detected objects.",
-                            "instillFormat": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "bounding-box": {},
-                                    "category": {
-                                        "title": "Category",
-                                        "type": "string",
-                                        "description": "The detected category.",
-                                        "instillShortDescription": "The detected category.",
-                                        "instillFormat": "string"
-                                    },
-                                    "score": {
-                                        "title": "Score",
-                                        "type": "number",
-                                        "description": "The score of the detected category.",
-                                        "instillShortDescription": "The score of the detected category.",
-                                        "instillFormat": "number"
-                                    }
-                                }
-                            }
-                        },
-                        "required": [
-                            "objects"
-                        ]
-                    },
-                    "metadata": {
-                        "description": "Output metadata",
-                        "instillShortDescription": "Output metadata",
-                        "type": "object",
-                        "properties": {
-                            "usage": {
-                                "description": "Usage statistics for the request.",
-                                "instillShortDescription": "Usage statistics for the request.",
-                                "type": "object",
-                                "properties": {},
-                                "required": []
-                            }
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
                         }
                     }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_KEYPOINT": {
+        "title": "Keypoint",
+        "instillShortDescription": "Detect and localize multiple keypoints of objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Keypoint input",
+            "description": "Input schema of the keypoint task",
+            "instillShortDescription": "Input schema of the keypoint task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
                 },
-                "required": [
-                    "data"
-                ]
-            }
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Keypoint output",
+            "description": "Output schema of the keypoint task",
+            "instillShortDescription": "Output schema of the keypoint task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/keypoint"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_OCR": {
+        "title": "OCR",
+        "instillShortDescription": "Detect and recognize text in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "OCR input",
+            "description": "Input schema of the OCR task",
+            "instillShortDescription": "Input schema of the OCR task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "OCR output",
+            "description": "Output schema of the OCR task",
+            "instillShortDescription": "Output schema of the OCR task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/ocr"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_SEMANTIC_SEGMENTATION": {
+        "title": "Semantic Segmentation",
+        "instillShortDescription": "Classify image pixels into predefined categories.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Semantic segmentation input",
+            "description": "Input schema of the semantic segmentation task",
+            "instillShortDescription": "Input schema of the semantic segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Semantic segmentation output",
+            "description": "Output schema of the semantic segmentation task",
+            "instillShortDescription": "Output schema of the semantic segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/semantic-segmentation"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_INSTANCE_SEGMENTATION": {
+        "title": "Instance Segmentation",
+        "instillShortDescription": "Detect, localize and delineate multiple objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Instance segmentation input",
+            "description": "Input schema of the instance segmentation task",
+            "instillShortDescription": "Input schema of the instance segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/$defs/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Instance segmentation output",
+            "description": "Output schema of the Instance segmentation task",
+            "instillShortDescription": "Output schema of the Instance segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/c74ff8f/schema/schema.json#/$defs/instill-types/instance-segmentation"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
         }
     }
 }
