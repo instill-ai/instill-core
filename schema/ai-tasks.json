@@ -331,6 +331,15 @@
                             "title": "Model Name",
                             "type": "string"
                         },
+                        "system-message": {
+                            "title": "System message",
+                            "type": "string",
+                            "description": "The contents of the system message.",
+                            "instillShortDescription": "The contents of the system message.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ]
+                        },
                         "prompt": {
                             "title": "Input prompt",
                             "type": "string",
