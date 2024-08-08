@@ -1527,7 +1527,7 @@ milvus:
   tolerations: []
   affinity: {}
   log:
-    level: "info"
+    level: "error"
     file:
       maxSize: 10 # MB
       maxAge: 12 # day
