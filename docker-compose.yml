@@ -433,6 +433,7 @@ services:
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://localhost:${GRAFANA_PORT}
+      - RAY_ENABLE_CLUSTER_STATUS_LOG=0
       - RAY_worker_register_timeout_seconds=3600
     entrypoint: ["/bin/bash", "-c"]
     command: |

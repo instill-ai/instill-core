@@ -15,7 +15,9 @@ spec:
     idleTimeoutSeconds: 60
     imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
     securityContext: {}
-    env: []
+    env:
+      - name: RAY_ENABLE_CLUSTER_STATUS_LOG
+        value: "0"
     envFrom: []
     {{- if .Values.rayService.spec.autoscalerOptions.resources }}
     resources:
