@@ -40,32 +40,84 @@
                                                     "type": "object",
                                                     "properties": {
                                                         "text": {
-                                                            "description": "Text message",
-                                                            "instillShortDescription": "Text message",
+                                                            "title": "Text message",
+                                                            "description": "Text message.",
+                                                            "instillShortDescription": "Text message.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
                                                             "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type.",
+                                                            "instillShortDescription": "Input content type.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "text"
                                                         }
                                                     },
                                                     "required": [
-                                                        "text"
+                                                        "text",
+                                                        "type"
                                                     ]
                                                 },
                                                 {
                                                     "type": "object",
                                                     "properties": {
-                                                        "datauri": {
-                                                            "description": "Image message with either url or base64 encoded string",
-                                                            "instillShortDescription": "Image message with either url or base64 encoded string",
+                                                        "image-url": {
+                                                            "title": "Image url",
+                                                            "description": "Image message url.",
+                                                            "instillShortDescription": "Image message url.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
                                                             "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-url"
                                                         }
                                                     },
                                                     "required": [
-                                                        "datauri"
+                                                        "image-url",
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "image-base64": {
+                                                            "title": "Image base64",
+                                                            "description": "Image base64 encoded string.",
+                                                            "instillShortDescription": "Image base64 encoded string.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-base64"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "image-base64",
+                                                        "type"
                                                     ]
                                                 }
                                             ]

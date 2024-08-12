@@ -17,46 +17,31 @@
                     },
                     "image": {
                         "title": "Input image",
-                        "type": "object",
-                        "oneOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "image-url": {
-                                        "description": "Image url",
-                                        "instillShortDescription": "Image url",
-                                        "instillAcceptFormats": [
-                                            "string"
-                                        ],
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "image-url"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "image-base64": {
-                                        "description": "Image base64 encoded string",
-                                        "instillShortDescription": "Image base64 encoded string",
-                                        "instillAcceptFormats": [
-                                            "string"
-                                        ],
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "image-base64"
-                                ]
-                            }
+                        "description": "Input image data.",
+                        "instillShortDescription": "Input image data.",
+                        "instillAcceptFormats": [
+                            "string"
+                        ],
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Input image type",
+                        "description": "Image url or image base64.",
+                        "instillShortDescription": "Image url or image base64.",
+                        "instillAcceptFormats": [
+                            "string"
+                        ],
+                        "type": "string",
+                        "enum": [
+                            "url",
+                            "base64"
                         ]
                     }
                 },
                 "required": [
                     "model",
-                    "image"
+                    "image",
+                    "type"
                 ]
             },
             "bounding-box": {
