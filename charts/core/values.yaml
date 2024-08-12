@@ -455,6 +455,8 @@ pipelineBackend:
       maxUnavailable:
   modelBackendHostOverride:
   modelBackendPortOverride:
+  artifactBackendHostOverride:
+  artifactBackendPortOverride:
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
