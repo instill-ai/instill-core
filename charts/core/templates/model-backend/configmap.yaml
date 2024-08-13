@@ -119,4 +119,11 @@ data:
       https:
         cert:
         key:
+    minio:
+      host: {{ template "core.minio" . }}
+      port: {{ .Values.modelBackend.minio.port }}
+      rootuser: {{ .Values.modelBackend.minio.rootuser }}
+      rootpwd: {{ .Values.modelBackend.minio.rootpwd }}
+      bucketname: {{ .Values.modelBackend.minio.bucketname }}
+      secure: {{ .Values.modelBackend.minio.secure }}
 {{- end }}

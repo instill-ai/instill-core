@@ -541,6 +541,12 @@ modelBackend:
     spec:
       minAvailable:
       maxUnavailable:
+  minio:
+    port: 9000
+    rootuser: minioadmin
+    rootpwd: minioadmin
+    bucketname: instill-ai-model
+    secure: false
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- Enable artifact-backend deployment
