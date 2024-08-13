@@ -30,7 +30,7 @@ WORKDIR /instill-core
 
 ARG CONTROLLER_MODEL_VERSION
 RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
-RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
+RUN git clone --depth=1 -b jeremy/INS-5345 https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/console.git
 RUN git clone --depth=1 https://github.com/instill-ai/pipeline-backend.git
