@@ -47,8 +47,8 @@
     "visibility": "VISIBILITY_PUBLIC",
     "task": "TASK_VISUAL_QUESTION_ANSWERING",
     "region": "REGION_GCP_EUROPE_WEST4",
-    "hardware": "NVIDIA_A100",
-    "version": "v0.1.0",
+    "hardware": "NVIDIA_L4",
+    "version": "v0.1.1",
     "configuration": {}
   },
   {
