@@ -476,7 +476,7 @@ modelBackend:
   # -- The path of configuration file for model-backend
   configPath: /model-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 8
+  dbVersion: 9
   dbCloudVersion:
   instillCoreHost:
   # -- The configuration of Temporal Cloud
