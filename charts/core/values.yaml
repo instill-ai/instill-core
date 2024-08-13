@@ -546,7 +546,7 @@ modelBackend:
     rootuser: minioadmin
     rootpwd: minioadmin
     bucketname: instill-ai-model
-    secure: true
+    secure: false
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- Enable artifact-backend deployment
