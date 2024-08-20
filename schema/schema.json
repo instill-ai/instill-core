@@ -20,7 +20,8 @@
                         "description": "Input image data.",
                         "instillShortDescription": "Input image data.",
                         "instillAcceptFormats": [
-                            "string"
+                            "string",
+                            "image/*"
                         ],
                         "type": "string"
                     },
