@@ -33,7 +33,7 @@ RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
 RUN git clone --depth=1 -b jeremy/INS-5345-fix-prefix https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/console.git
-RUN git clone --depth=1 -b jeremy/INS-5274-run-logging-query-apis https://github.com/instill-ai/pipeline-backend.git
+RUN git clone --depth=1 -b jeremy/INS-5274-pipeline-run-logging-outputs-rebase https://github.com/instill-ai/pipeline-backend.git
 RUN git clone --depth=1 -b jeremy/INS-5345-filtering-for-fe https://github.com/instill-ai/model-backend.git
 RUN cd model-backend && git rev-parse HEAD
 
