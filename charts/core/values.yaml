@@ -457,6 +457,12 @@ pipelineBackend:
   modelBackendPortOverride:
   artifactBackendHostOverride:
   artifactBackendPortOverride:
+  minio:
+    port: 9000
+    rootuser: minioadmin
+    rootpwd: minioadmin
+    bucketname: instill-ai-vdp
+    secure: false
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend

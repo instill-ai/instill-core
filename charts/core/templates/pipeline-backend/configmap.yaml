@@ -110,3 +110,10 @@ data:
     instillcloud:
       host: api.instill.tech
       port: 443
+    minio:
+      host: {{ template "core.minio" . }}
+      port: {{ .Values.pipelineBackend.minio.port }}
+      rootuser: {{ .Values.pipelineBackend.minio.rootuser }}
+      rootpwd: {{ .Values.pipelineBackend.minio.rootpwd }}
+      bucketname: {{ .Values.pipelineBackend.minio.bucketname }}
+      secure: {{ .Values.pipelineBackend.minio.secure }}
