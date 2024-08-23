@@ -388,7 +388,7 @@ pipelineBackend:
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 22
+  dbVersion: 23
   # -- workflow setting
   workflow:
     maxWorkflowTimeout: 3600 # in seconds
@@ -457,6 +457,12 @@ pipelineBackend:
   modelBackendPortOverride:
   artifactBackendHostOverride:
   artifactBackendPortOverride:
+  minio:
+    port: 9000
+    rootuser: minioadmin
+    rootpwd: minioadmin
+    bucketname: instill-ai-vdp
+    secure: false
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
