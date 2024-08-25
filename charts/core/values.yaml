@@ -453,10 +453,6 @@ pipelineBackend:
     spec:
       minAvailable:
       maxUnavailable:
-  modelBackendHostOverride:
-  modelBackendPortOverride:
-  artifactBackendHostOverride:
-  artifactBackendPortOverride:
   minio:
     port: 9000
     rootuser: minioadmin
