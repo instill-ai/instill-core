@@ -38,16 +38,16 @@ data:
         key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
       {{- end }}
     artifactbackend:
-      host: {{ default (include "core.artifactBackend" . ) .Values.pipelineBackend.artifactBackendHostOverride }}
-      publicport: {{ default (include "core.artifactBackend.publicPort" . ) .Values.pipelineBackend.artifactBackendPortOverride }}
+      host: {{ template "core.artifactBackend" . }}
+      publicport: {{ template "core.artifactBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/artifact/tls.crt
         key: /etc/instill-ai/vdp/ssl/artifact/tls.key
       {{- end }}
     modelbackend:
-      host: {{ default (include "core.modelBackend" . ) .Values.pipelineBackend.modelBackendHostOverride }}
-      publicport: {{ default (include "core.modelBackend.publicPort" . ) .Values.pipelineBackend.modelBackendPortOverride }}
+      host: {{ template "core.modelBackend" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/model/tls.crt
