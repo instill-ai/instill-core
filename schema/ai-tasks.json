@@ -100,7 +100,7 @@
                                                             "description": "Image content with base64 encoded string.",
                                                             "instillShortDescription": "Image content with base64 encoded string.",
                                                             "instillAcceptFormats": [
-                                                                "string"
+                                                                "image/*"
                                                             ],
                                                             "type": "string"
                                                         },
@@ -354,7 +354,7 @@
                                                             "description": "Image base64 encoded string.",
                                                             "instillShortDescription": "Image base64 encoded string.",
                                                             "instillAcceptFormats": [
-                                                                "string"
+                                                                "image/*"
                                                             ],
                                                             "type": "string"
                                                         },

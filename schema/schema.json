@@ -5,44 +5,83 @@
                 "description": "Input data",
                 "instillShortDescription": "Input data",
                 "type": "object",
-                "properties": {
-                    "model": {
-                        "description": "The model to be used.",
-                        "instillShortDescription": "The model to be used.",
-                        "instillAcceptFormats": [
-                            "string"
-                        ],
-                        "title": "Model Name",
-                        "type": "string"
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "model": {
+                                "description": "The model to be used.",
+                                "instillShortDescription": "The model to be used.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "title": "Model Name",
+                                "type": "string"
+                            },
+                            "image-url": {
+                                "title": "Input image url",
+                                "description": "Input image url.",
+                                "instillShortDescription": "Input image url.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "type": "string"
+                            },
+                            "type": {
+                                "title": "Input image type",
+                                "description": "Image url type.",
+                                "instillShortDescription": "Image url type.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "type": "string",
+                                "const": "image-url"
+                            }
+                        },
+                        "required": [
+                            "model",
+                            "image-url",
+                            "type"
+                        ]
                     },
-                    "image": {
-                        "title": "Input image",
-                        "description": "Input image data.",
-                        "instillShortDescription": "Input image data.",
-                        "instillAcceptFormats": [
-                            "string",
-                            "image/*"
-                        ],
-                        "type": "string"
-                    },
-                    "type": {
-                        "title": "Input image type",
-                        "description": "Image url or image base64.",
-                        "instillShortDescription": "Image url or image base64.",
-                        "instillAcceptFormats": [
-                            "string"
-                        ],
-                        "type": "string",
-                        "enum": [
-                            "url",
-                            "base64"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "model": {
+                                "description": "The model to be used.",
+                                "instillShortDescription": "The model to be used.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "title": "Model Name",
+                                "type": "string"
+                            },
+                            "image-base64": {
+                                "title": "Input image file",
+                                "description": "Input image file.",
+                                "instillShortDescription": "Input image file.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "type": "string"
+                            },
+                            "type": {
+                                "title": "Input image type",
+                                "description": "Image base64 type.",
+                                "instillShortDescription": "Image base64 type.",
+                                "instillAcceptFormats": [
+                                    "string"
+                                ],
+                                "type": "string",
+                                "const": "image-base64"
+                            }
+                        },
+                        "required": [
+                            "model",
+                            "image-base64",
+                            "type"
                         ]
                     }
-                },
-                "required": [
-                    "model",
-                    "image",
-                    "type"
                 ]
             },
             "bounding-box": {
