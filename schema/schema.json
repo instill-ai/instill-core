@@ -28,7 +28,7 @@
                                 "type": "string"
                             },
                             "type": {
-                                "title": "Input image type",
+                                "title": "URL",
                                 "description": "Image url type.",
                                 "instillShortDescription": "Image url type.",
                                 "instillAcceptFormats": [
@@ -61,12 +61,12 @@
                                 "description": "Input image file.",
                                 "instillShortDescription": "Input image file.",
                                 "instillAcceptFormats": [
-                                    "string"
+                                    "image/*"
                                 ],
                                 "type": "string"
                             },
                             "type": {
-                                "title": "Input image type",
+                                "title": "file",
                                 "description": "Image base64 type.",
                                 "instillShortDescription": "Image base64 type.",
                                 "instillAcceptFormats": [
