@@ -79,7 +79,7 @@ Execute the following commands to pull pre-built images with all the dependencie
 
 <!-- x-release-please-start-version -->
 ```bash
-$ git clone -b v0.38.0-beta https://github.com/instill-ai/instill-core.git && cd instill-core
+$ git clone -b v0.39.0-beta https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
 $ make all
