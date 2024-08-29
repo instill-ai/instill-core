@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.39.0-beta](https://github.com/instill-ai/instill-core/compare/v0.38.0-beta...v0.39.0-beta) (2024-08-29)
+
+
+### Features
+
+* **artifact:** update the ce and db version ([#1076](https://github.com/instill-ai/instill-core/issues/1076)) ([f307ba0](https://github.com/instill-ai/instill-core/commit/f307ba0f9bb9cd1eb2345564fe58d1744cbf19ea))
+
 ## [0.38.0-beta](https://github.com/instill-ai/instill-core/compare/v0.37.0-beta...v0.38.0-beta) (2024-08-13)
 
 
