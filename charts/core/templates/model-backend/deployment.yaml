@@ -92,6 +92,10 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
+          env:
+          {{- if .Values.modelBackend.extraEnv }}
+            {{- toYaml .Values.modelBackend.extraEnv | nindent 12 }}
+          {{- end }}
         - name: model-backend-init
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
           imagePullPolicy: {{ .Values.modelBackend.image.pullPolicy }}
@@ -104,6 +108,10 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
+          env:
+          {{- if .Values.modelBackend.extraEnv }}
+            {{- toYaml .Values.modelBackend.extraEnv | nindent 12 }}
+          {{- end }}
         - name: wait-for-mgmt-backend
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
@@ -156,6 +164,10 @@ spec:
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          env:
+          {{- if .Values.modelBackend.extraEnv }}
+            {{- toYaml .Values.modelBackend.extraEnv | nindent 12 }}
+          {{- end }}
         - name: model-backend
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
           imagePullPolicy: {{ .Values.modelBackend.image.pullPolicy }}
@@ -195,8 +207,8 @@ spec:
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- if .Values.modelBackend.extraEnv }}
           env:
+          {{- if .Values.modelBackend.extraEnv }}
             {{- toYaml .Values.modelBackend.extraEnv | nindent 12 }}
           {{- end }}
         {{- with .Values.modelBackend.sidecarContainers }}

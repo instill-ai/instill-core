@@ -68,8 +68,6 @@ data:
       {{- end }}
       name: model
       version: {{ .Values.modelBackend.dbVersion }}
-      cloudversion: {{ .Values.modelBackend.dbCloudVersion }}
-      cloudmigrationtable: cloud_schema_migrations
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}
