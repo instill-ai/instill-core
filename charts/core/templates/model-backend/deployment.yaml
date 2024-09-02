@@ -1,7 +1,7 @@
 {{- if .Values.tags.model -}}
 {{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ template "core.modelBackend" . }}
   labels:
@@ -14,14 +14,10 @@ metadata:
     {{- end }}
 spec:
   strategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- else}}
-    rollingUpdate: null
-    {{- end }}
+    blueGreen:
+      activeService: {{ template "core.modelBackend" . }}
+      previewService: {{ template "core.modelBackend" . }}-preview
+      scaleDownDelaySeconds: 120
   {{- if not .Values.modelBackend.autoscaling.enabled }}
   replicas: {{ .Values.modelBackend.replicaCount }}
   {{- end }}
