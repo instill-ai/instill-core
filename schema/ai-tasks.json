@@ -35,6 +35,7 @@
                                         "title": "Content",
                                         "type": "array",
                                         "items": {
+                                            "type": "object",
                                             "oneOf": [
                                                 {
                                                     "type": "object",
@@ -289,6 +290,7 @@
                                         "title": "Content",
                                         "type": "array",
                                         "items": {
+                                            "type": "object",
                                             "oneOf": [
                                                 {
                                                     "type": "object",
@@ -397,7 +399,7 @@
                                         "instillAcceptFormats": [
                                             "string"
                                         ],
-                                        "title": "Role",
+                                        "title": "Name",
                                         "type": "string"
                                     }
                                 },
