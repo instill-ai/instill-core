@@ -89,6 +89,7 @@ services:
       dockerfile: Dockerfile.playwright
       args:
         TEST_USER: "root"
+
   artifact_backend:
     profiles:
       - all

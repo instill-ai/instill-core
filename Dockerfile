@@ -1,12 +1,9 @@
 ARG ALPINE_VERSION
-FROM alpine:${ALPINE_VERSION} AS base
+FROM golang:alpine${ALPINE_VERSION} AS base
 
 RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
 
-# Install k6
-ARG TARGETARCH K6_VERSION XK6_VERSION
-
-FROM golang:alpine${ALPINE_VERSION}
+ARG XK6_VERSION K6_VERSION
 RUN go install go.k6.io/xk6/cmd/xk6@v${XK6_VERSION}
 RUN xk6 build v${K6_VERSION} --with github.com/grafana/xk6-sql --output /usr/bin/k6
 
@@ -14,10 +11,12 @@ RUN xk6 build v${K6_VERSION} --with github.com/grafana/xk6-sql --output /usr/bin
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # Install Kubectl
+ARG TARGETARCH
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/${TARGETARCH}/kubectl
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
+ARG ALPINE_VERSION
 FROM alpine:${ALPINE_VERSION} AS latest
 
 COPY --from=base /etc /etc
