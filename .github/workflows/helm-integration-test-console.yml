@@ -30,7 +30,7 @@ jobs:
           minikube start --cpus 4 --memory 10485
 
       - name: Checkout repo and load .env
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: instill-ai/instill-core
 
