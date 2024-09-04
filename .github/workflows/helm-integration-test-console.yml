@@ -8,13 +8,11 @@ on:
         type: string
 
 jobs:
-  helm-integration-test-latest-linux:
-    if: inputs.target == 'latest'
+  helm-integration-test-console:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
-      # mono occupies port 8084 which conflicts with mgmt-backend
-      - name: Stop mono service
+      - name: Setup environment
         run: |
           sudo kill -9 `sudo lsof -t -i:8084`
           sudo lsof -i -P -n | grep LISTEN
@@ -26,13 +24,12 @@ jobs:
           remove-dotnet: "true"
           build-mount-path: "/var/lib/docker/"
 
-      - name: Restart docker
-        run: sudo service docker restart
+      - name: Setup Minikube
+        run: |
+          sudo service docker restart
+          minikube start --cpus 4 --memory 10485
 
-      - name: Start Minikube
-        run: minikube start --cpus 4 --memory 10485
-
-      - name: Checkout repo
+      - name: Checkout repo and load .env
         uses: actions/checkout@v3
         with:
           repository: instill-ai/instill-core
@@ -42,175 +39,68 @@ jobs:
         with:
           envFile: .env
 
-      - name: Launch Helm Instill Core (latest)
+      - name: Launch Helm Instill Core (${{ inputs.target }})
         run: |
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set artifactBackend.image.tag=latest \
-            --set apiGateway.image.tag=latest \
-            --set mgmtBackend.image.tag=latest \
-            --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set pipelineBackend.image.tag=latest \
-            --set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set modelBackend.image.tag=latest \
-            --set console.image.tag=latest \
-            --set rayService.image.tag=latest \
-            --set rayService.headGroupSpec.resources.limits.cpu=0 \
-            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
-            --set rayService.headGroupSpec.resources.requests.cpu=0 \
-            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
-            --set rayService.workerGroupSpecs[0].replicas=1 \
-            --set rayService.workerGroupSpecs[0].minReplicas=1 \
-            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
-            --set rayService.workerGroupSpecs[0].groupName=test-group \
-            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
-            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
-            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
-            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
-            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
-            --set milvus.broker.resources.requests.cpu=0.25 \
-            --set milvus.autorecovery.resources.requests.cpu=0.25 \
-            --set milvus.proxy.resources.requests.cpu=0.25 \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false
-
-      - name: Wait for all pods up
-        run: |
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-            sleep 10
-          done
-          while [[ $(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=model-backend,app.kubernetes.io/instance=core" -o 'jsonpath={..status.phase}') != *"Running"* ]]; do
-            echo "$(kubectl get pods --namespace instill-ai)"
-          sleep 10
-          done
-          echo "$(kubectl get pods --namespace instill-ai)"
-
-      - name: Port-forward of core api-gateway and console
-        run: |
-          API_GATEWAY_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-          CONSOLE_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
-          kubectl --namespace instill-ai port-forward ${CONSOLE_POD_NAME} ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-          while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
-
-      - name: Run console integration test (latest)
-        run: |
-          git clone https://github.com/instill-ai/console.git
-          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
-          docker run -t \
-            -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
-            -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
-            -e NEXT_PUBLIC_CONSOLE_EDITION=k8s-ce:test \
-            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://localhost:${CONSOLE_PORT} \
-            -e NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
-            -e NEXT_SERVER_API_GATEWAY_URL=http://localhost:${API_GATEWAY_PORT} \
-            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-            --network host \
-            --entrypoint ./entrypoint-playwright.sh \
-            --name core-console-integration-test-latest \
-            console-playwright:latest
-
-      - name: Copy the test-result to host
-        if: always()
-        run: docker cp core-console-integration-test-latest:/app/apps/console/test-results ./test-results
-
-      - name: Upload artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: helm-integration-test-latest-linux-test-results
-          path: test-results
-          retention-days: 1
-
-      - name: Stop and remove console playwright
-        run: |
-          docker stop core-console-integration-test-latest
-          docker rm core-console-integration-test-latest
-
-  helm-integration-test-latest-mac:
-    if: false
-    # disable the mac test temporary
-    # if: inputs.target == 'latest' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 60
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: Set up environment
-        run: |
-          brew install make
-
-  helm-integration-test-release-linux:
-    if: inputs.target == 'release'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      # mono occupies port 8084 which conflicts with mgmt-backend
-      - name: Stop mono service
-        run: |
-          sudo kill -9 `sudo lsof -t -i:8084`
-          sudo lsof -i -P -n | grep LISTEN
-
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          overprovision-lvm: "true"
-          remove-dotnet: "true"
-          build-mount-path: "/var/lib/docker/"
-
-      - name: Restart docker
-        run: sudo service docker restart
-
-      - name: Start Minikube
-        run: minikube start --cpus 4 --memory 10485
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/instill-core
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Helm Instill Core (release)
-        run: |
-          helm install core charts/core --namespace instill-ai --create-namespace \
-            --set edition=k8s-ce:test \
-            --set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
-            --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
-            --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
-            --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-            --set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-            --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-            --set console.image.tag=${CONSOLE_VERSION} \
-            --set rayService.image.tag=${RAY_SERVER_VERSION} \
-            --set rayService.headGroupSpec.resources.limits.cpu=0 \
-            --set rayService.headGroupSpec.resources.limits.memory=2Gi \
-            --set rayService.headGroupSpec.resources.requests.cpu=0 \
-            --set rayService.headGroupSpec.resources.requests.memory=2Gi \
-            --set rayService.workerGroupSpecs[0].replicas=1 \
-            --set rayService.workerGroupSpecs[0].minReplicas=1 \
-            --set rayService.workerGroupSpecs[0].maxReplicas=1 \
-            --set rayService.workerGroupSpecs[0].groupName=test-group \
-            --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
-            --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
-            --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
-            --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
-            --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
-            --set milvus.broker.resources.requests.cpu=0.25 \
-            --set milvus.autorecovery.resources.requests.cpu=0.25 \
-            --set milvus.proxy.resources.requests.cpu=0.25 \
-            --set tags.observability=false \
-            --set tags.prometheusStack=false
+          if [ "${{ inputs.target }}" == "latest" ]; then
+            helm install core charts/core --namespace instill-ai --create-namespace \
+              --set edition=k8s-ce:test \
+              --set artifactBackend.image.tag=latest \
+              --set apiGateway.image.tag=latest \
+              --set mgmtBackend.image.tag=latest \
+              --set pipelineBackend.image.tag=latest \
+              --set modelBackend.image.tag=latest \
+              --set console.image.tag=latest \
+              --set rayService.image.tag=latest \
+              --set rayService.headGroupSpec.resources.limits.cpu=0 \
+              --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+              --set rayService.headGroupSpec.resources.requests.cpu=0 \
+              --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+              --set rayService.workerGroupSpecs[0].replicas=1 \
+              --set rayService.workerGroupSpecs[0].minReplicas=1 \
+              --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+              --set rayService.workerGroupSpecs[0].groupName=test-group \
+              --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+              --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+              --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+              --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+              --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+              --set milvus.broker.resources.requests.cpu=0.25 \
+              --set milvus.autorecovery.resources.requests.cpu=0.25 \
+              --set milvus.proxy.resources.requests.cpu=0.25 \
+              --set tags.observability=false \
+              --set tags.prometheusStack=false
+          else
+            helm install core charts/core --namespace instill-ai --create-namespace \
+              --set edition=k8s-ce:test \
+              --set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
+              --set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+              --set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+              --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+              --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+              --set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+              --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+              --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+              --set console.image.tag=${CONSOLE_VERSION} \
+              --set rayService.image.tag=${RAY_SERVER_VERSION} \
+              --set rayService.headGroupSpec.resources.limits.cpu=0 \
+              --set rayService.headGroupSpec.resources.limits.memory=2Gi \
+              --set rayService.headGroupSpec.resources.requests.cpu=0 \
+              --set rayService.headGroupSpec.resources.requests.memory=2Gi \
+              --set rayService.workerGroupSpecs[0].replicas=1 \
+              --set rayService.workerGroupSpecs[0].minReplicas=1 \
+              --set rayService.workerGroupSpecs[0].maxReplicas=1 \
+              --set rayService.workerGroupSpecs[0].groupName=test-group \
+              --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+              --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
+              --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
+              --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
+              --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+              --set milvus.broker.resources.requests.cpu=0.25 \
+              --set milvus.autorecovery.resources.requests.cpu=0.25 \
+              --set milvus.proxy.resources.requests.cpu=0.25 \
+              --set tags.observability=false \
+              --set tags.prometheusStack=false
+          fi
 
       - name: Wait for all pods up
         run: |
@@ -233,10 +123,15 @@ jobs:
           while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
           while ! nc -vz localhost ${CONSOLE_PORT} > /dev/null 2>&1; do sleep 1; done
 
-      - name: Run console integration test (release)
+      - name: Run console integration test (${{ inputs.target }})
         run: |
-          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
-          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
+          if [ "${{ inputs.target }}" == "latest" ]; then
+            git clone https://github.com/instill-ai/console.git
+            cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
+          else
+            git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
+            cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
+          fi
           docker run -t \
             -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
             -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -248,36 +143,22 @@ jobs:
             -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
             --network host \
             --entrypoint ./entrypoint-playwright.sh \
-            --name core-console-integration-test-release \
-            console-playwright:${{ env.CONSOLE_VERSION }}
+            --name core-console-integration-test-${{ inputs.target }} \
+            console-playwright:${{ inputs.target == 'latest' && 'latest' || env.CONSOLE_VERSION }}
 
       - name: Copy the test-result to host
         if: always()
-        run: docker cp core-console-integration-test-release:/app/apps/console/test-results ./test-results
+        run: docker cp core-console-integration-test-${{ inputs.target }}:/app/apps/console/test-results ./test-results
 
       - name: Upload artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: helm-integration-test-release-linux-test-results
+          name: helm-integration-test-${{ inputs.target }}-linux-test-results
           path: test-results
           retention-days: 1
 
       - name: Stop and remove console playwright
         run: |
-          docker stop core-console-integration-test-release
-          docker rm core-console-integration-test-release
-
-  helm-integration-test-release-mac:
-    if: false
-    # disable the mac test temporary
-    # if: inputs.target == 'release'
-    runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 60
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: Set up environment
-        run: |
-          brew install make
+          docker stop core-console-integration-test-${{ inputs.target }}
+          docker rm core-console-integration-test-${{ inputs.target }}

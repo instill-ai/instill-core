@@ -8,10 +8,9 @@ on:
         type: string
 
 jobs:
-  integration-test-latest-linux:
-    if: inputs.target == 'latest'
+  integration-test-console:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
@@ -39,11 +38,11 @@ jobs:
         with:
           envFile: .env
 
-      - name: Launch Instill Core (latest)
+      - name: Launch Instill Core (${{ inputs.target }})
         run: |
-          make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
+          make ${{ inputs.target }} BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
 
-      - name: Run console integration test (latest)
+      - name: Run console integration test (${{ inputs.target }})
         run: |
           git clone https://github.com/instill-ai/console.git
           cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:latest .
@@ -69,7 +68,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: integration-test-latest-linux-test-results
+          name: integration-test-${{ inputs.target }}-console-test-results
           path: test-results
           retention-days: 1
 
@@ -81,115 +80,3 @@ jobs:
       - name: Make down Instill Core
         run: |
           make down
-
-  integration-test-latest-mac:
-    if: false
-    # disable the mac test temporary
-    # if: inputs.target == 'latest'
-    runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 120
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: remove existing docker container
-        run: |
-          docker rm -f $(docker ps -a -q) || true
-
-      - name: Set up environment
-        run: |
-          brew install make
-
-  integration-test-release-linux:
-    if: inputs.target == 'release'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      # mono occupies port 8084 which conflicts with mgmt-backend
-      - name: Stop mono service
-        run: |
-          sudo kill -9 `sudo lsof -t -i:8084`
-          sudo lsof -i -P -n | grep LISTEN
-
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          overprovision-lvm: "true"
-          remove-dotnet: "true"
-          build-mount-path: "/var/lib/docker/"
-
-      - name: Restart docker
-        run: sudo service docker restart
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/instill-core
-          fetch-depth: 5 # fetch the commit with tag
-          fetch-tags: true
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill Core (release)
-        run: |
-          make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
-
-      - name: Run console integration test (release)
-        run: |
-          git clone -b v$CONSOLE_VERSION https://github.com/instill-ai/console.git
-          cd console && docker build --build-arg TEST_USER='root' -f Dockerfile.playwright -t console-playwright:${{ env.CONSOLE_VERSION }} .
-          docker run -t \
-            -e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
-            -e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
-            -e NEXT_PUBLIC_CONSOLE_EDITION=local-ce:test \
-            -e NEXT_PUBLIC_CONSOLE_BASE_URL=http://console:3000 \
-            -e NEXT_PUBLIC_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}  \
-            -e NEXT_SERVER_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}  \
-            -e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
-            -e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-            --network instill-network \
-            --entrypoint ./entrypoint-playwright.sh \
-            --name console-integration-test \
-            console-playwright:${{ env.CONSOLE_VERSION }}
-
-      - name: Copy the test-result to host
-        if: always()
-        run: docker cp console-integration-test:/app/apps/console/test-results ./test-results
-
-      - name: Upload artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-release-linux-test-results
-          path: test-results
-          retention-days: 1
-
-      - name: Stop and remove console playwright
-        run: |
-          docker stop console-integration-test
-          docker rm console-integration-test
-
-      - name: Make down Instill Core
-        run: |
-          make down
-
-  integration-test-release-mac:
-    if: false
-    # disable the mac test temporary
-    # if: inputs.target == 'release'
-    runs-on: [self-hosted, macOS, core]
-    timeout-minutes: 60
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: remove existing docker container
-        run: |
-          docker rm -f $(docker ps -a -q) || true
-
-      - name: Set up environment
-        run: |
-          brew install make
