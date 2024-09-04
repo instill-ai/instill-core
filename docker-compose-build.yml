@@ -30,7 +30,6 @@ services:
       args:
         SERVICE_NAME: ${MGMT_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
 
   pipeline_backend:
     profiles:
@@ -46,7 +45,6 @@ services:
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
 
   model_backend:
     profiles:
@@ -62,7 +60,6 @@ services:
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}
         UBUNTU_VERSION: ${UBUNTU_VERSION}
         ARTIVC_VERSION: ${ARTIVC_VERSION}
 
@@ -106,4 +103,3 @@ services:
       args:
         SERVICE_NAME: ${ARTIFACT_BACKEND_HOST}
         GOLANG_VERSION: ${GOLANG_VERSION}
-        K6_VERSION: ${K6_VERSION}

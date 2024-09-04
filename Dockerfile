@@ -4,9 +4,11 @@ FROM alpine:${ALPINE_VERSION} AS base
 RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
 
 # Install k6
-ARG TARGETARCH K6_VERSION
-ADD https://github.com/grafana/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz
-RUN tar -xf k6-v${K6_VERSION}-linux-$TARGETARCH.tar.gz --strip-components 1 -C /usr/bin
+ARG TARGETARCH K6_VERSION XK6_VERSION
+
+FROM golang:alpine${ALPINE_VERSION}
+RUN go install go.k6.io/xk6/cmd/xk6@v${XK6_VERSION}
+RUN xk6 build v${K6_VERSION} --with github.com/grafana/xk6-sql --output /usr/bin/k6
 
 # Install Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
