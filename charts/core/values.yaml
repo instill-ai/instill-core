@@ -478,8 +478,10 @@ modelBackend:
   # -- The path of configuration file for model-backend
   configPath: /model-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 9
+  dbVersion: 10
   instillCoreHost:
+  # -- The AI Task schema version
+  taskSchemaVersion: 78133b5
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
