@@ -26,6 +26,7 @@ data:
         key: /etc/instill-ai/model/ssl/model/tls.key
       {{- end }}
       instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
+      instillcorehost: {{ .Values.modelBackend.taskSchemaVersion }}
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
@@ -77,15 +78,6 @@ data:
       redis:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
-    maxbatchsizelimitation:
-      unspecified: 2
-      classification: 16
-      detection: 8
-      keypoint: 8
-      ocr: 2
-      instancesegmentation: 8
-      semanticsegmentation: 8
-      textgeneration: 1
     temporal:
       hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
       namespace: {{ default "model-backend" .Values.modelBackend.temporal.namespace }}
