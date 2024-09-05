@@ -1,0 +1,1424 @@
+{
+    "TASK_EMBEDDING": {
+        "title": "Embedding",
+        "instillShortDescription": "Generate embeddings based on input data",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Embedding input",
+            "description": "Input schema of the embedding task",
+            "instillShortDescription": "Input schema of the embedding task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {
+                        "model": {
+                            "description": "The model to be used for generating embeddings.",
+                            "instillShortDescription": "The model to be used.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "title": "Model Name",
+                            "type": "string"
+                        },
+                        "input": {
+                            "title": "Embedding Input",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "description": "The content to be embedded.",
+                                        "instillShortDescription": "The content to be embedded.",
+                                        "title": "Content",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "text": {
+                                                            "title": "Text content",
+                                                            "description": "Text content to be embedded",
+                                                            "instillShortDescription": "Text content",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type.",
+                                                            "instillShortDescription": "Input content type.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "text"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "text",
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "image-url": {
+                                                            "title": "Image url",
+                                                            "description": "Image content with URL.",
+                                                            "instillShortDescription": "Image content url.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-url"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "image-url",
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "image-base64": {
+                                                            "title": "Image base64",
+                                                            "description": "Image content with base64 encoded string.",
+                                                            "instillShortDescription": "Image content with base64 encoded string.",
+                                                            "instillAcceptFormats": [
+                                                                "image/*"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-base64"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "image-base64",
+                                                        "type"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "content"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "model",
+                        "input"
+                    ]
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {
+                        "format": {
+                            "title": "Data format",
+                            "type": "string",
+                            "description": "The data format of the embeddings. Defaults to float.",
+                            "instillShortDescription": "Data format",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "enum": [
+                                "float",
+                                "base64"
+                            ],
+                            "default": "float"
+                        },
+                        "dimensions": {
+                            "title": "Dimensions",
+                            "type": "integer",
+                            "description": "Number of dimensions in the output embedding vectors.",
+                            "instillShortDescription": "Number of dimensions",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 512
+                        },
+                        "input-type": {
+                            "title": "Input type",
+                            "type": "string",
+                            "description": "The type of input data to be embedded (e.g., query, document).",
+                            "instillShortDescription": "Type of input data",
+                            "instillAcceptFormats": [
+                                "string"
+                            ]
+                        },
+                        "truncate": {
+                            "title": "Truncate",
+                            "type": "string",
+                            "description": "How to handle inputs longer than the max token length. Defaults to 'End'.",
+                            "instillShortDescription": "Truncation handling",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "enum": [
+                                "None",
+                                "End",
+                                "Start"
+                            ],
+                            "default": "End"
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Embedding output",
+            "description": "Output schema of the embedding task",
+            "instillShortDescription": "Output schema of the embedding task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "embeddings": {
+                            "title": "Embeddings",
+                            "type": "array",
+                            "description": "List of generated embeddings.",
+                            "instillShortDescription": "List of embeddings",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "index": {
+                                        "title": "Index",
+                                        "type": "integer",
+                                        "description": "The index of the embedding vector in the array.",
+                                        "instillShortDescription": "Index in the array",
+                                        "instillFormat": "integer"
+                                    },
+                                    "vector": {
+                                        "title": "Embedding Vector",
+                                        "type": "array",
+                                        "description": "The embedding vector.",
+                                        "instillShortDescription": "Embedding vector",
+                                        "instillFormat": "array"
+                                    },
+                                    "created": {
+                                        "title": "Created",
+                                        "type": "integer",
+                                        "description": "The Unix timestamp (in seconds) of when the embedding was created.",
+                                        "instillShortDescription": "Timestamp of creation",
+                                        "instillFormat": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "index",
+                                    "vector",
+                                    "created"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "embeddings"
+                    ]
+                }
+            }
+        }
+    },
+    "TASK_CHAT": {
+        "title": "Chat",
+        "instillShortDescription": "Generate response base on conversation input",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat input",
+            "description": "Input schema of the chat task",
+            "instillShortDescription": "Input schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {
+                        "model": {
+                            "description": "The model to be used.",
+                            "instillShortDescription": "The model to be used.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "title": "Model Name",
+                            "type": "string"
+                        },
+                        "messages": {
+                            "title": "Chat Messages",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "description": "The message content",
+                                        "instillShortDescription": "The message content",
+                                        "title": "Content",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "text": {
+                                                            "title": "Text message",
+                                                            "description": "Text message.",
+                                                            "instillShortDescription": "Text message.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type.",
+                                                            "instillShortDescription": "Input content type.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "text"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "text",
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "image-url": {
+                                                            "title": "Image url",
+                                                            "description": "Image message url.",
+                                                            "instillShortDescription": "Image message url.",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-url"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "image-url",
+                                                        "type"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "image-base64": {
+                                                            "title": "Image base64",
+                                                            "description": "Image base64 encoded string.",
+                                                            "instillShortDescription": "Image base64 encoded string.",
+                                                            "instillAcceptFormats": [
+                                                                "image/*"
+                                                            ],
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "title": "Content type",
+                                                            "description": "Input content type",
+                                                            "instillShortDescription": "Input content type",
+                                                            "instillAcceptFormats": [
+                                                                "string"
+                                                            ],
+                                                            "type": "string",
+                                                            "const": "image-base64"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "image-base64",
+                                                        "type"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "role": {
+                                        "description": "The message role, i.e. 'system', 'user' or 'assistant'",
+                                        "instillShortDescription": "The message role, i.e. 'system', 'user' or 'assistant'",
+                                        "instillAcceptFormats": [
+                                            "string"
+                                        ],
+                                        "title": "Role",
+                                        "type": "string",
+                                        "enum": [
+                                            "system",
+                                            "user",
+                                            "assistant"
+                                        ]
+                                    },
+                                    "name": {
+                                        "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+                                        "instillShortDescription": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
+                                        "instillAcceptFormats": [
+                                            "string"
+                                        ],
+                                        "title": "Name",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content",
+                                    "role"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "model",
+                        "messages"
+                    ]
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {
+                        "max-tokens": {
+                            "title": "Max new tokens",
+                            "type": "integer",
+                            "description": "The maximum number of tokens for model to generate",
+                            "instillShortDescription": "The maximum number of tokens for model to generate",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 50
+                        },
+                        "seed": {
+                            "title": "Seed",
+                            "type": "integer",
+                            "description": "The seed, default is 0",
+                            "instillShortDescription": "The seed, default is 0",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 0
+                        },
+                        "n": {
+                            "title": "Number of choices",
+                            "type": "integer",
+                            "description": "How many chat completion choices to generate for each input message.",
+                            "instillShortDescription": "How many chat completion choices to generate for each input message.",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 1
+                        },
+                        "temperature": {
+                            "title": "Temperature",
+                            "type": "number",
+                            "description": "The temperature for sampling",
+                            "instillShortDescription": "The temperature for sampling",
+                            "instillAcceptFormats": [
+                                "number"
+                            ],
+                            "default": 0.7
+                        },
+                        "top-p": {
+                            "title": "Top P",
+                            "type": "number",
+                            "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.",
+                            "instillShortDescription": "Nucleus sampling",
+                            "instillAcceptFormats": [
+                                "number"
+                            ],
+                            "default": 1
+                        },
+                        "stream": {
+                            "title": "Stream",
+                            "type": "boolean",
+                            "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only server-sent events as they become available.",
+                            "instillShortDescription": "If set, partial message deltas will be sent",
+                            "instillAcceptFormats": [
+                                "boolean"
+                            ],
+                            "default": false
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat output",
+            "description": "Output schema of the chat task",
+            "instillShortDescription": "Output schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "choices": {
+                            "title": "Choices",
+                            "type": "array",
+                            "description": "List of chat completion choices",
+                            "instillShortDescription": "List of chat completion choices",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "finish-reason": {
+                                        "title": "Finish reason",
+                                        "type": "string",
+                                        "description": "The reason the model stopped generating tokens.",
+                                        "instillShortDescription": "The reason the model stopped generating tokens.",
+                                        "instillFormat": "string",
+                                        "enum": [
+                                            "stop",
+                                            "length"
+                                        ]
+                                    },
+                                    "index": {
+                                        "title": "Index",
+                                        "type": "integer",
+                                        "description": "The index of the choice in the list of choices.",
+                                        "instillShortDescription": "The index of the choice in the list of choices.",
+                                        "instillFormat": "integer"
+                                    },
+                                    "message": {
+                                        "title": "Message",
+                                        "type": "object",
+                                        "description": "A chat message generated by the model.",
+                                        "instillShortDescription": "A chat message generated by the model.",
+                                        "properties": {
+                                            "content": {
+                                                "title": "Content",
+                                                "type": "string",
+                                                "description": "The contents of the message.",
+                                                "instillShortDescription": "The contents of the message.",
+                                                "instillFormat": "string"
+                                            },
+                                            "role": {
+                                                "title": "Role",
+                                                "type": "string",
+                                                "description": "The role of the author of this message.",
+                                                "instillShortDescription": "The role of the author of this message.",
+                                                "instillFormat": "string"
+                                            }
+                                        }
+                                    },
+                                    "created": {
+                                        "title": "Created",
+                                        "type": "integer",
+                                        "description": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillShortDescription": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillFormat": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "finish-reason",
+                                    "index",
+                                    "message",
+                                    "created"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "choices"
+                    ]
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {
+                                "completion-tokens": {
+                                    "title": "Completion tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the generated response.",
+                                    "instillShortDescription": "Number of tokens in the generated response.",
+                                    "instillFormat": "integer"
+                                },
+                                "prompt-tokens": {
+                                    "title": "Prompt tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the prompt.",
+                                    "instillShortDescription": "Number of tokens in the prompt.",
+                                    "instillFormat": "integer"
+                                },
+                                "total-tokens": {
+                                    "title": "Total tokens",
+                                    "type": "integer",
+                                    "description": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillShortDescription": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillFormat": "integer"
+                                }
+                            },
+                            "required": [
+                                "completion-tokens",
+                                "prompt-tokens",
+                                "total-tokens"
+                            ]
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_COMPLETION": {
+        "title": "Completion",
+        "instillShortDescription": "Generate text response base on input",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Completion input",
+            "description": "Input schema of the completion task",
+            "instillShortDescription": "Input schema of the completion task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {
+                        "model": {
+                            "description": "The model to be used.",
+                            "instillShortDescription": "The model to be used.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "title": "Model Name",
+                            "type": "string"
+                        },
+                        "system-message": {
+                            "title": "System message",
+                            "type": "string",
+                            "description": "The contents of the system message.",
+                            "instillShortDescription": "The contents of the system message.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ]
+                        },
+                        "prompt": {
+                            "title": "Input prompt",
+                            "type": "string",
+                            "description": "The input prompt to generate text on.",
+                            "instillShortDescription": "The input prompt to generate text on.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "model",
+                        "prompt"
+                    ]
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {
+                        "max-tokens": {
+                            "title": "Max new tokens",
+                            "type": "integer",
+                            "description": "The maximum number of tokens for model to generate",
+                            "instillShortDescription": "The maximum number of tokens for model to generate",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 50
+                        },
+                        "seed": {
+                            "title": "Seed",
+                            "type": "integer",
+                            "description": "The seed, default is 0",
+                            "instillShortDescription": "The seed, default is 0",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 0
+                        },
+                        "n": {
+                            "title": "Number of choices",
+                            "type": "integer",
+                            "description": "How many chat completion choices to generate for each input message.",
+                            "instillShortDescription": "How many chat completion choices to generate for each input message.",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 1
+                        },
+                        "temperature": {
+                            "title": "Temperature",
+                            "type": "number",
+                            "description": "The temperature for sampling",
+                            "instillShortDescription": "The temperature for sampling",
+                            "instillAcceptFormats": [
+                                "number"
+                            ],
+                            "default": 0.7
+                        },
+                        "top-p": {
+                            "title": "Top P",
+                            "type": "number",
+                            "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.",
+                            "instillShortDescription": "Nucleus sampling",
+                            "instillAcceptFormats": [
+                                "number"
+                            ],
+                            "default": 1
+                        },
+                        "stream": {
+                            "title": "Stream",
+                            "type": "boolean",
+                            "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only server-sent events as they become available.",
+                            "instillShortDescription": "If set, partial message deltas will be sent",
+                            "instillAcceptFormats": [
+                                "boolean"
+                            ],
+                            "default": false
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat output",
+            "description": "Output schema of the chat task",
+            "instillShortDescription": "Output schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "choices": {
+                            "title": "Choices",
+                            "type": "array",
+                            "description": "List of chat completion choices",
+                            "instillShortDescription": "List of chat completion choices",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "finish-reason": {
+                                        "title": "Finish reason",
+                                        "type": "string",
+                                        "description": "The reason the model stopped generating tokens.",
+                                        "instillShortDescription": "The reason the model stopped generating tokens.",
+                                        "instillFormat": "string",
+                                        "enum": [
+                                            "stop",
+                                            "length"
+                                        ]
+                                    },
+                                    "index": {
+                                        "title": "Index",
+                                        "type": "integer",
+                                        "description": "The index of the choice in the list of choices.",
+                                        "instillShortDescription": "The index of the choice in the list of choices.",
+                                        "instillFormat": "integer"
+                                    },
+                                    "content": {
+                                        "title": "Content",
+                                        "type": "string",
+                                        "description": "The contents generated by the model.",
+                                        "instillShortDescription": "The contents generated by the model.",
+                                        "instillFormat": "string"
+                                    },
+                                    "created": {
+                                        "title": "Created",
+                                        "type": "integer",
+                                        "description": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillShortDescription": "The Unix timestamp (in seconds) of when the chat completion was created.",
+                                        "instillFormat": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "finish-reason",
+                                    "index",
+                                    "content",
+                                    "created"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "choices"
+                    ]
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {
+                                "completion-tokens": {
+                                    "title": "Completion tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the generated response.",
+                                    "instillShortDescription": "Number of tokens in the generated response.",
+                                    "instillFormat": "integer"
+                                },
+                                "prompt-tokens": {
+                                    "title": "Prompt tokens",
+                                    "type": "integer",
+                                    "description": "Number of tokens in the prompt.",
+                                    "instillShortDescription": "Number of tokens in the prompt.",
+                                    "instillFormat": "integer"
+                                },
+                                "total-tokens": {
+                                    "title": "Total tokens",
+                                    "type": "integer",
+                                    "description": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillShortDescription": "Total number of tokens used in the request (prompt + completion).",
+                                    "instillFormat": "integer"
+                                }
+                            },
+                            "required": [
+                                "completion-tokens",
+                                "prompt-tokens",
+                                "total-tokens"
+                            ]
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_TEXT_TO_IMAGE": {
+        "title": "Completion",
+        "instillShortDescription": "Generate text response base on input",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Completion input",
+            "description": "Input schema of the completion task",
+            "instillShortDescription": "Input schema of the completion task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {
+                        "model": {
+                            "description": "The model to be used.",
+                            "instillShortDescription": "The model to be used.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "title": "Model Name",
+                            "type": "string"
+                        },
+                        "prompt": {
+                            "title": "Input prompt",
+                            "type": "string",
+                            "description": "What you wish to see in the output image. A strong, descriptive prompt that clearly defines elements, colors, and subjects will lead to better results.",
+                            "instillShortDescription": "Descriptive prompt.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "model",
+                        "prompt"
+                    ]
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {
+                        "aspect-ratio": {
+                            "title": "Aspect ratio",
+                            "type": "string",
+                            "description": "Controls the aspect ratio of the generated image. Defaults to 1:1.",
+                            "instillShortDescription": "Controls the aspect ratio of the generated image. Defaults to 1:1.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "default": "1:1",
+                            "enum": [
+                                "16:9",
+                                "1:1",
+                                "21:9",
+                                "2:3",
+                                "3:2",
+                                "4:5",
+                                "5:4",
+                                "9:16",
+                                "9:21"
+                            ]
+                        },
+                        "negative-prompt": {
+                            "title": "Aspect ratio",
+                            "type": "string",
+                            "description": "Keywords of what you do not wish to see in the output image.",
+                            "instillShortDescription": "Keywords of what you do not wish to see in the output image.",
+                            "instillAcceptFormats": [
+                                "string"
+                            ],
+                            "default": "1:1"
+                        },
+                        "n": {
+                            "title": "Number of choices",
+                            "type": "integer",
+                            "description": "How many samples to generate for each input prompt.",
+                            "instillShortDescription": "How many samples to generate for each input prompt.",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 1
+                        },
+                        "seed": {
+                            "title": "Seed",
+                            "type": "integer",
+                            "description": "The seed, default is 0",
+                            "instillShortDescription": "The seed, default is 0",
+                            "instillAcceptFormats": [
+                                "integer"
+                            ],
+                            "default": 0
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Chat output",
+            "description": "Output schema of the chat task",
+            "instillShortDescription": "Output schema of the chat task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {
+                        "choices": {
+                            "title": "Choices",
+                            "type": "array",
+                            "description": "List of generated sample images",
+                            "instillShortDescription": "List of generated sample images",
+                            "instillFormat": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "finish-reason": {
+                                        "title": "Finish reason",
+                                        "type": "string",
+                                        "description": "The reason the model stopped generating tokens.",
+                                        "instillShortDescription": "The reason the model stopped generating tokens.",
+                                        "instillFormat": "string",
+                                        "enum": [
+                                            "content_filtered",
+                                            "success"
+                                        ]
+                                    },
+                                    "image": {
+                                        "title": "Image",
+                                        "type": "string",
+                                        "description": "The generated image, encoded to base64.",
+                                        "instillShortDescription": "The generated image, encoded to base64.",
+                                        "instillFormat": "string"
+                                    }
+                                },
+                                "required": [
+                                    "finish-reason",
+                                    "image"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "choices"
+                    ]
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_CLASSIFICATION": {
+        "title": "Classification",
+        "instillShortDescription": "Classify images into predefined categories.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Classification input",
+            "description": "Input schema of the classification task",
+            "instillShortDescription": "Input schema of the classification task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Classification output",
+            "description": "Output schema of the classification task",
+            "instillShortDescription": "Output schema of the classification task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/classification"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_DETECTION": {
+        "title": "Detection",
+        "instillShortDescription": "Detect and localize multiple objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Detection input",
+            "description": "Input schema of the detection task",
+            "instillShortDescription": "Input schema of the detection task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Detection output",
+            "description": "Output schema of the detection task",
+            "instillShortDescription": "Output schema of the detection task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/detection"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_KEYPOINT": {
+        "title": "Keypoint",
+        "instillShortDescription": "Detect and localize multiple keypoints of objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Keypoint input",
+            "description": "Input schema of the keypoint task",
+            "instillShortDescription": "Input schema of the keypoint task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Keypoint output",
+            "description": "Output schema of the keypoint task",
+            "instillShortDescription": "Output schema of the keypoint task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/keypoint"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_OCR": {
+        "title": "OCR",
+        "instillShortDescription": "Detect and recognize text in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "OCR input",
+            "description": "Input schema of the OCR task",
+            "instillShortDescription": "Input schema of the OCR task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "OCR output",
+            "description": "Output schema of the OCR task",
+            "instillShortDescription": "Output schema of the OCR task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/ocr"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_SEMANTIC_SEGMENTATION": {
+        "title": "Semantic Segmentation",
+        "instillShortDescription": "Classify image pixels into predefined categories.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Semantic segmentation input",
+            "description": "Input schema of the semantic segmentation task",
+            "instillShortDescription": "Input schema of the semantic segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Semantic segmentation output",
+            "description": "Output schema of the semantic segmentation task",
+            "instillShortDescription": "Output schema of the semantic segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/semantic-segmentation"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_INSTANCE_SEGMENTATION": {
+        "title": "Instance Segmentation",
+        "instillShortDescription": "Detect, localize and delineate multiple objects in images.",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Instance segmentation input",
+            "description": "Input schema of the instance segmentation task",
+            "instillShortDescription": "Input schema of the instance segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/vision-input",
+                    "type": "object"
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Instance segmentation output",
+            "description": "Output schema of the Instance segmentation task",
+            "instillShortDescription": "Output schema of the Instance segmentation task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "$ref": "https://raw.githubusercontent.com/instill-ai/instill-core/62743c4/schema/schema.json#/$defs/instill-types/instance-segmentation"
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {
+                        "usage": {
+                            "description": "Usage statistics for the request.",
+                            "instillShortDescription": "Usage statistics for the request.",
+                            "type": "object",
+                            "properties": {},
+                            "required": []
+                        }
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "TASK_CUSTOM": {
+        "title": "Custom",
+        "instillShortDescription": "Custom, with arbitrary input/output data",
+        "input": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Custom input",
+            "description": "Input schema of the custom task",
+            "instillShortDescription": "Input schema of the custom task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Input data",
+                    "instillShortDescription": "Input data",
+                    "type": "object",
+                    "properties": {}
+                },
+                "parameter": {
+                    "description": "Input parameter",
+                    "instillShortDescription": "Input parameter",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        },
+        "output": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Custom output",
+            "description": "Output schema of the custom task",
+            "instillShortDescription": "Output schema of the custom task",
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Output data",
+                    "instillShortDescription": "Output data",
+                    "type": "object",
+                    "properties": {}
+                },
+                "metadata": {
+                    "description": "Output metadata",
+                    "instillShortDescription": "Output metadata",
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "data"
+            ]
+        }
+    }
+}
