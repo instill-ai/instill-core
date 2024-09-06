@@ -16,7 +16,7 @@ jobs:
       HELM_CHART_REPO_BRANCH: main
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.botGitHubToken }}
 
@@ -74,7 +74,7 @@ jobs:
           echo "dir=${PACKAGES}" >> $GITHUB_OUTPUT
 
       - name: Checkout Helm chart repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.HELM_CHART_REPO }}
           path: .helm-chart-repo

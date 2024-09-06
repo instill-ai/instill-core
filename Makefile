@@ -76,8 +76,8 @@ else
 endif
 
 .PHONY: build-latest
-build-latest:				## Build latest images for all Instill Core components
-	@if [ "${BUILD}" = "true" ]; then \
+build-latest:				## Build latest images for all services
+	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -86,6 +86,8 @@ build-latest:				## Build latest images for all Instill Core components
 			--build-arg CACHE_DATE="$(shell date)" \
 			--target latest \
 			-t ${INSTILL_CORE_IMAGE_NAME}:latest .; \
+	fi
+	@if [ "${BUILD}" = "true" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ./.env:/instill-core/.env \
@@ -103,8 +105,8 @@ build-latest:				## Build latest images for all Instill Core components
 	fi
 
 .PHONY: build-release
-build-release:				## Build release images for all Instill Core components
-	@if [ "${BUILD}" = "true" ]; then \
+build-release:				## Build release images for all services
+	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -119,6 +121,8 @@ build-release:				## Build release images for all Instill Core components
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 			--target release \
 			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .; \
+	fi
+	@if [ "${BUILD}" = "true" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ./.env:/instill-core/.env \
@@ -179,7 +183,7 @@ doc:			## Run Redoc for OpenAPI spec at http://localhost:3001
 	@EDITION= DEFAULT_USER_UID= docker compose up -d redoc_openapi
 
 .PHONY: integration-test-latest
-integration-test-latest:			## Run integration test on the latest VDP
+integration-test-latest:			# Run integration test on the latest VDP
 	@make latest BUILD=true EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
@@ -192,7 +196,7 @@ integration-test-latest:			## Run integration test on the latest VDP
 	@make down
 
 .PHONY: integration-test-release
-integration-test-release:			## Run integration test on the release VDP
+integration-test-release:			# Run integration test on the release VDP
 	@make all BUILD=true EDITION=local-ce:test
 	@docker run --rm \
 		--network instill-network \
@@ -205,7 +209,7 @@ integration-test-release:			## Run integration test on the release VDP
 	@make down
 
 .PHONY: helm-integration-test-latest
-helm-integration-test-latest:                       ## Run integration test on the Helm latest for VDP
+helm-integration-test-latest:                       # Run integration test on the Helm latest for VDP
 	@make build-latest BUILD=true
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
@@ -225,11 +229,13 @@ helm-integration-test-latest:                       ## Run integration test on t
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
@@ -245,7 +251,7 @@ endif
 	@make down
 
 .PHONY: helm-integration-test-release
-helm-integration-test-release:                       ## Run integration test on the Helm release for VDP
+helm-integration-test-release:                       # Run integration test on the Helm release for VDP
 	@make build-release BUILD=true
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
@@ -265,11 +271,13 @@ helm-integration-test-release:                       ## Run integration test on 
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
@@ -285,7 +293,7 @@ endif
 	@make down
 
 .PHONY: console-integration-test-latest
-console-integration-test-latest:			## Run console integration test on the latest Instill Core
+console-integration-test-latest:			# Run console integration test on the latest Instill Core
 	@make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
@@ -303,7 +311,7 @@ console-integration-test-latest:			## Run console integration test on the latest
 	@make down
 
 .PHONY: console-integration-test-release
-console-integration-test-release:			## Run console integration test on the release Instill Core
+console-integration-test-release:			# Run console integration test on the release Instill Core
 	@make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
@@ -321,7 +329,7 @@ console-integration-test-release:			## Run console integration test on the relea
 	@make down
 
 .PHONY: console-helm-integration-test-latest
-console-helm-integration-test-latest:                       ## Run console integration test on the Helm latest for Instill Core
+console-helm-integration-test-latest:                       # Run console integration test on the Helm latest for Instill Core
 	@make build-latest  BUILD=true
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
@@ -401,7 +409,7 @@ endif
 	@make down
 
 .PHONY: console-helm-integration-test-release
-console-helm-integration-test-release:                       ## Run console integration test on the Helm release for Instill Core
+console-helm-integration-test-release:                       # Run console integration test on the Helm release for Instill Core
 	@make build-release  BUILD=true
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
@@ -482,5 +490,5 @@ endif
 
 .PHONY: help
 help:       	## Show this help
-	@echo "\nMake Application with Docker Compose"
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@echo "\nMake Application with Instill Core"
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

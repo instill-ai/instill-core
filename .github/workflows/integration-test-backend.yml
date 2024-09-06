@@ -11,10 +11,9 @@ on:
         type: string
 
 jobs:
-  integration-test-latest-linux:
-    if: inputs.target == 'latest'
+  integration-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       # mono occupies port 8084 which conflicts with mgmt-backend
       - name: Stop mono service
@@ -33,7 +32,7 @@ jobs:
         run: sudo service docker restart
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: instill-ai/instill-core
 
@@ -41,197 +40,38 @@ jobs:
         uses: cardinalby/export-env-action@v2
         with:
           envFile: .env
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Install k6
         run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+          go install go.k6.io/xk6/cmd/xk6@v${{ env.XK6_VERSION }}
+          xk6 build v${{ env.K6_VERSION }} --with github.com/grafana/xk6-sql && sudo cp k6 /usr/bin
 
-      - name: Launch Instill Core (latest)
+      - name: Launch Instill Core (${{ inputs.target }})
         run: |
-          make latest BUILD=true EDITION=local-ce:test
+          if [ "${{ inputs.target }}" == "latest" ]; then
+            make latest BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test
+          else
+            make all BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test
+          fi
 
       - name: Uppercase component name
         id: uppercase
         run: |
           echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
 
-      - name: Run ${{ inputs.component }} integration test (latest)
-        run: |
-          git clone https://github.com/instill-ai/${{ inputs.component }}.git
-          cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
-
-      - name: Make down Instill Core
-        run: |
-          make down
-
-  integration-test-latest-mac:
-    if: false
-    # disable the mac test temporary
-    #if: inputs.target == 'latest'
-    runs-on: macos-latest
-    timeout-minutes: 120
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: Install homebrew dependencies
-        run: |
-          brew install make
-          brew install k6
-          brew install docker docker-buildx docker-compose
-          mkdir -p ~/.docker/cli-plugins
-          ln -sfn $(which docker-buildx) ~/.docker/cli-plugins
-          ln -sfn $(which docker-compose) ~/.docker/cli-plugins
-
-      - name: Install and start Colima
-        run: |
-          brew install colima
-          colima version
-          colima start --cpu 3 --memory 14 --disk 100 --mount-type=sshfs
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/instill-core
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Launch Instill Core (latest)
-        run: |
-          make latest BUILD=true EDITION=local-ce:test
-
-      - name: Uppercase component name
-        id: uppercase
-        run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Run ${{ inputs.component }} integration test (latest)
-        run: |
-          git clone https://github.com/instill-ai/${{ inputs.component }}.git
-          cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
-
-      - name: Make down Instill Core
-        run: |
-          make down
-
-  integration-test-release-linux:
-    if: inputs.target == 'release'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      # mono occupies port 8084 which conflicts with mgmt-backend
-      - name: Stop mono service
-        run: |
-          sudo kill -9 `sudo lsof -t -i:8084`
-          sudo lsof -i -P -n | grep LISTEN
-
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          overprovision-lvm: "true"
-          remove-dotnet: "true"
-          build-mount-path: "/var/lib/docker/"
-
-      - name: Restart docker
-        run: sudo service docker restart
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/instill-core
-          fetch-depth: 5 # fetch the commit with tag
-          fetch-tags: true
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
-      - name: Launch Instill Core (release)
-        run: |
-          make all BUILD=true EDITION=local-ce:test
-
-      - name: Uppercase component name
-        id: uppercase
-        run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Run ${{ inputs.component }} integration test (release)
+      - name: Run ${{ inputs.component }} integration test (${{ inputs.target }})
         env:
           COMPONENT_VERSION: ${{ env[format('{0}_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
         run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
-          cd ${{ inputs.component }}
-          make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
-
-      - name: Make down Instill Core
-        run: |
-          make down
-
-  integration-test-release-mac:
-    if: false
-    # disable the mac test temporary
-    # if: inputs.target == 'release'
-    runs-on: macos-latest
-    timeout-minutes: 120
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.0
-
-      - name: Install homebrew dependencies
-        run: |
-          brew install make
-          brew install k6
-          brew install docker docker-buildx docker-compose
-          mkdir -p ~/.docker/cli-plugins
-          ln -sfn $(which docker-buildx) ~/.docker/cli-plugins
-          ln -sfn $(which docker-compose) ~/.docker/cli-plugins
-
-      - name: Install and start Colima
-        run: |
-          brew install colima
-          colima version
-          colima start --cpu 3 --memory 14 --disk 100 --mount-type=sshfs --dns=1.1.1.1
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          repository: instill-ai/instill-core
-          fetch-depth: 5 # fetch the commit with tag
-          fetch-tags: true
-
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: .env
-
-      - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
-
-      - name: Launch Instill Core (release)
-        run: |
-          make all BUILD=true EDITION=local-ce:test
-
-      - name: Uppercase component name
-        id: uppercase
-        run: |
-          echo "COMPONENT_NAME=$(echo ${{ inputs.component }} | tr 'a-z-' 'A-Z_')" >> $GITHUB_OUTPUT
-
-      - name: Run ${{ inputs.component }} integration test (release)
-        env:
-          COMPONENT_VERSION: ${{ env[format('{0}_VERSION', steps.uppercase.outputs.COMPONENT_NAME)] }}
-        run: |
-          git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
+          if [ "${{ inputs.target }}" == "latest" ]; then
+            git clone https://github.com/instill-ai/${{ inputs.component }}.git
+          else
+            git clone -b v$COMPONENT_VERSION https://github.com/instill-ai/${{ inputs.component }}.git
+          fi
           cd ${{ inputs.component }}
           make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}
 
