@@ -50,9 +50,9 @@
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type.",
-                                                            "instillShortDescription": "Input content type.",
+                                                            "title": "Text",
+                                                            "description": "Text input content type.",
+                                                            "instillShortDescription": "Text input content type.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
@@ -69,18 +69,18 @@
                                                     "type": "object",
                                                     "properties": {
                                                         "image-url": {
-                                                            "title": "Image url",
+                                                            "title": "Image URL",
                                                             "description": "Image content with URL.",
-                                                            "instillShortDescription": "Image content url.",
+                                                            "instillShortDescription": "Image content URL.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type",
-                                                            "instillShortDescription": "Input content type",
+                                                            "title": "Image URL",
+                                                            "description": "Image URL input content type",
+                                                            "instillShortDescription": "Image URL input content type",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
@@ -97,18 +97,18 @@
                                                     "type": "object",
                                                     "properties": {
                                                         "image-base64": {
-                                                            "title": "Image base64",
-                                                            "description": "Image content with base64 encoded string.",
-                                                            "instillShortDescription": "Image content with base64 encoded string.",
+                                                            "title": "Image file",
+                                                            "description": "Image file input.",
+                                                            "instillShortDescription": "Image file input.",
                                                             "instillAcceptFormats": [
                                                                 "image/*"
                                                             ],
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type",
-                                                            "instillShortDescription": "Input content type",
+                                                            "title": "Image file",
+                                                            "description": "Image file input content type",
+                                                            "instillShortDescription": "Image file input content type",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
@@ -305,9 +305,9 @@
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type.",
-                                                            "instillShortDescription": "Input content type.",
+                                                            "title": "Text",
+                                                            "description": "Text content type.",
+                                                            "instillShortDescription": "Text content type.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
@@ -324,18 +324,18 @@
                                                     "type": "object",
                                                     "properties": {
                                                         "image-url": {
-                                                            "title": "Image url",
-                                                            "description": "Image message url.",
-                                                            "instillShortDescription": "Image message url.",
+                                                            "title": "Image URL",
+                                                            "description": "Image message URL.",
+                                                            "instillShortDescription": "Image message URL.",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type",
-                                                            "instillShortDescription": "Input content type",
+                                                            "title": "Image URL",
+                                                            "description": "Image URL content type",
+                                                            "instillShortDescription": "Image URL content type",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
@@ -352,7 +352,7 @@
                                                     "type": "object",
                                                     "properties": {
                                                         "image-base64": {
-                                                            "title": "Image base64",
+                                                            "title": "Image file",
                                                             "description": "Image base64 encoded string.",
                                                             "instillShortDescription": "Image base64 encoded string.",
                                                             "instillAcceptFormats": [
