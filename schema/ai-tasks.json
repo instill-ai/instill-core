@@ -361,9 +361,9 @@
                                                             "type": "string"
                                                         },
                                                         "type": {
-                                                            "title": "Content type",
-                                                            "description": "Input content type",
-                                                            "instillShortDescription": "Input content type",
+                                                            "title": "Image file",
+                                                            "description": "Image file input content type",
+                                                            "instillShortDescription": "Image file input content type",
                                                             "instillAcceptFormats": [
                                                                 "string"
                                                             ],
