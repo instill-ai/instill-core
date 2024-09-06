@@ -41,9 +41,14 @@ jobs:
         with:
           envFile: .env
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
+
       - name: Install k6
         run: |
-          curl https://github.com/grafana/k6/releases/download/v${{ env.K6_VERSION }}/k6-v${{ env.K6_VERSION }}-linux-amd64.tar.gz -L | tar xvz --strip-components 1 && sudo cp k6 /usr/bin
+          go install go.k6.io/xk6/cmd/xk6@v${{ env.XK6_VERSION }}
+          xk6 build v${{ env.K6_VERSION }} --with github.com/grafana/xk6-sql && sudo cp k6 /usr/bin
 
       - name: Launch Instill Core (${{ inputs.target }})
         run: |
