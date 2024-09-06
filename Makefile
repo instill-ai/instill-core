@@ -77,7 +77,7 @@ endif
 
 .PHONY: build-latest
 build-latest:				## Build latest images for all services
-	@if [ "${BUILD}" = "true" ]; then \
+	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -86,6 +86,8 @@ build-latest:				## Build latest images for all services
 			--build-arg CACHE_DATE="$(shell date)" \
 			--target latest \
 			-t ${INSTILL_CORE_IMAGE_NAME}:latest .; \
+	fi
+	@if [ "${BUILD}" = "true" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ./.env:/instill-core/.env \
@@ -104,7 +106,7 @@ build-latest:				## Build latest images for all services
 
 .PHONY: build-release
 build-release:				## Build release images for all services
-	@if [ "${BUILD}" = "true" ]; then \
+	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
@@ -119,6 +121,8 @@ build-release:				## Build release images for all services
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
 			--target release \
 			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .; \
+	fi
+	@if [ "${BUILD}" = "true" ]; then \
 		docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ./.env:/instill-core/.env \

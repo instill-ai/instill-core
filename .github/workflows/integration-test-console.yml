@@ -40,7 +40,7 @@ jobs:
 
       - name: Launch Instill Core (${{ inputs.target }})
         run: |
-          make ${{ inputs.target }} BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
+          make ${{ inputs.target }} BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test INSTILL_CORE_HOST=api-gateway
 
       - name: Run console integration test (${{ inputs.target }})
         run: |

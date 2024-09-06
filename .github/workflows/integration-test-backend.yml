@@ -53,9 +53,9 @@ jobs:
       - name: Launch Instill Core (${{ inputs.target }})
         run: |
           if [ "${{ inputs.target }}" == "latest" ]; then
-            make latest BUILD=true EDITION=local-ce:test
+            make latest BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test
           else
-            make all BUILD=true EDITION=local-ce:test
+            make all BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test
           fi
 
       - name: Uppercase component name
