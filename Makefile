@@ -229,11 +229,13 @@ helm-integration-test-latest:                       # Run integration test on th
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
@@ -269,11 +271,13 @@ helm-integration-test-release:                       # Run integration test on t
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
+		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
 	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
