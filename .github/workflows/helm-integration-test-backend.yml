@@ -30,7 +30,7 @@ jobs:
       - name: Setup Minikube
         run: |
           sudo service docker restart
-          minikube start --cpus 3 --memory 10485
+          minikube start --cpus 3 --memory 8192
 
       - name: Checkout repo and load .env
         uses: actions/checkout@v4
@@ -132,7 +132,7 @@ jobs:
           kubectl --namespace instill-ai port-forward ${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
           DATABASE_POD_NAME=$(kubectl get pods --namespace instill-ai -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o json | jq -r '.items[0].metadata.name')
           kubectl --namespace instill-ai port-forward ${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
-          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
+          while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 5; done
 
       - name: Run ${{ inputs.component }} integration test (${{ inputs.target }})
         env:
