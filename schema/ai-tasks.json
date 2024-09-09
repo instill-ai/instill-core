@@ -23,117 +23,103 @@
                             "title": "Model Name",
                             "type": "string"
                         },
-                        "input": {
+                        "embeddings": {
                             "title": "Embedding Input",
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "properties": {
-                                    "content": {
-                                        "description": "The content to be embedded.",
-                                        "instillShortDescription": "The content to be embedded.",
-                                        "title": "Content",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "oneOf": [
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "text": {
-                                                            "title": "Text content",
-                                                            "description": "Text content to be embedded",
-                                                            "instillShortDescription": "Text content",
-                                                            "instillAcceptFormats": [
-                                                                "string"
-                                                            ],
-                                                            "type": "string"
-                                                        },
-                                                        "type": {
-                                                            "title": "Text",
-                                                            "description": "Text input content type.",
-                                                            "instillShortDescription": "Text input content type.",
-                                                            "instillAcceptFormats": [
-                                                                "string"
-                                                            ],
-                                                            "type": "string",
-                                                            "const": "text"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "text",
-                                                        "type"
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "image-url": {
-                                                            "title": "Image URL",
-                                                            "description": "Image content with URL.",
-                                                            "instillShortDescription": "Image content URL.",
-                                                            "instillAcceptFormats": [
-                                                                "string"
-                                                            ],
-                                                            "type": "string"
-                                                        },
-                                                        "type": {
-                                                            "title": "Image URL",
-                                                            "description": "Image URL input content type",
-                                                            "instillShortDescription": "Image URL input content type",
-                                                            "instillAcceptFormats": [
-                                                                "string"
-                                                            ],
-                                                            "type": "string",
-                                                            "const": "image-url"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "image-url",
-                                                        "type"
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "image-base64": {
-                                                            "title": "Image file",
-                                                            "description": "Image file input.",
-                                                            "instillShortDescription": "Image file input.",
-                                                            "instillAcceptFormats": [
-                                                                "image/*"
-                                                            ],
-                                                            "type": "string"
-                                                        },
-                                                        "type": {
-                                                            "title": "Image file",
-                                                            "description": "Image file input content type",
-                                                            "instillShortDescription": "Image file input content type",
-                                                            "instillAcceptFormats": [
-                                                                "string"
-                                                            ],
-                                                            "type": "string",
-                                                            "const": "image-base64"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "image-base64",
-                                                        "type"
-                                                    ]
-                                                }
-                                            ]
-                                        }
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "title": "Text content",
+                                                "description": "Text content to be embedded",
+                                                "instillShortDescription": "Text content",
+                                                "instillAcceptFormats": [
+                                                    "string"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "title": "Text",
+                                                "description": "Text input content type.",
+                                                "instillShortDescription": "Text input content type.",
+                                                "instillAcceptFormats": [
+                                                    "string"
+                                                ],
+                                                "type": "string",
+                                                "const": "text"
+                                            }
+                                        },
+                                        "required": [
+                                            "text",
+                                            "type"
+                                        ]
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "image-url": {
+                                                "title": "Image URL",
+                                                "description": "Image content with URL.",
+                                                "instillShortDescription": "Image content URL.",
+                                                "instillAcceptFormats": [
+                                                    "string"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "title": "Image URL",
+                                                "description": "Image URL input content type",
+                                                "instillShortDescription": "Image URL input content type",
+                                                "instillAcceptFormats": [
+                                                    "string"
+                                                ],
+                                                "type": "string",
+                                                "const": "image-url"
+                                            }
+                                        },
+                                        "required": [
+                                            "image-url",
+                                            "type"
+                                        ]
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "image-base64": {
+                                                "title": "Image file",
+                                                "description": "Image file input.",
+                                                "instillShortDescription": "Image file input.",
+                                                "instillAcceptFormats": [
+                                                    "image/*"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "title": "Image file",
+                                                "description": "Image file input content type",
+                                                "instillShortDescription": "Image file input content type",
+                                                "instillAcceptFormats": [
+                                                    "string"
+                                                ],
+                                                "type": "string",
+                                                "const": "image-base64"
+                                            }
+                                        },
+                                        "required": [
+                                            "image-base64",
+                                            "type"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "content"
                                 ]
                             }
                         }
                     },
                     "required": [
                         "model",
-                        "input"
+                        "embeddings"
                     ]
                 },
                 "parameter": {
