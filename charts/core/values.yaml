@@ -481,7 +481,7 @@ modelBackend:
   dbVersion: 10
   instillCoreHost:
   # -- The AI Task schema version
-  taskSchemaVersion: bca7beb
+  taskSchemaVersion: 2496179
   # -- The configuration of Temporal Cloud
   temporal:
     hostPort:
