@@ -973,7 +973,7 @@
                                         "type": "string",
                                         "description": "The generated image, encoded to base64.",
                                         "instillShortDescription": "The generated image, encoded to base64.",
-                                        "instillFormat": "string"
+                                        "instillFormat": "image/*"
                                     }
                                 },
                                 "required": [
