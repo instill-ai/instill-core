@@ -900,14 +900,14 @@
                             ]
                         },
                         "negative-prompt": {
-                            "title": "Aspect ratio",
+                            "title": "Negative prompt",
                             "type": "string",
                             "description": "Keywords of what you do not wish to see in the output image.",
                             "instillShortDescription": "Keywords of what you do not wish to see in the output image.",
                             "instillAcceptFormats": [
                                 "string"
                             ],
-                            "default": "1:1"
+                            "default": ""
                         },
                         "n": {
                             "title": "Number of choices",
@@ -973,7 +973,7 @@
                                         "type": "string",
                                         "description": "The generated image, encoded to base64.",
                                         "instillShortDescription": "The generated image, encoded to base64.",
-                                        "instillFormat": "string"
+                                        "instillFormat": "image/*"
                                     }
                                 },
                                 "required": [
