@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.40.0-beta](https://github.com/instill-ai/instill-core/compare/v0.39.0-beta...v0.40.0-beta) (2024-09-11)
+
+
+### Features
+
+* **artifact:** bump ce version to 0.12.0 ([#1093](https://github.com/instill-ai/instill-core/issues/1093)) ([76f028a](https://github.com/instill-ai/instill-core/commit/76f028aacfef75a99f97cd00dc1efbad3fefe3eb))
+* **ci:** build k6 with sql plugin ([#1085](https://github.com/instill-ai/instill-core/issues/1085)) ([cac94c9](https://github.com/instill-ai/instill-core/commit/cac94c9407ffe89164ccfd3ee55741eace706c72))
+* **schema:** add standardized AI tasks schema ([#1070](https://github.com/instill-ai/instill-core/issues/1070)) ([78133b5](https://github.com/instill-ai/instill-core/commit/78133b5079fe4d2d72e647be14ed73bf0625e9ca))
+
 ## [0.39.0-beta](https://github.com/instill-ai/instill-core/compare/v0.38.0-beta...v0.39.0-beta) (2024-08-29)
 
 
