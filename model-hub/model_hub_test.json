@@ -128,5 +128,18 @@
     "hardware": "CPU",
     "version": "latest",
     "configuration": {}
+  },
+  {
+    "id": "dummy-multimodal-embedding",
+    "owner_type": "users",
+    "owner_id": "admin",
+    "description": "A multimodal embedding model for integration-test",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "task": "TASK_EMBEDDING",
+    "region": "REGION_LOCAL",
+    "hardware": "CPU",
+    "version": "latest",
+    "configuration": {}
   }
 ]
