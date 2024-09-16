@@ -253,6 +253,7 @@
       "type": "object",
       "properties": {
         "data": {
+          "title": "Chat data",
           "description": "Input data",
           "instillShortDescription": "Input data",
           "type": "object",
@@ -263,6 +264,7 @@
               "instillAcceptFormats": [
                 "string"
               ],
+              "instillUIOrder": 0,
               "title": "Model Name",
               "type": "string"
             },
@@ -366,7 +368,8 @@
                         }
                       ],
                       "required": []
-                    }
+                    },
+                    "instillUIOrder": 0
                   },
                   "role": {
                     "description": "The message role, i.e. 'system', 'user' or 'assistant'",
@@ -380,7 +383,8 @@
                       "system",
                       "user",
                       "assistant"
-                    ]
+                    ],
+                    "instillUIOrder": 1
                   },
                   "name": {
                     "description": "An optional name for the participant. Provides the model information to differentiate between participants of the same role.",
@@ -389,20 +393,24 @@
                       "string"
                     ],
                     "title": "Name",
-                    "type": "string"
+                    "type": "string",
+                    "instillUIOrder": 2
                   }
                 },
                 "required": [
                   "content",
                   "role"
                 ]
-              }
+              },
+              "instillUIOrder": 1,
+              "description": "List of chat messages"
             }
           },
           "required": [
             "model",
             "messages"
-          ]
+          ],
+          "instillUIOrder": 0
         },
         "parameter": {
           "description": "Input parameter",
@@ -417,7 +425,8 @@
               "instillAcceptFormats": [
                 "integer"
               ],
-              "default": 50
+              "default": 50,
+              "instillUIOrder": 0
             },
             "seed": {
               "title": "Seed",
@@ -427,7 +436,8 @@
               "instillAcceptFormats": [
                 "integer"
               ],
-              "default": 0
+              "default": 0,
+              "instillUIOrder": 1
             },
             "n": {
               "title": "Number of choices",
@@ -437,7 +447,8 @@
               "instillAcceptFormats": [
                 "integer"
               ],
-              "default": 1
+              "default": 1,
+              "instillUIOrder": 2
             },
             "temperature": {
               "title": "Temperature",
@@ -447,7 +458,8 @@
               "instillAcceptFormats": [
                 "number"
               ],
-              "default": 0.7
+              "default": 0.7,
+              "instillUIOrder": 3
             },
             "top-p": {
               "title": "Top P",
@@ -457,7 +469,8 @@
               "instillAcceptFormats": [
                 "number"
               ],
-              "default": 1
+              "default": 1,
+              "instillUIOrder": 4
             },
             "stream": {
               "title": "Stream",
@@ -467,10 +480,13 @@
               "instillAcceptFormats": [
                 "boolean"
               ],
-              "default": false
+              "default": false,
+              "instillUIOrder": 5
             }
           },
-          "required": []
+          "required": [],
+          "instillUIOrder": 0,
+          "title": "Input Parameter"
         }
       },
       "required": [
@@ -507,14 +523,16 @@
                     "enum": [
                       "stop",
                       "length"
-                    ]
+                    ],
+                    "instillUIOrder": 0
                   },
                   "index": {
                     "title": "Index",
                     "type": "integer",
                     "description": "The index of the choice in the list of choices.",
                     "instillShortDescription": "The index of the choice in the list of choices.",
-                    "instillFormat": "integer"
+                    "instillFormat": "integer",
+                    "instillUIOrder": 1
                   },
                   "message": {
                     "title": "Message",
@@ -527,24 +545,28 @@
                         "type": "string",
                         "description": "The contents of the message.",
                         "instillShortDescription": "The contents of the message.",
-                        "instillFormat": "string"
+                        "instillFormat": "string",
+                        "instillUIOrder": 0
                       },
                       "role": {
                         "title": "Role",
                         "type": "string",
                         "description": "The role of the author of this message.",
                         "instillShortDescription": "The role of the author of this message.",
-                        "instillFormat": "string"
+                        "instillFormat": "string",
+                        "instillUIOrder": 1
                       }
                     },
-                    "required": []
+                    "required": [],
+                    "instillUIOrder": 2
                   },
                   "created": {
                     "title": "Created",
                     "type": "integer",
                     "description": "The Unix timestamp (in seconds) of when the chat completion was created.",
                     "instillShortDescription": "The Unix timestamp (in seconds) of when the chat completion was created.",
-                    "instillFormat": "integer"
+                    "instillFormat": "integer",
+                    "instillUIOrder": 3
                   }
                 },
                 "required": [
@@ -553,12 +575,15 @@
                   "message",
                   "created"
                 ]
-              }
+              },
+              "instillUIOrder": 0
             }
           },
           "required": [
             "choices"
-          ]
+          ],
+          "instillUIOrder": 0,
+          "title": "Output Data"
         },
         "metadata": {
           "description": "Output metadata",
@@ -575,31 +600,38 @@
                   "type": "integer",
                   "description": "Number of tokens in the generated response.",
                   "instillShortDescription": "Number of tokens in the generated response.",
-                  "instillFormat": "integer"
+                  "instillFormat": "integer",
+                  "instillUIOrder": 0
                 },
                 "prompt-tokens": {
                   "title": "Prompt tokens",
                   "type": "integer",
                   "description": "Number of tokens in the prompt.",
                   "instillShortDescription": "Number of tokens in the prompt.",
-                  "instillFormat": "integer"
+                  "instillFormat": "integer",
+                  "instillUIOrder": 1
                 },
                 "total-tokens": {
                   "title": "Total tokens",
                   "type": "integer",
                   "description": "Total number of tokens used in the request (prompt + completion).",
                   "instillShortDescription": "Total number of tokens used in the request (prompt + completion).",
-                  "instillFormat": "integer"
+                  "instillFormat": "integer",
+                  "instillUIOrder": 2
                 }
               },
               "required": [
                 "completion-tokens",
                 "prompt-tokens",
                 "total-tokens"
-              ]
+              ],
+              "instillUIOrder": 0,
+              "title": "Usage"
             }
           },
-          "required": []
+          "required": [],
+          "title": "Output Metadata",
+          "instillUIOrder": 1
         }
       },
       "required": [
