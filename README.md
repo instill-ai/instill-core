@@ -20,23 +20,26 @@
 
 - [**💾 Instill Artifact**](https://www.instill.tech/docs/artifact/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Data orchestration to transform unstructured data into AI-ready format
 - [**💧 Instill VDP**](https://www.instill.tech/docs/vdp/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Pipeline orchestration to address unstructured data ETL challenges
-- [**⚗️ Instill Model**](https://www.instill.tech/docs/model/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Model orchestration for MLOps/LLMOps.
+- [**⚗️ Instill Model**](https://www.instill.tech/docs/model/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Model orchestration for MLOps/LLMOps
 
 
-See the [Documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme).
+See the [Documentation](https://www.instill.tech/docs/welcome/?utm_source=github&utm_medium=readme&utm_campaign=org_readme).
 
 
 ## Quick Start
 
+There are a few ways to get started:
+
 ### ☁️ Instill Cloud (public cloud)
 
-**[Instill Cloud](https://instill.tech/?utm_source=github&utm_medium=readme&utm_campaign=instill-core)** is a fully managed public cloud service, providing you with access to all the features of **Instill Core** without the burden of infrastructure management. All you need to do is to one-click sign up to start building your AI-first applications.
+**[Instill Cloud](https://instill.tech/?utm_source=github&utm_medium=readme&utm_campaign=instill-core)** is a fully managed public cloud service that offers all features of **Instill Core** without infrastructure hassles. 
 
-See the [Quickstart Guide](https://www.instill.tech/docs/quickstart#%EF%B8%8F-instill-cloud?utm_source=github&utm_medium=readme&utm_campaign=instill-core).
+To get started, simply [sign up here](https://instill.tech/?utm_source=github&utm_medium=readme&utm_campaign=instill-core) with one click to start building AI-first applications instantly or follow the [Quickstart Guide](https://www.instill.tech/docs/quickstart#%EF%B8%8F-instill-cloud?utm_source=github&utm_medium=readme&utm_campaign=instill-core).
 
-### 🔮 Instill Core (self-hosting)
 
-**Prerequisites**
+### 🔮 Instill Core (self-host)
+
+#### Prerequisites
 
 | Operating System | Requirements and Instructions |
 |------------------|--------------------------------|
@@ -52,11 +55,10 @@ See the [Quickstart Guide](https://www.instill.tech/docs/quickstart#%EF%B8%8F-in
 
   <!-- x-release-please-start-version -->
   ```bash
-  git clone -b v0.40.1-beta https://github.com/instill-ai/instill-core.git
-  cd instill-core
+  $ git clone -b v0.40.1-beta https://github.com/instill-ai/instill-core.git && cd instill-core
 
   # Launch all services
-  make all
+  $ make all
   ```
   <!-- x-release-please-end -->
 
@@ -68,11 +70,10 @@ See the [Quickstart Guide](https://www.instill.tech/docs/quickstart#%EF%B8%8F-in
   Execute these commands to build images with all dependencies:
 
   ```bash
-  git clone https://github.com/instill-ai/instill-core.git
-  cd instill-core
+  $ git clone https://github.com/instill-ai/instill-core.git && cd instill-core
 
   # Launch all services
-  make latest PROFILE=all
+  $ make latest PROFILE=all
   ```
 
   > [!IMPORTANT]
@@ -81,26 +82,15 @@ See the [Quickstart Guide](https://www.instill.tech/docs/quickstart#%EF%B8%8F-in
 #### Getting Started
 
   Once all services are up with health status:
-    - Access the UI at http://localhost:3000
-    - Find default login credentials in the [documentation](https://www.instill.tech/docs/latest/quickstart#self-hosted-instill-core)
+  - Access the UI at http://localhost:3000
+  - Find default login credentials in the [documentation](https://www.instill.tech/docs/latest/quickstart#self-hosted-instill-core)
 
   To shut down all running services:
-  ```bash
-  make down
+  ```
+  $ make down
   ```
 
   For more deployment options, see our [documentation](https://www.instill.tech/docs/latest/core/deployment).
-
-
-## Client Access
-
-To access **🔮 Instill Core** and **☁️ Instill Cloud**, you have a few options:
-- <b>📺 <a href="https://github.com/instill-ai/console" target="_blank">Instill Console</a></b>
-- <b>⌨️ <a href="https://github.com/instill-ai/cli" target="_blank">Instill CLI</a></b>
-- <b>📦 Instill SDK</b>:
-  - [Python SDK](https://github.com/instill-ai/python-sdk)
-  - [TypeScript SDK](https://github.com/instill-ai/typescript-sdk)
-  - Stay tuned, as more SDKs are on the way!
 
 
 ## 📖 Documentation & Guides
@@ -120,7 +110,7 @@ We enthusiastically welcome contributions from our community! Whether you're a d
 
 1. **Cookbooks**: Help us create helpful pipelines and guides for the community. Visit our [Cookbook repository](https://github.com/instill-ai/cookbook) to get started.
 
-2. **Issues**: Contribute to improvements by raising tickets using [templates here](https://github.com/instill-ai/instill-core/issues/new/choose) or discuss in existing ones you think you can helpwith. 
+2. **Issues**: Contribute to improvements by raising tickets using [templates here](https://github.com/instill-ai/instill-core/issues/new/choose) or discuss in existing ones you think you can help with. 
 
 ### Community Standards
 
