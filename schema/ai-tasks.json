@@ -286,7 +286,7 @@
                           "type": "object",
                           "properties": {
                             "text": {
-                              "title": "Text message",
+                              "title": "Text Message",
                               "description": "Text message.",
                               "instillShortDescription": "Text message.",
                               "instillAcceptFormats": [
@@ -342,7 +342,7 @@
                           "type": "object",
                           "properties": {
                             "image-base64": {
-                              "title": "Image file",
+                              "title": "Image File",
                               "description": "Image base64 encoded string.",
                               "instillShortDescription": "Image base64 encoded string.",
                               "instillAcceptFormats": [
@@ -351,7 +351,7 @@
                               "type": "string"
                             },
                             "type": {
-                              "title": "Image file",
+                              "title": "Image File",
                               "description": "Image file input content type",
                               "instillShortDescription": "Image file input content type",
                               "instillAcceptFormats": [
