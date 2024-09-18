@@ -520,10 +520,6 @@
                     "description": "The reason the model stopped generating tokens.",
                     "instillShortDescription": "The reason the model stopped generating tokens.",
                     "instillFormat": "string",
-                    "enum": [
-                      "stop",
-                      "length"
-                    ],
                     "instillUIOrder": 0
                   },
                   "index": {
