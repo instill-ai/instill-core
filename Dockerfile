@@ -1,4 +1,4 @@
-ARG ALPINE_VERSION
+ARG ALPINE_VERSION=3.18
 FROM golang:alpine${ALPINE_VERSION} AS base
 
 RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
@@ -16,7 +16,6 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
-ARG ALPINE_VERSION
 FROM alpine:${ALPINE_VERSION} AS latest
 
 COPY --from=base /etc /etc
