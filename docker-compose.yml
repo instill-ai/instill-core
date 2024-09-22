@@ -534,14 +534,6 @@ services:
       timeout: 5s
       retries: 2
 
-  redoc_openapi:
-    container_name: redoc-openapi
-    image: ${REDOC_IMAGE}:${REDOC_OPENAPI_VERSION}
-    environment:
-      - SPEC_URL=https://raw.githubusercontent.com/instill-ai/protobufs/main/openapiv2/openapiv2.swagger.yaml
-    ports:
-      - ${REDOC_OPENAPI_PORT}:80
-
   openfga_migrate:
     image: ${OPENFGA_IMAGE}:${OPENFGA_VERSION}
     container_name: ${OPENFGA_HOST}_migrate

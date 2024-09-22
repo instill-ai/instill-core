@@ -178,10 +178,6 @@ ps:				## List all service containers
 top:			## Display all running service processes
 	@EDITION= DEFAULT_USER_UID= docker compose top
 
-.PHONY: doc
-doc:			## Run Redoc for OpenAPI spec at http://localhost:3001
-	@EDITION= DEFAULT_USER_UID= docker compose up -d redoc_openapi
-
 .PHONY: integration-test-latest
 integration-test-latest:			# Run integration test on the latest VDP
 	@make latest BUILD=true EDITION=local-ce:test
