@@ -388,7 +388,7 @@ pipelineBackend:
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 28
+  dbVersion: 29
   # -- workflow setting
   workflow:
     maxWorkflowTimeout: 3600 # in seconds
