@@ -246,7 +246,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.25.0-beta
+    tag: 0.26.0-beta
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -375,7 +375,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.38.2-beta
+    tag: 0.39.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -557,7 +557,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.12.0-alpha
+    tag: 0.15.0-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -626,7 +626,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.56.0-beta
+    tag: 0.58.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
