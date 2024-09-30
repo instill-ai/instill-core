@@ -26,6 +26,10 @@ Explore **🔮 [Instill Core](https://github.com/instill-ai/instill-core)**, a f
 
   **💧 Instill VDP**, also known as **VDP (Versatile Data Pipeline)**, serves as a powerful pipeline orchestration tool tailored to address unstructured data ETL challenges.
 
+  <br>
+
+  **⚙️ Instill Component** is an extensible integration framework that enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/pipeline-backend/blob/main/pkg/component) package for details.
+
 </details>
 
 <details>
@@ -42,15 +46,6 @@ Explore **🔮 [Instill Core](https://github.com/instill-ai/instill-core)**, a f
   <br>
 
   **💾 Instill Artifact** orchestrates unstructured data to transform documents (e.g., HTML, PDF, CSV, PPTX, DOC), images (e.g., JPG, PNG, TIFF), audio (e.g., WAV, MP3 ) and video (e.g., MP4, MOV) into a unified AI-ready format. It ensures your data is clean, curated, and ready for extracting insights and building your Knowledge Base.
-</details>
-
-<details>
-  <summary><b>⚙️ Instill Component</b> - An extensible integration framework for <b>💧 Instill VDP</b></summary>
-
-  <br>
-
-  **⚙️ Instill Component** enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/component) repository for details.
-
 </details>
 
 ### ☁️ Instill Cloud
