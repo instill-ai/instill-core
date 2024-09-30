@@ -5,7 +5,7 @@
 [![Artifact Hub](https://img.shields.io/endpoint?labelColor=gray&color=blue&url=https://artifacthub.io/badge/repository/instill-ai)](https://artifacthub.io/packages/helm/instill-ai/core)
 [![Discord](https://img.shields.io/discord/928991293856681984?color=blue&label=Discord&logo=discord&logoColor=fff)](https://discord.gg/sevxWsqpGh) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-31-blue.svg?label=All%20Contributors)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END --> 
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Explore **🔮 [Instill Core](https://github.com/instill-ai/instill-core)**, a full-stack AI infrastructure tool for data, model and pipeline orchestration, designed to streamline every aspect of building versatile AI-first applications. Accessing **🔮 Instill Core** is straightforward, whether you opt for **☁️ Instill Cloud** or self-hosting via the [instill-core](https://github.com/instill-ai/instill-core) repository. Please consult the [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details.
 
@@ -41,7 +41,7 @@ Explore **🔮 [Instill Core](https://github.com/instill-ai/instill-core)**, a f
 </details>
 
 <details>
-  <summary><b>💾 Instill Artifact</b> (coming soon) - Data orchestration for unified unstructured data representation</summary>
+  <summary><b>💾 Instill Artifact</b> - Data orchestration for unified unstructured data representation</summary>
 
   <br>
 
@@ -57,11 +57,11 @@ Not quite into self-hosting? We've got you covered with **☁️ [Instill Cloud]
 - **macOS or Linux** - **🔮 Instill Core** works on macOS or Linux
 
 - **Windows** - **🔮 Instill Core** works on Windows through Windows Linux Subsystem (WSL2)
-  
+
   - Install the lastest version of `yq` from the GitHub [Repository](https://github.com/mikefarah/yq), as the package `yq` is not installed on Ubuntu WSL2 by default
-  
+
   - Install the latest version of Docker Desktop on Windows and enable the WSL2 integration following the [tutorial](https://docs.docker.com/desktop/wsl) by Docker
-  
+
   - (optional) Install `cuda-toolkit` on WSL2 following the [tutorial](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2) by NVIDIA
 
 - **Docker and Docker Compose** - **🔮 Instill Core** requires Docker Engine `v25` or later and Docker Compose `v2` or later to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
