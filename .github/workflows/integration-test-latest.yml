@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [mgmt-backend, pipeline-backend, model-backend]
+        component: [mgmt-backend, pipeline-backend, model-backend, artifact-backend]
     uses: ./.github/workflows/integration-test-backend.yml
     with:
       component: ${{ matrix.component }}
