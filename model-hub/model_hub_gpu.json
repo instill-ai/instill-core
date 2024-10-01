@@ -47,7 +47,7 @@
     "visibility": "VISIBILITY_PUBLIC",
     "task": "TASK_EMBEDDING",
     "region": "REGION_GCP_EUROPE_WEST4",
-    "hardware": "NVIDIA_T4",
+    "hardware": "NVIDIA_TESLA_T4",
     "version": "v0.1.0",
     "configuration": {}
   }
