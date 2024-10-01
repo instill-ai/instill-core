@@ -250,6 +250,8 @@ apiGateway:
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
+  # -- Additional hosts
+  additionalHosts: []
   # -- The TLS configuration for api-gateway
   tls:
     enabled: false
