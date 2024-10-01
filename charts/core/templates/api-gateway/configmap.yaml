@@ -49,7 +49,7 @@ data:
     REGISTRY_PORT={{ template "core.registry.port" . }}
 
     # Additional Hosts
-    {{- range $key, $host := .Values.apiGateway.additionalHosts }}
+    {{- range $host := .Values.apiGateway.additionalHosts }}
     {{ $host.name }}_HOST={{ $host.host }}
     {{- if $host.publicPort }}
     {{ $host.name }}_PUBLICPORT={{ $host.publicPort }}
