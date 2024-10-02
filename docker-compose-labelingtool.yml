@@ -1,0 +1,31 @@
+services:
+  labelingtool:
+    container_name: ${LABELING_TOOL_HOST}
+    image: ${LABELING_TOOL_IMAGE}:${LABELING_TOOL_VERSION}
+    restart: unless-stopped
+    environment:
+      - DJANGO_DB=default
+      - POSTGRE_NAME=labelstudio
+      - POSTGRE_USER=postgres
+      - POSTGRE_PASSWORD=password
+      - POSTGRE_PORT=${POSTGRESQL_PORT}
+      - POSTGRE_HOST=${POSTGRESQL_HOST}
+      - MINIO_STORAGE_BUCKET_NAME=labelstudio
+      - MINIO_STORAGE_ENDPOINT=http://minio:9000
+      - MINIO_STORAGE_ACCESS_KEY=minioadmin
+      - MINIO_STORAGE_SECRET_KEY=minioadmin
+      - JSON_LOG=1
+    volumes:
+      - ${LABELING_TOOL_STORAGE_PATH}:/label-studio/data:rw
+    ports:
+      - ${LABELING_TOOL_PORT}:8080
+    command: label-studio start -b -db postgresql
+    depends_on:
+      pg_sql:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  pg_sql:
+    environment:
+      POSTGRES_DB: labelstudio

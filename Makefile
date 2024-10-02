@@ -30,6 +30,10 @@ ifeq (${OBSERVE_ENABLED}, true)
 	COMPOSE_FILES := ${COMPOSE_FILES} -f docker-compose-observe.yml
 endif
 
+ifeq (${LABEL_TOOL_ENABLED}, true)
+	COMPOSE_FILES := ${COMPOSE_FILES} -f docker-compose-labelingtool.yml
+endif
+
 UNAME_S := $(shell uname -s)
 
 INSTILL_CORE_IMAGE_NAME := instill/core
@@ -147,7 +151,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release >/dev/null 2>&1
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest >/dev/null 2>&1
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release >/dev/null 2>&1
-	@EDITION= DEFAULT_USER_UID= docker compose down -v
+	@EDITION= DEFAULT_USER_UID= docker compose ${COMPOSE_FILES} down -v
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
