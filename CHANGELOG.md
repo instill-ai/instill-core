@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.42.0-beta](https://github.com/instill-ai/instill-core/compare/v0.41.0-beta...v0.42.0-beta) (2024-10-08)
+
+
+### Bug Fixes
+
+* **minio:** add additional retries to liveness probe ([#1128](https://github.com/instill-ai/instill-core/issues/1128)) ([cdf2e7d](https://github.com/instill-ai/instill-core/commit/cdf2e7d984193b15ae5ae19c3ae9cbdbb5c6184e))
+
+
+### Miscellaneous Chores
+
+* **release:** release v0.42.0-beta ([fec5e65](https://github.com/instill-ai/instill-core/commit/fec5e65ca92d8104e9bf976b462fed53b4f97e90))
+
 ## [0.41.0-beta](https://github.com/instill-ai/instill-core/compare/v0.40.1-beta...v0.41.0-beta) (2024-09-24)
 
 
