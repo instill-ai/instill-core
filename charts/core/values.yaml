@@ -1566,6 +1566,20 @@ milvus:
     replicas: 2
     persistence:
       size: 50Gi
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 10
+      successThreshold: 1
+      failureThreshold: 10
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
   etcd:
     nodeSelector: {}
     enabled: true
