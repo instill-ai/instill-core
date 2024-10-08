@@ -168,6 +168,7 @@ spec:
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
             periodSeconds: 10
             initialDelaySeconds: 60
+            timeoutSeconds: 10
           {{- if .Values.pipelineBackend.containers.pipelineBackend.resources }}
           resources:
             {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
