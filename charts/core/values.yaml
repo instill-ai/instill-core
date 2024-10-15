@@ -305,7 +305,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.20.0-beta
+    tag: 0.20.1-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -377,7 +377,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.42.0-beta
+    tag: 0.43.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
