@@ -688,6 +688,7 @@ kuberay-operator:
     - "instill-ai"
 # -- The configuration of Ray
 rayService:
+  namespaceOverride:
   vram:
   spec:
     autoscalerOptions:
@@ -1641,6 +1642,7 @@ milvus:
       pulsar:
         namespace: instill-ai
 tags:
+  ray: true
   model: true
   observability: false
   prometheusStack: false

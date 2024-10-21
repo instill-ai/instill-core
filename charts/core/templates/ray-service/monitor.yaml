@@ -1,4 +1,4 @@
-{{- if .Values.tags.model -}}
+{{- if .Values.tags.ray -}}
 {{- if .Values.tags.prometheusStack }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

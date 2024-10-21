@@ -98,7 +98,11 @@ data:
         replicationtimeframe: 1
       {{- end }}
     registry:
+      {{- if .Values.rayService.namespaceOverride }}
+      host: {{ include "core.registry" . }}.{{ include "core.namespace" . }}.svc.cluster.local
+      {{- else }}
       host: {{ template "core.registry" . }}
+      {{- end }}
       port: {{ template "core.registry.port" . }}
     influxdb:
       url: {{ .Values.influxdbCloud.url }}
