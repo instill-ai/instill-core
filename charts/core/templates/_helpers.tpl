@@ -35,6 +35,28 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{- end -}}
 
 {{/*
+Ray fullname
+*/}}
+{{- define "ray.fullname" -}}
+  {{- if .Values.rayService.namespaceOverride -}}
+    {{- .Values.rayService.namespaceOverride -}}
+  {{- else -}}
+    {{- printf "%s" (include "core.name" .) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Inter namespace DNS suffix
+*/}}
+{{- define "ray.suffix" -}}
+  {{- if .Values.rayService.namespaceOverride -}}
+    {{- printf ".%s.svc.cluster.local" (include "ray.fullname" .) -}}
+  {{- else -}}
+    {{- printf "" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "core.chart" -}}
@@ -243,15 +265,15 @@ temopral
 {{- end -}}
 
 {{- define "core.kuberay-operator" -}}
-  {{- printf "%s-kuberay-operator" (include "core.fullname" .) -}}
+  {{- printf "%s-kuberay-operator" (include "ray.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.ray-service" -}}
-  {{- printf "%s-ray" (include "core.fullname" .) -}}
+  {{- printf "%s-ray" (include "ray.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.ray" -}}
-  {{- printf "%s-ray-head-svc" (include "core.fullname" .) -}}
+  {{- printf "%s-ray-head-svc%s" (include "ray.fullname" .) (include "ray.suffix" .) -}}
 {{- end -}}
 
 {{- define "core.ray.clientPort" -}}
