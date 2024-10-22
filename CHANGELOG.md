@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.44.0-beta](https://github.com/instill-ai/instill-core/compare/v0.43.0-beta...v0.44.0-beta) (2024-10-22)
+
+
+### Features
+
+* **helm:** support isolated namespace for ray cluster ([#1137](https://github.com/instill-ai/instill-core/issues/1137)) ([0d662e6](https://github.com/instill-ai/instill-core/commit/0d662e631eeec99240329e3b75095060b1d1a9d4))
+
 ## [0.43.0-beta](https://github.com/instill-ai/instill-core/compare/v0.42.0-beta...v0.43.0-beta) (2024-10-15)
 
 
