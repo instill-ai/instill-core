@@ -1,4 +1,4 @@
-# instill-core
+# 🔮 **Instill Core**
 
 [![Integration Test](https://img.shields.io/github/actions/workflow/status/instill-ai/instill-core/integration-test-latest.yml?branch=main&label=Integration%20Test&logoColor=fff&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wIDEuNzVDMCAwLjc4NCAwLjc4NCAwIDEuNzUgMEg1LjI1QzYuMjE2IDAgNyAwLjc4NCA3IDEuNzVWNS4yNUM3IDUuNzE0MTMgNi44MTU2MyA2LjE1OTI1IDYuNDg3NDQgNi40ODc0NEM2LjE1OTI1IDYuODE1NjMgNS43MTQxMyA3IDUuMjUgN0g0VjExQzQgMTEuMjY1MiA0LjEwNTM2IDExLjUxOTYgNC4yOTI4OSAxMS43MDcxQzQuNDgwNDMgMTEuODk0NiA0LjczNDc4IDEyIDUgMTJIOVYxMC43NUM5IDkuNzg0IDkuNzg0IDkgMTAuNzUgOUgxNC4yNUMxNS4yMTYgOSAxNiA5Ljc4NCAxNiAxMC43NVYxNC4yNUMxNiAxNC43MTQxIDE1LjgxNTYgMTUuMTU5MiAxNS40ODc0IDE1LjQ4NzRDMTUuMTU5MiAxNS44MTU2IDE0LjcxNDEgMTYgMTQuMjUgMTZIMTAuNzVDMTAuMjg1OSAxNiA5Ljg0MDc1IDE1LjgxNTYgOS41MTI1NiAxNS40ODc0QzkuMTg0MzcgMTUuMTU5MiA5IDE0LjcxNDEgOSAxNC4yNVYxMy41SDVDNC4zMzY5NiAxMy41IDMuNzAxMDcgMTMuMjM2NiAzLjIzMjIzIDEyLjc2NzhDMi43NjMzOSAxMi4yOTg5IDIuNSAxMS42NjMgMi41IDExVjdIMS43NUMxLjI4NTg3IDcgMC44NDA3NTIgNi44MTU2MyAwLjUxMjU2MyA2LjQ4NzQ0QzAuMTg0Mzc0IDYuMTU5MjUgMCA1LjcxNDEzIDAgNS4yNUwwIDEuNzVaTTEuNzUgMS41QzEuNjgzNyAxLjUgMS42MjAxMSAxLjUyNjM0IDEuNTczMjIgMS41NzMyMkMxLjUyNjM0IDEuNjIwMTEgMS41IDEuNjgzNyAxLjUgMS43NVY1LjI1QzEuNSA1LjM4OCAxLjYxMiA1LjUgMS43NSA1LjVINS4yNUM1LjMxNjMgNS41IDUuMzc5ODkgNS40NzM2NiA1LjQyNjc4IDUuNDI2NzhDNS40NzM2NiA1LjM3OTg5IDUuNSA1LjMxNjMgNS41IDUuMjVWMS43NUM1LjUgMS42ODM3IDUuNDczNjYgMS42MjAxMSA1LjQyNjc4IDEuNTczMjJDNS4zNzk4OSAxLjUyNjM0IDUuMzE2MyAxLjUgNS4yNSAxLjVIMS43NVpNMTAuNzUgMTAuNUMxMC42ODM3IDEwLjUgMTAuNjIwMSAxMC41MjYzIDEwLjU3MzIgMTAuNTczMkMxMC41MjYzIDEwLjYyMDEgMTAuNSAxMC42ODM3IDEwLjUgMTAuNzVWMTQuMjVDMTAuNSAxNC4zODggMTAuNjEyIDE0LjUgMTAuNzUgMTQuNUgxNC4yNUMxNC4zMTYzIDE0LjUgMTQuMzc5OSAxNC40NzM3IDE0LjQyNjggMTQuNDI2OEMxNC40NzM3IDE0LjM3OTkgMTQuNSAxNC4zMTYzIDE0LjUgMTQuMjVWMTAuNzVDMTQuNSAxMC42ODM3IDE0LjQ3MzcgMTAuNjIwMSAxNC40MjY4IDEwLjU3MzJDMTQuMzc5OSAxMC41MjYzIDE0LjMxNjMgMTAuNSAxNC4yNSAxMC41SDEwLjc1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==)](https://github.com/instill-ai/instill-core/actions/workflows/integration-test-latest.yml?branch=main&event=push)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/instill-ai/instill-core?&label=Release&color=blue&include_prereleases&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgOEg3VjRIMjNWMTdIMjFDMjEgMTguNjYgMTkuNjYgMjAgMTggMjBDMTYuMzQgMjAgMTUgMTguNjYgMTUgMTdIOUM5IDE4LjY2IDcuNjYgMjAgNiAyMEM0LjM0IDIwIDMgMTguNjYgMyAxN0gxVjEyTDQgOFpNMTggMThDMTguNTUgMTggMTkgMTcuNTUgMTkgMTdDMTkgMTYuNDUgMTguNTUgMTYgMTggMTZDMTcuNDUgMTYgMTcgMTYuNDUgMTcgMTdDMTcgMTcuNTUgMTcuNDUgMTggMTggMThaTTQuNSA5LjVMMi41NCAxMkg3VjkuNUg0LjVaTTYgMThDNi41NSAxOCA3IDE3LjU1IDcgMTdDNyAxNi40NSA2LjU1IDE2IDYgMTZDNS40NSAxNiA1IDE2LjQ1IDUgMTdDNSAxNy41NSA1LjQ1IDE4IDYgMThaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)](https://github.com/instill-ai/instill-core/releases)
@@ -7,66 +7,76 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-31-blue.svg?label=All%20Contributors)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-Explore **🔮 [Instill Core](https://github.com/instill-ai/instill-core)**, a full-stack AI infrastructure tool for data, model and pipeline orchestration, designed to streamline every aspect of building versatile AI-first applications. Accessing **🔮 Instill Core** is straightforward, whether you opt for **☁️ Instill Cloud** or self-hosting via the [instill-core](https://github.com/instill-ai/instill-core) repository. Please consult the [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details.
 
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg">
-    <img alt="🔮 Instill Core - The full-stack AI infrastructure tool" src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg" width=70%>
-  </picture>
-</div>
+✨ Make your unstructured data **AI-ready** FAST & build unique versatile **AI-first** applications EASILY. ✨
 
-<br>
+## Quick start
+
+There are a few ways to start exploring:
+
+1. **☁️ [Instill Cloud](https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme)** powered by **🔮 [Instill Core](https://github.com/instill-ai/instill-core)** - explore ready-to-use APIs, automations, AI Assistants and more...
+2. **Self-hosting** - see installation steps below or the [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details
+
+
+## What is Instill Core?
+
 
 <details>
-  <summary><b>💧 Instill VDP</b> - Pipeline orchestration for unstructured data ETL</summary>
+  <summary><b><a href="https://github.com/instill-ai/instill-core">🔮 Instill Core </a> </b> : AI infrastructure tool for data, pipeline and model orchestration</summary>
+
+  <!-- TODO: UPDATE THIS CONTENT -->
+  <details>
+    <summary><b>💧 Instill VDP</b> - Pipeline orchestration for unstructured data ETL</summary>
+
+    <br>
+    **💧 Instill VDP**, also known as **VDP (Versatile Data Pipeline)**, serves as a powerful pipeline orchestration tool tailored to address unstructured data ETL challenges.
+    <br>
+
+    **⚙️ Instill Component** is an extensible integration framework that enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/pipeline-backend/blob/main/pkg/component) package for details.
+
+  </details>
+
+  <details>
+    <summary><b>⚗️ Instill Model</b> - Model orchestration for MLOps/LLMOps</summary>
+
+    <br>
+
+    **⚗️ Instill Model** is an advanced MLOps/LLMOps platform focused on seamlessly model serving, fine-tuning, and monitoring for persistent performance for unstructured data ETL.
+  </details>
+
+  <details>
+    <summary><b>💾 Instill Artifact</b> - Data orchestration for unified unstructured data representation</summary>
+
+    <br>
+
+    **💾 Instill Artifact** orchestrates unstructured data to transform documents (e.g., HTML, PDF, CSV, PPTX, DOC), images (e.g., JPG, PNG, TIFF), audio (e.g., WAV, MP3 ) and video (e.g., MP4, MOV) into a unified AI-ready format. It ensures your data is clean, curated, and ready for extracting insights and building your Knowledge Base.
+  </details>
+</details>
+
+
+<details>
+  <summary><b><a href="https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme">☁️ Instill Cloud </a> </b>: Turn your data, pipeline, model into production-ready APIs and Assistants</summary>
 
   <br>
-
   **💧 Instill VDP**, also known as **VDP (Versatile Data Pipeline)**, serves as a powerful pipeline orchestration tool tailored to address unstructured data ETL challenges.
-
   <br>
 
   **⚙️ Instill Component** is an extensible integration framework that enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/pipeline-backend/blob/main/pkg/component) package for details.
-
 </details>
 
-<details>
-  <summary><b>⚗️ Instill Model</b> - Model orchestration for MLOps/LLMOps</summary>
 
-  <br>
+## Installation
 
-  **⚗️ Instill Model** is an advanced MLOps/LLMOps platform focused on seamlessly model serving, fine-tuning, and monitoring for persistent performance for unstructured data ETL.
-</details>
+### Prerequisites
 
-<details>
-  <summary><b>💾 Instill Artifact</b> - Data orchestration for unified unstructured data representation</summary>
+| Operating System | Requirements and Instructions |
+|------------------|--------------------------------|
+| macOS or Linux   | Instill Core works natively |
+| Windows          | • Use Windows Subsystem for Linux (WSL2)<br>• Install latest `yq` from [GitHub Repository](https://github.com/mikefarah/yq)<br>• Install latest Docker Desktop and enable WSL2 integration ([tutorial](https://docs.docker.com/desktop/wsl))<br>• (Optional) Install `cuda-toolkit` on WSL2 ([NVIDIA tutorial](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2)) |
+| All Systems      | • Docker Engine v25 or later<br>• Docker Compose v2 or later<br>• Install latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) |
 
-  <br>
 
-  **💾 Instill Artifact** orchestrates unstructured data to transform documents (e.g., HTML, PDF, CSV, PPTX, DOC), images (e.g., JPG, PNG, TIFF), audio (e.g., WAV, MP3 ) and video (e.g., MP4, MOV) into a unified AI-ready format. It ensures your data is clean, curated, and ready for extracting insights and building your Knowledge Base.
-</details>
-
-### ☁️ Instill Cloud
-
-Not quite into self-hosting? We've got you covered with **☁️ [Instill Cloud](https://instill.tech/?utm_source=github&utm_medium=readme&utm_campaign=instill-core)**. It's a fully managed public cloud service, providing you with access to all the features of **🔮 Instill Core** without the burden of infrastructure management. All you need to do is to one-click sign up to start building your AI-first applications.
-
-## Prerequisites
-
-- **macOS or Linux** - **🔮 Instill Core** works on macOS or Linux
-
-- **Windows** - **🔮 Instill Core** works on Windows through Windows Linux Subsystem (WSL2)
-
-  - Install the lastest version of `yq` from the GitHub [Repository](https://github.com/mikefarah/yq), as the package `yq` is not installed on Ubuntu WSL2 by default
-
-  - Install the latest version of Docker Desktop on Windows and enable the WSL2 integration following the [tutorial](https://docs.docker.com/desktop/wsl) by Docker
-
-  - (optional) Install `cuda-toolkit` on WSL2 following the [tutorial](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2) by NVIDIA
-
-- **Docker and Docker Compose** - **🔮 Instill Core** requires Docker Engine `v25` or later and Docker Compose `v2` or later to run all services locally. Please install the latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
-
-## Quick Start
+### Steps
 
 **Use stable release version**
 
@@ -119,43 +129,38 @@ To access **🔮 Instill Core** and **☁️ Instill Cloud**, you have a few opt
 
 ## Documentation
 
- For comprehensive guidance and resources, explore our [documentation website](https://www.instill.tech/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) and delve into our [API reference](https://openapi.instill.tech).
+For comprehensive documentation, please visit our [official documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core).
+
+Additional helpful resources:
+
+- [API Reference](https://openapi.instill.tech)
+- [Cookbooks](https://github.com/instill-ai/cookbook)
+- [Tutorials](https://www.instill.tech/blog)
+- [Examples](https://www.instill.tech/docs/examples)
 
 ## Contributing
 
-We welcome contributions from the community! Whether you're a developer, designer, writer, or user, there are multiple ways to contribute:
+We enthusiastically welcome contributions from our community! Whether you're a developer, designer, writer, or user, there are multiple ways to get involved:
 
-### Issue Guidelines
+1. **Cookbooks**: Help us create helpful pipelines and guides for the community. Visit our [Cookbook repository](https://github.com/instill-ai/cookbook) to get started.
 
-We foster a friendly and inclusive environment for issue reporting. Before creating an issue, check if it already exists. Use clear language and provide reproducible steps for bugs. Accurately tag the issue (bug, improvement, question, etc.).
+2. **Issues**: Contribute to improvements by raising tickets using [templates here](https://github.com/instill-ai/instill-core/issues/new/choose) or discuss in existing ones you think you can help with. 
 
-### Code Contributions
+### Community Standards
 
-Please refer to the [Contributing Guidelines](./.github/CONTRIBUTING.md) for more details. Your code-driven innovations are more than welcome!
+We are committed to maintaining a respectful and welcoming atmosphere for all contributors. Before contributing, please review our:
 
-## Community
+- [Contributing Guidelines](./.github/CONTRIBUTING.md)
+- [Code of Conduct](https://github.com/instill-ai/.github/blob/main/.github/CODE_OF_CONDUCT.md)
 
-We are committed to providing a respectful and welcoming atmosphere for all contributors. Please review our [Code of Conduct](https://github.com/instill-ai/.github/blob/main/.github/CODE_OF_CONDUCT.md) to understand our standards.
+### Support
 
-### Efficient Triage Process
-
-We have implemented a streamlined [Issues Triage Process](.github/triage.md) aimed at swiftly categorizing new issues and pull requests (PRs), allowing us to take prompt and appropriate actions.
-
-### Engage in Dynamic Discussions and Seek Support
-
-Head over to our [Discussions](https://github.com/orgs/instill-ai/discussions) for engaging conversations:
-
-- [General](https://github.com/orgs/instill-ai/discussions/categories/general): Chat about anything related to our projects.
-- [Polls](https://github.com/orgs/instill-ai/discussions/categories/polls): Participate in community polls.
-- [Q&A](https://github.com/orgs/instill-ai/discussions/categories/q-a): Seek help or ask questions; our community members and maintainers are here to assist.
-- [Show and Tell](https://github.com/orgs/instill-ai/discussions/categories/show-and-tell): Showcase projects you've created using our tools.
-
-Alternatively, you can also join our vibrant [Discord](https://discord.gg/sevxWsqpGh) community and direct your queries to the #ask-for-help channel. We're dedicated to supporting you every step of the way.
+Get help to your queries by joining our [Discord community](https://discord.gg/sevxWsqpGh) where you can post any questions on our `#ask-for-help` channel.
 
 
 ## Contributors ✨
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+Thank you to all these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
