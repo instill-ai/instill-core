@@ -30,12 +30,22 @@ There are a few ways to start exploring:
   </picture>
 </div>
 
-**Instill Core** simplifies infrastructure hassle, encompassing these core features:
+**Instill Core** simplifies infrastructure hassle and encompasses these core features:
 
 - **DATA - [Instill Artifact](https://www.instill.tech/docs/artifact/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Transforms unstructured data (documents, images, audio, video) into AI-ready formats.
 - **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first applications with dynamic API-ready endpoints.
 - **MODEL - [Instill Model](https://www.instill.tech/docs/model/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: MLOps/LLMOps platform for model serving and monitoring.
   
+
+## What can you build? 
+
+- 📖 Parsing PDF Files to Markdown: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Parsing_pdf_files.ipynb)
+- 🌱 Instance segmentation on microscopic plant stomata images: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Instance_segmentation_stomavision.ipynb)
+- 🧱 Generating Structured Outputs from LLMs: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Generating_structured_outputs.ipynb) & [Tutorial](https://www.instill.tech/blog/llm-structured-outputs)
+- 🕸️ Web scraping & Google Search with Structured Insights: [Tutorial](https://www.instill.tech/blog/mastering-openai-structured-outputs) & [YouTube](https://www.youtube.com/watch?v=x0XsmuCrit8)
+
+See [Examples](https://www.instill.tech/docs/examples) for more!
+
 
 ## Installation
 
@@ -181,6 +191,30 @@ Thank you to all these wonderful people ([emoji key](https://allcontributors.org
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/rsmelo92"><img src="https://avatars.githubusercontent.com/u/16295402?v=4" width="100px;" alt=""/><br /><sub><b>Rafael Melo</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/joremysh"><img src="https://avatars.githubusercontent.com/u/7455516?v=4" width="100px;" alt=""/><br /><sub><b>Jeremy Shih</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Reckadon"><img src="https://avatars.githubusercontent.com/u/69901221?v=4" width="100px;" alt=""/><br /><sub><b>Romit Mohane</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/chuang8511"><img src="https://avatars.githubusercontent.com/u/64747455?v=4" width="100px;" alt=""/><br /><sub><b>ChunHao</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/AmeliaCelline"><img src="https://avatars.githubusercontent.com/u/71268735?v=4" width="100px;" alt=""/><br /><sub><b>Amelia C</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/YCK1130"><img src="https://avatars.githubusercontent.com/u/85488391?v=4" width="100px;" alt=""/><br /><sub><b>楊竣凱</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/namwoam"><img src="https://avatars.githubusercontent.com/u/54308739?v=4" width="100px;" alt=""/><br /><sub><b>andre.liang</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/zidanehakim"><img src="https://avatars.githubusercontent.com/u/138553907?v=4" width="100px;" alt=""/><br /><sub><b>Zoodane</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/GeorgeWilliamStrong"><img src="https://avatars.githubusercontent.com/u/42313440?v=4" width="100px;" alt=""/><br /><sub><b>George Strong</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/kuroxx"><img src="https://avatars.githubusercontent.com/u/28208961?v=4" width="100px;" alt=""/><br /><sub><b>Anni</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/MubeenKodvavi"><img src="https://avatars.githubusercontent.com/u/64799500?v=4" width="100px;" alt=""/><br /><sub><b>Mubeen Kodvavi</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/orangecoloured"><img src="https://avatars.githubusercontent.com/u/3314891?v=4" width="100px;" alt=""/><br /><sub><b>RCKT</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/thewbuk"><img src="https://avatars.githubusercontent.com/u/57405495?v=4" width="100px;" alt=""/><br /><sub><b>Wojciech Bandzerewicz
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Yougigun"><img src="https://avatars.githubusercontent.com/u/9638997?v=4" width="100px;" alt=""/><br /><sub><b>Gary
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/tychen5"><img src="https://avatars.githubusercontent.com/u/32350278?v=4" width="100px;" alt=""/><br /><sub><b>Leo
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/felixcorleone"><img src="https://avatars.githubusercontent.com/u/63280818?v=4" width="100px;" alt=""/><br /><sub><b>felixcorleone
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sunzoeee"><img src="https://avatars.githubusercontent.com/u/174593595?v=4" width="100px;" alt=""/><br /><sub><b>Zoe
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/dloopy"><img src="https://avatars.githubusercontent.com/u/19646065?v=4" width="100px;" alt=""/><br /><sub><b>Daniel</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/manulthanura"><img src="https://avatars.githubusercontent.com/u/91767649?v=4" width="100px;" alt=""/><br /><sub><b>Manul Thanura</b></sub></a></td>
     </tr>
   </tbody>
 </table>
