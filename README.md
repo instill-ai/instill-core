@@ -14,56 +14,28 @@
 
 There are a few ways to start exploring:
 
-1. **☁️ [Instill Cloud](https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme)** powered by **🔮 [Instill Core](https://github.com/instill-ai/instill-core)** - explore ready-to-use APIs, automations, AI Assistants and more...
-2. **Self-hosting** - see installation steps below or the [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details
+1. **[Instill Cloud](https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Explore our public cloud powered by [Instill Core](https://github.com/instill-ai/instill-core) with ready-to-use APIs, automations, AI Assistants and more. See the [quickstart](https://www.instill.tech/docs/quickstart#%EF%B8%8F-instill-cloud) on how to get started.
+2. **Self-hosting Instill Core**: Follow the [installation](#installation) steps below or [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details to build versatile AI applications locally.
 
 
 ## What is Instill Core?
 
+**[Instill Core](https://github.com/instill-ai/instill-core)** is your end-to-end AI platform for data, pipeline and model orchestration.
 
-<details>
-  <summary><b><a href="https://github.com/instill-ai/instill-core">🔮 Instill Core </a> </b> : AI infrastructure tool for data, pipeline and model orchestration</summary>
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg">
+    <img alt="🔮 Instill Core - The full-stack AI infrastructure tool" src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg" width=70%>
+  </picture>
+</div>
 
-  <!-- TODO: UPDATE THIS CONTENT -->
-  <details>
-    <summary><b>💧 Instill VDP</b> - Pipeline orchestration for unstructured data ETL</summary>
+**Instill Core** simplifies infrastructure hassle, encompassing these core features:
 
-    <br>
-    **💧 Instill VDP**, also known as **VDP (Versatile Data Pipeline)**, serves as a powerful pipeline orchestration tool tailored to address unstructured data ETL challenges.
-    <br>
-
-    **⚙️ Instill Component** is an extensible integration framework that enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/pipeline-backend/blob/main/pkg/component) package for details.
-
-  </details>
-
-  <details>
-    <summary><b>⚗️ Instill Model</b> - Model orchestration for MLOps/LLMOps</summary>
-
-    <br>
-
-    **⚗️ Instill Model** is an advanced MLOps/LLMOps platform focused on seamlessly model serving, fine-tuning, and monitoring for persistent performance for unstructured data ETL.
-  </details>
-
-  <details>
-    <summary><b>💾 Instill Artifact</b> - Data orchestration for unified unstructured data representation</summary>
-
-    <br>
-
-    **💾 Instill Artifact** orchestrates unstructured data to transform documents (e.g., HTML, PDF, CSV, PPTX, DOC), images (e.g., JPG, PNG, TIFF), audio (e.g., WAV, MP3 ) and video (e.g., MP4, MOV) into a unified AI-ready format. It ensures your data is clean, curated, and ready for extracting insights and building your Knowledge Base.
-  </details>
-</details>
-
-
-<details>
-  <summary><b><a href="https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme">☁️ Instill Cloud </a> </b>: Turn your data, pipeline, model into production-ready APIs and Assistants</summary>
-
-  <br>
-  **💧 Instill VDP**, also known as **VDP (Versatile Data Pipeline)**, serves as a powerful pipeline orchestration tool tailored to address unstructured data ETL challenges.
-  <br>
-
-  **⚙️ Instill Component** is an extensible integration framework that enhances **💧 Instill VDP**, unlocking limitless possibilities. Please visit the [component](https://github.com/instill-ai/pipeline-backend/blob/main/pkg/component) package for details.
-</details>
-
+- **DATA - [Instill Artifact](https://www.instill.tech/docs/artifact/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Transforms unstructured data (documents, images, audio, video) into AI-ready formats.
+- **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first applications with dynamic API-ready endpoints.
+- **MODEL - [Instill Model](https://www.instill.tech/docs/model/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: MLOps/LLMOps platform for model serving and monitoring.
+  
 
 ## Installation
 
@@ -129,9 +101,9 @@ To access **🔮 Instill Core** and **☁️ Instill Cloud**, you have a few opt
 
 ## Documentation
 
-For comprehensive documentation, please visit our [official documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core).
+Please visit our [official documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) for more.
 
-Additional helpful resources:
+Additional resources:
 
 - [API Reference](https://openapi.instill.tech)
 - [Cookbooks](https://github.com/instill-ai/cookbook)
@@ -140,7 +112,7 @@ Additional helpful resources:
 
 ## Contributing
 
-We enthusiastically welcome contributions from our community! Whether you're a developer, designer, writer, or user, there are multiple ways to get involved:
+We welcome contributions from our community! Checkout the methods below:
 
 1. **Cookbooks**: Help us create helpful pipelines and guides for the community. Visit our [Cookbook repository](https://github.com/instill-ai/cookbook) to get started.
 
@@ -148,14 +120,14 @@ We enthusiastically welcome contributions from our community! Whether you're a d
 
 ### Community Standards
 
-We are committed to maintaining a respectful and welcoming atmosphere for all contributors. Before contributing, please review our:
+We are committed to maintaining a respectful and welcoming atmosphere for all contributors. Before contributing, please read:
 
 - [Contributing Guidelines](./.github/CONTRIBUTING.md)
 - [Code of Conduct](https://github.com/instill-ai/.github/blob/main/.github/CODE_OF_CONDUCT.md)
 
 ### Support
 
-Get help to your queries by joining our [Discord community](https://discord.gg/sevxWsqpGh) where you can post any questions on our `#ask-for-help` channel.
+Get help by joining our [Discord community](https://discord.gg/sevxWsqpGh) where you can post any questions on our `#ask-for-help` channel.
 
 
 ## Contributors ✨
