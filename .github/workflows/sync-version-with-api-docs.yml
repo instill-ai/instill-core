@@ -25,7 +25,7 @@ jobs:
       run: |
         # On release triggers, GITHUB_REF_NAME is the release name (e.g.
         # 'v0.10.0-beta')
-        sed -i "s/version: \".*\"/version: \"${GITHUB_REF_NAME}\"/" common/openapi/v1beta/api_info.conf
+        sed -i "s/version: \".*\"/version: \"${GITHUB_REF_NAME}\"/" openapi/v2/conf.proto
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
       with:
