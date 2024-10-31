@@ -48,6 +48,10 @@ data:
     REGISTRY_HOST={{ template "core.registry" . }}
     REGISTRY_PORT={{ template "core.registry.port" . }}
 
+    # minio
+    MINIO_HOST={{ template "core.minio" . }}
+    MINIO_PORT={{ template "core.minio.port" . }}
+
     # Additional Hosts
     {{- range $host := .Values.apiGateway.additionalHosts }}
     {{ $host.name }}_HOST={{ $host.host }}
