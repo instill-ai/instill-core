@@ -501,3 +501,7 @@ minio
 {{- define "core.minio" -}}
   {{- printf "%s-minio" (include "core.fullname" .) -}}
 {{- end -}}
+
+{{- define "core.minio.port" -}}
+  {{- printf "9000" -}}
+{{- end -}}
