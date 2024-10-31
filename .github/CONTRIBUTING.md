@@ -35,6 +35,22 @@ The env variable `PROFILE` is intended to specify which service component you wa
 
   When you set `PROFILE=exclude-{service}`, in which `{service}` can be  `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all other services. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
 
+#### Component environment variables
+
+Some components can be configured with global secrets. This has several
+applications:
+
+- By accepting a global API key, some components have a default setup. When
+  the `setup` block is omitted in the recipe, this API key will be used.
+- In order to connect to 3rd party vendors via OAuth, the application
+  client ID and secret must be injected.
+
+You can set the values of these global secrets in
+[`.env.component`](./.env.component) before running the Docker container in
+order to add a global configuration to your components. These values will
+be injected into `pipeline-backend`. Additionally, `console` will also
+receive the OAuth configuration values.
+
 ### Tear down the local dev system
 
 Simply run:
