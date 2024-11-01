@@ -40,9 +40,9 @@ There are a few ways to start exploring:
 ## What can you build? 
 
 - 📖 Parsing PDF Files to Markdown: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Parsing_pdf_files.ipynb)
-- 🌱 Instance segmentation on microscopic plant stomata images: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Instance_segmentation_stomavision.ipynb)
 - 🧱 Generating Structured Outputs from LLMs: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Generating_structured_outputs.ipynb) & [Tutorial](https://www.instill.tech/blog/llm-structured-outputs)
 - 🕸️ Web scraping & Google Search with Structured Insights: [Tutorial](https://www.instill.tech/blog/mastering-openai-structured-outputs) & [YouTube](https://www.youtube.com/watch?v=x0XsmuCrit8)
+- 🌱 Instance segmentation on microscopic plant stomata images: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Instance_segmentation_stomavision.ipynb)
 
 See [Examples](https://www.instill.tech/docs/examples) for more!
 
