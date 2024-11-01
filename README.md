@@ -33,7 +33,7 @@ There are a few ways to start exploring:
 **Instill Core** simplifies infrastructure hassle and encompasses these core features:
 
 - **DATA - [Instill Artifact](https://www.instill.tech/docs/artifact/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Transforms unstructured data (documents, images, audio, video) into AI-ready formats.
-- **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first applications with dynamic API-ready endpoints.
+- **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first APIs or automated workflows.
 - **MODEL - [Instill Model](https://www.instill.tech/docs/model/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: MLOps/LLMOps platform for model serving and monitoring.
   
 
