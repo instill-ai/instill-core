@@ -35,14 +35,7 @@ There are a few ways to start exploring:
 - **DATA - [Instill Artifact](https://www.instill.tech/docs/artifact/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Transforms unstructured data (documents, images, audio, video) into AI-ready formats.
 - **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first APIs or automated workflows.
 - **MODEL - [Instill Model](https://www.instill.tech/docs/model/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: MLOps/LLMOps platform for model serving and monitoring.
-  
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-light.svg">
-    <img alt="🔮 Instill Core - Deployment" src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg" width=70%>
-  </picture>
-</div>
+
 
 ## What can you build? 
 
@@ -106,9 +99,21 @@ $ make down
 
 Explore the [documentation](https://www.instill.tech/docs/latest/core/deployment) to discover all available deployment options.
 
+## Deployment
+
+You can either self-host **🔮 Instill Core** or choose our fully managed **☁️ Instill Cloud** to get access to all the latest features. Visit the [Deployment Overview](https://www.instill.tech/docs/core/deployment) for more details.
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-light.svg">
+    <img alt="🔮 Instill Core - Deployment" src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg" width=70%>
+  </picture>
+</div>
+
+
 ## Client Access
 
-To access **🔮 Instill Core** and **☁️ Instill Cloud**, you have a few options:
 - <b>📺 <a href="https://github.com/instill-ai/console" target="_blank">Instill Console</a></b>
 - <b>⌨️ <a href="https://github.com/instill-ai/cli" target="_blank">Instill CLI</a></b>
 - <b>📦 Instill SDK</b>:
