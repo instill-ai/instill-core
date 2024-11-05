@@ -5,7 +5,7 @@ RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx 
 
 ARG XK6_VERSION K6_VERSION
 RUN go install go.k6.io/xk6/cmd/xk6@v${XK6_VERSION}
-RUN xk6 build v${K6_VERSION} --with github.com/grafana/xk6-sql --output /usr/bin/k6
+RUN xk6 build v${K6_VERSION} --with github.com/grafana/xk6-sql@v0.4.1 --output /usr/bin/k6
 
 # Install Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
