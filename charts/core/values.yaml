@@ -480,7 +480,7 @@ modelBackend:
   # -- The path of configuration file for model-backend
   configPath: /model-backend/config/config.yaml
   # -- The database migration version
-  dbVersion: 11
+  dbVersion: 12
   instillCoreHost:
   # -- The AI Task schema version
   taskSchemaVersion: 662c3e2
