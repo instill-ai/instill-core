@@ -49,7 +49,7 @@ jobs:
       - name: Install k6
         run: |
           go install go.k6.io/xk6/cmd/xk6@v${{ env.XK6_VERSION }}
-          xk6 build v${{ env.K6_VERSION }} --with github.com/grafana/xk6-sql && sudo cp k6 /usr/bin
+          xk6 build v${{ env.K6_VERSION }} --with github.com/grafana/xk6-sql@v0.4.1 && sudo cp k6 /usr/bin
 
       - name: Launch Helm Instill Core (${{ inputs.target }})
         run: |
