@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.45.0-beta](https://github.com/instill-ai/instill-core/compare/v0.44.1-beta...v0.45.0-beta) (2024-11-05)
+
+
+### Features
+
+* **integration:** inject Google Drive OAuth details to pipeline and console ([#1143](https://github.com/instill-ai/instill-core/issues/1143)) ([7ccf5ae](https://github.com/instill-ai/instill-core/commit/7ccf5ae40a5a080b955de23a95559df0ae4469ca))
+
+
+### Bug Fixes
+
+* **api-gateway:** add minio port in _helpers.tpl ([#1147](https://github.com/instill-ai/instill-core/issues/1147)) ([04e8205](https://github.com/instill-ai/instill-core/commit/04e82053015ab77777f37648296c7ca8da058375))
+* **component:** add dummy OAuth information for pipeline-backend tests ([#1145](https://github.com/instill-ai/instill-core/issues/1145)) ([30bce6f](https://github.com/instill-ai/instill-core/commit/30bce6f5ec54c0c416b5c745140b61ddaa2ad661))
+
 ## [0.44.1-beta](https://github.com/instill-ai/instill-core/compare/v0.44.0-beta...v0.44.1-beta) (2024-10-24)
 
 
