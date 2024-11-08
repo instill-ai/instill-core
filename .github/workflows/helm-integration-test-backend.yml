@@ -52,6 +52,9 @@ jobs:
           xk6 build v${{ env.K6_VERSION }} --with github.com/grafana/xk6-sql@v0.4.1 && sudo cp k6 /usr/bin
 
       - name: Launch Helm Instill Core (${{ inputs.target }})
+        # Dummy GitHub OAuth configuration variables are inserted on
+        # `pipeline-backend` because tests in this service rely on the
+        # integration to be configured.
         run: |
           if [ "${{ inputs.target }}" == "latest" ]; then
             helm install core charts/core --namespace instill-ai --create-namespace \
@@ -60,6 +63,10 @@ jobs:
               --set apiGateway.image.tag=latest \
               --set mgmtBackend.image.tag=latest \
               --set pipelineBackend.image.tag=latest \
+              --set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
+              --set 'pipelineBackend.extraEnv[0].value=dummy' \
+              --set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
+              --set 'pipelineBackend.extraEnv[1].value=dummy' \
               --set modelBackend.image.tag=latest \
               --set console.image.tag=latest \
               --set rayService.image.tag=latest \
@@ -90,6 +97,10 @@ jobs:
               --set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
               --set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
               --set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+              --set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
+              --set 'pipelineBackend.extraEnv[0].value=dummy' \
+              --set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
+              --set 'pipelineBackend.extraEnv[1].value=dummy' \
               --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
               --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
               --set console.image.tag=${CONSOLE_VERSION} \

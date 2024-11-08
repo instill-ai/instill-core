@@ -31,7 +31,7 @@ the latest versions of the packages. You can then run `helm search repo vdp --de
 To install the chart (alpha version):
 
 ```bash
-helm install <release-name> instill-ai/vdp --devel
+helm install <release-name> instill-ai/core --devel --namespace instill-ai --create-namespace
 ```
 
 ## Uninstall
