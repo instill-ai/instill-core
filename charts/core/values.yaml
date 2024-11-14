@@ -621,6 +621,8 @@ artifactBackend:
     rootpwd: minioadmin
     bucketname: instill-ai-knowledge-bases
   numberOfWorkers: 20
+  blob:
+    hostport: http://localhost:8080
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
