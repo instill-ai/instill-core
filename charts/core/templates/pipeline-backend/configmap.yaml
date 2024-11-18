@@ -40,6 +40,7 @@ data:
     artifactbackend:
       host: {{ template "core.artifactBackend" . }}
       publicport: {{ template "core.artifactBackend.publicPort" . }}
+      privateport: {{ template "core.artifactBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/vdp/ssl/artifact/tls.crt
@@ -117,3 +118,6 @@ data:
       rootpwd: {{ .Values.pipelineBackend.minio.rootpwd }}
       bucketname: {{ .Values.pipelineBackend.minio.bucketname }}
       secure: {{ .Values.pipelineBackend.minio.secure }}
+    apigateway:
+      host: {{ template "core.apiGateway" . }}
+      publicport: {{ template "core.apiGateway.httpPort" . }}
