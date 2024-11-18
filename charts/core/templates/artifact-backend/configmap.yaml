@@ -89,3 +89,5 @@ data:
       port: {{ template "core.milvus.port" . }}
     filetoembeddingworker:
       numberofworkers: {{ .Values.artifactBackend.numberOfWorkers }}
+    blob:
+      hostport: {{ .Values.artifactBackend.blob.hostport }}
