@@ -32,7 +32,7 @@ ARG CONTROLLER_MODEL_VERSION
 RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
-RUN git clone --depth=1 https://github.com/instill-ai/console.git
+RUN git clone --depth=3 https://github.com/instill-ai/console.git && cd console && git checkout 7cedb3fb4b0dc3da580a7b4b2ff4959763b3f95a && cd ..
 RUN git clone --depth=1 https://github.com/instill-ai/pipeline-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/model-backend.git
 
