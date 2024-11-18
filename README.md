@@ -227,6 +227,10 @@ Thank you to all these wonderful people ([emoji key](https://allcontributors.org
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/manulthanura"><img src="https://avatars.githubusercontent.com/u/91767649?v=4" width="100px;" alt=""/><br /><sub><b>Manul Thanura</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/AkashJana18"><img src="https://avatars.githubusercontent.com/u/103350981?v=4" width="100px;" alt=""/><br /><sub><b>Akash Jana</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Anish0203"><img src="https://avatars.githubusercontent.com/u/45678877?v=4" width="100px;" alt=""/><br /><sub><b>Anish0203</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/PrathameshTugaonkar"><img src="https://avatars.githubusercontent.com/u/18322847?v=4" width="100px;" alt=""/><br /><sub><b>Prathamesh Tugaonkar</b></sub></a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/su-shubham"><img src="https://avatars.githubusercontent.com/u/75021117?v=4" width="100px;" alt=""/><br /><sub><b>Shubham</b></sub></a></td>
     </tr>
   </tbody>
 </table>
