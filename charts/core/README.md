@@ -1,6 +1,6 @@
 # core
 
-![Version: 0.1.50-beta](https://img.shields.io/badge/Version-0.1.50--beta-informational?style=flat-square) ![AppVersion: 0.45.0-beta](https://img.shields.io/badge/AppVersion-0.45.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.51-beta](https://img.shields.io/badge/Version-0.1.51--beta-informational?style=flat-square) ![AppVersion: 0.46.0-beta](https://img.shields.io/badge/AppVersion-0.46.0--beta-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill Core
 
@@ -31,7 +31,7 @@ the latest versions of the packages. You can then run `helm search repo vdp --de
 To install the chart (alpha version):
 
 ```bash
-helm install <release-name> instill-ai/core --devel --namespace instill-ai --create-namespace
+helm install <release-name> instill-ai/vdp --devel
 ```
 
 ## Uninstall
