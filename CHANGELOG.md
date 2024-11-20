@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.46.0-beta](https://github.com/instill-ai/instill-core/compare/v0.45.0-beta...v0.46.0-beta) (2024-11-20)
+
+
+### Features
+
+* **blob/artifact:** add blob domain in config ([#1154](https://github.com/instill-ai/instill-core/issues/1154)) ([a432a60](https://github.com/instill-ai/instill-core/commit/a432a6025f23ac629e2627adcc481e5fa3774a7c))
+
+
+### Bug Fixes
+
+* **helm:** pass OAuth configuration variables on integration tests ([#1151](https://github.com/instill-ai/instill-core/issues/1151)) ([2c235d5](https://github.com/instill-ai/instill-core/commit/2c235d505928d89cf0dc3493826760df32dce57c))
+
 ## [0.45.0-beta](https://github.com/instill-ai/instill-core/compare/v0.44.1-beta...v0.45.0-beta) (2024-11-05)
 
 
