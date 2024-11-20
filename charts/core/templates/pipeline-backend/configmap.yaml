@@ -121,3 +121,4 @@ data:
     apigateway:
       host: {{ template "core.apiGateway" . }}
       publicport: {{ template "core.apiGateway.httpPort" . }}
+      tlsenabled: {{ .Values.apiGateway.tls.enabled }}
