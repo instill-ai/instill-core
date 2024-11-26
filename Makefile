@@ -83,6 +83,8 @@ build-latest:				## Build latest images for all services
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
 			--build-arg XK6_VERSION=${XK6_VERSION} \
+			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
+			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(shell date)" \
 			--target latest \
 			-t ${INSTILL_CORE_IMAGE_NAME}:latest .; \
@@ -112,6 +114,8 @@ build-release:				## Build release images for all services
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
 			--build-arg XK6_VERSION=${XK6_VERSION} \
+			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
+			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(shell date)" \
 			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
