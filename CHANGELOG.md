@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.47.0-beta](https://github.com/instill-ai/instill-core/compare/v0.46.0-beta...v0.47.0-beta) (2024-12-03)
+
+
+### Bug Fixes
+
+* **ci:** use xk6-sql driver and pin down versions ([#1159](https://github.com/instill-ai/instill-core/issues/1159)) ([321a041](https://github.com/instill-ai/instill-core/commit/321a0413f312cae4dcd0f5df8b139b08ecf0c036))
+
+
+### Miscellaneous Chores
+
+* release v0.47.0-beta ([da6568e](https://github.com/instill-ai/instill-core/commit/da6568ebc81a8f1d1186d0d2ff125da6fad71f6e))
+
 ## [0.46.0-beta](https://github.com/instill-ai/instill-core/compare/v0.45.0-beta...v0.46.0-beta) (2024-11-20)
 
 
