@@ -377,7 +377,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.48.0-beta
+    tag: 0.49.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -466,7 +466,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.33.1-alpha
+    tag: 0.34.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
