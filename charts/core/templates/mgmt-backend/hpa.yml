@@ -6,7 +6,11 @@ metadata:
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
+    {{- if .Values.tags.argoRollout }}
+    kind: Rollout
+    {{- else }}
     kind: Deployment
+    {{- end }}
     name: {{ template "core.mgmtBackend" . }}
     labels:
     {{- include "core.labels" . | nindent 4 }}

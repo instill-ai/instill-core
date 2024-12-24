@@ -1,7 +1,11 @@
 {{- if .Values.registry.enabled -}}
-{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
+{{- if .Values.tags.argoRollout }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
 apiVersion: apps/v1
 kind: Deployment
+{{- end }}
 metadata:
   name: {{ template "core.registry" . }}
   labels:
@@ -11,6 +15,9 @@ metadata:
     rollme: {{ randAlphaNum 5 | quote }}
 spec:
   strategy:
+    {{- if .Values.tags.argoRollout -}}
+    {{- include "core.registry.strategy" . | nindent 4 }}
+    {{- else }}
     type: {{ .Values.updateStrategy.type }}
     {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
     rollingUpdate:
@@ -18,6 +25,7 @@ spec:
       maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
     {{- else}}
     rollingUpdate: null
+    {{- end }}
     {{- end }}
   {{- if not .Values.registry.autoscaling.enabled }}
   replicas: {{ .Values.registry.replicaCount }}
@@ -119,9 +127,9 @@ spec:
         - name: data-volume
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
-        {{- else if $registry.existingClaim }}
+        {{- else if .Values.persistence.persistentVolumeClaim.registry.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ $registry.existingClaim }}
+            claimName: {{ .Values.persistence.persistentVolumeClaim.registry.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
             claimName: {{ template "core.registryDataVolume" . }}

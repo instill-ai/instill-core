@@ -20,3 +20,30 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend
+
+---
+
+{{- if .Values.tags.argoRollout -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "core.mgmtBackend" . }}-preview
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+  {{- with .Values.mgmtBackend.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+      port: {{ template "core.mgmtBackend.privatePort" . }}
+      targetPort: {{ template "core.mgmtBackend.privatePort" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+      port: {{ template "core.mgmtBackend.publicPort" . }}
+      targetPort: {{ template "core.mgmtBackend.publicPort" . }}
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+{{- end }}

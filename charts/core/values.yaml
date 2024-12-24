@@ -1712,4 +1712,9 @@ milvus:
       pulsar:
         namespace: instill-ai
 tags:
-  observability: true
+  ray: true
+  model: true
+  milvus: true
+  prometheusStack: false
+  observability: false
+  argoRollout: false

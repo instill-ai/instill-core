@@ -9,7 +9,11 @@ metadata:
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
+    {{- if .Values.tags.argoRollout }}
+    kind: Rollout
+    {{- else }}
     kind: Deployment
+    {{- end }}
     name: {{ template "core.pipelineBackend" . }}
   minReplicas: {{ .Values.pipelineBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackend.autoscaling.maxReplicas }}

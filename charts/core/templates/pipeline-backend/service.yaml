@@ -24,15 +24,18 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
+
 ---
+
+{{- if .Values.tags.argoRollout -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "core.pipelineBackendWorker" . }}
+  name: {{ template "core.pipelineBackend" . }}-preview
   labels:
     {{- include "core.labels" . | nindent 4 }}
-    app.kubernetes.io/component: pipeline-backend-worker
-  {{- with .Values.pipelineBackendWorker.serviceAnnotations }}
+    app.kubernetes.io/component: pipeline-backend
+  {{- with .Values.pipelineBackend.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -44,9 +47,7 @@ spec:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
       port: {{ template "core.pipelineBackend.publicPort" . }}
       targetPort: {{ template "core.pipelineBackend.publicPort" . }}
-    - name: temporal-metrics
-      port: {{ template "core.temporal.metrics.port" . }}
-      targetPort: {{ template "core.temporal.metrics.port" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
-    app.kubernetes.io/component: pipeline-backend-worker
+    app.kubernetes.io/component: pipeline-backend
+{{- end }}
