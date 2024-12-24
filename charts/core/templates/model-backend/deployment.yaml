@@ -1,7 +1,12 @@
 {{- if .Values.tags.model -}}
 {{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
+{{- if .Values.tags.argoRollout }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
 apiVersion: apps/v1
 kind: Deployment
+{{- end }}
 metadata:
   name: {{ template "core.modelBackend" . }}
   labels:
@@ -14,6 +19,9 @@ metadata:
     {{- end }}
 spec:
   strategy:
+    {{- if .Values.tags.argoRollout -}}
+    {{- include "core.modelBackend.strategy" . | nindent 4 }}
+    {{- else}}
     type: {{ .Values.updateStrategy.type }}
     {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
     rollingUpdate:
@@ -21,6 +29,7 @@ spec:
       maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
     {{- else}}
     rollingUpdate: null
+    {{- end }}
     {{- end }}
   {{- if not .Values.modelBackend.autoscaling.enabled }}
   replicas: {{ .Values.modelBackend.replicaCount }}

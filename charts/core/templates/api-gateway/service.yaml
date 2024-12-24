@@ -87,3 +87,35 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: api-gateway
+
+---
+
+{{- if .Values.tags.argoRollout -}}
+apiVersion: v1
+kind: Service
+metadata:
+{{- $clusterIP := .Values.expose.clusterIP }}
+  name: {{ include "core.apiGateway" . }}-preview
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+  {{- with $clusterIP.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
+      port: {{ default (include "core.apiGateway.httpPort" .) $clusterIP.ports.apiGatewayHttp }}
+      targetPort: {{ template "core.apiGateway.httpPort" . }}
+    - name: stats
+      port: {{ default (include "core.apiGateway.statsPort" .) $clusterIP.ports.apiGatewayStats }}
+      targetPort: {{ template "core.apiGateway.statsPort" . }}
+    - name: metrics
+      port: {{ default (include "core.apiGateway.metricsPort" .) $clusterIP.ports.apiGatewayMetrics }}
+      targetPort: {{ template "core.apiGateway.metricsPort" . }}
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+{{- end }}

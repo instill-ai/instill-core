@@ -21,4 +21,31 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: registry
-{{- end -}}
+{{- end }}
+
+---
+
+{{- if and .Values.registry.enabled .Values.tags.argoRollout -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "core.registry" . }}-preview
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+  {{- with .Values.registry.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+      port: {{ template "core.registry.port" . }}
+      targetPort: {{ template "core.registry.port" . }}
+    - name: metrics
+      port: {{ template "core.registry.metricsPort" . }}
+      targetPort: {{ template "core.registry.metricsPort" . }}
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+{{- end }}
