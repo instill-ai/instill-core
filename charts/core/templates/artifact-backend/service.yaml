@@ -22,3 +22,30 @@ spec:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: artifact-backend
 {{- end }}
+
+---
+
+{{- if and .Values.artifactBackend.enabled .Values.tags.argoRollout }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "core.artifactBackend" . }}-preview
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
+  {{- with .Values.artifactBackend.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+      port: {{ template "core.artifactBackend.privatePort" . }}
+      targetPort: {{ template "core.artifactBackend.privatePort" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+      port: {{ template "core.artifactBackend.publicPort" . }}
+      targetPort: {{ template "core.artifactBackend.publicPort" . }}
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
+{{- end }}
