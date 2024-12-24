@@ -554,3 +554,60 @@ minio
     {{- "" -}}
 {{- end -}}
 {{- end -}}
+# {{/*
+# Rollout configurations for api-gateway
+# */}}
+# {{- define "core.apiGateway.strategy" -}}
+# blueGreen:
+#   activeService: {{ template "core.apiGateway" . }}
+#   previewService: {{ template "core.apiGateway" . }}-preview
+#   scaleDownDelaySeconds: 480
+# {{- end -}}
+
+{{/*
+Rollout configurations for mgmt-backend
+*/}}
+{{- define "core.mgmtBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.mgmtBackend" . }}
+  previewService: {{ template "core.mgmtBackend" . }}-preview
+  scaleDownDelaySeconds: 120
+{{- end -}}
+
+{{/*
+Rollout configurations for pipeline-backend
+*/}}
+{{- define "core.pipelineBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.pipelineBackend" . }}
+  previewService: {{ template "core.pipelineBackend" . }}-preview
+  scaleDownDelaySeconds: 120
+{{- end -}}
+
+{{/*
+Rollout configurations for model-backend
+*/}}
+{{- define "core.modelBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.modelBackend" . }}
+  previewService: {{ template "core.modelBackend" . }}-preview
+  scaleDownDelaySeconds: 120
+{{- end -}}
+
+{{/*
+Rollout configurations for artifact-backend
+*/}}
+{{- define "core.artifactBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.artifactBackend" . }}
+  previewService: {{ template "core.artifactBackend" . }}-preview
+{{- end -}}
+
+{{/*
+Rollout configurations for registry
+*/}}
+{{- define "core.registry.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.registry" . }}
+  previewService: {{ template "core.registry" . }}-preview
+{{- end -}}

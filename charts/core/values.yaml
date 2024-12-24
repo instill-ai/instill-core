@@ -1718,3 +1718,4 @@ tags:
   milvus: true
   prometheusStack: false
   observability: false
+  argoRollout: false
