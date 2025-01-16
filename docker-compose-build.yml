@@ -44,7 +44,6 @@ services:
       context: ./${PIPELINE_BACKEND_HOST}
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
 
   model_backend:
     profiles:
