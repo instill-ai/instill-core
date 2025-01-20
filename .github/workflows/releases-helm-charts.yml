@@ -86,6 +86,8 @@ jobs:
           GH_TOKEN: ${{ secrets.botGitHubToken }}
         run: |
           set -ex
+          git checkout -b origin/gh-pages
+          git ls-remote --heads origin
           repo=core
           tag=$repo-$(yq -r '.version' ../charts/$repo/Chart.yaml)
           gh release delete $tag --cleanup-tag --yes || true
