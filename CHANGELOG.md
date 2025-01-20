@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.48.1-beta](https://github.com/instill-ai/instill-core/compare/v0.48.0-beta...v0.48.1-beta) (2025-01-20)
+
+
+### Bug Fixes
+
+* **ci:** remove step to stop mono service ([#1168](https://github.com/instill-ai/instill-core/issues/1168)) ([c4225a2](https://github.com/instill-ai/instill-core/commit/c4225a217f5d6066d298b833e07660fa58eb9932))
+
+
+### Miscellaneous Chores
+
+* **release:** release v0.48.1-beta ([9004968](https://github.com/instill-ai/instill-core/commit/90049685e6ea462ee7036dbb912a7042821c4855))
+
 ## [0.48.0-beta](https://github.com/instill-ai/instill-core/compare/v0.47.0-beta...v0.48.0-beta) (2024-12-17)
 
 
