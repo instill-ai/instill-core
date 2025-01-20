@@ -1,0 +1,149 @@
+{{- if and .Values.artifactBackend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.artifactBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.artifactBackend.autoscaling.enabled }}
+  replicas: {{ .Values.artifactBackend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: artifact-backend
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: artifact-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/artifact-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.artifactBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.artifactBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.artifactBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.artifactBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "core.database" . }}
+            - name: PGUSER
+              value: {{ template "core.database.username" . }}
+        {{- end }}
+        - name: artifact-backend-migration
+          image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
+          imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
+          {{- if .Values.artifactBackend.resources }}
+          resources:
+            {{- toYaml .Values.artifactBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.artifactBackend.commandName.migration }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.artifactBackend.configPath }}
+              subPath: config.yaml
+        {{- with .Values.artifactBackend.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: artifact-backend
+          image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
+          imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1alpha/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1alpha/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+          {{- if .Values.artifactBackend.resources }}
+          resources:
+            {{- toYaml .Values.artifactBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.artifactBackend.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+              containerPort: {{ template "core.artifactBackend.privatePort" . }}
+              protocol: TCP
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "core.artifactBackend.publicPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.artifactBackend.configPath }}
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: artifact-internal-certs
+              mountPath: "/etc/instill-ai/core/ssl/artifact"
+            {{- end }}
+            {{- with .Values.artifactBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.artifactBackend.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.artifactBackend.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.artifactBackend" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: artifact-internal-certs
+          secret:
+            secretName: {{ template "core.internalTLS.artifactBackend.secretName" . }}
+        {{- end }}
+        {{- with .Values.artifactBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.artifactBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.artifactBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.artifactBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

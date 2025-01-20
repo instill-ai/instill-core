@@ -1,0 +1,14 @@
+name: Add PR to Project
+
+on:
+  pull_request_target:
+    types:
+      - opened
+
+jobs:
+  track_pr:
+    uses: instill-ai/.github/.github/workflows/add-to-prj.yml@main
+    with:
+      project_number: 5
+    secrets:
+      botGitHubToken: ${{ secrets.botGitHubToken }}

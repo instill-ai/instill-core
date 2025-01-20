@@ -1,0 +1,232 @@
+{{- if .Values.tags.ray -}}
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: {{ template "core.ray-service" . }}
+  # annotations:
+  #   ray.io/ft-enabled: "true"
+spec:
+  rayVersion: {{ .Values.rayService.image.version }}
+  ## raycluster autoscaling config
+  enableInTreeAutoscaling: true
+  autoscalerOptions:
+    upscalingMode: Default
+    # idleTimeoutSeconds is the number of seconds to wait before scaling down a worker pod which is not using Ray resources.
+    idleTimeoutSeconds: 60
+    imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
+    securityContext: {}
+    env:
+      - name: RAY_ENABLE_CLUSTER_STATUS_LOG
+        value: "0"
+    envFrom: []
+    {{- if .Values.rayService.spec.autoscalerOptions.resources }}
+    resources:
+      {{- toYaml .Values.rayService.spec.autoscalerOptions.resources | nindent 6 }}
+    {{- end }}
+  headGroupSpec:
+    rayStartParams:
+      num-cpus: "0"
+      num-gpus: "0"
+      disable-usage-stats: "true"
+    template:
+      spec:
+        {{- with .Values.rayService.headGroupSpec.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.rayService.headGroupSpec.affinity }}
+        affinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        volumes:
+          - name: podman-configmap
+            configMap:
+              name: podman
+              defaultMode: 0666
+              items:
+                - key: registries.conf
+                  path: registries.conf
+                - key: policy.json
+                  path: policy.json
+                - key: storage.conf
+                  path: storage.conf
+        containers:
+          - name: ray-head
+            # ray-head need to have access to GPU for some reason in order to `podman run` gpu container in ray-worker node
+            {{- $gpuTag := "" }}
+            {{- range $workerGroupSpecs := .Values.rayService.workerGroupSpecs }}
+              {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
+                {{- $gpuTag = "-gpu" }}
+              {{- end }}
+            {{- end }}
+            image: {{ .Values.rayService.image.repository }}:{{ .Values.rayService.image.tag }}{{ $gpuTag }}
+            securityContext:
+              # for mounting /dev/fuse
+              # TODO: maybe implement a fuse-device-plugin-daemonset
+              privileged: true
+            imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
+            {{- if .Values.rayService.headGroupSpec.resources }}
+            resources:
+              {{- toYaml .Values.rayService.headGroupSpec.resources | nindent 14 }}
+            {{- end }}
+            env:
+              - name: RAY_GRAFANA_IFRAME_HOST
+                value: http://127.0.0.1:3002
+              - name: RAY_GRAFANA_HOST
+                value: http://core-grafana:80
+              - name: RAY_PROMETHEUS_HOST
+                value: http://core-prometheus:9090
+              - name: RAY_TASK_MAX_RETRIES
+                value: "2"
+              - name: RAY_worker_register_timeout_seconds
+                value: "3600"
+              # - name: RAY_REDIS_ADDRESS
+              #   value: {{ template "core.redis.addr" . }}
+            volumeMounts:
+              - mountPath: /etc/containers/
+                name: podman-configmap
+            ports:
+              - containerPort: 6379
+                name: gcs-server
+              - containerPort: 8265
+                name: dashboard
+              - containerPort: 10001
+                name: client
+              - containerPort: 8000
+                name: serve
+              - containerPort: 9000
+                name: serve-grpc
+              - containerPort: 44217
+                name: as-metrics # autoscaler
+              - containerPort: 44227
+                name: dash-metrics # dashboard
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                    - "/bin/bash"
+                    - "-c"
+                    - >
+                      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
+                      if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+                        sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
+                      fi;
+              preStop:
+                exec:
+                  command: ["/bin/sh","-c","ray stop"]
+  workerGroupSpecs:
+  {{- range $workerGroupSpecs := .Values.rayService.workerGroupSpecs }}
+    - replicas: {{ $workerGroupSpecs.replicas }}
+      minReplicas: {{ $workerGroupSpecs.minReplicas }}
+      maxReplicas: {{ $workerGroupSpecs.maxReplicas }}
+      groupName: {{ $workerGroupSpecs.groupName }}
+      rayStartParams:
+        {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
+        num-cpus: "0"
+        {{- else }}
+        num-cpus: "{{ $workerGroupSpecs.resources.requests.cpu }}"
+        {{- end }}
+        {{- if $workerGroupSpecs.gpuWorkerGroup.customResource }}
+        resources: {{ $workerGroupSpecs.gpuWorkerGroup.customResource }}
+        {{- end }}
+        disable-usage-stats: "true"
+      # pod template
+      template:
+        spec:
+          {{- with $workerGroupSpecs.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $workerGroupSpecs.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumes:
+            - name: podman-configmap
+              configMap:
+                name: podman
+                defaultMode: 0666
+                items:
+                  - key: registries.conf
+                    path: registries.conf
+                  - key: policy.json
+                    path: policy.json
+          containers:
+            - name: ray-worker
+              image: {{ $.Values.rayService.image.repository }}:{{ $.Values.rayService.image.tag }}{{ ternary "-gpu" "" $workerGroupSpecs.gpuWorkerGroup.enabled }}
+              securityContext:
+                # for newuidmap
+                privileged: true
+              imagePullPolicy: {{ $.Values.rayService.image.pullPolicy }}
+              env:
+                - name: RAY_TASK_MAX_RETRIES
+                  value: "2"
+                - name: RAY_worker_register_timeout_seconds
+                  value: "3600"
+              lifecycle:
+                postStart:
+                  exec:
+                    command:
+                      - "/bin/bash"
+                      - "-c"
+                      - >
+                        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
+                        if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+                          sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
+                        fi;
+                        while true; do
+                          ray health-check 2>/dev/null;
+                          if [ "$?" = "0" ]; then
+                              break;
+                          fi;
+                          sleep 1;
+                        done;
+                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+              # TODO: determine how big the head node should be
+              # Optimal resource allocation will depend on our Kubernetes infrastructure and might
+              # require some experimentation.
+              # Setting requests=limits is recommended with Ray. K8s limits are used for Ray-internal
+              # resource accounting. K8s requests are not used by Ray.
+              # this also apply to the workerGroup
+              resources:
+              {{- if $workerGroupSpecs.gpuWorkerGroup.enabled }}
+                {{- toYaml $workerGroupSpecs.gpuWorkerGroup.resources | nindent 16 }}
+              {{- else }}
+                {{- toYaml $workerGroupSpecs.resources | nindent 16 }}
+              {{- end }}
+              volumeMounts:
+                - mountPath: /etc/containers/
+                  name: podman-configmap
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: podman
+data:
+  registries.conf: |
+    unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
+
+    [[registry]]
+    location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
+    insecure = true
+  policy.json: |
+    {
+      "default": [
+        {
+          "type": "insecureAcceptAnything"
+        }
+      ],
+      "transports": {
+        "docker-daemon": {
+          "": [{ "type": "insecureAcceptAnything" }]
+        }
+      }
+    }
+  storage.conf: |
+    [storage]
+    driver = "overlay"
+{{- end }}

@@ -1,0 +1,93 @@
+{{- if .Values.registry.enabled -}}
+{{- if .Values.registry.garbageCollect.enabled }}
+{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "core.registry" . }}-garbage-collector
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+spec:
+  concurrencyPolicy: Forbid
+  schedule: {{ .Values.registry.garbageCollect.schedule | quote }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: registry
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+          {{- if .Values.registry.serviceAccountName }}
+          serviceAccountName: {{ .Values.registry.serviceAccountName }}
+          {{- end }}
+          automountServiceAccountToken: {{ .Values.registry.automountServiceAccountToken | default false }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: garbage-collect
+              image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
+              imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
+              command:
+              - /bin/registry
+              - garbage-collect
+              - --delete-untagged={{ .Values.registry.garbageCollect.deleteUntagged }}
+              - {{ .Values.registry.configPath }}
+              {{- if .Values.registry.resources }}
+              resources:
+                {{- toYaml .Values.registry.resources | nindent 16 }}
+              {{- end }}
+              volumeMounts:
+                - name: config
+                  mountPath: {{ .Values.registry.configPath }}
+                  subPath: config.yml
+                {{- if eq .Values.registry.config.storage.type "filesystem" }}
+                - name: data-volume
+                  mountPath: /var/lib/registry
+                {{- end }}
+                {{- with .Values.registry.extraVolumeMounts }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+          restartPolicy: OnFailure
+          {{- with .Values.registry.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.registry.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.registry.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumes:
+            - name: config
+              configMap:
+                name: {{ template "core.registry" . }}
+            {{- if eq .Values.registry.config.storage.type "filesystem" }}
+            - name: data-volume
+            {{- if not .Values.persistence.enabled }}
+              emptyDir: {}
+            {{- else if $registry.existingClaim }}
+              persistentVolumeClaim:
+                claimName: {{ $registry.existingClaim }}
+            {{- else }}
+              persistentVolumeClaim:
+                claimName: {{ template "core.registryDataVolume" . }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.registry.extraVolumes }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+{{- end }}
+{{- end }}

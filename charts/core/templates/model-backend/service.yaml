@@ -1,0 +1,24 @@
+{{- if .Values.tags.model -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "core.modelBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+  {{- with .Values.modelBackend.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
+      port: {{ template "core.modelBackend.privatePort" . }}
+      targetPort: {{ template "core.modelBackend.privatePort" . }}
+    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+      port: {{ template "core.modelBackend.publicPort" . }}
+      targetPort: {{ template "core.modelBackend.publicPort" . }}
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+{{- end }}

@@ -1,0 +1,212 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.mgmtBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.mgmtBackend.autoscaling.enabled }}
+  replicas: {{ .Values.mgmtBackend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: mgmt-backend
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: mgmt-backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/mgmt-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.mgmtBackend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.mgmtBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.mgmtBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.mgmtBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "core.database" . }}
+            - name: PGUSER
+              value: {{ template "core.database.username" . }}
+        {{- end }}
+        {{- if not .Values.mgmtBackend.temporal.hostPort }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
+              if [[ ! $(tctl --namespace mgmt-backend namespace list | grep mgmt-backend) ]]; then tctl --namespace mgmt-backend namespace register; fi
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+        {{- end }}
+        {{- if .Values.isPrimaryCluster }}
+        - name: mgmt-backend-migration
+          image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
+          imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
+          {{- if .Values.mgmtBackend.resources }}
+          resources:
+            {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.mgmtBackend.commandName.migration }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.mgmtBackend.configPath }}
+              subPath: config.yaml
+            {{- with .Values.mgmtBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- end }}
+        - name: mgmt-backend-init
+          image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
+          imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
+          {{- if .Values.mgmtBackend.resources }}
+          resources:
+            {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.mgmtBackend.commandName.init }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.mgmtBackend.configPath }}
+              subPath: config.yaml
+          {{- with .Values.mgmtBackend.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.mgmtBackend.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: mgmt-backend
+          image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
+          imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /v1beta/__readiness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+            initialDelaySeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /v1beta/__liveness
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+            periodSeconds: 10
+            initialDelaySeconds: 60
+          {{- if .Values.mgmtBackend.resources }}
+          resources:
+            {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.mgmtBackend.commandName.main }}]
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
+              containerPort: {{ template "core.mgmtBackend.privatePort" . }}
+              protocol: TCP
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
+              containerPort: {{ template "core.mgmtBackend.publicPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.mgmtBackend.configPath }}
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: mgmt-internal-certs
+              mountPath: "/etc/instill-ai/core/ssl/mgmt"
+            {{- end }}
+            {{- with .Values.mgmtBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.mgmtBackend.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        - name: mgmt-backend-worker
+          image: {{ .Values.mgmtBackend.image.repository }}:{{ .Values.mgmtBackend.image.tag }}
+          imagePullPolicy: {{ .Values.mgmtBackend.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: rpc
+          {{- if .Values.mgmtBackend.resources }}
+          resources:
+            {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
+          {{- end }}
+          command: [./{{ .Values.mgmtBackend.commandName.worker }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.mgmtBackend.configPath }}
+              subPath: config.yaml
+            {{- if .Values.internalTLS.enabled }}
+            - name: mgmt-internal-certs
+              mountPath: "/etc/instill-ai/core/ssl/mgmt"
+            {{- end }}
+            {{- with .Values.mgmtBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.mgmtBackend.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.mgmtBackend.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.mgmtBackend" . }}
+        {{- if .Values.internalTLS.enabled }}
+        - name: mgmt-internal-certs
+          secret:
+            secretName: {{ template "core.internalTLS.mgmtBackend.secretName" . }}
+        {{- end }}
+        {{- with .Values.mgmtBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.mgmtBackend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mgmtBackend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mgmtBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

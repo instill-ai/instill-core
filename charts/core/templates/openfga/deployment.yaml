@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.openfga" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openfga
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.openfga.autoscaling.enabled }}
+  replicas: {{ .Values.openfga.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: openfga
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: openfga
+      annotations:
+        {{- with .Values.openfga.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.openfga.serviceAccountName }}
+      serviceAccountName: {{ .Values.openfga.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.openfga.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "core.database" . }}
+            - name: PGUSER
+              value: {{ template "core.database.username" . }}
+        {{- end }}
+        - name: openfga-createdb
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          command: ['sh', '-c']
+          args:
+          - >
+            createdb || true
+          env:
+            - name: PGDATABASE
+              value: openfga
+            - name: PGHOST
+              value: "{{ default (include "core.database.host" .) .Values.database.external.host }}"
+            - name: PGPORT
+              value: "{{ default (include "core.database.port" .) .Values.database.external.port }}"
+            - name: PGUSER
+              value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
+            - name: PGPASSWORD
+              value: "{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}"
+        - name: openfga-migration
+          image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
+          imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          args: ['migrate']
+          env:
+            - name: OPENFGA_DATASTORE_ENGINE
+              value: postgres
+            - name: OPENFGA_DATASTORE_URI
+              value: postgres://{{ default (include "core.database.username" .) .Values.database.external.username }}:{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}@{{ default (include "core.database.host" .) .Values.database.external.host }}:{{ default (include "core.database.port" .) .Values.database.external.port }}/openfga?sslmode=disable
+      containers:
+        - name: openfga
+          image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
+          imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          args: ['run']
+          env:
+            - name: OPENFGA_PLAYGROUND_ENABLED
+              value: "false"
+            - name: OPENFGA_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_ENGINE
+              value: postgres
+            - name: PGDATABASE
+              value: openfga
+            - name: PGHOST
+              value: "{{ default (include "core.database.host" .) .Values.database.external.host }}"
+            - name: PGPORT
+              value: "{{ default (include "core.database.port" .) .Values.database.external.port }}"
+            - name: PGUSER
+              value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
+            - name: PGPASSWORD
+              value: "{{ default (include "core.database.rawPassword" .) .Values.database.external.password }}"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8081
+              protocol: TCP
+        {{- if .Values.database.external_replica }}
+        - name: openfga-read-replica
+          image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
+          imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          args: ['run']
+          env:
+            - name: OPENFGA_HTTP_ADDR
+              value: 0.0.0.0:8082
+            - name: OPENFGA_GRPC_ADDR
+              value: 0.0.0.0:8083
+            - name: OPENFGA_PLAYGROUND_ENABLED
+              value: "false"
+            - name: OPENFGA_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_METRICS_ENABLED
+              value: "false"
+            - name: OPENFGA_DATASTORE_ENGINE
+              value: postgres
+            - name: PGDATABASE
+              value: openfga
+            - name: PGHOST
+              value: "{{ default (include "core.database.host" .) .Values.database.external_replica.host }}"
+            - name: PGPORT
+              value: "{{ default (include "core.database.port" .) .Values.database.external_replica.port }}"
+            - name: PGUSER
+              value: "{{ default (include "core.database.username" .) .Values.database.external_replica.username }}"
+            - name: PGPASSWORD
+              value: "{{ default (include "core.database.rawPassword" .) .Values.database.external_replica.password }}"
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+            - containerPort: 8083
+              protocol: TCP
+          {{- end }}
+      {{- with .Values.openfga.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.openfga.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.openfga.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

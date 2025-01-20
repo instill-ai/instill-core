@@ -1,0 +1,142 @@
+{{- if .Values.registry.enabled -}}
+{{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.registry" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.registry.autoscaling.enabled }}
+  replicas: {{ .Values.registry.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: registry
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: registry
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/registry/configmap.yaml") . | sha256sum }}
+        {{- with .Values.registry.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+      {{- if .Values.registry.serviceAccountName }}
+      serviceAccountName: {{ .Values.registry.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.registry.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-redis
+          image:  {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          command: ['redis-cli', '-h']
+          args:
+            - '$(REDIS_HOST)'
+            - 'ping'
+          env:
+            - name: REDIS_HOST
+              value: "{{ (split ":" .Values.registry.config.redis.addr)._0 }}"
+      containers:
+        - name: registry
+          image: {{ .Values.registry.image.repository }}:{{ .Values.registry.image.tag }}
+          imagePullPolicy: {{ .Values.registry.image.pullPolicy }}
+          command:
+          - /bin/registry
+          - serve
+          - {{ .Values.registry.configPath }}
+          readinessProbe:
+            httpGet:
+              path: /
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ template "core.registry.port" . }}
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
+              port: {{ template "core.registry.port" . }}
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          {{- if .Values.registry.resources }}
+          resources:
+            {{- toYaml .Values.registry.resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
+              containerPort: {{ template "core.registry.port" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ template "core.registry.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.registry.configPath }}
+              subPath: config.yml
+            {{- if eq .Values.registry.config.storage.type "filesystem" }}
+            - name: data-volume
+              mountPath: /var/lib/registry
+            {{- end }}
+            {{- with .Values.registry.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.registry.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.registry" . }}
+        {{- if eq .Values.registry.config.storage.type "filesystem" }}
+        - name: data-volume
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $registry.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $registry.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "core.registryDataVolume" . }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.registry.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.registry.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.registry.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.registry.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

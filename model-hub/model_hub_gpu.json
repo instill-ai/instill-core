@@ -1,0 +1,54 @@
+[
+  {
+    "id": "mobilenetv2",
+    "owner_type": "organizations",
+    "owner_id": "instill-ai",
+    "description": "An efficient image classification model, pretrained on ImageNet dataset which contains images from 1,000 classes.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "task": "TASK_CLASSIFICATION",
+    "region": "REGION_GCP_EUROPE_WEST4",
+    "hardware": "CPU",
+    "version": "v0.1.0",
+    "configuration": {}
+  },
+  {
+    "id": "yolov7",
+    "owner_type": "organizations",
+    "owner_id": "instill-ai",
+    "description": "YOLOv7 is a state-of-the-art real-time object detector pretrained on MS COCO dataset with 80 object classes.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "task": "TASK_DETECTION",
+    "region": "REGION_GCP_EUROPE_WEST4",
+    "hardware": "CPU",
+    "version": "v0.1.0",
+    "configuration": {}
+  },
+  {
+    "id": "yolov7-stomata",
+    "owner_type": "organizations",
+    "owner_id": "abrc",
+    "description": "The instance segmentation model based on Yolov7, fine-tuned on the custom dataset with 337 images and 1 object class 'stomata'.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "task": "TASK_INSTANCE_SEGMENTATION",
+    "region": "REGION_GCP_EUROPE_WEST4",
+    "hardware": "NVIDIA_TESLA_T4",
+    "version": "v0.1.0",
+    "configuration": {}
+  },
+  {
+    "id": "jina-clip-v1",
+    "owner_type": "organizations",
+    "owner_id": "instill-ai",
+    "description": "jina-clip-v1 is a state-of-the-art English multimodal (text-image) embedding model.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "task": "TASK_EMBEDDING",
+    "region": "REGION_GCP_EUROPE_WEST4",
+    "hardware": "NVIDIA_TESLA_T4",
+    "version": "v0.1.0",
+    "configuration": {}
+  }
+]

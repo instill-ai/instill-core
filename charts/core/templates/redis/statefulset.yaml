@@ -1,0 +1,87 @@
+{{- if .Values.redis.enabled -}}
+{{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "core.redis" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  replicas: 1
+  serviceName: {{ template "core.redis" . }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis
+      {{- with .Values.redis.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      # alpine already has a gid 999, so group is assigned as 1000 and user remains as 999
+      # https://github.com/docker-library/redis/blob/787f47c4bda6943e29d85fa45e080bd55b2c08fa/7.0/alpine/Dockerfile#L3-L5
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 1000
+      {{- if .Values.redis.serviceAccountName }}
+      serviceAccountName: {{ .Values.redis.serviceAccountName }}
+      {{- end -}}
+      {{- with .Values.imagePullSecrets }}
+      automountServiceAccountToken: {{ .Values.redis.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            periodSeconds: 10
+          {{- if .Values.redis.resources }}
+          resources:
+            {{ toYaml .Values.redis.resources | nindent 10 }}
+          {{- end }}
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/redis
+            subPath: {{ $redis.subPath }}
+      volumes:
+        - name: data
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- else if $redis.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ $redis.existingClaim }}
+        {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "core.redisDataVolume" . }}
+        {{- end }}
+    {{- with .Values.redis.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.redis.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.redis.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if .Values.redis.priorityClassName }}
+      priorityClassName: {{ .Values.redis.priorityClassName }}
+    {{- end }}
+{{- end -}}

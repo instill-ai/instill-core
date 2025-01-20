@@ -1,0 +1,68 @@
+{{- if .Values.registry.enabled -}}
+{{- if .Values.registry.garbageCollect.enabled }}
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: {{ template "core.registry" . }}-maintenance
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "core.registry" . }}-maintenance
+rules:
+  - apiGroups: ["apps", "extensions"]
+    resources: ["deployments"]
+    verbs: ["get", "patch", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ template "core.registry" . }}-maintenance
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "core.registry" . }}-maintenance
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "core.registry" . }}-maintenance
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "core.registry" . }}-maintenance
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: registry
+spec:
+  concurrencyPolicy: Forbid
+  schedule: {{ .Values.registry.garbageCollect.maintenanceSchedule | quote }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: registry
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ template "core.registry" . }}-maintenance
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  TMP_CONFIGMAP_FILE="/tmp/configmap.yaml"
+                  kubectl get configmap {{ template "core.registry" . }} -n {{ template "core.namespace" . }} -o yaml > $TMP_CONFIGMAP_FILE
+                  sed -i '/readonly:/,/enabled:/s/enabled: true/enabled: TEMP/; /readonly:/,/enabled:/s/enabled: false/enabled: true/; /readonly:/,/enabled:/s/enabled: TEMP/enabled: false/' $TMP_CONFIGMAP_FILE
+                  kubectl apply -n {{ template "core.namespace" . }} -f $TMP_CONFIGMAP_FILE
+                  kubectl rollout restart -n {{ template "core.namespace" . }} deployment/{{ template "core.registry" . }} &&
+                  kubectl rollout status -n {{ template "core.namespace" . }} deployment/{{ template "core.registry" . }}
+{{- end }}
+{{- end }}

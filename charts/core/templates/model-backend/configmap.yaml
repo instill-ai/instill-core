@@ -1,0 +1,123 @@
+{{- if .Values.tags.model -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.modelBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.modelBackend.privatePort" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
+      workflow:
+        maxworkflowtimeout: {{ .Values.modelBackend.temporal.workflow.maxWorkflowTimeout }}
+        maxworkflowretry: {{ .Values.modelBackend.temporal.workflow.maxWorkflowRetry }}
+        maxactivityretry: {{ .Values.modelBackend.temporal.workflow.maxActivityRetry }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/model/tls.crt
+        key: /etc/instill-ai/model/ssl/model/tls.key
+      {{- end }}
+      instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
+      taskschemaversion: {{ .Values.modelBackend.taskSchemaVersion }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
+    mgmtbackend:
+      host: {{ template "core.mgmtBackend" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/model/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/model/ssl/mgmt/tls.key
+      {{- end }}
+    artifactbackend:
+      host: {{ template "core.artifactBackend" . }}
+      publicport: {{ template "core.artifactBackend.publicPort" . }}
+      privateport: {{ template "core.artifactBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/core/ssl/artifact/tls.crt
+        key: /etc/instill-ai/core/ssl/artifact/tls.key
+      {{- end }}
+    rayserver:
+      grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
+      modelstore: /model-config
+      vram: {{ .Values.rayService.vram }}
+    database:
+      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      {{- if .Values.database.external_replica }}
+      replica:
+        username: {{ .Values.database.external_replica.username | default "" }}
+        password: {{ .Values.database.external_replica.password | default ""  }}
+        host: {{ .Values.database.external_replica.host | default ""  }}
+        port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
+      {{- end }}
+      name: model
+      version: {{ .Values.modelBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
+      namespace: {{ default "model-backend" .Values.modelBackend.temporal.namespace }}
+      retention: {{ default "1d" .Values.modelBackend.temporal.retention }}
+      ca: {{ default "" .Values.modelBackend.temporal.ca }}
+      cert: {{ default "" .Values.modelBackend.temporal.cert }}
+      key: {{ default "" .Values.modelBackend.temporal.key }}
+      serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
+    initmodel:
+      {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8081
+      {{- if .Values.database.external_replica }}
+      replica:
+        host: {{ template "core.openfga" . }}
+        port: 8083
+        replicationtimeframe: 1
+      {{- end }}
+    registry:
+      {{- if .Values.rayService.namespaceOverride }}
+      host: {{ include "core.registry" . }}.{{ include "core.namespace" . }}.svc.cluster.local
+      {{- else }}
+      host: {{ template "core.registry" . }}
+      {{- end }}
+      port: {{ template "core.registry.port" . }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10s
+      https:
+        cert:
+        key:
+    minio:
+      host: {{ template "core.minio" . }}
+      port: {{ .Values.modelBackend.minio.port }}
+      rootuser: {{ .Values.modelBackend.minio.rootuser }}
+      rootpwd: {{ .Values.modelBackend.minio.rootpwd }}
+      bucketname: {{ .Values.modelBackend.minio.bucketname }}
+      secure: {{ .Values.modelBackend.minio.secure }}
+{{- end }}

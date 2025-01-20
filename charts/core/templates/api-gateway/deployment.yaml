@@ -1,0 +1,177 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.apiGateway" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.apiGateway.autoscaling.enabled }}
+  replicas: {{ .Values.apiGateway.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api-gateway
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/api-gateway/configmap.yaml") . | sha256sum }}
+        {{- with .Values.apiGateway.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      {{- if .Values.apiGateway.serviceAccountName }}
+      serviceAccountName: {{ .Values.apiGateway.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.console.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1beta/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
+          env:
+            - name: MGMT_BACKEND_HOST
+              value: "{{ template "core.mgmtBackend" . }}"
+            - name: MGMT_BACKEND_PORT
+              value: "{{ template "core.mgmtBackend.publicPort" . }}"
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "core.pipelineBackend" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "core.pipelineBackend.publicPort" . }}"
+            - name: INFLUXDB_HOST
+              value: "{{ template "core.influxdb" . }}"
+            - name: INFLUXDB_PORT
+              value: "{{ template "core.influxdb.port" . }}"
+        {{- if .Values.temporal.enabled }}
+        - name: temporal-admin-tools
+          securityContext:
+            runAsUser: 0
+          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
+          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
+          env:
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+        {{- end }}
+        {{- with .Values.apiGateway.extraInitContainers }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      containers:
+        - name: api-gateway
+          image: {{ .Values.apiGateway.image.repository }}:{{ .Values.apiGateway.image.tag }}
+          imagePullPolicy: {{ .Values.apiGateway.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
+            periodSeconds: 10
+            initialDelaySeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /__health
+              scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
+              port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
+            periodSeconds: 10
+            initialDelaySeconds: 60
+          {{- if .Values.apiGateway.resources }}
+          resources:
+            {{- toYaml .Values.apiGateway.resources | nindent 12 }}
+          {{- end }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              make config && \
+              krakend run \
+            {{- if (eq (.Values.logLevel | upper) "DEBUG") }}
+              --debug \
+            {{- end }}
+              --config krakend.json
+          ports:
+            - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
+              containerPort: {{ template "core.apiGateway.httpPort" . }}
+              protocol: TCP
+            - name: stats
+              containerPort: {{ template "core.apiGateway.statsPort" . }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ template "core.apiGateway.metricsPort" . }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.apiGateway.configPath }}
+              subPath: ".env"
+            {{- if .Values.apiGateway.tls.enabled }}
+            - name: {{ template "core.internalTLS.apiGateway.secretName" . }}
+              mountPath: "/etc/instill-ai/core/ssl/api-gateway"
+              readOnly: true
+            {{- end }}
+            {{- with .Values.apiGateway.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.apiGateway.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.apiGateway.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.apiGateway" . }}
+        {{- if .Values.apiGateway.tls.enabled }}
+        - name: {{ template "core.internalTLS.apiGateway.secretName" . }}
+          secret:
+            secretName: {{ template "core.internalTLS.apiGateway.secretName" . }}
+            items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+        {{- end }}
+        {{- with .Values.apiGateway.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.apiGateway.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGateway.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGateway.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

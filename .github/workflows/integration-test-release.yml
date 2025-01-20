@@ -1,0 +1,19 @@
+name: Integration Test (release)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [mgmt-backend, pipeline-backend, model-backend]
+    uses: ./.github/workflows/integration-test-backend.yml
+    with:
+      component: ${{ matrix.component }}
+      target: release
+  console:
+    uses: ./.github/workflows/integration-test-console.yml
+    with:
+      target: release

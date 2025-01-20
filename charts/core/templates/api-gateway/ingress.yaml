@@ -1,0 +1,66 @@
+{{- if eq .Values.expose.type "ingress" }}
+{{- $ingress := .Values.expose.ingress -}}
+{{- $tls := .Values.expose.tls -}}
+{{- if eq $ingress.controller "gce" }}
+{{- $_ := set . "rootPath" "/*" -}}
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: core-backend-config
+spec:
+  timeoutSec: 300
+{{- else }}
+{{- $_ := set . "rootPath" "/" -}}
+{{- end }}
+---
+{{- if semverCompare "<1.14-0" (include "core.ingress.kubeVersion" .) }}
+apiVersion: extensions/v1beta1
+{{- else if semverCompare "<1.19-0" (include "core.ingress.kubeVersion" .) }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: networking.k8s.io/v1
+{{- end }}
+kind: Ingress
+metadata:
+  name: "{{ template "core.apiGateway" . }}"
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+    {{- with $ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if $ingress.className }}
+  ingressClassName: {{ $ingress.className }}
+  {{- end }}
+  {{- if $tls.enabled }}
+  tls:
+  - secretName: {{ $tls.secret.secretName }}
+    {{- if $ingress.hosts.apiGateway }}
+    hosts:
+    - {{ $ingress.hosts.apiGateway }}
+    {{- end }}
+  {{- end }}
+  rules:
+  - http:
+      paths:
+{{- if semverCompare "<1.19-0" (include "core.ingress.kubeVersion" .) }}
+      - path: {{ .rootPath }}
+        backend:
+          serviceName: {{ template "core.apiGateway" . }}
+          servicePort: {{ template "core.apiGateway.httpPort" . }}
+{{- else }}
+      - path: {{ .rootPath }}
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ template "core.apiGateway" . }}
+            port:
+              number: {{ template "core.apiGateway.httpPort" . }}
+{{- end }}
+    {{- if $ingress.hosts.apiGateway }}
+    host: {{ $ingress.hosts.apiGateway }}
+    {{- end }}
+{{- end }}

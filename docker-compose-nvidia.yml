@@ -1,0 +1,9 @@
+services:
+  ray_server:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: []
+              capabilities: [gpu]

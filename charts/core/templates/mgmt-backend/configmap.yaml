@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.mgmtBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/core/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/core/ssl/mgmt/tls.key
+      {{- end }}
+      instillcorehost: {{ .Values.mgmtBackend.instillCoreHost }}
+    pipelinebackend:
+      host: {{ template "core.pipelineBackend" . }}
+      publicport: {{ template "core.pipelineBackend.publicPort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
+        key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
+      {{- end }}
+    database:
+      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      {{- if .Values.database.external_replica }}
+      replica:
+        username: {{ .Values.database.external_replica.username | default "" }}
+        password: {{ .Values.database.external_replica.password | default ""  }}
+        host: {{ .Values.database.external_replica.host | default ""  }}
+        port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
+      {{- end }}
+      name: mgmt
+      version: {{ .Values.mgmtBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10s
+      https:
+        cert:
+        key:
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8080
+      {{- if .Values.database.external_replica }}
+      replica:
+        host: {{ template "core.openfga" . }}
+        port: 8082
+        replicationtimeframe: 1
+      {{- end }}
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
+      namespace: {{ default "mgmt-backend" .Values.mgmtBackend.temporal.namespace }}
+      ca: {{ default "" .Values.mgmtBackend.temporal.ca }}
+      cert: {{ default "" .Values.mgmtBackend.temporal.cert }}
+      key: {{ default "" .Values.mgmtBackend.temporal.key }}
+      serverName: {{ default "" .Values.mgmtBackend.temporal.serverName }}

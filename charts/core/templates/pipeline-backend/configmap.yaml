@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.pipelineBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
+data:
+  config.yaml: |+
+    server:
+      privateport: {{ template "core.pipelineBackend.privatePort" . }}
+      publicport: {{ template "core.pipelineBackend.publicPort" . }}
+      edition: {{ .Values.edition }}
+      usage:
+        {{- toYaml .Values.usage | nindent 8 }}
+      debug: {{ ternary "true" "false" (eq (.Values.logLevel | upper) "DEBUG") }}
+      maxdatasize: {{ .Values.maxDataSizeMB }}
+      workflow:
+        maxworkflowtimeout: {{ .Values.pipelineBackend.workflow.maxWorkflowTimeout }}
+        maxworkflowretry: {{ .Values.pipelineBackend.workflow.maxWorkflowRetry }}
+        maxactivityretry: {{ .Values.pipelineBackend.workflow.maxActivityRetry }}
+      instillcorehost: {{ .Values.pipelineBackend.instillCoreHost }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
+        key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
+      {{- end }}
+    connector:
+      instill:
+        usestaticmodellist: {{ .Values.pipelineBackend.useStaticModelList }}
+    mgmtbackend:
+      host: {{ template "core.mgmtBackend" . }}
+      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
+      {{- end }}
+    artifactbackend:
+      host: {{ template "core.artifactBackend" . }}
+      publicport: {{ template "core.artifactBackend.publicPort" . }}
+      privateport: {{ template "core.artifactBackend.privatePort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/artifact/tls.crt
+        key: /etc/instill-ai/vdp/ssl/artifact/tls.key
+      {{- end }}
+    modelbackend:
+      host: {{ template "core.modelBackend" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
+      {{- if .Values.internalTLS.enabled }}
+      https:
+        cert: /etc/instill-ai/vdp/ssl/model/tls.crt
+        key: /etc/instill-ai/vdp/ssl/model/tls.key
+      {{- end }}
+    database:
+      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
+      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
+      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
+      {{- if .Values.database.external_replica }}
+      replica:
+        username: {{ .Values.database.external_replica.username | default "" }}
+        password: {{ .Values.database.external_replica.password | default ""  }}
+        host: {{ .Values.database.external_replica.host | default ""  }}
+        port: {{ .Values.database.external_replica.port | default ""  }}
+        replicationtimeframe: 1
+      {{- end }}
+      name: pipeline
+      version: {{ .Values.pipelineBackend.dbVersion }}
+      timezone: Etc/UTC
+      pool:
+        idleconnections: {{ .Values.database.maxIdleConns }}
+        maxconnections: {{ .Values.database.maxOpenConns }}
+        connlifetime: {{ .Values.database.maxConnLifeTime }}
+    influxdb:
+      url: {{ .Values.influxdbCloud.url }}
+      token: {{ .Values.influxdbCloud.token }}
+      org: {{ .Values.influxdbCloud.organization }}
+      bucket: {{ .Values.influxdbCloud.bucket }}
+      flushinterval: 10s
+      https:
+        cert:
+        key:
+    cache:
+      redis:
+        redisoptions:
+          addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
+    temporal:
+      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
+      namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
+      ca: {{ default "" .Values.pipelineBackend.temporal.ca }}
+      cert: {{ default "" .Values.pipelineBackend.temporal.cert }}
+      key: {{ default "" .Values.pipelineBackend.temporal.key }}
+      serverName: {{ default "" .Values.pipelineBackend.temporal.serverName }}
+    log:
+      external: {{ .Values.tags.observability }}
+      otelcollector:
+        host: {{ template "core.otel" . }}
+        port: {{ template "core.otel.port" . }}
+    openfga:
+      host: {{ template "core.openfga" . }}
+      port: 8081
+      {{- if .Values.database.external_replica }}
+      replica:
+        host: {{ template "core.openfga" . }}
+        port: 8083
+        replicationtimeframe: 1
+      {{- end }}
+    instillcloud:
+      host: api.instill.tech
+      port: 443
+    minio:
+      host: {{ template "core.minio" . }}
+      port: {{ .Values.pipelineBackend.minio.port }}
+      rootuser: {{ .Values.pipelineBackend.minio.rootuser }}
+      rootpwd: {{ .Values.pipelineBackend.minio.rootpwd }}
+      bucketname: {{ .Values.pipelineBackend.minio.bucketname }}
+      secure: {{ .Values.pipelineBackend.minio.secure }}
+    apigateway:
+      host: {{ template "core.apiGateway" . }}
+      publicport: {{ template "core.apiGateway.httpPort" . }}
+      tlsenabled: {{ .Values.apiGateway.tls.enabled }}

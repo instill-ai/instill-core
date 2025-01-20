@@ -1,0 +1,120 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+      MAJOR: ${{ steps.release.outputs.major }}
+      MINOR: ${{ steps.release.outputs.minor }}
+      PATCH: ${{ steps.release.outputs.path }}
+      TAG_NAME: ${{ steps.release.outputs.tag_name }}
+      SHA: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          token: ${{ secrets.botGitHubToken }}
+          release-type: simple
+          command: manifest
+          config-file: release-please/config.json
+          manifest-file: release-please/manifest.json
+          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"chore","section":"Miscellaneous","hidden":false}]'
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          token: ${{ secrets.botGitHubToken }}
+      - name: Import GPG Key
+        if: ${{ steps.release.outputs.release_created }}
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.botGPGPrivateKey }}
+          passphrase: ${{ secrets.botGPGPassphrase }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+      - name: Tag major and minor versions
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git tag -d v${{ steps.release.outputs.major }} || true
+          git tag -d v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git push origin :v${{ steps.release.outputs.major }} || true
+          git push origin :v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git tag -a v${{ steps.release.outputs.major }} -m "Release v${{ steps.release.outputs.major }} pointing to tag ${{ steps.release.outputs.tag_name }}"
+          git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} pointing to tag ${{ steps.release.outputs.tag_name }}"
+          git push origin v${{ steps.release.outputs.major }}
+          git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
+  release-helm-charts:
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.RELEASE_CREATED }}
+    steps:
+      - name: Install yq
+        uses: mikefarah/yq@v4
+      - name: Install semver-tool
+        run: |
+          git clone https://github.com/fsaintjacques/semver-tool.git
+          cd semver-tool
+          sudo make install && /usr/local/bin/semver --version
+      - name: Install helm-docs
+        run: |
+          arch="$(uname -m)"
+          curl -s https://api.github.com/repos/norwoodj/helm-docs/releases/latest \
+          | yq --indent 0 --no-colors --input-format json --unwrapScalar \
+            ".assets[] | select(.name | test("\""^helm-docs_.+_Linux_${arch}\.tar\.gz$"\"")) | .browser_download_url" \
+          | xargs curl -SsL \
+          | tar zxf - -C /usr/local/bin
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.botGitHubToken }}
+      - name: Update component image versions
+        run: |
+          source .env
+          yq ".apiGateway.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/core/values.yaml
+          yq ".mgmtBackend.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
+          yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
+          yq ".rayService.image.tag=\"$RAY_SERVER_VERSION\"" -i charts/core/values.yaml
+          yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
+          yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
+          yq ".artifactBackend.image.tag=\"$ARTIFACT_BACKEND_VERSION\"" -i charts/core/values.yaml
+      - name: Get current chart version
+        id: get-current-chart-version
+        run: |
+          echo "version=$(yq .version charts/core/Chart.yaml)" >> $GITHUB_OUTPUT
+      - name: Bump SemVer
+        id: bump-semver
+        run: |
+          echo "next-version=$(semver bump patch ${{ steps.get-current-chart-version.outputs.version }})-beta" >> $GITHUB_OUTPUT
+      - name: Bump up Helm chart version
+        run: |
+          yq ".version=\"${{ steps.bump-semver.outputs.next-version }}\"" -i charts/core/Chart.yaml
+      - name: Bump up Helm app version
+        run: |
+          string=${{ needs.release-please.outputs.TAG_NAME }}
+          appVersion=${string#"v"}
+          yq ".appVersion=\"$appVersion\"" -i charts/core/Chart.yaml
+      - name: Generate helm-doc
+        run: |
+          helm-docs charts/core
+      - name: Import GPG Key
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.botGPGPrivateKey }}
+          passphrase: ${{ secrets.botGPGPassphrase }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+      - name: Commit and push the updated Helm chart
+        run: |
+          if [[ `git status --porcelain` ]]; then
+            git add charts
+            git commit -S -m "chore(helm): bump up chart and app version" -m "triggered by commit: https://github.com/instill-ai/core/commit/${{ needs.release-please.outputs.SHA }}"
+            git push
+          fi
