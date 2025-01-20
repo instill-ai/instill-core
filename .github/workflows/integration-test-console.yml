@@ -12,12 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      # mono occupies port 8084 which conflicts with mgmt-backend
-      - name: Stop mono service
-        run: |
-          sudo kill -9 `sudo lsof -t -i:8084`
-          sudo lsof -i -P -n | grep LISTEN
-
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
