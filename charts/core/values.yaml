@@ -630,7 +630,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.64.0-beta
+    tag: 0.64.2-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
