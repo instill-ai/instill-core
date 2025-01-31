@@ -43,6 +43,11 @@ INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME := instill/console-playwright
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := core
 
+# By default, this file is used to load the component configuration (OAuth, API
+# keys...).
+COMPONENT_ENV := .env.component
+COMPONENT_TEST_ENV := .env.component-test
+
 #============================================================================
 
 .PHONY: all
@@ -55,9 +60,11 @@ all:			## Launch all services with their up-to-date release version
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
+		EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
+		docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
 else
-	@EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} docker compose ${COMPOSE_FILES} up -d --quiet-pull
+	@EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
+		docker compose ${COMPOSE_FILES} up -d --quiet-pull
 endif
 
 .PHONY: latest
@@ -70,9 +77,11 @@ latest:			## Lunch all dependent services with their latest codebase
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml -f - up -d --quiet-pull
+		COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
+		docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml -f - up -d --quiet-pull
 else
-	@COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml up -d --quiet-pull
+	@COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
+		docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml up -d --quiet-pull
 endif
 
 .PHONY: build-latest
@@ -102,6 +111,7 @@ build-latest:				## Build latest images for all services
 				MODEL_BACKEND_VERSION=latest \
 				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
+				COMPONENT_ENV=${COMPONENT_ENV} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
 	fi
@@ -139,6 +149,7 @@ build-release:				## Build release images for all services
 				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 				CONSOLE_VERSION=${CONSOLE_VERSION} \
+				COMPONENT_ENV=${COMPONENT_ENV} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
 			"; \
 	fi
@@ -184,7 +195,7 @@ top:			## Display all running service processes
 
 .PHONY: integration-test-latest
 integration-test-latest:			# Run integration test on the latest VDP
-	@make latest BUILD=true EDITION=local-ce:test
+	@make latest BUILD=true EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
@@ -197,7 +208,7 @@ integration-test-latest:			# Run integration test on the latest VDP
 
 .PHONY: integration-test-release
 integration-test-release:			# Run integration test on the release VDP
-	@make all BUILD=true EDITION=local-ce:test
+	@make all BUILD=true EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release \
@@ -210,7 +221,7 @@ integration-test-release:			# Run integration test on the release VDP
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       # Run integration test on the Helm latest for VDP
-	@make build-latest BUILD=true
+	@make build-latest BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -252,7 +263,7 @@ endif
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       # Run integration test on the Helm release for VDP
-	@make build-release BUILD=true
+	@make build-release BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -294,7 +305,7 @@ endif
 
 .PHONY: console-integration-test-latest
 console-integration-test-latest:			# Run console integration test on the latest Instill Core
-	@make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -312,7 +323,7 @@ console-integration-test-latest:			# Run console integration test on the latest 
 
 .PHONY: console-integration-test-release
 console-integration-test-release:			# Run console integration test on the release Instill Core
-	@make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST}
+	@make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -330,7 +341,7 @@ console-integration-test-release:			# Run console integration test on the releas
 
 .PHONY: console-helm-integration-test-latest
 console-helm-integration-test-latest:                       # Run console integration test on the Helm latest for Instill Core
-	@make build-latest  BUILD=true
+	@make build-latest  BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -410,7 +421,7 @@ endif
 
 .PHONY: console-helm-integration-test-release
 console-helm-integration-test-release:                       # Run console integration test on the Helm release for Instill Core
-	@make build-release  BUILD=true
+	@make build-release  BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
