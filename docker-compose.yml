@@ -139,7 +139,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
-    env_file: .env.component
+    env_file: ${COMPONENT_ENV}
     environment:
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
@@ -191,7 +191,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}-worker
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
-    env_file: .env.component
+    env_file: ${COMPONENT_ENV}
     environment:
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
@@ -359,7 +359,7 @@ services:
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     restart: unless-stopped
     env_file:
-      - path: .env.component
+      - path: ${COMPONENT_ENV}
       - path: .env.console
     environment:
       NEXT_PUBLIC_GENERAL_API_VERSION: v1beta
