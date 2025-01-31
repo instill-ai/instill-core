@@ -53,10 +53,9 @@ COMPONENT_TEST_ENV := .env.component-test
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
 	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@make build-release BUILD=${BUILD}
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
-		docker run --rm --name uuidgen ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
+		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
@@ -70,10 +69,9 @@ endif
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
 	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
-	@make build-latest PROFILE=${PROFILE} BUILD=${BUILD}
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
-		docker run --rm --name uuidgen ${INSTILL_CORE_IMAGE_NAME}:latest uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
+		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
@@ -86,8 +84,7 @@ endif
 
 .PHONY: build-latest
 build-latest:				## Build latest images for all services
-	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
-		docker build --progress plain \
+		@docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
@@ -96,10 +93,8 @@ build-latest:				## Build latest images for all services
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(shell date)" \
 			--target latest \
-			-t ${INSTILL_CORE_IMAGE_NAME}:latest .; \
-	fi
-	@if [ "${BUILD}" = "true" ]; then \
-		docker run --rm \
+			-t ${INSTILL_CORE_IMAGE_NAME}:latest .
+		@docker run --rm \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v ./.env:/instill-core/.env \
 			-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
@@ -113,35 +108,31 @@ build-latest:				## Build latest images for all services
 				CONSOLE_VERSION=latest \
 				COMPONENT_ENV=${COMPONENT_ENV} \
 				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
-			"; \
-	fi
+			"
 
 .PHONY: build-release
 build-release:				## Build release images for all services
-	@if [ "${BUILD}" = "true" ] || [ "${BUILD_CORE_DEV_IMAGE}" = "true" ]; then \
-		docker build --progress plain \
-			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
-			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
-			--build-arg K6_VERSION=${K6_VERSION} \
-			--build-arg XK6_VERSION=${XK6_VERSION} \
-			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
-			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
-			--build-arg CACHE_DATE="$(shell date)" \
-			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
-			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
-			--target release \
-			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .; \
-	fi
-	@if [ "${BUILD}" = "true" ]; then \
-		docker run --rm \
-			-v /var/run/docker.sock:/var/run/docker.sock \
-			-v ./.env:/instill-core/.env \
-			-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
-			--name ${INSTILL_CORE_BUILD_CONTAINER_NAME}-release \
+	@docker build --progress plain \
+		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
+		--build-arg K6_VERSION=${K6_VERSION} \
+		--build-arg XK6_VERSION=${XK6_VERSION} \
+		--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
+		--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
+		--build-arg CACHE_DATE="$(shell date)" \
+		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+		--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
+		--target release \
+		-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .
+	@docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ./.env:/instill-core/.env \
+		-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
+		--name ${INSTILL_CORE_BUILD_CONTAINER_NAME}-release \
 			${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 				API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 				MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
@@ -195,7 +186,8 @@ top:			## Display all running service processes
 
 .PHONY: integration-test-latest
 integration-test-latest:			# Run integration test on the latest VDP
-	@make latest BUILD=true EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-latest
+	@make latest EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
@@ -208,11 +200,13 @@ integration-test-latest:			# Run integration test on the latest VDP
 
 .PHONY: integration-test-release
 integration-test-release:			# Run integration test on the release VDP
-	@make all BUILD=true EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-release
+	@make all EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		--network instill-network \
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release \
 		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
+			/bin/sh -c 'sed -i "s/\(\w\+GITHUB\w\+\)=/\1=foo/" .env.component' && \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
@@ -221,7 +215,7 @@ integration-test-release:			# Run integration test on the release VDP
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       # Run integration test on the Helm latest for VDP
-	@make build-latest BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-latest COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -263,7 +257,7 @@ endif
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       # Run integration test on the Helm release for VDP
-	@make build-release BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-release COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -305,7 +299,7 @@ endif
 
 .PHONY: console-integration-test-latest
 console-integration-test-latest:			# Run console integration test on the latest Instill Core
-	@make latest BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make latest EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -323,7 +317,7 @@ console-integration-test-latest:			# Run console integration test on the latest 
 
 .PHONY: console-integration-test-release
 console-integration-test-release:			# Run console integration test on the release Instill Core
-	@make all BUILD=true EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make all EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
 		-e NEXT_PUBLIC_MODEL_API_VERSION=v1alpha \
@@ -341,7 +335,7 @@ console-integration-test-release:			# Run console integration test on the releas
 
 .PHONY: console-helm-integration-test-latest
 console-helm-integration-test-latest:                       # Run console integration test on the Helm latest for Instill Core
-	@make build-latest  BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-latest COMPONENT_ENV=${COMPONENT_TEST_ENV}
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -421,7 +415,7 @@ endif
 
 .PHONY: console-helm-integration-test-release
 console-helm-integration-test-release:                       # Run console integration test on the Helm release for Instill Core
-	@make build-release  BUILD=true COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-release COMPONENT_ENV=${COMPONENT_TEST_ENV}
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
