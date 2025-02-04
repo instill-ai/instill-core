@@ -1144,6 +1144,7 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
+  imageTag: "7.17.23"
 # -- The configuration of InfluxDB Cloud
 influxdbCloud:
   url: "http://core-influxdb2:8086"
@@ -1395,7 +1396,7 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
-      # -- The configuration of registry
+  # -- The configuration of registry
 registry:
   enabled: true
   image:
