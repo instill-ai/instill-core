@@ -337,6 +337,7 @@ services:
       - -c
       - |
         ./artifact-backend-migrate
+        ./artifact-backend-init
         ./artifact-backend
     healthcheck:
       test:
@@ -352,6 +353,8 @@ services:
       pg_sql:
         condition: service_healthy
       mgmt_backend:
+        condition: service_healthy
+      pipeline_backend:
         condition: service_healthy
 
   console:

@@ -564,6 +564,7 @@ artifactBackend:
   # -- The command names to be executed
   commandName:
     migration: artifact-backend-migrate
+    init: artifact-backend-init
     main: artifact-backend
   # -- The path of configuration file for artifact-backend
   configPath: /artifact-backend/config/config.yaml
