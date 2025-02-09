@@ -73,6 +73,29 @@ spec:
             - name: config
               mountPath: {{ .Values.artifactBackend.configPath }}
               subPath: config.yaml
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/__readiness)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
+          env:
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ template "core.pipelineBackend" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ template "core.pipelineBackend.publicPort" . }}"
+        - name: artifact-backend-init
+          image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
+          imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
+          command: [./{{ .Values.artifactBackend.commandName.init }}]
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.artifactBackend.configPath }}
+              subPath: config.yaml
+          env:
+          {{- if .Values.artifactBackend.extraEnv }}
+            {{- toYaml .Values.artifactBackend.extraEnv | nindent 12 }}
+          {{- end }}
         {{- with .Values.artifactBackend.extraInitContainers }}
         {{- toYaml . | indent 8 }}
         {{- end }}
