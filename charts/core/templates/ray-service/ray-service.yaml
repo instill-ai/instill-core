@@ -29,7 +29,11 @@ spec:
       num-gpus: "0"
       disable-usage-stats: "true"
     template:
-      spec:
+      spec:  
+        {{- with .Values.rayService.headGroupSpec.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.rayService.headGroupSpec.nodeSelector }}
         nodeSelector:
           {{- toYaml . | nindent 10 }}
@@ -133,6 +137,10 @@ spec:
       # pod template
       template:
         spec:
+          {{- with $workerGroupSpecs.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with $workerGroupSpecs.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}

@@ -44,12 +44,12 @@ spec:
       securityContext:
         runAsUser: 65534
         runAsGroup: 65534
-      {{- if .Values.modelBackend.serviceAccountName }}
-      serviceAccountName: {{ .Values.modelBackend.serviceAccountName }}
-      {{- end }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.modelBackend.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.modelBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.modelBackend.serviceAccountName }}
       {{- end }}
       automountServiceAccountToken: {{ .Values.modelBackend.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
