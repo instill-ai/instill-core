@@ -1585,6 +1585,9 @@ milvus:
       timeoutSeconds: 1
       successThreshold: 1
       failureThreshold: 5
+    environment:
+      MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: "on"
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: "http://core-artifact-backend:3082/v1alpha/minio-audit"
   etcd:
     nodeSelector: {}
     enabled: true
