@@ -201,7 +201,7 @@ integration-test-latest:			# Run integration test on the latest VDP
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
 		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down
@@ -214,7 +214,7 @@ integration-test-release:			# Run integration test on the release VDP
 		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release \
 		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
 		"
 	@make down

@@ -44,6 +44,7 @@ services:
       context: ./${PIPELINE_BACKEND_HOST}
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
+        SERVICE_VERSION: ${PIPELINE_BACKEND_IMAGE}
 
   model_backend:
     profiles:
@@ -58,6 +59,7 @@ services:
       context: ./${MODEL_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        SERVICE_VERSION: ${MODEL_BACKEND_IMAGE}
         GOLANG_VERSION: ${GOLANG_VERSION}
         UBUNTU_VERSION: ${UBUNTU_VERSION}
         ARTIVC_VERSION: ${ARTIVC_VERSION}
