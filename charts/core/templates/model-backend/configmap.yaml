@@ -116,8 +116,8 @@ data:
     minio:
       host: {{ template "core.minio" . }}
       port: {{ .Values.modelBackend.minio.port }}
-      rootuser: {{ .Values.modelBackend.minio.rootuser }}
-      rootpwd: {{ .Values.modelBackend.minio.rootpwd }}
+      user: {{ .Values.modelBackend.minio.user }}
+      password: {{ .Values.modelBackend.minio.password }}
       bucketname: {{ .Values.modelBackend.minio.bucketname }}
       secure: {{ .Values.modelBackend.minio.secure }}
 {{- end }}
