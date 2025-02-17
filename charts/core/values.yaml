@@ -1565,6 +1565,8 @@ milvus:
     enabled: true
   # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
   # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
+  # TODO: MinIO is used by services like pipeline or artifact, not only Milvus.
+  # Therefore, it shouldn't be defined as a Milvus dependency (INS-7341).
   minio:
     mode: distributed
     nodeSelector: {}
@@ -1585,6 +1587,12 @@ milvus:
       timeoutSeconds: 1
       successThreshold: 1
       failureThreshold: 5
+    environment:
+      MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: "on"
+      # TODO: If fullnameOverride is set, artifact's host might change. This
+      # should be set through templates, which could be done along with the
+      # MinIO extraction from Milvus (INS-7341).
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: "http://core-artifact-backend:3082/v1alpha/minio-audit"
   etcd:
     nodeSelector: {}
     enabled: true

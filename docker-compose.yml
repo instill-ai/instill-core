@@ -589,6 +589,8 @@ services:
     restart: unless-stopped
     environment:
       MINIO_CONSOLE_PORT: ${MINIO_CONSOLE_PORT}
+      MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: on
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PRIVATEPORT}${ARTIFACT_MINIO_WEBHOOK}
     volumes:
       - ${MINIO_DATA_DIR}:/data
     command:
