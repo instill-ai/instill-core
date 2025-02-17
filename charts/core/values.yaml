@@ -457,8 +457,8 @@ pipelineBackend:
       maxUnavailable:
   minio:
     port: 9000
-    rootuser: minioadmin
-    rootpwd: minioadmin
+    user: minioadmin
+    password: minioadmin
     bucketname: instill-ai-vdp
     secure: false
 # -- The configuration of model-backend
@@ -548,8 +548,8 @@ modelBackend:
       maxUnavailable:
   minio:
     port: 9000
-    rootuser: minioadmin
-    rootpwd: minioadmin
+    user: minioadmin
+    password: minioadmin
     bucketname: instill-ai-model
     secure: false
 # -- The configuration of artifact-backend
@@ -618,8 +618,8 @@ artifactBackend:
       maxUnavailable:
   minio:
     port: 9000
-    rootuser: minioadmin
-    rootpwd: minioadmin
+    user: minioadmin
+    password: minioadmin
     bucketname: instill-ai-knowledge-bases
   numberOfWorkers: 20
   blob:

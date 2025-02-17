@@ -73,8 +73,8 @@ data:
     minio:
       host: {{ template "core.minio" . }}
       port: {{ .Values.artifactBackend.minio.port }}
-      rootuser: {{ .Values.artifactBackend.minio.rootuser }}
-      rootpwd: {{ .Values.artifactBackend.minio.rootpwd }}
+      user: {{ .Values.artifactBackend.minio.user }}
+      password: {{ .Values.artifactBackend.minio.password }}
       bucketname: {{ .Values.artifactBackend.minio.bucketname }}
     mgmtbackend:
       host: {{ template "core.mgmtBackend" . }}

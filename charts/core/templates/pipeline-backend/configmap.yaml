@@ -114,8 +114,8 @@ data:
     minio:
       host: {{ template "core.minio" . }}
       port: {{ .Values.pipelineBackend.minio.port }}
-      rootuser: {{ .Values.pipelineBackend.minio.rootuser }}
-      rootpwd: {{ .Values.pipelineBackend.minio.rootpwd }}
+      user: {{ .Values.pipelineBackend.minio.user }}
+      password: {{ .Values.pipelineBackend.minio.password }}
       bucketname: {{ .Values.pipelineBackend.minio.bucketname }}
       secure: {{ .Values.pipelineBackend.minio.secure }}
     apigateway:
