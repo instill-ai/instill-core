@@ -20,6 +20,7 @@ data:
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
+      logminioaudit: {{ .Values.artifactBackend.logMinIOAudit }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
       password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
