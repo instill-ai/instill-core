@@ -85,6 +85,10 @@ data:
       host: {{ template "core.pipelineBackend" . }}
       publicport: {{ template "core.pipelineBackend.publicPort" . }}
       privateport: {{ template "core.pipelineBackend.privatePort" . }}
+    modelbackend:
+      host: {{ template "core.modelBackend" . }}
+      publicport: {{ template "core.modelBackend.publicPort" . }}
+      privateport: {{ template "core.modelBackend.privatePort" . }}
     milvus:
       host: {{ template "core.milvus" . }}
       port: {{ template "core.milvus.port" . }}
