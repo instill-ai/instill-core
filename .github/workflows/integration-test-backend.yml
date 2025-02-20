@@ -52,9 +52,9 @@ jobs:
         # connection creation on `pipeline-backend`.
         run: |
           if [ "${{ inputs.target }}" == "latest" ]; then
-            make latest BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test COMPONENT_ENV=.env.component-test
+            make latest EDITION=local-ce:test COMPONENT_ENV=.env.component-test
           else
-            make all BUILD_CORE_DEV_IMAGE=true EDITION=local-ce:test COMPONENT_ENV=.env.component-test
+            make all EDITION=local-ce:test COMPONENT_ENV=.env.component-test
           fi
 
       - name: Uppercase component name
