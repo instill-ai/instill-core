@@ -621,7 +621,6 @@ artifactBackend:
     user: minioadmin
     password: minioadmin
     bucketname: instill-ai-knowledge-bases
-  logMinIOAudit: true
   numberOfWorkers: 20
   blob:
     hostport: http://localhost:8080
