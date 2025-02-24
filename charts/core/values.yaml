@@ -243,6 +243,7 @@ usage:
   port: 443
 # -- The configuration of api-gateway
 apiGateway:
+  imagePullSecrets:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
@@ -302,6 +303,7 @@ apiGateway:
       maxUnavailable:
 # -- The configuration of mgmt-backend
 mgmtBackend:
+  imagePullSecrets:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
@@ -374,6 +376,7 @@ mgmtBackend:
     serverName:
 # -- The configuration of pipeline-backend
 pipelineBackend:
+  imagePullSecrets:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
@@ -463,6 +466,7 @@ pipelineBackend:
     secure: false
 # -- The configuration of model-backend
 modelBackend:
+  imagePullSecrets:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
@@ -556,6 +560,7 @@ modelBackend:
 artifactBackend:
   # -- Enable artifact-backend deployment
   enabled: true
+  imagePullSecrets:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
@@ -708,6 +713,7 @@ rayService:
     tag: 0.5.0-alpha
     pullPolicy: IfNotPresent
   headGroupSpec:
+    imagePullSecrets:
     resources:
       limits:
         cpu: "1"
@@ -724,6 +730,7 @@ rayService:
       minReplicas: 1
       maxReplicas: 1
       groupName: "cpu-group"
+      imagePullSecrets:
       gpuWorkerGroup:
         enabled: false
         # https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/kuberay/ray-cluster.complete.yaml#L39
