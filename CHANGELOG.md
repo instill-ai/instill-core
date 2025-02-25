@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.49.0-beta](https://github.com/instill-ai/instill-core/compare/v0.48.1-beta...v0.49.0-beta) (2025-02-25)
+
+
+### Features
+
+* **minio:** emit MinIO audit logs to artifact-backend ([#1177](https://github.com/instill-ai/instill-core/issues/1177)) ([1574988](https://github.com/instill-ai/instill-core/commit/15749887296acf81fe6ef6409fb0fa9ea1358cb4))
+
+
+### Bug Fixes
+
+* **test:** inject dummy OAuth values in integration tests ([#1172](https://github.com/instill-ai/instill-core/issues/1172)) ([2540997](https://github.com/instill-ai/instill-core/commit/25409974d269465eb108fa08dac31e3e867c45eb))
+* **workflow:** fix release helm chart github action workflow ([#1169](https://github.com/instill-ai/instill-core/issues/1169)) ([616c6f1](https://github.com/instill-ai/instill-core/commit/616c6f16d983293a9284599684a4958eb0159ee9))
+
 ## [0.48.1-beta](https://github.com/instill-ai/instill-core/compare/v0.48.0-beta...v0.48.1-beta) (2025-01-20)
 
 
