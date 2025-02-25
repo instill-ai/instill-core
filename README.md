@@ -7,20 +7,15 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-31-blue.svg?label=All%20Contributors)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-
-✨ Make your unstructured data **AI-ready** FAST & build unique versatile **AI-first** applications EASILY. ✨
+A complete unstructured data solution: ETL processing, AI-readiness, open-source LLM hosting, and RAG capabilities in one powerful platform.
 
 ## Quick start
 
-There are a few ways to start exploring:
-
-1. **[Instill Cloud](https://instill.tech/featured/pipelines/?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Explore our public cloud powered by [Instill Core](https://github.com/instill-ai/instill-core) with ready-to-use APIs, automations, AI Assistants and more. See the [quickstart](https://www.instill.tech/docs/quickstart#%EF%B8%8F-instill-cloud) on how to get started.
-2. **Self-hosting Instill Core**: Follow the [installation](#installation) steps below or [documentation](https://www.instill.tech/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details to build versatile AI applications locally.
-
+Follow the [installation](#installation) steps below or [documentation](https://www.instill-ai.dev/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details to build versatile AI applications locally.
 
 ## What is Instill Core?
 
-**[Instill Core](https://github.com/instill-ai/instill-core)** is your end-to-end AI platform for data, pipeline and model orchestration.
+[**Instill Core**](https://github.com/instill-ai/instill-core) is an end-to-end AI platform for data, pipeline and model orchestration.
 
 <div align="center">
   <picture>
@@ -30,37 +25,36 @@ There are a few ways to start exploring:
   </picture>
 </div>
 
-**Instill Core** simplifies infrastructure hassle and encompasses these core features:
+🔮 **Instill Core** simplifies infrastructure hassle and encompasses these core features:
 
-- **DATA - [Instill Artifact](https://www.instill.tech/docs/artifact/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Transforms unstructured data (documents, images, audio, video) into AI-ready formats.
-- **PIPELINE - [Instill VDP](https://www.instill.tech/docs/vdp/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: Quickly build any versatile AI-first APIs or automated workflows.
-- **MODEL - [Instill Model](https://www.instill.tech/docs/model/introduction//?utm_source=github&utm_medium=readme&utm_campaign=org_readme)**: MLOps/LLMOps platform for model serving and monitoring.
+- 💧 [**Pipeline**](https://www.instill-ai.dev/docs/vdp/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Quickly build versatile AI-first APIs or automated workflows.
+- ⚗️ [**Model**](https://www.instill-ai.dev/docs/model/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Deploy and monitor AI models without GPU infrastructure hassles.
+- 💾 [**Artifact**](https://www.instill-ai.dev/docs/artifact/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Transform unstructured data (e.g., documents, images, audio, video) into AI-ready formats.
+- ⚙️ [**Component**](https://www.instill-ai.dev/docs/component/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Connect essential building blocks to construct powerful pipelines.
 
-
-## What can you build? 
+## What can you build?
 
 - 📖 Parsing PDF Files to Markdown: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Parsing_pdf_files.ipynb)
-- 🧱 Generating Structured Outputs from LLMs: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Generating_structured_outputs.ipynb) & [Tutorial](https://www.instill.tech/blog/llm-structured-outputs)
-- 🕸️ Web scraping & Google Search with Structured Insights: [Tutorial](https://www.instill.tech/blog/mastering-openai-structured-outputs) & [YouTube](https://www.youtube.com/watch?v=x0XsmuCrit8)
+- 🧱 Generating Structured Outputs from LLMs: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Generating_structured_outputs.ipynb) & [Tutorial](https://www.instill-ai.com/blog/llm-structured-outputs)
+- 🕸️ Web scraping & Google Search with Structured Insights
 - 🌱 Instance segmentation on microscopic plant stomata images: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Instance_segmentation_stomavision.ipynb)
 
-See [Examples](https://www.instill.tech/docs/examples) for more!
+See [Examples](https://www.instill-ai.dev/docs/examples) for more!
 
 
 ## Installation
 
 ### Prerequisites
 
-| Operating System | Requirements and Instructions |
-|------------------|--------------------------------|
-| macOS or Linux   | Instill Core works natively |
+| Operating System | Requirements and Instructions                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS or Linux   | Instill Core works natively                                                                                                                                                                                                                                                                                                                                                                                |
 | Windows          | • Use Windows Subsystem for Linux (WSL2)<br>• Install latest `yq` from [GitHub Repository](https://github.com/mikefarah/yq)<br>• Install latest Docker Desktop and enable WSL2 integration ([tutorial](https://docs.docker.com/desktop/wsl))<br>• (Optional) Install `cuda-toolkit` on WSL2 ([NVIDIA tutorial](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2)) |
-| All Systems      | • Docker Engine v25 or later<br>• Docker Compose v2 or later<br>• Install latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) |
-
+| All Systems      | • Docker Engine v25 or later<br>• Docker Compose v2 or later<br>• Install latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)                                                                                                                                                                                                       |
 
 ### Steps
 
-**Use stable release version**
+#### Use stable release version
 
 Execute the following commands to pull pre-built images with all the dependencies to launch:
 
@@ -76,7 +70,7 @@ $ make all
 > [!NOTE]
 > We have restructured our project repositories. If you need to access **🔮 Instill Core** projects up to version `v0.13.0-beta`, please refer to the [instill-ai/deprecated-core](https://github.com/instill-ai/deprecated-core) repository.
 
-**Use the latest version for local development**
+#### Use the latest version for local development
 
 Execute the following commands to build images with all the dependencies to launch:
 
@@ -90,47 +84,37 @@ $ make latest PROFILE=all
 > [!IMPORTANT]
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/instill-core/releases).
 
-🚀 That's it! Once all the services are up with health status, the UI is ready to go at http://localhost:3000. Please find the default login credentials in the [documentation](https://www.instill.tech/docs/latest/quickstart#self-hosted-instill-core).
+🚀 That's it! Once all the services are up with health status, the UI is ready to go at <http://localhost:3000>. Please find the default login credentials in the [documentation](https://www.instill-ai.dev/docs/latest/quickstart#self-hosted-instill-core).
 
 To shut down all running services:
-```
-$ make down
-```
 
-Explore the [documentation](https://www.instill.tech/docs/latest/core/deployment) to discover all available deployment options.
+```shell
+make down
+```
 
 ## Deployment
 
-You can either self-host **🔮 Instill Core** or choose our fully managed **☁️ Instill Cloud** to get access to all the latest features. Visit the [Deployment Overview](https://www.instill.tech/docs/core/deployment) for more details.
-
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-deployment-light.svg">
-    <img alt="🔮 Instill Core - Deployment" src="https://raw.githubusercontent.com/instill-ai/.github/main/img/instill-core-stack-light.svg" width=70%>
-  </picture>
-</div>
-
+Visit the [Deployment Overview](https://www.instill-ai.dev/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details.
 
 ## Client Access
 
-- <b>📺 <a href="https://github.com/instill-ai/console" target="_blank">Instill Console</a></b>
-- <b>⌨️ <a href="https://github.com/instill-ai/cli" target="_blank">Instill CLI</a></b>
-- <b>📦 Instill SDK</b>:
+- <b>📺 <a href="https://github.com/instill-ai/console" target="_blank">Console</a></b>
+- <b>⌨️ <a href="https://github.com/instill-ai/cli" target="_blank">CLI</a></b>
+- <b>📦 SDK</b>:
   - [Python SDK](https://github.com/instill-ai/python-sdk)
   - [TypeScript SDK](https://github.com/instill-ai/typescript-sdk)
   - Stay tuned, as more SDKs are on the way!
 
 ## Documentation
 
-Please visit our [official documentation](https://www.instill.tech/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) for more.
+Please visit our [official documentation](https://www.instill-ai.dev/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) for more.
 
 Additional resources:
 
 - [API Reference](https://openapi.instill.tech)
 - [Cookbooks](https://github.com/instill-ai/cookbook)
-- [Tutorials](https://www.instill.tech/blog)
-- [Examples](https://www.instill.tech/docs/examples)
+- [Tutorials](https://www.instill-ai.dev/blog)
+- [Examples](https://www.instill-ai.dev/docs/examples)
 
 ## Contributing
 
@@ -138,7 +122,7 @@ We welcome contributions from our community! Checkout the methods below:
 
 1. **Cookbooks**: Help us create helpful pipelines and guides for the community. Visit our [Cookbook repository](https://github.com/instill-ai/cookbook) to get started.
 
-2. **Issues**: Contribute to improvements by raising tickets using [templates here](https://github.com/instill-ai/instill-core/issues/new/choose) or discuss in existing ones you think you can help with. 
+2. **Issues**: Contribute to improvements by raising tickets using [templates here](https://github.com/instill-ai/instill-core/issues/new/choose) or discuss in existing ones you think you can help with.
 
 ### Community Standards
 
@@ -150,7 +134,6 @@ We are committed to maintaining a respectful and welcoming atmosphere for all co
 ### Support
 
 Get help by joining our [Discord community](https://discord.gg/sevxWsqpGh) where you can post any questions on our `#ask-for-help` channel.
-
 
 ## Contributors ✨
 
