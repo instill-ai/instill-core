@@ -246,7 +246,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.31.0-beta
+    tag: 0.32.0-beta
     pullPolicy: IfNotPresent
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
@@ -305,7 +305,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.22.0-beta
+    tag: 0.22.1-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -377,7 +377,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.49.0-beta
+    tag: 0.51.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -466,7 +466,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.34.0-alpha
+    tag: 0.35.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -559,7 +559,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.22.0-alpha
+    tag: 0.23.0-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -1397,7 +1397,7 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
-  # -- The configuration of registry
+      # -- The configuration of registry
 registry:
   enabled: true
   image:
