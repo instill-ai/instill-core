@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -129,28 +130,6 @@ spec:
         {{- toYaml . | indent 8 }}
         {{- end }}
       containers:
-        - name: pipeline-backend-worker
-          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
-          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
-          livenessProbe:
-            tcpSocket:
-              port: rpc
-          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
-          resources:
-            {{- toYaml .Values.pipelineBackend.containers.pipelineBackendWorker.resources | nindent 12 }}
-          {{- end }}
-          command: [./{{ .Values.pipelineBackend.commandName.worker }}]
-          env:
-          {{- if .Values.pipelineBackend.extraEnv }}
-            {{- toYaml .Values.pipelineBackend.extraEnv | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            - name: config
-              mountPath: {{ .Values.pipelineBackend.configPath }}
-              subPath: config.yaml
-            {{- with .Values.pipelineBackend.extraVolumeMounts }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
         - name: pipeline-backend
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
@@ -217,6 +196,92 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.pipelineBackend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "core.pipelineBackendWorker" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend-worker
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.pipelineBackendWorker.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.pipelineBackendWorker.autoscaling.enabled }}
+  replicas: {{ .Values.pipelineBackendWorker.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pipeline-backend-worker
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pipeline-backend-worker
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/pipeline-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.pipelineBackendWorker.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: pipeline-backend-worker
+          image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
+          imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: rpc
+          {{- if .Values.pipelineBackendWorker.resources }}
+          resources:
+            {{- toYaml .Values.pipelineBackendWorker.resources | nindent 12 }}
+          {{- end }}
+          command: ["./{{ .Values.pipelineBackendWorker.commandName.worker }}"]
+          env:
+          {{- if .Values.pipelineBackendWorker.extraEnv }}
+            {{- toYaml .Values.pipelineBackendWorker.extraEnv | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.pipelineBackendWorker.configPath }}
+              subPath: config.yaml
+            {{- with .Values.pipelineBackendWorker.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "core.pipelineBackendWorker" . }}
+        {{- with .Values.pipelineBackendWorker.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackendWorker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pipelineBackendWorker.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
