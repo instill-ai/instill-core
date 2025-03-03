@@ -262,16 +262,16 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config
-              mountPath: {{ .Values.pipelineBackendWorker.configPath }}
+              mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
-            {{- with .Values.pipelineBackendWorker.extraVolumeMounts }}
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.pipelineBackendWorker" . }}
-        {{- with .Values.pipelineBackendWorker.extraVolumes }}
+            name: {{ template "core.pipelineBackend" . }}
+        {{- with .Values.pipelineBackend.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.pipelineBackendWorker.nodeSelector }}
