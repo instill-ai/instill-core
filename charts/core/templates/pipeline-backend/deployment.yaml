@@ -274,6 +274,7 @@ spec:
         {{- with .Values.pipelineBackendWorker.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- with .Values.pipelineBackendWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
