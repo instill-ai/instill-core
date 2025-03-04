@@ -148,6 +148,13 @@ pipeline-backend
   {{- printf "%s-pipeline-backend" (include "core.fullname" .) -}}
 {{- end -}}
 
+{{/*
+pipeline-backend-worker
+*/}}
+{{- define "core.pipelineBackendWorker" -}}
+  {{- printf "%s-pipeline-backend-worker" (include "core.fullname" .) -}}
+{{- end -}}
+
 {{/* pipeline service and container public port */}}
 {{- define "core.pipelineBackend.publicPort" -}}
   {{- printf "8081" -}}

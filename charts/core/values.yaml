@@ -386,7 +386,6 @@ pipelineBackend:
     migration: pipeline-backend-migrate
     init: pipeline-backend-init
     main: pipeline-backend
-    worker: pipeline-backend-worker
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
   # -- The database migration version
@@ -461,6 +460,39 @@ pipelineBackend:
     password: minioadmin
     bucketname: instill-ai-vdp
     secure: false
+pipelineBackendWorker:
+  # -- Annotation for deployment
+  annotations: {}
+  # -- The command names to be executed
+  commandName:
+    worker: pipeline-backend-worker
+  # -- The path of configuration file for pipeline-backend-worker
+  configPath: /pipeline-backend/config/config.yaml
+  # -- The number of replica for pipeline-backend-worker
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Additional deployment annotations
+  podAnnotations: {}
+  resources: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
