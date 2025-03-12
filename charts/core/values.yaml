@@ -18,8 +18,8 @@ logLevel: info
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
-# -- The maximum data payload to Model cluster (MB)
-maxDataSizeMB: 32
+# -- The maximum data payload to backend services (MB)
+maxDataSizeMB: 512
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
 expose:
