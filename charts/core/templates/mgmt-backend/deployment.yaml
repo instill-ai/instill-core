@@ -44,7 +44,7 @@ spec:
       {{- end }}
       automountServiceAccountToken: {{ .Values.mgmtBackend.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.mgmtBackend.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
