@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.49.1-beta](https://github.com/instill-ai/instill-core/compare/v0.49.0-beta...v0.49.1-beta) (2025-03-21)
+
+
+### Bug Fixes
+
+* **worker:** use pipeline server host in pipeline client ([#1188](https://github.com/instill-ai/instill-core/issues/1188)) ([444b358](https://github.com/instill-ai/instill-core/commit/444b35866dd277b6665d9a2a779338331e275301))
+
 ## [0.49.0-beta](https://github.com/instill-ai/instill-core/compare/v0.48.1-beta...v0.49.0-beta) (2025-02-25)
 
 
