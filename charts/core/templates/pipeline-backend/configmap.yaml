@@ -25,6 +25,7 @@ data:
         cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
         key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
       {{- end }}
+      instanceid: {{ template "core.pipelineBackend" . }}
     connector:
       instill:
         usestaticmodellist: {{ .Values.pipelineBackend.useStaticModelList }}
