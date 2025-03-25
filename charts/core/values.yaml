@@ -1186,6 +1186,8 @@ influxdbCloud:
   token: "i-love-instill-ai"
   organization: "instill-ai"
   bucket: "instill-ai"
+  influxdbCloudSecretName: ""
+  influxdbCloudSecretKey: ""
 # -- The configuration of InfluxDB 2
 influxdb2:
   enabled: true

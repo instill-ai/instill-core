@@ -527,3 +527,18 @@ minio
     {{- "" -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "influxdbCloudToken" -}}
+{{- $token := (lookup "v1" "Secret" .Release.Namespace .Values.influxdbCloud.influxdbCloudSecretName) -}}
+{{- if and $token $token.data -}}
+    {{- if hasKey $token.data .Values.influxdbCloud.influxdbCloudSecretKey -}}
+        {{- index $token.data .Values.influxdbCloud.influxdbCloudSecretKey | b64dec -}}
+    {{- else -}}
+        {{- /* Return empty if password key doesn't exist */ -}}
+        {{- "" -}}
+    {{- end -}}
+{{- else -}}
+    {{- /* Return empty if secret doesn't exist or has no data */ -}}
+    {{- "" -}}
+{{- end -}}
+{{- end -}}
