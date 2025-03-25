@@ -22,7 +22,7 @@ data:
       maxdatasize: {{ .Values.maxDataSizeMB }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ default (include "core.database.rawPassword" .) .Values.database.external.password }}
+      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}      
       host: {{ default (include "core.database.host" .) .Values.database.external.host }}
       port: {{ default (include "core.database.port" .) .Values.database.external.port }}
       {{- if .Values.database.external_replica }}
