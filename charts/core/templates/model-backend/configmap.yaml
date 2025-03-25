@@ -106,7 +106,7 @@ data:
       port: {{ template "core.registry.port" . }}
     influxdb:
       url: {{ .Values.influxdbCloud.url }}
-      token: {{ .Values.influxdbCloud.token }}
+      token: {{ include "influxdbCloudToken" . | default .Values.influxdbCloud.token }}
       org: {{ .Values.influxdbCloud.organization }}
       bucket: {{ .Values.influxdbCloud.bucket }}
       flushinterval: 10s

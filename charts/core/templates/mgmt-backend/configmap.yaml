@@ -54,7 +54,7 @@ data:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     influxdb:
       url: {{ .Values.influxdbCloud.url }}
-      token: {{ .Values.influxdbCloud.token }}
+      token: {{ include "influxdbCloudToken" . | default .Values.influxdbCloud.token }}
       org: {{ .Values.influxdbCloud.organization }}
       bucket: {{ .Values.influxdbCloud.bucket }}
       flushinterval: 10s
