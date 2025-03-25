@@ -33,7 +33,7 @@ The env variable `PROFILE` is intended to specify which service component you wa
 
 - `{service}`
 
-  When you set `PROFILE=exclude-{service}`, in which `{service}` can be  `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all other services. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
+  When you set `PROFILE=exclude-{service}`, in which `{service}` can be  `pipeline`, it means you want to develop on that particular service. The `make` command will launch the corresponding stack **WITHOUT** that service component and **WITH** all other dependent services. Given that, you can later on spin up and down the `{service}` in your dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend#local-dev) as an example.
 
 #### Component environment variables
 
