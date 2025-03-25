@@ -512,3 +512,18 @@ minio
 {{- define "core.minio.port" -}}
   {{- printf "9000" -}}
 {{- end -}}
+
+{{- define "databasePasswordSecret" -}}
+{{- $secret := (lookup "v1" "Secret" .Release.Namespace .Values.database.external.dbSecretName) -}}
+{{- if and $secret $secret.data -}}
+    {{- if hasKey $secret.data .Values.database.external.dbSecretKey -}}
+        {{- index $secret.data .Values.database.external.dbSecretKey | b64dec -}}
+    {{- else -}}
+        {{- /* Return empty if password key doesn't exist */ -}}
+        {{- "" -}}
+    {{- end -}}
+{{- else -}}
+    {{- /* Return empty if secret doesn't exist or has no data */ -}}
+    {{- "" -}}
+{{- end -}}
+{{- end -}}

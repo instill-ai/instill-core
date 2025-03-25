@@ -1121,6 +1121,8 @@ database:
     port:
     username:
     password:
+    dbSecretName: ""
+    dbSecretKey: ""
   external_replica:
     host:
     port:
