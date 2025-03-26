@@ -59,7 +59,6 @@ services:
         SERVICE_VERSION: ${MODEL_BACKEND_IMAGE}
         GOLANG_VERSION: ${GOLANG_VERSION}
         UBUNTU_VERSION: ${UBUNTU_VERSION}
-        ARTIVC_VERSION: ${ARTIVC_VERSION}
 
   console:
     profiles:

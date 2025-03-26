@@ -1192,25 +1192,6 @@ influxdb2:
   enabled: true
   service:
     port: 8086
-  adminUser:
-    organization: "instill-ai"
-    bucket: "krakend"
-    retention_policy: "1w"
-    user: "admin"
-    password: "password"
-    token: "i-love-instill-ai"
-  env:
-    - name: DOCKER_INFLUXDB_BUCKET_VDP
-      value: instill-ai
-  initScripts:
-    enabled: true
-    scripts:
-      init.sh: |
-        #!/bin/bash
-        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
-        influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
-        influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
-        influx bucket create --name ${DOCKER_INFLUXDB_BUCKET_VDP} --org ${DOCKER_INFLUXDB_INIT_ORG} --token ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN} --retention ${DOCKER_INFLUXDB_INIT_RETENTION}
 # -- The configuration of Jaeger
 jaeger:
   provisionDataStore:

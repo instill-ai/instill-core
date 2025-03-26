@@ -71,7 +71,7 @@ spec:
             {{- end }}
             env:
               - name: RAY_GRAFANA_IFRAME_HOST
-                value: http://127.0.0.1:3002
+                value: http://127.0.0.1:3001
               - name: RAY_GRAFANA_HOST
                 value: http://core-grafana:80
               - name: RAY_PROMETHEUS_HOST

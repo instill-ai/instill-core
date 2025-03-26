@@ -21,10 +21,8 @@ services:
   prometheus:
     container_name: ${PROMETHEUS_HOST}
     image: ${PROMETHEUS_IMAGE}:v${PROMETHEUS_VERSION}
-    command:
-      - --config.file=/configs/prometheus/config.yaml
     volumes:
-      - ${CONFIG_DIR_PATH}:/configs
+      - ${CONFIG_DIR_PATH}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - ${PROMETHEUS_PORT}:9090
 
@@ -38,7 +36,7 @@ services:
     volumes:
       - ${CONFIG_DIR_PATH}/grafana/datasources/all.yml:/etc/grafana/provisioning/datasources/all.yml
       - ${CONFIG_DIR_PATH}/grafana/dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yml
-      - ${CONFIG_DIR_PATH}/grafana/krakend:/var/lib/grafana/dashboards/krakend
+      - ${CONFIG_DIR_PATH}/grafana/api-gateway:/var/lib/grafana/dashboards/api-gateway
       - ${CONFIG_DIR_PATH}/grafana/ray:/var/lib/grafana/dashboards/ray
       - ${CONFIG_DIR_PATH}/grafana/temporal:/var/lib/grafana/dashboards/temporal
     ports:

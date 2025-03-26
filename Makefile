@@ -152,7 +152,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release >/dev/null 2>&1
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest >/dev/null 2>&1
 	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release >/dev/null 2>&1
-	@EDITION= DEFAULT_USER_UID= docker compose down -v
+	@EDITION= DEFAULT_USER_UID= docker compose down --remove-orphans -v
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10

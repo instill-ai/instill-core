@@ -518,12 +518,9 @@ services:
       DOCKER_INFLUXDB_INIT_USERNAME: admin
       DOCKER_INFLUXDB_INIT_PASSWORD: password
       DOCKER_INFLUXDB_INIT_ORG: instill-ai
-      DOCKER_INFLUXDB_INIT_BUCKET: krakend
       DOCKER_INFLUXDB_INIT_RETENTION: 1w
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: i-love-instill-ai
-      DOCKER_INFLUXDB_BUCKET_VDP: instill-ai
-    volumes:
-      - ${CONFIG_DIR_PATH}/influxdb:/docker-entrypoint-initdb.d
+      DOCKER_INFLUXDB_INIT_BUCKET: instill-ai
     ports:
       - ${INFLUXDB_PORT}:8086
     healthcheck:
@@ -577,7 +574,10 @@ services:
     command: milvus run standalone 1> /dev/null
     healthcheck:
       test:
-        ["CMD-SHELL", "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz"]
+        [
+          "CMD-SHELL",
+          "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz",
+        ]
       start_period: 20s
       interval: 30s
       timeout: 5s

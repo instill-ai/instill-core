@@ -54,7 +54,7 @@ echo http://$SERVICE_IP:{{ .Values.service.port }}
   echo "Access to the prometheus stack"
   echo "Prometheus UI at http://localhost:9090 by:"
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward $PROMETHEUS_POD_NAME 9090:${PROMETHEUS_CONTAINER_PORT}"
-  echo "Grafana UI at http://localhost:3002 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $GRAFANA_POD_NAME 3002:${GRAFANA_CONTAINER_PORT}"
+  echo "Grafana UI at http://localhost:3001 by:"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $GRAFANA_POD_NAME 3001:${GRAFANA_CONTAINER_PORT}"
   {{- end }}
 {{- end }}
