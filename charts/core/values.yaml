@@ -444,6 +444,7 @@ pipelineBackend:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  resources: {}
   podDisruptionBudget:
     enabled: false
     spec:
