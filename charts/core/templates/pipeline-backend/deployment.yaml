@@ -82,10 +82,6 @@ spec:
         - name: pipeline-backend-migration
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
-          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
-          resources:
-            {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
-          {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.migration }}]
           volumeMounts:
             - name: config
@@ -98,10 +94,6 @@ spec:
         - name: pipeline-backend-init
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
           imagePullPolicy: {{ .Values.pipelineBackend.image.pullPolicy }}
-          {{- if .Values.pipelineBackend.containers.pipelineBackendWorker.resources }}
-          resources:
-            {{- toYaml .Values.pipelineBackend.containers.pipelineBackendWorker.resources | nindent 12 }}
-          {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.init }}]
           volumeMounts:
             - name: config
@@ -148,10 +140,6 @@ spec:
             periodSeconds: 10
             initialDelaySeconds: 60
             timeoutSeconds: 10
-          {{- if .Values.pipelineBackend.containers.pipelineBackend.resources }}
-          resources:
-            {{- toYaml .Values.pipelineBackend.containers.pipelineBackend.resources | nindent 12 }}
-          {{- end }}
           command: [./{{ .Values.pipelineBackend.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public

@@ -435,17 +435,12 @@ pipelineBackend:
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
-  containers:
-    pipelineBackend:
-      resources: {}
-    pipelineBackendWorker:
-      resources: {}
   autoscaling:
     enabled: false
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -490,6 +485,8 @@ pipelineBackendWorker:
     enabled: false
     minReplicas:
     maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
   nodeSelector: {}
   tolerations: []
   affinity: {}

@@ -3,49 +3,65 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ template "core.pipelineBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ template "core.pipelineBackend" . }}
-    labels:
-    {{- include "core.labels" . | nindent 4 }}
-    app.kubernetes.io/component: pipeline-backend
   minReplicas: {{ .Values.pipelineBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackend.autoscaling.maxReplicas }}
   metrics:
-{{- with .Values.pipelineBackend.autoscaling.targetCPUUtilizationPercentage }}
+    {{- with .Values.pipelineBackend.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ . }}
-{{- end }}
-{{- with .Values.pipelineBackend.autoscaling.targetAverageMemoryUtilization }}
+          averageUtilization: {{ .Values.pipelineBackend.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- with .Values.pipelineBackend.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
-          type: AverageValue
-          averageValue: {{ . }}
+          type: Utilization
+          averageUtilization: {{ .Values.pipelineBackend.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
 {{- end }}
-{{- with .Values.pipelineBackend.autoscaling.pipelineBackendWorkerMemoryUtilization }}
-    - type: ContainerResource
-      containerResource:
-        name: memory
-        container: pipeline-backend-worker
+
+{{- if .Values.pipelineBackendWorker.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "core.pipelineBackendWorker" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend-worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "core.pipelineBackendWorker" . }}
+  minReplicas: {{ .Values.pipelineBackendWorker.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.pipelineBackendWorker.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.pipelineBackendWorker.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ . }}
-{{- end }}
-{{- with .Values.pipelineBackend.autoscaling.pipelineBackendMemoryUtilization }}
-    - type: ContainerResource
-      containerResource:
+          averageUtilization: {{ .Values.pipelineBackendWorker.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.pipelineBackendWorker.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
         name: memory
-        container: pipeline-backend
         target:
           type: Utilization
-          averageUtilization: {{ . }}
-{{- end }}
+          averageUtilization: {{ .Values.pipelineBackendWorker.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
 {{- end }}
