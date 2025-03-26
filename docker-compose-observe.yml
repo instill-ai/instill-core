@@ -1,3 +1,6 @@
+networks:
+  default:
+    name: instill-network
 services:
   otel_collector:
     container_name: ${OTEL_COLLECTOR_HOST}
@@ -37,5 +40,6 @@ services:
       - ${CONFIG_DIR_PATH}/grafana/dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yml
       - ${CONFIG_DIR_PATH}/grafana/krakend:/var/lib/grafana/dashboards/krakend
       - ${CONFIG_DIR_PATH}/grafana/ray:/var/lib/grafana/dashboards/ray
+      - ${CONFIG_DIR_PATH}/grafana/temporal:/var/lib/grafana/dashboards/temporal
     ports:
       - ${GRAFANA_PORT}:3000

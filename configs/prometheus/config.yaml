@@ -8,3 +8,10 @@ scrape_configs:
   - job_name: "ray"
     static_configs:
       - targets: ["ray-server:8079"]
+  - job_name: "temporalsdkmetrics"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - pipeline-backend:8096
+          - pipeline-backend-worker:8096
