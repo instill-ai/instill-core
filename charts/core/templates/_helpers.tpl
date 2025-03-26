@@ -271,6 +271,11 @@ temopral
   {{- printf "8088" -}}
 {{- end -}}
 
+{{/* temporal metrics core at the service using the SDK */}}
+{{- define "core.temporal.metrics.port" -}}
+  {{- printf "8096" -}}
+{{- end -}}
+
 {{- define "core.kuberay-operator" -}}
   {{- printf "%s-kuberay-operator" (include "ray.fullname" .) -}}
 {{- end -}}

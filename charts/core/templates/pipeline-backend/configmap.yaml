@@ -91,10 +91,12 @@ data:
     temporal:
       hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
       namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
-      ca: {{ default "" .Values.pipelineBackend.temporal.ca }}
-      cert: {{ default "" .Values.pipelineBackend.temporal.cert }}
-      key: {{ default "" .Values.pipelineBackend.temporal.key }}
-      serverName: {{ default "" .Values.pipelineBackend.temporal.serverName }}
+      servername: {{ default "" .Values.pipelineBackend.temporal.serverName }}
+      serverrootca: {{ default "" .Values.pipelineBackend.temporal.serverRootCA }}
+      clientcert: {{ default "" .Values.pipelineBackend.temporal.clientCert }}
+      clientkey: {{ default "" .Values.pipelineBackend.temporal.clientKey }}
+      insecureskipverify: {{ default "true" .Values.pipelineBackend.temporal.insecureSkipVerify }}
+      metricsport: {{ template "core.temporal.metrics.port" . }}
     log:
       external: {{ .Values.tags.observability }}
       otelcollector:
