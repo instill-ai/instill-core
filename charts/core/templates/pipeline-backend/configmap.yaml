@@ -109,9 +109,6 @@ data:
         port: 8083
         replicationtimeframe: 1
       {{- end }}
-    instillcloud:
-      host: api.instill.tech
-      port: 443
     minio:
       host: {{ template "core.minio" . }}
       port: {{ .Values.pipelineBackend.minio.port }}
