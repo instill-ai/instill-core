@@ -53,10 +53,10 @@ data:
     rayserver:
       grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
       modelstore: /model-config
-      vram: {{ .Values.rayService.vram }}
+      vram: {{ .Values.ray.vram }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}      
+      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}
       host: {{ default (include "core.database.host" .) .Values.database.external.host }}
       port: {{ default (include "core.database.port" .) .Values.database.external.port }}
       {{- if .Values.database.external_replica }}
@@ -98,7 +98,7 @@ data:
         replicationtimeframe: 1
       {{- end }}
     registry:
-      {{- if .Values.rayService.namespaceOverride }}
+      {{- if .Values.ray.namespaceOverride }}
       host: {{ include "core.registry" . }}.{{ include "core.namespace" . }}.svc.cluster.local
       {{- else }}
       host: {{ template "core.registry" . }}

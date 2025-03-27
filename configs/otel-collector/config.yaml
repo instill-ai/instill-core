@@ -16,8 +16,8 @@ processors:
 
 # (3) Exporters
 exporters:
-  logging: # aka, stdOut/stdErr
-  jaeger:
+  debug:
+  otlp:
     endpoint: jaeger:14250
     tls:
       insecure: true
@@ -34,8 +34,8 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, jaeger]
+      exporters: [debug, otlp]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging, prometheus]
+      exporters: [debug, prometheus]

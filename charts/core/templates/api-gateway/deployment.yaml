@@ -54,8 +54,7 @@ spec:
           args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1beta/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done &&
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done &&
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${INFLUXDB_HOST}:${INFLUXDB_PORT}/health)" != "200" ]]; do echo waiting for influxdb; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
           env:
             - name: MGMT_BACKEND_HOST
               value: "{{ template "core.mgmtBackend" . }}"
@@ -65,10 +64,6 @@ spec:
               value: "{{ template "core.pipelineBackend" . }}"
             - name: PIPELINE_BACKEND_PORT
               value: "{{ template "core.pipelineBackend.publicPort" . }}"
-            - name: INFLUXDB_HOST
-              value: "{{ template "core.influxdb" . }}"
-            - name: INFLUXDB_PORT
-              value: "{{ template "core.influxdb.port" . }}"
         {{- if .Values.temporal.enabled }}
         - name: temporal-admin-tools
           securityContext:

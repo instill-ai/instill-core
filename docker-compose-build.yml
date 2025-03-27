@@ -26,7 +26,6 @@ services:
       context: ./${MGMT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${MGMT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}
 
   pipeline_backend:
     profiles:
@@ -57,9 +56,6 @@ services:
       args:
         SERVICE_NAME: ${MODEL_BACKEND_HOST}
         SERVICE_VERSION: ${MODEL_BACKEND_IMAGE}
-        GOLANG_VERSION: ${GOLANG_VERSION}
-        UBUNTU_VERSION: ${UBUNTU_VERSION}
-        ARTIVC_VERSION: ${ARTIVC_VERSION}
 
   console:
     profiles:
@@ -101,4 +97,3 @@ services:
       context: ./${ARTIFACT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${ARTIFACT_BACKEND_HOST}
-        GOLANG_VERSION: ${GOLANG_VERSION}

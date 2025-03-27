@@ -35,15 +35,6 @@ data:
     ARTIFACT_BACKEND_PUBLICPORT={{ template "core.artifactBackend.publicPort" . }}
     ARTIFACT_BACKEND_PRIVATEPORT={{ template "core.artifactBackend.privatePort" . }}
 
-    # influxdb
-    INFLUXDB_HOST={{ template "core.influxdb" . }}
-    INFLUXDB_PORT={{ template "core.influxdb.port" . }}
-
-    # jaeger
-    JAEGER_ENABLED={{ .Values.tags.observability }}
-    JAEGER_HOST={{ template "core.jaeger" . }}
-    JAEGER_PORT={{ template "core.jaeger.port" . }}
-
     # registry
     REGISTRY_HOST={{ template "core.registry" . }}
     REGISTRY_PORT={{ template "core.registry.port" . }}

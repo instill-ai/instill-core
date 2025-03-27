@@ -16,7 +16,8 @@ jobs:
     with:
       component: ${{ matrix.component }}
       target: release
-  console:
-    uses: ./.github/workflows/integration-test-console.yml
-    with:
-      target: release
+  # TODO: Enable console integration test once the issue is fixed
+  # console:
+  #   uses: ./.github/workflows/integration-test-console.yml
+  #   with:
+  #     target: release

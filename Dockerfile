@@ -1,4 +1,4 @@
-ARG ALPINE_VERSION=3.18
+ARG ALPINE_VERSION=3.21
 FROM golang:alpine${ALPINE_VERSION} AS base
 
 RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
@@ -31,7 +31,6 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG CONTROLLER_MODEL_VERSION
 RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
 RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
@@ -51,7 +50,7 @@ RUN echo "Instill Core release codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION ARTIFACT_BACKEND_VERSION CONTROLLER_MODEL_VERSION
+ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION ARTIFACT_BACKEND_VERSION
 RUN git clone --depth=1 -b v${API_GATEWAY_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
 RUN git clone --depth=1 -b v${MGMT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 -b v${CONSOLE_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/console.git

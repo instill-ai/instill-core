@@ -48,7 +48,7 @@ expose:
       secretName: ""
   ingress:
     hosts:
-      apiGateway: api.instill.tech
+      apiGateway: api.instill-ai.com
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
     # set to `gce` if using the GCE ingress controller
@@ -721,7 +721,7 @@ kuberay-operator:
   watchNamespace:
     - "instill-ai"
 # -- The configuration of Ray
-rayService:
+ray:
   namespaceOverride:
   vram:
   spec:
@@ -1192,25 +1192,16 @@ influxdb2:
   enabled: true
   service:
     port: 8086
+
+  # Admin user configuration
   adminUser:
-    organization: "instill-ai"
-    bucket: "krakend"
-    retention_policy: "1w"
-    user: "admin"
-    password: "password"
-    token: "i-love-instill-ai"
-  env:
-    - name: DOCKER_INFLUXDB_BUCKET_VDP
-      value: instill-ai
-  initScripts:
-    enabled: true
-    scripts:
-      init.sh: |
-        #!/bin/bash
-        BUCKET_ID=$(influx bucket list | grep "$DOCKER_INFLUXDB_INIT_BUCKET" | awk '{print $1}')
-        influx v1 dbrp create --db ${DOCKER_INFLUXDB_INIT_BUCKET} --rp ${DOCKER_INFLUXDB_INIT_RETENTION} --bucket-id ${BUCKET_ID} --default
-        influx v1 auth create --username ${DOCKER_INFLUXDB_INIT_USERNAME} --password ${DOCKER_INFLUXDB_INIT_PASSWORD} --write-bucket ${BUCKET_ID} --org ${DOCKER_INFLUXDB_INIT_ORG}
-        influx bucket create --name ${DOCKER_INFLUXDB_BUCKET_VDP} --org ${DOCKER_INFLUXDB_INIT_ORG} --token ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN} --retention ${DOCKER_INFLUXDB_INIT_RETENTION}
+    user: admin
+    organization: instill-ai
+    bucket: instill-ai
+    retention_policy: 1w
+    # These values are only used if existingSecret is not set
+    password: password
+    token: i-love-instill-ai
 # -- The configuration of Jaeger
 jaeger:
   provisionDataStore:
@@ -1230,10 +1221,13 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   mode: deployment
+  # This is required and recommanded for the upgrade from 0.88.0 to 0.89.0
+  # https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/UPGRADING.md#0880-to-0890
+  image:
+    repository: "otel/opentelemetry-collector-k8s"
   ports:
     jaeger-compact:
       enabled: false
@@ -1271,115 +1265,136 @@ opentelemetry-collector:
       batch:
         send_batch_size: 8192
     exporters:
-      logging: {} # aka, stdOut/stdErr
-      jaeger:
+      debug: {}
+      otlp:
         endpoint: core-jaeger-collector:14250
         tls:
           insecure: true
-      prometheus:
-        endpoint: ${env:MY_POD_IP}:9001
-        namespace: instill-ai
-        send_timestamps: true
-        enable_open_metrics: true
     service:
       pipelines:
-        traces:
-          receivers:
-            - otlp
-          processors:
-            - memory_limiter
-            - batch
-          exporters:
-            - logging
-            - jaeger
-        metrics:
-          receivers:
-            - otlp
-          processors:
-            - memory_limiter
-            - batch
-          exporters:
-            - logging
-            - prometheus
         logs:
-          receivers:
-            - otlp
+          exporters:
+            - debug
           processors:
             - memory_limiter
             - batch
+          receivers:
+            - otlp
+        metrics:
           exporters:
-            - logging
+            - debug
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
+            - prometheus
+        traces:
+          exporters:
+            - debug
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
+            - jaeger
 # -- The configuration of Prometheus Stack
 kube-prometheus-stack:
   nameOverride: core
   fullnameOverride: core
+  nodeExporter:
+    enabled: false
   alertmanager:
-    alertmanagerSpec:
-      podMetadata:
-        name: alertmanager
-  grafana:
     enabled: false
   prometheus:
+    enabled: true
     prometheusSpec:
-      podMetadata:
-        name: prometheus
-# -- The configuration of Grafana
-grafana:
-  grafana.ini:
-    security:
+      scrapeInterval: 5s
+      evaluationInterval: 10s
+      additionalScrapeConfigs:
+        - job_name: "temporal"
+          metrics_path: /metrics
+          scheme: http
+          static_configs:
+            - targets:
+                - core-pipeline-backend:8096
+                - core-pipeline-backend-worker:8096
+              labels:
+                app: temporal
+        - job_name: "otel-collector"
+          static_configs:
+            - targets:
+                - "core-opentelemetry-collector:9001"
+              labels:
+                app: opentelemetry-collector
+        - job_name: "ray"
+          static_configs:
+            - targets:
+                - "core-ray-head-svc:8080"
+              labels:
+                app: ray
+        - job_name: "api-gateway"
+          scrape_interval: 5s
+          static_configs:
+            - targets:
+                - "core-api-gateway:8071"
+              labels:
+                app: api-gateway
+  grafana:
+    enabled: true
+    admin:
+      existingSecret: "core-grafana-admin-secret"
+      userKey: username
+      passwordKey: password
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: Temporal
+            orgId: 1
+            folder: Temporal
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/temporal
+          - name: Ray
+            orgId: 1
+            folder: Ray
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/ray
+          - name: API Gateway
+            orgId: 1
+            folder: API Gateway
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/api-gateway
+    dashboardsConfigMaps:
+      temporal: "core-grafana-temporal-dashboards"
+      api-gateway: "core-grafana-api-gateway-dashboards"
+      ray: "core-grafana-ray-dashboards"
+    grafana.ini:
       allow_embedding: true
-    auth.anonymous:
-      enabled: true
-      org_role: Viewer
-  adminPassword: password
-  dashboards:
-    default:
-      krakend-dashboard:
-        url: https://grafana.com/api/dashboards/17074/revisions/1/download
-  dashboardsConfigMaps:
-    ray: "dashboards"
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: "default"
-          orgId: 1
-          folder: ""
-          type: file
-          disableDeletion: false
-          updateIntervalSeconds: 60
-          options:
-            path: /var/lib/grafana/dashboards/default
-        - name: "ray"
-          folder: Ray
-          type: file
-          options:
-            path: /var/lib/grafana/dashboards/ray
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
+      cookie_secure: true
+      cookie_samesite: true
+      auth:
+        disable_login_form: false
+      auth.basic:
+        enabled: true
+      auth.anonymous:
+        enabled: false
+    sidecar:
       datasources:
-        - name: "influx"
-          type: "influxdb"
-          access: "proxy"
-          editable: true
-          isDefault: true
-          orgId: 1
-          url: "http://core-influxdb2:8086"
-          version: 1
-          database: krakend
-          basicAuth: false
-          jsonData:
-            defaultBucket: krakend
-            httpMode: POST
-            organization: instill-ai
-            version: Flux
-          secureJsonData:
-            token: i-love-instill-ai
-        - name: Prometheus
-          url: http://core-prometheus:9090
-          type: prometheus
-          access: proxy
+        enabled: true
+        alertmanager:
+          enabled: false
+      dashboards:
+        enabled: true
 # -- The configuration of OpenFGA
 openfga:
   image:
@@ -1432,7 +1447,7 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
-      # -- The configuration of registry
+# -- The configuration of registry
 registry:
   enabled: true
   image:
@@ -1691,6 +1706,6 @@ milvus:
 tags:
   ray: true
   model: true
-  observability: false
-  prometheusStack: false
   milvus: true
+  prometheusStack: false
+  observability: false
