@@ -29,7 +29,7 @@ spec:
       {{- if .Values.modelBackend.serviceAccountName }}
       serviceAccountName: {{ .Values.modelBackend.serviceAccountName }}
       {{- end }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.modelBackend.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
