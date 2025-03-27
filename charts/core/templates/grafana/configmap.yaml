@@ -2,15 +2,29 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: dashboards
-  labels:
-    app.kubernetes.io/component: grafana
+  name: {{ template "core.grafana" . }}-temporal-dashboards
+data:
+  for-prometheus.json: |
+{{ .Files.Get "grafana-dashboards/temporal/temporal-go-java-sdks-tally.json" | indent 4 }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ template "core.grafana" . }}-ray-dashboards
 data:
   data_grafana_dashboard.json: |
-{{ .Files.Get "grafana-dashboards/data_grafana_dashboard.json" | indent 4 }}
+{{ .Files.Get "grafana-dashboards/ray/data_grafana_dashboard.json" | indent 4 }}
   default_grafana_dashboard.json: |
-{{ .Files.Get "grafana-dashboards/default_grafana_dashboard.json" | indent 4 }}
+{{ .Files.Get "grafana-dashboards/ray/default_grafana_dashboard.json" | indent 4 }}
   serve_deployment_grafana_dashboard.json: |
-{{ .Files.Get "grafana-dashboards/serve_deployment_grafana_dashboard.json" | indent 4 }}
+{{ .Files.Get "grafana-dashboards/ray/serve_deployment_grafana_dashboard.json" | indent 4 }}
   serve_grafana_dashboard.json: |
-{{ .Files.Get "grafana-dashboards/serve_grafana_dashboard.json" | indent 4 }}
+{{ .Files.Get "grafana-dashboards/ray/serve_grafana_dashboard.json" | indent 4 }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ template "core.grafana" . }}-api-gateway-dashboards
+data:
+  for-prometheus.json: |
+{{ .Files.Get "grafana-dashboards/api-gateway/for-prometheus.json" | indent 4 }}

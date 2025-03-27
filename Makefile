@@ -18,11 +18,11 @@ ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 		NVIDIA_VISIBLE_DEVICES := all
 	endif
 	RAY_LATEST_TAG := latest-gpu
-	RAY_RELEASE_TAG := ${RAY_SERVER_VERSION}-gpu
+	RAY_RELEASE_TAG := ${RAY_VERSION}-gpu
 else
 	NVIDIA_GPU_AVAILABLE := false
 	RAY_LATEST_TAG := latest
-	RAY_RELEASE_TAG := ${RAY_SERVER_VERSION}
+	RAY_RELEASE_TAG := ${RAY_VERSION}
 endif
 
 COMPOSE_FILES := -f docker-compose.yml
@@ -52,13 +52,13 @@ COMPONENT_TEST_ENV := .env.component-test
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+	@cat docker-compose-nvidia.yml | yq '.services.ray.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
 		EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
 		docker compose ${COMPOSE_FILES} -f - up -d --quiet-pull
 else
@@ -68,13 +68,13 @@ endif
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
 	fi
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	@cat docker-compose-nvidia.yml | yq '.services.ray_server.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+	@cat docker-compose-nvidia.yml | yq '.services.ray.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
 		COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} COMPONENT_ENV=${COMPONENT_ENV} \
 		docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml -f - up -d --quiet-pull
 else
@@ -86,7 +86,6 @@ endif
 build-latest:				## Build latest images for all services
 		@docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
-			--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
 			--build-arg XK6_VERSION=${XK6_VERSION} \
 			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
@@ -114,7 +113,6 @@ build-latest:				## Build latest images for all services
 build-release:				## Build release images for all services
 	@docker build --progress plain \
 		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
-		--build-arg GOLANG_VERSION=${GOLANG_VERSION} \
 		--build-arg K6_VERSION=${K6_VERSION} \
 		--build-arg XK6_VERSION=${XK6_VERSION} \
 		--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
@@ -160,7 +158,7 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image instill/ray:${RAY_SERVER_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray server image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@EDITION= DEFAULT_USER_UID= docker compose pull
 
 .PHONY: stop
@@ -223,13 +221,17 @@ helm-integration-test-latest:                       # Run integration test on th
 		--set artifactBackend.image.tag=latest \
 		--set pipelineBackend.image.tag=latest \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
+		--set 'pipelineBackend.extraEnv[0].value=foo' \
+		--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
+		--set 'pipelineBackend.extraEnv[1].value=foo' \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
-		--set tags.observability=false \
-		--set tags.prometheusStack=false
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+		--set ray.image.tag=${RAY_LATEST_TAG} \
+		--set tags.observability=true \
+		--set tags.prometheusStack=true
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
@@ -265,13 +267,17 @@ helm-integration-test-release:                       # Run integration test on t
 		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
+		--set 'pipelineBackend.extraEnv[0].value=foo' \
+		--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
+		--set 'pipelineBackend.extraEnv[1].value=foo' \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
-		--set tags.observability=false \
-		--set tags.prometheusStack=false
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+		--set ray.image.tag=${RAY_RELEASE_TAG} \
+		--set tags.observability=true \
+		--set tags.prometheusStack=true
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
@@ -348,7 +354,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set ray.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
@@ -366,12 +372,12 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set rayService.image.tag=${RAY_LATEST_TAG} \
+		--set ray.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}
 endif
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
@@ -428,7 +434,7 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set ray.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
@@ -446,12 +452,12 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set rayService.image.tag=${RAY_RELEASE_TAG} \
+		--set ray.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}
 endif
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=300s
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@export CONSOLE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance=${HELM_RELEASE_NAME}" -o jsonpath="{.items[0].metadata.name}") && \

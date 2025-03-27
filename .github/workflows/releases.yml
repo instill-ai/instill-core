@@ -80,7 +80,7 @@ jobs:
           yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/core/values.yaml
           yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
           yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
-          yq ".rayService.image.tag=\"$RAY_SERVER_VERSION\"" -i charts/core/values.yaml
+          yq ".ray.image.tag=\"$RAY_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
           yq ".artifactBackend.image.tag=\"$ARTIFACT_BACKEND_VERSION\"" -i charts/core/values.yaml

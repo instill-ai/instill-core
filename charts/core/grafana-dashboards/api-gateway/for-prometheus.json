@@ -8487,7 +8487,9 @@
     ],
     "refresh": "30s",
     "schemaVersion": 39,
-    "tags": [],
+    "tags": [
+        "krakend-ce:2.9.3"
+    ],
     "templating": {
         "list": [
             {
@@ -8507,7 +8509,7 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(app)",
+                    "query": "label_values({app=~\"api-gateway\"}, app)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 1,

@@ -123,16 +123,16 @@ spec:
               value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
               value: "{{ template "core.mgmtBackend.publicPort" . }}"
-        - name: wait-for-ray-server
+        - name: wait-for-ray
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
           args:
           - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_PORT}/-/routes)" != "200" ]]; do echo waiting for ray-server; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${RAY_SERVE_HOST}:${RAY_SERVE_PORT}/-/routes)" != "200" ]]; do echo waiting for ray; sleep 1; done
           env:
-            - name: RAY_SERVER_HOST
+            - name: RAY_SERVE_HOST
               value: "{{ template "core.ray" . }}"
-            - name: RAY_SERVER_SERVE_PORT
+            - name: RAY_SERVE_PORT
               value: "{{ template "core.ray.servePort" . }}"
         - name: chmod-model-config
           securityContext:

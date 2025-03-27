@@ -30,11 +30,6 @@ services:
       ARTIFACT_BACKEND_HOST: ${ARTIFACT_BACKEND_HOST}
       ARTIFACT_BACKEND_PUBLICPORT: ${ARTIFACT_BACKEND_PUBLICPORT}
       ARTIFACT_BACKEND_PRIVATEPORT: ${ARTIFACT_BACKEND_PRIVATEPORT}
-      INFLUXDB_HOST: ${INFLUXDB_HOST}
-      INFLUXDB_PORT: ${INFLUXDB_PORT}
-      JAEGER_ENABLED: ${OBSERVE_ENABLED}
-      JAEGER_HOST: ${JAEGER_HOST}
-      JAEGER_PORT: ${JAEGER_LISTEN_THRIFT_PORT}
       REGISTRY_HOST: ${REGISTRY_HOST}
       REGISTRY_PORT: ${REGISTRY_PORT}
       MINIO_HOST: ${MINIO_HOST}
@@ -230,9 +225,9 @@ services:
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
       CFG_SERVER_INSTILLCOREHOST: http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT}
-      CFG_RAYSERVER_GRPCURI: ${RAY_SERVER_HOST}:${RAY_SERVER_SERVE_GRPC_PORT}
+      CFG_RAYSERVER_GRPCURI: ${RAY_SERVE_HOST}:${RAY_SERVE_GRPC_PORT}
       CFG_RAYSERVER_MODELSTORE: /model-config
-      CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
+      CFG_RAYSERVER_VRAM: ${RAY_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -265,7 +260,7 @@ services:
     depends_on:
       model_backend_worker:
         condition: service_started
-      ray_server:
+      ray:
         condition: service_healthy
       temporal:
         condition: service_healthy
@@ -282,7 +277,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
-      CFG_RAYSERVER_VRAM: ${RAY_SERVER_VRAM}
+      CFG_RAYSERVER_VRAM: ${RAY_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -419,9 +414,9 @@ services:
       temporal:
         condition: service_healthy
 
-  ray_server:
-    container_name: ${RAY_SERVER_HOST}
-    image: ${RAY_SERVER_IMAGE}:${RAY_RELEASE_TAG}
+  ray:
+    container_name: ${RAY_SERVE_HOST}
+    image: ${RAY_IMAGE}:${RAY_RELEASE_TAG}
     # for dind podman
     privileged: true
     devices:
@@ -440,8 +435,8 @@ services:
       'if [[ $${NVIDIA_VISIBLE_DEVICES} == all ]]; then
         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
       fi &&
-      ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_SERVER_PROMETHEUS_PORT} --disable-usage-stats &&
-      serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVER_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
+      ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_METRICS_PORT} --disable-usage-stats &&
+      serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
       - /var/lib/containers:/var/lib/containers
@@ -454,7 +449,7 @@ services:
       retries: 2
     shm_size: 4gb
     ports:
-      - ${RAY_SERVER_DASHBOARD_PORT}:${RAY_SERVER_DASHBOARD_PORT}
+      - ${RAY_DASHBOARD_PORT}:${RAY_DASHBOARD_PORT}
 
   pg_sql:
     container_name: ${POSTGRESQL_HOST}

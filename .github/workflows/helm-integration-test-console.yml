@@ -15,14 +15,18 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          overprovision-lvm: "true"
+          root-reserve-mb: 2048
           remove-dotnet: "true"
-          build-mount-path: "/var/lib/docker/"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
 
       - name: Setup Minikube
         run: |
           sudo service docker restart
-          minikube start --cpus 3 --memory 8192
+          minikube start --cpus 4 --memory 12288
 
       - name: Checkout repo and load .env
         uses: actions/checkout@v4
@@ -45,25 +49,25 @@ jobs:
               --set pipelineBackend.image.tag=latest \
               --set modelBackend.image.tag=latest \
               --set console.image.tag=latest \
-              --set rayService.image.tag=latest \
-              --set rayService.headGroupSpec.resources.limits.cpu=0 \
-              --set rayService.headGroupSpec.resources.limits.memory=2Gi \
-              --set rayService.headGroupSpec.resources.requests.cpu=0 \
-              --set rayService.headGroupSpec.resources.requests.memory=2Gi \
-              --set rayService.workerGroupSpecs[0].replicas=1 \
-              --set rayService.workerGroupSpecs[0].minReplicas=1 \
-              --set rayService.workerGroupSpecs[0].maxReplicas=1 \
-              --set rayService.workerGroupSpecs[0].groupName=test-group \
-              --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
-              --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
-              --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
-              --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
-              --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+              --set ray.image.tag=latest \
+              --set ray.headGroupSpec.resources.limits.cpu=0 \
+              --set ray.headGroupSpec.resources.limits.memory=2Gi \
+              --set ray.headGroupSpec.resources.requests.cpu=0 \
+              --set ray.headGroupSpec.resources.requests.memory=2Gi \
+              --set ray.workerGroupSpecs[0].replicas=1 \
+              --set ray.workerGroupSpecs[0].minReplicas=1 \
+              --set ray.workerGroupSpecs[0].maxReplicas=1 \
+              --set ray.workerGroupSpecs[0].groupName=test-group \
+              --set ray.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+              --set ray.workerGroupSpecs[0].resources.limits.cpu=1 \
+              --set ray.workerGroupSpecs[0].resources.limits.memory=2Gi \
+              --set ray.workerGroupSpecs[0].resources.requests.cpu=1 \
+              --set ray.workerGroupSpecs[0].resources.requests.memory=2Gi \
               --set milvus.broker.resources.requests.cpu=0.25 \
               --set milvus.autorecovery.resources.requests.cpu=0.25 \
               --set milvus.proxy.resources.requests.cpu=0.25 \
-              --set tags.observability=false \
-              --set tags.prometheusStack=false
+              --set tags.observability=true \
+              --set tags.prometheusStack=true
           else
             helm install core charts/core --namespace instill-ai --create-namespace \
               --set edition=k8s-ce:test \
@@ -76,25 +80,25 @@ jobs:
               --set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
               --set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
               --set console.image.tag=${CONSOLE_VERSION} \
-              --set rayService.image.tag=${RAY_SERVER_VERSION} \
-              --set rayService.headGroupSpec.resources.limits.cpu=0 \
-              --set rayService.headGroupSpec.resources.limits.memory=2Gi \
-              --set rayService.headGroupSpec.resources.requests.cpu=0 \
-              --set rayService.headGroupSpec.resources.requests.memory=2Gi \
-              --set rayService.workerGroupSpecs[0].replicas=1 \
-              --set rayService.workerGroupSpecs[0].minReplicas=1 \
-              --set rayService.workerGroupSpecs[0].maxReplicas=1 \
-              --set rayService.workerGroupSpecs[0].groupName=test-group \
-              --set rayService.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
-              --set rayService.workerGroupSpecs[0].resources.limits.cpu=1 \
-              --set rayService.workerGroupSpecs[0].resources.limits.memory=2Gi \
-              --set rayService.workerGroupSpecs[0].resources.requests.cpu=1 \
-              --set rayService.workerGroupSpecs[0].resources.requests.memory=2Gi \
+              --set ray.image.tag=${RAY_VERSION} \
+              --set ray.headGroupSpec.resources.limits.cpu=0 \
+              --set ray.headGroupSpec.resources.limits.memory=2Gi \
+              --set ray.headGroupSpec.resources.requests.cpu=0 \
+              --set ray.headGroupSpec.resources.requests.memory=2Gi \
+              --set ray.workerGroupSpecs[0].replicas=1 \
+              --set ray.workerGroupSpecs[0].minReplicas=1 \
+              --set ray.workerGroupSpecs[0].maxReplicas=1 \
+              --set ray.workerGroupSpecs[0].groupName=test-group \
+              --set ray.workerGroupSpecs[0].gpuWorkerGroup.enabled=false \
+              --set ray.workerGroupSpecs[0].resources.limits.cpu=1 \
+              --set ray.workerGroupSpecs[0].resources.limits.memory=2Gi \
+              --set ray.workerGroupSpecs[0].resources.requests.cpu=1 \
+              --set ray.workerGroupSpecs[0].resources.requests.memory=2Gi \
               --set milvus.broker.resources.requests.cpu=0.25 \
               --set milvus.autorecovery.resources.requests.cpu=0.25 \
               --set milvus.proxy.resources.requests.cpu=0.25 \
-              --set tags.observability=false \
-              --set tags.prometheusStack=false
+              --set tags.observability=true \
+              --set tags.prometheusStack=true
           fi
 
       - name: Wait for all pods up

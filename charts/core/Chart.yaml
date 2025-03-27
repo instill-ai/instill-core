@@ -37,21 +37,16 @@ dependencies:
     version: 2.1.1
   - name: jaeger
     repository: https://jaegertracing.github.io/helm-charts
-    version: 0.71.2
+    version: 3.4.1
     tags:
       - observability
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    version: 0.59.1
+    version: 0.119.0
     tags:
       - observability
   - name: kube-prometheus-stack
     repository: https://prometheus-community.github.io/helm-charts
-    version: 48.2.1
-    tags:
-      - prometheusStack
-  - name: grafana
-    repository: https://grafana.github.io/helm-charts
-    version: 7.0.19
+    version: 70.3.0
     tags:
       - prometheusStack

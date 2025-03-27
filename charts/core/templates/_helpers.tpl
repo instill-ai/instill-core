@@ -38,8 +38,8 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 Ray fullname
 */}}
 {{- define "ray.fullname" -}}
-  {{- if .Values.rayService.namespaceOverride -}}
-    {{- .Values.rayService.namespaceOverride -}}
+  {{- if .Values.ray.namespaceOverride -}}
+    {{- .Values.ray.namespaceOverride -}}
   {{- else -}}
     {{- printf "%s" (include "core.name" .) -}}
   {{- end -}}
@@ -49,7 +49,7 @@ Ray fullname
 Inter namespace DNS suffix
 */}}
 {{- define "ray.suffix" -}}
-  {{- if .Values.rayService.namespaceOverride -}}
+  {{- if .Values.ray.namespaceOverride -}}
     {{- printf ".%s.svc.cluster.local" (include "ray.fullname" .) -}}
   {{- else -}}
     {{- printf "" -}}
@@ -84,7 +84,7 @@ app.kubernetes.io/name: {{ include "core.name" . }}
 {{- end -}}
 
 {{/*
-Flags for auto-gen TLS certifacte
+Flags for auto-gen TLS certificate
 */}}
 {{- define "core.autoGenCert" -}}
   {{- if and .Values.expose.tls.enabled (eq .Values.expose.tls.certSource "auto") -}}
@@ -212,7 +212,7 @@ console
 {{- end -}}
 
 {{/*
-temopral
+Temporal
 */}}
 {{- define "core.temporal" -}}
   {{- printf "%s-temporal" (include "core.fullname" .) -}}
@@ -226,47 +226,47 @@ temopral
   {{- printf "%s-temporal-ui" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{/* temporal container frontend gRPC port */}}
+{{/* Temporal container frontend gRPC port */}}
 {{- define "core.temporal.frontend.grpcPort" -}}
   {{- printf "7233" -}}
 {{- end -}}
 
-{{/* temporal container frontend membership port */}}
+{{/* Temporal container frontend membership port */}}
 {{- define "core.temporal.frontend.membershipPort" -}}
   {{- printf "6933" -}}
 {{- end -}}
 
-{{/* temporal container history gRPC port */}}
+{{/* Temporal container history gRPC port */}}
 {{- define "core.temporal.history.grpcPort" -}}
   {{- printf "7234" -}}
 {{- end -}}
 
-{{/* temporal container history membership port */}}
+{{/* Temporal container history membership port */}}
 {{- define "core.temporal.history.membershipPort" -}}
   {{- printf "6934" -}}
 {{- end -}}
 
-{{/* temporal container matching gRPC port */}}
+{{/* Temporal container matching gRPC port */}}
 {{- define "core.temporal.matching.grpcPort" -}}
   {{- printf "7235" -}}
 {{- end -}}
 
-{{/* temporal container matching membership port */}}
+{{/* Temporal container matching membership port */}}
 {{- define "core.temporal.matching.membershipPort" -}}
   {{- printf "6935" -}}
 {{- end -}}
 
-{{/* temporal container worker gRPC port */}}
+{{/* Temporal container worker gRPC port */}}
 {{- define "core.temporal.worker.grpcPort" -}}
   {{- printf "7239" -}}
 {{- end -}}
 
-{{/* temporal container worker membership port */}}
+{{/* Temporal container worker membership port */}}
 {{- define "core.temporal.worker.membershipPort" -}}
   {{- printf "6939" -}}
 {{- end -}}
 
-{{/* temporal web container port */}}
+{{/* Temporal web container port */}}
 {{- define "core.temporal.ui.port" -}}
   {{- printf "8088" -}}
 {{- end -}}
@@ -308,8 +308,8 @@ temopral
   {{- printf "9000" -}}
 {{- end -}}
 
-{{- define "core.ray.prometheusPort" -}}
-  {{- printf "8079" -}}
+{{- define "core.ray.metricsPort" -}}
+  {{- printf "8080" -}}
 {{- end -}}
 
 {{/*
@@ -380,7 +380,7 @@ influxdb
 {{- end -}}
 
 {{/*
-jaeger
+Jaeger
 */}}
 {{- define "core.jaeger" -}}
   {{- printf "%s-jaeger-collector" (include "core.fullname" .) -}}
@@ -391,7 +391,7 @@ jaeger
 {{- end -}}
 
 {{/*
-otel
+OpenTelemetry
 */}}
 {{- define "core.otel" -}}
   {{- printf "%s-opentelemetry-collector" (include "core.fullname" .) -}}
@@ -402,7 +402,7 @@ otel
 {{- end -}}
 
 {{/*
-openfga
+OpenFGA
 */}}
 {{- define "core.openfga" -}}
   {{- printf "%s-openfga" (include "core.fullname" .) -}}
@@ -424,7 +424,7 @@ registry
 {{- end -}}
 
 {{/*
-milvus
+Milvus
 */}}
 {{- define "core.milvus" -}}
   {{- printf "%s-milvus" (include "core.fullname" .) -}}
@@ -436,6 +436,13 @@ milvus
 
 {{- define "core.milvus.metricPort" -}}
   {{- printf "9091" -}}
+{{- end -}}
+
+{{/*
+Grafana
+*/}}
+{{- define "core.grafana" -}}
+  {{- printf "%s-grafana" (include "core.fullname" .) -}}
 {{- end -}}
 
 {{/*

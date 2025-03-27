@@ -16,7 +16,7 @@ processors:
 
 # (3) Exporters
 exporters:
-  debug: # replacing deprecated 'logging' exporter
+  debug:
   otlp:
     endpoint: jaeger:14250
     tls:

@@ -1,5 +1,5 @@
 services:
-  ray_server:
+  ray:
     deploy:
       resources:
         reservations:
