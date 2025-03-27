@@ -12,9 +12,6 @@ services:
       context: ./${API_GATEWAY_HOST}
       args:
         SERVICE_NAME: api-gateway
-        GOLANG_VERSION: 1.22.2
-        ALPINE_VERSION: 3.18
-        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
 
   mgmt_backend:
     profiles:
