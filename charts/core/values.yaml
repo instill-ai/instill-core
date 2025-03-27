@@ -401,10 +401,11 @@ pipelineBackend:
   temporal:
     hostPort:
     namespace:
-    ca:
-    cert:
-    key:
     serverName:
+    serverRootCA:
+    clientCert:
+    clientKey:
+    insecureSkipVerify:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token

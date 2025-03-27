@@ -17,6 +17,9 @@ spec:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
       port: {{ template "core.pipelineBackend.publicPort" . }}
       targetPort: {{ template "core.pipelineBackend.publicPort" . }}
+    - name: temporal-metrics
+      port: {{ template "core.temporal.metrics.port" . }}
+      targetPort: {{ template "core.temporal.metrics.port" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
