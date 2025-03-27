@@ -62,7 +62,7 @@ data:
       {{- if .Values.database.external_replica }}
       replica:
         username: {{ .Values.database.external_replica.username | default "" }}
-        password: {{ .Values.database.external_replica.password | default ""  }}
+        password: {{ include "databasePasswordSecret" . | default .Values.database.external_replica.password | default "" }}
         host: {{ .Values.database.external_replica.host | default ""  }}
         port: {{ .Values.database.external_replica.port | default ""  }}
         replicationtimeframe: 1
