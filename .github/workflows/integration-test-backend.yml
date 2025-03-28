@@ -55,6 +55,9 @@ jobs:
             make latest EDITION=local-ce:test COMPONENT_ENV=.env.component-test
           else
             make all EDITION=local-ce:test COMPONENT_ENV=.env.component-test
+
+            # For testing, we need to expose the pg-sql service to the host machine.
+            docker run -d --network=instill-network --link pg-sql:db -p 5432:5432 alpine/socat tcp-listen:5432,fork,reuseaddr tcp-connect:db:5432
           fi
 
       - name: Uppercase component name
