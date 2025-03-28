@@ -277,6 +277,8 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
+      CFG_RAYSERVER_GRPCURI: ${RAY_SERVE_HOST}:${RAY_SERVE_GRPC_PORT}
+      CFG_RAYSERVER_MODELSTORE: /model-config
       CFG_RAYSERVER_VRAM: ${RAY_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
