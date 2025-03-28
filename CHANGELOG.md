@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.50.0-beta](https://github.com/instill-ai/instill-core/compare/v0.49.0-beta...v0.50.0-beta) (2025-03-28)
+
+
+### Features
+
+* **pipeline:** collect Temporal SDK metrics ([#1196](https://github.com/instill-ai/instill-core/issues/1196)) ([069dbb8](https://github.com/instill-ai/instill-core/commit/069dbb8e3c2ec5ce8a540324400c438fc3642974))
+
+
+### Bug Fixes
+
+* **worker:** use pipeline server host in pipeline client ([#1188](https://github.com/instill-ai/instill-core/issues/1188)) ([444b358](https://github.com/instill-ai/instill-core/commit/444b35866dd277b6665d9a2a779338331e275301))
+
 ## [0.49.0-beta](https://github.com/instill-ai/instill-core/compare/v0.48.1-beta...v0.49.0-beta) (2025-02-25)
 
 
