@@ -43,3 +43,6 @@ __pycache__
 # Helm rendered test templates
 rendered-test-template.yaml
 .idea
+
+# Helm dependency *.tgz files
+charts/core/charts/*.tgz

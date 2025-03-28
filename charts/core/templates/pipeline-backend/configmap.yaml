@@ -22,8 +22,8 @@ data:
       instillcorehost: {{ .Values.pipelineBackend.instillCoreHost }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
-        key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
+        cert: /etc/instill-ai/pipeline/ssl/pipeline/tls.crt
+        key: /etc/instill-ai/pipeline/ssl/pipeline/tls.key
       {{- end }}
       instanceid: {{ template "core.pipelineBackend" . }}
     connector:
@@ -35,8 +35,8 @@ data:
       privateport: {{ template "core.mgmtBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/instill-ai/vdp/ssl/mgmt/tls.crt
-        key: /etc/instill-ai/vdp/ssl/mgmt/tls.key
+        cert: /etc/instill-ai/pipeline/ssl/mgmt/tls.crt
+        key: /etc/instill-ai/pipeline/ssl/mgmt/tls.key
       {{- end }}
     artifactbackend:
       host: {{ template "core.artifactBackend" . }}
@@ -44,20 +44,20 @@ data:
       privateport: {{ template "core.artifactBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/instill-ai/vdp/ssl/artifact/tls.crt
-        key: /etc/instill-ai/vdp/ssl/artifact/tls.key
+        cert: /etc/instill-ai/pipeline/ssl/artifact/tls.crt
+        key: /etc/instill-ai/pipeline/ssl/artifact/tls.key
       {{- end }}
     modelbackend:
       host: {{ template "core.modelBackend" . }}
       publicport: {{ template "core.modelBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/instill-ai/vdp/ssl/model/tls.crt
-        key: /etc/instill-ai/vdp/ssl/model/tls.key
+        cert: /etc/instill-ai/pipeline/ssl/model/tls.crt
+        key: /etc/instill-ai/pipeline/ssl/model/tls.key
       {{- end }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}      
+      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}
       host: {{ default (include "core.database.host" .) .Values.database.external.host }}
       port: {{ default (include "core.database.port" .) .Values.database.external.port }}
       {{- if .Values.database.external_replica }}

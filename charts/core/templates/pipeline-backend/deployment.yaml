@@ -167,7 +167,7 @@ spec:
               subPath: config.yaml
             {{- if .Values.internalTLS.enabled }}
             - name: pipeline-internal-certs
-              mountPath: "/etc/instill-ai/vdp/ssl/pipeline"
+              mountPath: "/etc/instill-ai/pipeline/ssl/pipeline"
             {{- end }}
             {{- with .Values.pipelineBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -243,7 +243,27 @@ spec:
       securityContext:
         runAsUser: 65534
         runAsGroup: 65534
+      {{- if .Values.pipelineBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.pipelineBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.pipelineBackend.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ template "core.database" . }}
+            - name: PGUSER
+              value: {{ template "core.database.username" . }}
+        {{- end }}
       containers:
         - name: pipeline-backend-worker
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
