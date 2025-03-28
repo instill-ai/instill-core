@@ -54,9 +54,10 @@ jobs:
 
       - name: Curl to Instill Core services healthcheck endpoint
         run: |
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/core/v1beta/health/mgmt
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/vdp/v1beta/health/pipeline
-          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/model/v1beta/health/model
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/mgmt
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/pipeline
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/model
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/artifact
 
       - name: Tear down Instill Core (latest)
         run: |

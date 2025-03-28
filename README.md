@@ -27,7 +27,7 @@ Follow the [installation](#installation) steps below or [documentation](https://
 
 🔮 **Instill Core** simplifies infrastructure hassle and encompasses these core features:
 
-- 💧 [**Pipeline**](https://www.instill-ai.dev/docs/vdp/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Quickly build versatile AI-first APIs or automated workflows.
+- 💧 [**Pipeline**](https://www.instill-ai.dev/docs/pipeline/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Quickly build versatile AI-first APIs or automated workflows.
 - ⚗️ [**Model**](https://www.instill-ai.dev/docs/model/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Deploy and monitor AI models without GPU infrastructure hassles.
 - 💾 [**Artifact**](https://www.instill-ai.dev/docs/artifact/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Transform unstructured data (e.g., documents, images, audio, video) into AI-ready formats.
 - ⚙️ [**Component**](https://www.instill-ai.dev/docs/component/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Connect essential building blocks to construct powerful pipelines.

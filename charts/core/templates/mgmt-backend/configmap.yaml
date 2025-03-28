@@ -25,12 +25,12 @@ data:
       publicport: {{ template "core.pipelineBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
-        cert: /etc/instill-ai/vdp/ssl/pipeline/tls.crt
-        key: /etc/instill-ai/vdp/ssl/pipeline/tls.key
+        cert: /etc/instill-ai/pipeline/ssl/pipeline/tls.crt
+        key: /etc/instill-ai/pipeline/ssl/pipeline/tls.key
       {{- end }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}      
+      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}
       host: {{ default (include "core.database.host" .) .Values.database.external.host }}
       port: {{ default (include "core.database.port" .) .Values.database.external.port }}
       {{- if .Values.database.external_replica }}

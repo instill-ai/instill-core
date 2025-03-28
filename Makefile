@@ -182,7 +182,7 @@ top:			## Display all running service processes
 	@EDITION= DEFAULT_USER_UID= docker compose top
 
 .PHONY: integration-test-latest
-integration-test-latest:			# Run integration test on the latest VDP
+integration-test-latest:			# Run integration test on the latest Instill Core
 	@make build-latest
 	@make latest EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
@@ -196,7 +196,7 @@ integration-test-latest:			# Run integration test on the latest VDP
 	@make down
 
 .PHONY: integration-test-release
-integration-test-release:			# Run integration test on the release VDP
+integration-test-release:			# Run integration test on the release Instill Core
 	@make build-release
 	@make all EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
@@ -210,7 +210,7 @@ integration-test-release:			# Run integration test on the release VDP
 	@make down
 
 .PHONY: helm-integration-test-latest
-helm-integration-test-latest:                       # Run integration test on the Helm latest for VDP
+helm-integration-test-latest:                       # Run integration test on the Helm latest for Instill Core
 	@make build-latest COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
@@ -256,7 +256,7 @@ endif
 	@make down
 
 .PHONY: helm-integration-test-release
-helm-integration-test-release:                       # Run integration test on the Helm release for VDP
+helm-integration-test-release:                       # Run integration test on the Helm release for Instill Core
 	@make build-release COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \

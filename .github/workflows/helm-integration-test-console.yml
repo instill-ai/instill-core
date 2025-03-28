@@ -40,6 +40,7 @@ jobs:
 
       - name: Launch Helm Instill Core (${{ inputs.target }})
         run: |
+          helm dependency update charts/core
           if [ "${{ inputs.target }}" == "latest" ]; then
             helm install core charts/core --namespace instill-ai --create-namespace \
               --set edition=k8s-ce:test \

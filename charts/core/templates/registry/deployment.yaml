@@ -52,11 +52,14 @@ spec:
       {{- end }}
       initContainers:
         - name: wait-for-redis
-          image:  {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
-          command: ['redis-cli', '-h']
+          image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+          command: ['sh', '-c']
           args:
-            - '$(REDIS_HOST)'
-            - 'ping'
+            - >
+              until redis-cli -h $(REDIS_HOST) ping; do
+                echo "waiting for redis at $(REDIS_HOST)..."
+                sleep 1
+              done
           env:
             - name: REDIS_HOST
               value: "{{ (split ":" .Values.registry.config.redis.addr)._0 }}"
