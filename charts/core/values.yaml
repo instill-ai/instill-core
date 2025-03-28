@@ -305,7 +305,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.22.1-beta
+    tag: 0.22.2-beta
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -377,7 +377,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.51.0-beta
+    tag: 0.52.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -497,7 +497,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.35.0-alpha
+    tag: 0.35.1-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -590,7 +590,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.23.0-alpha
+    tag: 0.24.0-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
@@ -662,7 +662,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.64.2-beta
+    tag: 0.65.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -736,7 +736,7 @@ ray:
   image:
     repository: instill/ray
     version: "2.21.0"
-    tag: 0.5.0-alpha
+    tag: 0.5.1-alpha
     pullPolicy: IfNotPresent
   headGroupSpec:
     resources:
@@ -1192,7 +1192,6 @@ influxdb2:
   enabled: true
   service:
     port: 8086
-
   # Admin user configuration
   adminUser:
     user: admin
@@ -1221,6 +1220,7 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+
   query:
     initContainers:
       - name: wait-for-elasticsearch
@@ -1229,6 +1229,7 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   mode: deployment
