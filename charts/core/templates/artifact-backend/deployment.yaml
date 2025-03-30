@@ -69,6 +69,10 @@ spec:
             {{- toYaml .Values.artifactBackend.resources | nindent 12 }}
           {{- end }}
           command: [./{{ .Values.artifactBackend.commandName.migration }}]
+          {{- if .Values.artifactBackend.extraEnv }}
+          env:
+            {{- toYaml .Values.artifactBackend.extraEnv | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: {{ .Values.artifactBackend.configPath }}
@@ -92,8 +96,8 @@ spec:
             - name: config
               mountPath: {{ .Values.artifactBackend.configPath }}
               subPath: config.yaml
-          env:
           {{- if .Values.artifactBackend.extraEnv }}
+          env:
             {{- toYaml .Values.artifactBackend.extraEnv | nindent 12 }}
           {{- end }}
         {{- with .Values.artifactBackend.extraInitContainers }}
