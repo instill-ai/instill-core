@@ -77,6 +77,9 @@ spec:
               value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
             - name: PGPASSWORD
               value: "{{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}"
+          {{- if .Values.openfga.extraEnv }}
+          {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
+          {{- end }} 
         - name: openfga-migration
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
           imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
