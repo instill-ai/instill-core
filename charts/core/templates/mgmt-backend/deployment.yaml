@@ -85,6 +85,10 @@ spec:
             {{- toYaml .Values.mgmtBackend.resources | nindent 12 }}
           {{- end }}
           command: [./{{ .Values.mgmtBackend.commandName.migration }}]
+          {{- if .Values.mgmtBackend.extraEnv }}
+          env:
+            {{- toYaml .Values.mgmtBackend.extraEnv | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: {{ .Values.mgmtBackend.configPath }}
