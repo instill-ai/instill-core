@@ -84,7 +84,10 @@ $ make latest PROFILE=all
 > [!IMPORTANT]
 > Code in the main branch tracks under-development progress towards the next release and may not work as expected. If you are looking for a stable alpha version, please use [latest release](https://github.com/instill-ai/instill-core/releases).
 
-🚀 That's it! Once all the services are up with health status, the UI is ready to go at <http://localhost:3000>. Please find the default login credentials in the [documentation](https://www.instill-ai.dev/docs/latest/quickstart#self-hosted-instill-core).
+🚀 That's it! Once all the services are up with health status, the UI is ready to go at <http://localhost:3000>. Please find the default login credentials in the [documentation](https://www.instill-ai.dev/docs/latest/quickstart#self-hosted-instill-core). 
+
+> [!NOTE]
+> If you change to a different version of **Instill Core**, you will need to re-build the docker images by running `make build-latest` instead of `make all`.
 
 To shut down all running services:
 
