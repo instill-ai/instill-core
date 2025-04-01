@@ -377,7 +377,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.52.0-beta
+    tag: 0.52.1-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -497,7 +497,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.35.1-alpha
+    tag: 0.35.2-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -590,7 +590,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.24.1-alpha
+    tag: 0.24.2-alpha
     pullPolicy: IfNotPresent
   # -- The command names to be executed
   commandName:
