@@ -26,9 +26,11 @@ jobs:
           remove-docker-images: "true"
           build-mount-path: "/var/lib/docker"
 
+      - name: Restart docker
+        run: sudo service docker restart
+
       - name: Setup Minikube
         run: |
-          sudo service docker restart
           minikube start --cpus 4 --memory 12288
 
       - name: Checkout repo and load .env

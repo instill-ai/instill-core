@@ -128,9 +128,9 @@ spec:
           command: ['sh', '-c']
           args:
           - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${RAY_SERVE_HOST}:${RAY_SERVE_PORT}/-/routes)" != "200" ]]; do echo waiting for ray; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${RAY_HOST}:${RAY_SERVE_PORT}/-/routes)" != "200" ]]; do echo waiting for ray; sleep 1; done
           env:
-            - name: RAY_SERVE_HOST
+            - name: RAY_HOST
               value: "{{ template "core.ray" . }}"
             - name: RAY_SERVE_PORT
               value: "{{ template "core.ray.servePort" . }}"

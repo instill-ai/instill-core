@@ -78,7 +78,7 @@ spec:
                 value: http://core-prometheus:9090
               - name: RAY_TASK_MAX_RETRIES
                 value: "2"
-              - name: RAY_worker_register_timeout_seconds
+              - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
                 value: "3600"
               # - name: RAY_REDIS_ADDRESS
               #   value: {{ template "core.redis.addr" . }}
@@ -163,7 +163,7 @@ spec:
               env:
                 - name: RAY_TASK_MAX_RETRIES
                   value: "2"
-                - name: RAY_worker_register_timeout_seconds
+                - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
                   value: "3600"
               lifecycle:
                 postStart:
@@ -183,7 +183,7 @@ spec:
                           fi;
                           sleep 1;
                         done;
-                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server
+                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions model_ray_user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
                 preStop:
                   exec:
                     command: ["/bin/sh","-c","ray stop"]
