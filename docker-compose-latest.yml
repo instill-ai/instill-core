@@ -106,9 +106,6 @@ services:
       - exclude-pipeline
       - exclude-artifact
     image: ${MODEL_BACKEND_IMAGE}:latest
-    environment:
-      CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
-      CFG_INITMODEL_PATH: https://raw.githubusercontent.com/instill-ai/instill-core/main/model-hub/model_hub_test.json
 
   artifact_backend:
     profiles:
@@ -149,7 +146,7 @@ services:
   ray:
     image: ${RAY_IMAGE}:${RAY_LATEST_TAG}
     ports:
-      - ${RAY_DASHBOARD_PORT}:${RAY_DASHBOARD_PORT}
+      - ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD}
 
   pg_sql:
     ports:

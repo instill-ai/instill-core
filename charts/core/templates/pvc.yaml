@@ -1,13 +1,13 @@
 {{- if .Values.persistence.enabled }}
 {{- if .Values.tags.model -}}
-{{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
-{{- if not $modelConfig.existingClaim }}
+{{- $modelStore := .Values.persistence.persistentVolumeClaim.modelStore -}}
+{{- if not $modelStore.existingClaim }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "core.modelConfigDataVolume" . }}
+  name: {{ template "core.modelStoreDataVolume" . }}
   annotations:
-  {{- range $key, $value := $modelConfig.annotations }}
+  {{- range $key, $value := $modelStore.annotations }}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
   {{- if eq .Values.persistence.resourcePolicy "keep" }}
@@ -18,15 +18,15 @@ metadata:
     app.kubernetes.io/component: model-backend
 spec:
   accessModes:
-    - {{ $modelConfig.accessMode }}
+    - {{ $modelStore.accessMode }}
   resources:
     requests:
-      storage: {{ $modelConfig.size }}
-  {{- if $modelConfig.storageClass }}
-    {{- if eq "-" $modelConfig.storageClass }}
+      storage: {{ $modelStore.size }}
+  {{- if $modelStore.storageClass }}
+    {{- if eq "-" $modelStore.storageClass }}
   storageClassName: ""
     {{- else }}
-  storageClassName: {{ $modelConfig.storageClass }}
+  storageClassName: {{ $modelStore.storageClass }}
     {{- end }}
   {{- end }}
 {{- end }}

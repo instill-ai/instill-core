@@ -292,12 +292,12 @@ Temporal
   {{- printf "10001" -}}
 {{- end -}}
 
-{{- define "core.ray.dashboardPort" -}}
-  {{- printf "8265" -}}
-{{- end -}}
-
 {{- define "core.ray.gcsPort" -}}
   {{- printf "6379" -}}
+{{- end -}}
+
+{{- define "core.ray.dashboardPort" -}}
+  {{- printf "8265" -}}
 {{- end -}}
 
 {{- define "core.ray.servePort" -}}
@@ -491,8 +491,8 @@ internal TLS secret names
 {{/*
 Persistent Volume Claims
 */}}
-{{- define "core.modelConfigDataVolume" -}}
-  {{- printf "%s-model-config-data-volume" (include "core.fullname" .) -}}
+{{- define "core.modelStoreDataVolume" -}}
+  {{- printf "%s-model-store-data-volume" (include "core.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.registryDataVolume" -}}

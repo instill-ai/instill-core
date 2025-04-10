@@ -1,5 +1,5 @@
 {{- if .Values.tags.model -}}
-{{- $modelConfig := .Values.persistence.persistentVolumeClaim.modelConfig -}}
+{{- $modelStore := .Values.persistence.persistentVolumeClaim.modelStore -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -123,26 +123,15 @@ spec:
               value: "{{ template "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
               value: "{{ template "core.mgmtBackend.publicPort" . }}"
-        - name: wait-for-ray
-          image: curlimages/curl:8.00.1
-          command: ['sh', '-c']
-          args:
-          - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${RAY_SERVE_HOST}:${RAY_SERVE_PORT}/-/routes)" != "200" ]]; do echo waiting for ray; sleep 1; done
-          env:
-            - name: RAY_SERVE_HOST
-              value: "{{ template "core.ray" . }}"
-            - name: RAY_SERVE_PORT
-              value: "{{ template "core.ray.servePort" . }}"
-        - name: chmod-model-config
+        - name: chmod-model-store
           securityContext:
             runAsUser: 0
             runAsGroup: 0
           image: busybox
-          command: ["sh", "-c", "chmod -R 777 /model-config"]
+          command: ["sh", "-c", "chmod -R 777 /model-store"]
           volumeMounts:
-          - name: model-config
-            mountPath: /model-config
+          - name: model-store
+            mountPath: /model-store
       containers:
         - name: model-backend-worker
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
@@ -159,8 +148,8 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-config
-              mountPath: /model-config
+            - name: model-store
+              mountPath: /model-store
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -198,8 +187,8 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-config
-              mountPath: /model-config
+            - name: model-store
+              mountPath: /model-store
             {{- if .Values.internalTLS.enabled }}
             - name: model-internal-certs
               mountPath: "/etc/instill-ai/model/ssl/model"
@@ -218,15 +207,15 @@ spec:
         - name: config
           configMap:
             name: {{ template "core.modelBackend" . }}
-        - name: model-config
+        - name: model-store
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
-        {{- else if $modelConfig.existingClaim }}
+        {{- else if $modelStore.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ $modelConfig.existingClaim }}
+            claimName: {{ $modelStore.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: core-model-config-data-volume
+            claimName: core-model-store-data-volume
         {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs

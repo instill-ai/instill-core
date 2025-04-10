@@ -205,7 +205,7 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     # If external database is used, the following settings for database will be ignored
-    modelConfig:
+    modelStore:
       existingClaim: ""
       storageClass: ""
       subPath: ""
@@ -735,8 +735,8 @@ ray:
           memory: "512Mi"
   image:
     repository: instill/ray
-    version: "2.21.0"
-    tag: 0.5.1-alpha
+    version: "2.44.1"
+    tag: 0.6.0-alpha
     pullPolicy: IfNotPresent
   headGroupSpec:
     resources:

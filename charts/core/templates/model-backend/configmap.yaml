@@ -50,9 +50,16 @@ data:
         cert: /etc/instill-ai/core/ssl/artifact/tls.crt
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
-    rayserver:
-      grpcuri: {{ include "core.ray" . }}:{{ include "core.ray.serveGrpcPort" . }}
-      modelstore: /model-config
+    ray:
+      host: {{ include "core.ray" . }}
+      port:
+        grpc: {{ include "core.ray.serveGrpcPort" . }}
+        client: {{ include "core.ray.servePort" . }}
+        dashboard: {{ include "core.ray.dashboardPort" . }}
+        gcs: {{ include "core.ray.gcsPort" . }}
+        serve: {{ include "core.ray.servePort" . }}
+        metrics: {{ include "core.ray.metricsPort" . }}
+      modelstore: /model-store
       vram: {{ .Values.ray.vram }}
     database:
       username: {{ default (include "core.database.username" .) .Values.database.external.username }}
