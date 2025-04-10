@@ -225,7 +225,7 @@ services:
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
       CFG_SERVER_INSTILLCOREHOST: http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT}
-      CFG_RAYSERVER_GRPCURI: ${RAY_SERVE_HOST}:${RAY_SERVE_GRPC_PORT}
+      CFG_RAYSERVER_GRPCURI: ${RAY_HOST}:${RAY_GRPC_PORT}
       CFG_RAYSERVER_MODELSTORE: /model-config
       CFG_RAYSERVER_VRAM: ${RAY_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -277,7 +277,7 @@ services:
     restart: unless-stopped
     environment:
       CFG_SERVER_DEBUG: "false"
-      CFG_RAYSERVER_GRPCURI: ${RAY_SERVE_HOST}:${RAY_SERVE_GRPC_PORT}
+      CFG_RAYSERVER_GRPCURI: ${RAY_HOST}:${RAY_GRPC_PORT}
       CFG_RAYSERVER_MODELSTORE: /model-config
       CFG_RAYSERVER_VRAM: ${RAY_VRAM}
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
@@ -303,6 +303,8 @@ services:
       MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
       CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+      CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
+      CFG_INITMODEL_PATH: ${INITMODEL_PATH}
     entrypoint: ./model-backend-init-model
     depends_on:
       model_backend:
@@ -417,7 +419,7 @@ services:
         condition: service_healthy
 
   ray:
-    container_name: ${RAY_SERVE_HOST}
+    container_name: ${RAY_HOST}
     image: ${RAY_IMAGE}:${RAY_RELEASE_TAG}
     # for dind podman
     privileged: true
@@ -427,18 +429,20 @@ services:
     environment:
       - RAY_ADDRESS=0.0.0.0:6379
       - RAY_REDIS_ADDRESS=redis:6379
+      - RAY_METRICS_PORT=${RAY_METRICS_PORT}
+      - RAY_GRPC_PORT=${RAY_GRPC_PORT}
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://localhost:${GRAFANA_PORT}
       - RAY_ENABLE_CLUSTER_STATUS_LOG=0
-      - RAY_worker_register_timeout_seconds=3600
+      - RAY_WORKER_REGISTER_TIMEOUT_SECONDS=3600
     entrypoint: ["/bin/bash", "-c"]
     command: |
       'if [[ $${NVIDIA_VISIBLE_DEVICES} == all ]]; then
         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
       fi &&
       ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_METRICS_PORT} --disable-usage-stats &&
-      serve start --http-host=0.0.0.0 --grpc-port ${RAY_SERVE_GRPC_PORT} --grpc-servicer-functions ray_pb2_grpc.add_RayServiceServicer_to_server &&
+      serve start --http-host=0.0.0.0 --grpc-port ${RAY_GRPC_PORT} --grpc-servicer-functions model_ray_user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
       - /var/lib/containers:/var/lib/containers
@@ -449,7 +453,7 @@ services:
       interval: 60s
       timeout: 5s
       retries: 2
-    shm_size: 4gb
+    shm_size: 10.24gb
     ports:
       - ${RAY_DASHBOARD_PORT}:${RAY_DASHBOARD_PORT}
 
