@@ -22,9 +22,7 @@ spec:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: model-backend
 {{- end }}
-
 ---
-
 {{- if and .Values.tags.model .Values.tags.argoRollout -}}
 apiVersion: v1
 kind: Service

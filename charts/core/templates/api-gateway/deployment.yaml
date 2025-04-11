@@ -15,10 +15,7 @@ metadata:
 spec:
   strategy:
     {{- if .Values.tags.argoRollout -}}
-    blueGreen:
-      activeService: {{ template "core.apiGateway" . }}
-      previewService: {{ template "core.apiGateway" . }}-preview
-      scaleDownDelaySeconds: 480
+    {{- include "core.apiGateway.strategy" . | nindent 4 }}
     {{- else}}
     type: {{ .Values.updateStrategy.type }}
     {{- if eq .Values.updateStrategy.type "RollingUpdate" }}

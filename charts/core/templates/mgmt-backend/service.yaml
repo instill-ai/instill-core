@@ -20,9 +20,7 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend
-
 ---
-
 {{- if .Values.tags.argoRollout -}}
 apiVersion: v1
 kind: Service
