@@ -22,9 +22,7 @@ spec:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: registry
 {{- end }}
-
 ---
-
 {{- if and .Values.registry.enabled .Values.tags.argoRollout -}}
 apiVersion: v1
 kind: Service
