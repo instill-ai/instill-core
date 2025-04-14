@@ -18,7 +18,7 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 2048
+          root-reserve-mb: 5120
           remove-dotnet: "true"
           remove-android: "true"
           remove-haskell: "true"
@@ -31,7 +31,7 @@ jobs:
 
       - name: Setup Minikube
         run: |
-          minikube start --cpus 4 --memory 12288
+          minikube start --cpus 4 --memory 12288 --disk-size 80000mb
 
       - name: Checkout repo and load .env
         uses: actions/checkout@v4
