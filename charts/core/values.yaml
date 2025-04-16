@@ -1388,9 +1388,10 @@ kube-prometheus-stack:
       api-gateway: "core-grafana-api-gateway-dashboards"
       ray: "core-grafana-ray-dashboards"
     grafana.ini:
-      allow_embedding: true
-      cookie_secure: true
-      cookie_samesite: true
+      security:
+        cookie_secure: true
+        allow_embedding: true
+        cookie_samesite: none
       auth:
         disable_login_form: false
       auth.basic:
