@@ -2,7 +2,7 @@
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
-  name: {{ template "core.ray-service" . }}
+  name: {{ template "core.ray" . }}
   # annotations:
   #   ray.io/ft-enabled: "true"
 spec:
@@ -39,9 +39,9 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         volumes:
-          - name: podman-configmap
+          - name: {{ template "core.ray" . }}-podman
             configMap:
-              name: podman
+              name: {{ template "core.ray" . }}-podman
               defaultMode: 0666
               items:
                 - key: registries.conf
@@ -83,11 +83,11 @@ spec:
               # - name: RAY_REDIS_ADDRESS
               #   value: {{ template "core.redis.addr" . }}
             volumeMounts:
-              - mountPath: /etc/containers/
-                name: podman-configmap
+              - mountPath: /home/ray/.config/containers/
+                name: {{ template "core.ray" . }}-podman
             ports:
               - containerPort: 6379
-                name: gcs-server
+                name: gcs
               - containerPort: {{ include "core.ray.dashboardPort" . }}
                 name: dashboard
               - containerPort: {{ include "core.ray.clientPort" . }}
@@ -95,7 +95,7 @@ spec:
               - containerPort: {{ include "core.ray.servePort" . }}
                 name: serve
               - containerPort: {{ include "core.ray.serveGrpcPort" . }}
-                name: serve-grpc
+                name: grpc
               - containerPort: {{ include "core.ray.metricsPort" . }}
                 name: metrics
               - containerPort: 44217
@@ -117,6 +117,7 @@ spec:
                 exec:
                   command: ["/bin/sh","-c","ray stop"]
   workerGroupSpecs:
+  {{- $root := . }}
   {{- range $workerGroupSpecs := .Values.ray.workerGroupSpecs }}
     - replicas: {{ $workerGroupSpecs.replicas }}
       minReplicas: {{ $workerGroupSpecs.minReplicas }}
@@ -144,15 +145,17 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumes:
-            - name: podman-configmap
+            - name: {{ template "core.ray" $root }}-podman
               configMap:
-                name: podman
+                name: {{ template "core.ray" $root }}-podman
                 defaultMode: 0666
                 items:
                   - key: registries.conf
                     path: registries.conf
                   - key: policy.json
                     path: policy.json
+                  - key: storage.conf
+                    path: storage.conf
           containers:
             - name: ray-worker
               image: {{ $.Values.ray.image.repository }}:{{ $.Values.ray.image.tag }}{{ ternary "-gpu" "" $workerGroupSpecs.gpuWorkerGroup.enabled }}
@@ -183,7 +186,7 @@ spec:
                           fi;
                           sleep 1;
                         done;
-                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions model_ray_user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
+                        serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
                 preStop:
                   exec:
                     command: ["/bin/sh","-c","ray stop"]
@@ -200,35 +203,7 @@ spec:
                 {{- toYaml $workerGroupSpecs.resources | nindent 16 }}
               {{- end }}
               volumeMounts:
-                - mountPath: /etc/containers/
-                  name: podman-configmap
+                - mountPath: /home/ray/.config/containers/
+                  name: {{ template "core.ray" $root }}-podman
   {{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: podman
-data:
-  registries.conf: |
-    unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
-
-    [[registry]]
-    location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
-    insecure = true
-  policy.json: |
-    {
-      "default": [
-        {
-          "type": "insecureAcceptAnything"
-        }
-      ],
-      "transports": {
-        "docker-daemon": {
-          "": [{ "type": "insecureAcceptAnything" }]
-        }
-      }
-    }
-  storage.conf: |
-    [storage]
-    driver = "overlay"
 {{- end }}

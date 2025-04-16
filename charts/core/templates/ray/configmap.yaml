@@ -1,0 +1,29 @@
+{{- if .Values.tags.ray -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "core.ray" . }}-podman
+data:
+  registries.conf: |
+    unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
+
+    [[registry]]
+    location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
+    insecure = true
+  policy.json: |
+    {
+      "default": [
+        {
+          "type": "insecureAcceptAnything"
+        }
+      ],
+      "transports": {
+        "docker-daemon": {
+          "": [{ "type": "insecureAcceptAnything" }]
+        }
+      }
+    }
+  storage.conf: |
+    [storage]
+    driver = "overlay"
+{{- end }}

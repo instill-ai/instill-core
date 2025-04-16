@@ -1,9 +1,9 @@
 ## -- Provide a name in place of core
-nameOverride: ""
+nameOverride:
 ## -- Override the deployment namespace
-namespaceOverride: ""
+namespaceOverride:
 ## -- Provide a name to substitute for the full names of resources
-fullnameOverride: ""
+fullnameOverride:
 # -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
@@ -715,7 +715,7 @@ console:
 kuberay-operator:
   image:
     repository: quay.io/kuberay/operator
-    tag: v1.1.1
+    tag: v1.3.2
     pullPolicy: IfNotPresent
   fullnameOverride: ""
   watchNamespace:

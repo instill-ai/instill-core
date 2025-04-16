@@ -4,7 +4,7 @@ dependencies:
   version: 4.1.30
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm/
-  version: 1.1.1
+  version: 1.3.2
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 7.17.3
@@ -20,5 +20,5 @@ dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 70.3.0
-digest: sha256:7b83c3a08fac3394c5aa6fbacd8382d093e1c029e878fa86583e5d008b8778a2
-generated: "2025-03-27T13:11:40.049425Z"
+digest: sha256:cba040f1033590a03d103d9e58e208a53044d65a67fff78059220e91bfe8303c
+generated: "2025-04-14T22:13:13.566722+01:00"

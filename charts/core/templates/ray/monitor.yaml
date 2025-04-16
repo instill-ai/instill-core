@@ -3,7 +3,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: ray-head-monitor
+  name: {{ template "core.ray" . }}
   namespace: instill-ai
   labels:
     # `release: $HELM_RELEASE`: Prometheus can only detect ServiceMonitor with this label.
