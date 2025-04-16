@@ -8488,7 +8488,7 @@
     "refresh": "30s",
     "schemaVersion": 39,
     "tags": [
-        "krakend-ce:2.9.3"
+        "krakend-ce:2.9.4"
     ],
     "templating": {
         "list": [
