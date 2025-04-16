@@ -1713,7 +1713,6 @@ milvus:
       pulsar:
         namespace: instill-ai
 tags:
-  ray: true
   model: true
   milvus: true
   observability: true

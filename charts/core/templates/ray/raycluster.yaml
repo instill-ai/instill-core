@@ -1,4 +1,3 @@
-{{- if .Values.tags.ray -}}
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
@@ -205,5 +204,4 @@ spec:
               volumeMounts:
                 - mountPath: /home/ray/.config/containers/
                   name: {{ template "core.ray" $root }}-podman
-  {{- end }}
 {{- end }}

@@ -1,4 +1,3 @@
-{{- if .Values.tags.ray -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,4 +25,3 @@ data:
   storage.conf: |
     [storage]
     driver = "overlay"
-{{- end }}
