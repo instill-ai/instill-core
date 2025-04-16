@@ -51,7 +51,7 @@ data:
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
     ray:
-      host: {{ include "core.ray" . }}
+      host: {{ include "core.rayServiceName" . }}
       port:
         grpc: {{ include "core.ray.serveGrpcPort" . }}
         client: {{ include "core.ray.servePort" . }}

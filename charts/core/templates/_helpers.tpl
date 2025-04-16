@@ -280,11 +280,11 @@ Temporal
   {{- printf "%s-kuberay-operator" (include "ray.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.ray-service" -}}
+{{- define "core.ray" -}}
   {{- printf "%s-ray" (include "ray.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.ray" -}}
+{{- define "core.rayServiceName" -}}
   {{- printf "%s-ray-head-svc%s" (include "ray.fullname" .) (include "ray.suffix" .) -}}
 {{- end -}}
 
