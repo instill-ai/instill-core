@@ -49,4 +49,4 @@ dependencies:
     repository: https://prometheus-community.github.io/helm-charts
     version: 70.3.0
     tags:
-      - prometheusStack
+      - observability

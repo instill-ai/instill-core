@@ -1716,5 +1716,4 @@ tags:
   ray: true
   model: true
   milvus: true
-  prometheusStack: false
-  observability: false
+  observability: true
