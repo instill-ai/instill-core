@@ -585,8 +585,6 @@ modelBackend:
     secure: false
 # -- The configuration of artifact-backend
 artifactBackend:
-  # -- Enable artifact-backend deployment
-  enabled: true
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
