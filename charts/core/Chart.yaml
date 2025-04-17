@@ -21,13 +21,9 @@ dependencies:
   - name: milvus
     repository: https://zilliztech.github.io/milvus-helm/
     version: 4.1.30
-    tags:
-      - milvus
   - name: kuberay-operator
     repository: https://ray-project.github.io/kuberay-helm/
     version: 1.3.2
-    tags:
-      - ray
   - name: elasticsearch
     repository: https://helm.elastic.co
     version: 7.17.3
@@ -49,4 +45,4 @@ dependencies:
     repository: https://prometheus-community.github.io/helm-charts
     version: 70.3.0
     tags:
-      - prometheusStack
+      - observability

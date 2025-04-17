@@ -17,7 +17,7 @@ services:
     container_name: ${JAEGER_HOST}
     image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
     ports:
-      - ${JAEGER_PORT}:16686 # Web HTTP
+      - ${JAEGER_LOCAL_PORT}:${JAEGER_PORT}
 
   prometheus:
     container_name: ${PROMETHEUS_HOST}
@@ -25,7 +25,7 @@ services:
     volumes:
       - ${CONFIG_DIR_PATH}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - ${PROMETHEUS_PORT}:9090
+      - ${PROMETHEUS_LOCAL_PORT}:${PROMETHEUS_PORT}
 
   grafana:
     container_name: ${GRAFANA_HOST}
@@ -41,4 +41,4 @@ services:
       - ${CONFIG_DIR_PATH}/grafana/dashboards/ray:/var/lib/grafana/dashboards/ray
       - ${CONFIG_DIR_PATH}/grafana/dashboards/temporal:/var/lib/grafana/dashboards/temporal
     ports:
-      - ${GRAFANA_PORT}:3000
+      - ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT}

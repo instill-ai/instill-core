@@ -67,8 +67,7 @@ jobs:
               --set milvus.broker.resources.requests.cpu=0.25 \
               --set milvus.autorecovery.resources.requests.cpu=0.25 \
               --set milvus.proxy.resources.requests.cpu=0.25 \
-              --set tags.observability=true \
-              --set tags.prometheusStack=true
+              --set tags.observability=true
           else
             helm install core charts/core --namespace instill-ai --create-namespace \
               --set edition=k8s-ce:test \
@@ -98,8 +97,7 @@ jobs:
               --set milvus.broker.resources.requests.cpu=0.25 \
               --set milvus.autorecovery.resources.requests.cpu=0.25 \
               --set milvus.proxy.resources.requests.cpu=0.25 \
-              --set tags.observability=true \
-              --set tags.prometheusStack=true
+              --set tags.observability=true
           fi
 
       - name: Wait for all pods up

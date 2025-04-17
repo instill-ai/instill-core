@@ -585,8 +585,6 @@ modelBackend:
     secure: false
 # -- The configuration of artifact-backend
 artifactBackend:
-  # -- Enable artifact-backend deployment
-  enabled: true
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
@@ -1388,9 +1386,10 @@ kube-prometheus-stack:
       api-gateway: "core-grafana-api-gateway-dashboards"
       ray: "core-grafana-ray-dashboards"
     grafana.ini:
-      allow_embedding: true
-      cookie_secure: true
-      cookie_samesite: true
+      security:
+        cookie_secure: true
+        allow_embedding: true
+        cookie_samesite: none
       auth:
         disable_login_form: false
       auth.basic:
@@ -1713,8 +1712,4 @@ milvus:
       pulsar:
         namespace: instill-ai
 tags:
-  ray: true
-  model: true
-  milvus: true
-  prometheusStack: false
-  observability: false
+  observability: true
