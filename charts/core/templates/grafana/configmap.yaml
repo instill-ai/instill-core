@@ -1,4 +1,5 @@
 ---
+{{- if .Values.tags.prometheusStack -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -6,7 +7,9 @@ metadata:
 data:
   for-prometheus.json: |
 {{ .Files.Get "grafana-dashboards/temporal/temporal-go-java-sdks-tally.json" | indent 4 }}
+{{- end }}
 ---
+{{- if .Values.tags.prometheusStack -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -20,7 +23,9 @@ data:
 {{ .Files.Get "grafana-dashboards/ray/serve_deployment_grafana_dashboard.json" | indent 4 }}
   serve_grafana_dashboard.json: |
 {{ .Files.Get "grafana-dashboards/ray/serve_grafana_dashboard.json" | indent 4 }}
+{{- end }}
 ---
+{{- if .Values.tags.prometheusStack -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -28,3 +33,4 @@ metadata:
 data:
   for-prometheus.json: |
 {{ .Files.Get "grafana-dashboards/api-gateway/for-prometheus.json" | indent 4 }}
+{{- end }}
