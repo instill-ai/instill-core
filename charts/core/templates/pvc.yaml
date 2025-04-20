@@ -1,5 +1,4 @@
 {{- if .Values.persistence.enabled }}
-{{- if .Values.tags.model -}}
 {{- $modelStore := .Values.persistence.persistentVolumeClaim.modelStore -}}
 {{- if not $modelStore.existingClaim }}
 kind: PersistentVolumeClaim
@@ -29,7 +28,6 @@ spec:
   storageClassName: {{ $modelStore.storageClass }}
     {{- end }}
   {{- end }}
-{{- end }}
 {{- end }}
 {{- if eq .Values.registry.config.storage.type "filesystem" }}
 {{- $registry := .Values.persistence.persistentVolumeClaim.registry -}}
