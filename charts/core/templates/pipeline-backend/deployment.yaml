@@ -52,6 +52,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- with .Values.pipelineBackend.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.database.enabled }}
         - name: wait-for-db
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -127,7 +130,7 @@ spec:
             - name: MGMT_BACKEND_PORT
               value: "{{ template "core.mgmtBackend.publicPort" . }}"
         {{- with .Values.pipelineBackend.extraInitContainers }}
-        {{- toYaml . | indent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
         - name: pipeline-backend
@@ -253,6 +256,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- with .Values.pipelineBackendWorker.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.database.enabled }}
         - name: wait-for-db
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -263,6 +269,9 @@ spec:
               value: {{ template "core.database" . }}
             - name: PGUSER
               value: {{ template "core.database.username" . }}
+        {{- end }}
+        {{- with .Values.pipelineBackend.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
         - name: pipeline-backend-worker

@@ -248,6 +248,8 @@ apiGateway:
     repository: instill/api-gateway
     tag: 0.33.2-beta
     pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
   # -- The path of configuration file for api-gateway
   configPath: /api-gateway/config/.env
   # -- Additional hosts
@@ -274,14 +276,19 @@ apiGateway:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -307,6 +314,8 @@ mgmtBackend:
     repository: instill/mgmt-backend
     tag: 0.22.2-beta
     pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
   # -- The command names to be executed
   commandName:
     migration: mgmt-backend-migrate
@@ -337,14 +346,19 @@ mgmtBackend:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -425,14 +439,19 @@ pipelineBackend:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -480,8 +499,22 @@ pipelineBackendWorker:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
-  # -- Additional deployment annotations
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
   resources: {}
   autoscaling:
     enabled: false
@@ -551,14 +584,19 @@ modelBackend:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -590,6 +628,8 @@ artifactBackend:
     repository: instill/artifact-backend
     tag: 0.24.3-alpha
     pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
   # -- The command names to be executed
   commandName:
     migration: artifact-backend-migrate
@@ -618,14 +658,19 @@ artifactBackend:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -689,8 +734,8 @@ console:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -1000,8 +1045,8 @@ temporal:
     #  - name: ...
     #    image: ...
     # -- Add extra sidecar containers
-    sidecarContainers: {}
-    # -- Additional deployment annotations
+    sidecarContainers: []
+    # -- Additional pod annotations
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
@@ -1028,7 +1073,7 @@ temporal:
     resources: {}
     ## -- The priority class to run the pod as
     priorityClassName:
-    # -- Additional deployment annotations
+    # -- Additional pod annotations
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
@@ -1053,7 +1098,7 @@ temporal:
     resources: {}
     ## -- The priority class to run the pod as
     priorityClassName:
-    # -- Additional deployment annotations
+    # -- Additional pod annotations
     podAnnotations: {}
     # -- Additional service annotations
     serviceAnnotations: {}
@@ -1072,7 +1117,7 @@ temporal:
 # -- The configuration of PostgreSQL
 database:
   # -- If external database is used, set "enabled" to false
-  # and fill the connection informations in "external" section
+  # and fill the connection information in "external" section
   enabled: true
   # -- The image of postgresql
   image:
@@ -1095,7 +1140,7 @@ database:
   # -- The timeout used in readinessProbe; 1 to 5 seconds
   readinessProbe:
     timeoutSeconds: 1
-  # -- Additional deployment annotations
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -1143,7 +1188,7 @@ redis:
   resources: {}
   ## -- The priority class to run the pod as
   priorityClassName:
-  # -- Additional deployment annotations
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -1409,6 +1454,8 @@ openfga:
     repository: openfga/openfga
     tag: v1.5.1
     pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
@@ -1428,14 +1475,19 @@ openfga:
   # - name: my-volume
   #   mountPath: /etc/secrets/my-secret
   #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
   # -- Add extra init containers
   extraInitContainers: []
   # extraInitContainers:
   #  - name: ...
   #    image: ...
   # -- Add extra sidecar containers
-  sidecarContainers: {}
-  # -- Additional deployment annotations
+  sidecarContainers: []
+  # -- Additional pod annotations
   podAnnotations: {}
   # -- Additional service annotations
   serviceAnnotations: {}
@@ -1470,7 +1522,7 @@ registry:
   extraVolumes: []
   extraVolumeMounts: []
   extraInitContainers: []
-  sidecarContainers: {}
+  sidecarContainers: []
   podAnnotations: {}
   serviceAnnotations: {}
   resources: {}

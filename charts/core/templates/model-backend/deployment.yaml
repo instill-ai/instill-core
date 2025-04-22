@@ -53,6 +53,9 @@ spec:
       automountServiceAccountToken: {{ .Values.modelBackend.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
       initContainers:
+        {{- with .Values.modelBackend.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.database.enabled }}
         - name: wait-for-db
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -131,6 +134,9 @@ spec:
           volumeMounts:
           - name: model-store
             mountPath: /model-store
+        {{- with .Values.modelBackend.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: model-backend-worker
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}

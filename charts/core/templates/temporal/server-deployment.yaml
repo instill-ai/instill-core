@@ -93,7 +93,7 @@ spec:
               value: "{{ template "core.temporal.frontend.grpcPort" $ }}"
         {{- end }}
         {{- with $.Values.temporal.server.extraInitContainers }}
-        {{- toYaml . | indent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
         - name: temporal-{{ $service }}

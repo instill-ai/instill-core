@@ -7,6 +7,9 @@ metadata:
     app.kubernetes.io/component: artifact-backend
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.artifactBackend.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   strategy:
     type: {{ .Values.updateStrategy.type }}
@@ -49,6 +52,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- with .Values.artifactBackend.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.database.enabled }}
         - name: wait-for-db
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -100,7 +106,7 @@ spec:
             {{- toYaml .Values.artifactBackend.extraEnv | nindent 12 }}
           {{- end }}
         {{- with .Values.artifactBackend.extraInitContainers }}
-        {{- toYaml . | indent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
         - name: artifact-backend
