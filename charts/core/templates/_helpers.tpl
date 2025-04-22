@@ -563,6 +563,7 @@ blueGreen:
   activeService: {{ template "core.apiGateway" . }}
   previewService: {{ template "core.apiGateway" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -574,6 +575,7 @@ blueGreen:
   activeService: {{ template "core.artifactBackend" . }}
   previewService: {{ template "core.artifactBackend" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -585,6 +587,7 @@ blueGreen:
   activeService: {{ template "core.mgmtBackend" . }}
   previewService: {{ template "core.mgmtBackend" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -596,6 +599,7 @@ blueGreen:
   activeService: {{ template "core.modelBackend" . }}
   previewService: {{ template "core.modelBackend" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -607,6 +611,7 @@ blueGreen:
   activeService: {{ template "core.openfga" . }}
   previewService: {{ template "core.openfga" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -618,6 +623,7 @@ blueGreen:
   activeService: {{ template "core.pipelineBackend" . }}
   previewService: {{ template "core.pipelineBackend" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -629,6 +635,7 @@ blueGreen:
   activeService: {{ template "core.pipelineBackendWorker" . }}
   previewService: {{ template "core.pipelineBackendWorker" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
 
@@ -640,5 +647,6 @@ blueGreen:
   activeService: {{ template "core.registry" . }}
   previewService: {{ template "core.registry" . }}-preview
   autoPromotionEnabled: false
+  autoPromotionSeconds: 900
   scaleDownDelaySeconds: 900
 {{- end -}}
