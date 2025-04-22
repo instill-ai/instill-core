@@ -7,6 +7,9 @@ metadata:
     app.kubernetes.io/component: api-gateway
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.apiGateway.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   strategy:
     type: {{ .Values.updateStrategy.type }}
@@ -48,6 +51,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- with .Values.apiGateway.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: wait-for-dependencies
           image: curlimages/curl:8.00.1
           command: ['sh', '-c']
@@ -79,7 +85,7 @@ spec:
               value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
         {{- with .Values.apiGateway.extraInitContainers }}
-        {{- toYaml . | indent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
         - name: api-gateway

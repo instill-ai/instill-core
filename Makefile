@@ -106,7 +106,7 @@ build-latest:				## Build latest images for all services
 				ARTIFACT_BACKEND_VERSION=latest \
 				CONSOLE_VERSION=latest \
 				COMPONENT_ENV=${COMPONENT_ENV} \
-				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
+				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
 			"
 
 .PHONY: build-release
@@ -139,7 +139,7 @@ build-release:				## Build release images for all services
 				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 				CONSOLE_VERSION=${CONSOLE_VERSION} \
 				COMPONENT_ENV=${COMPONENT_ENV} \
-				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml build --progress plain \
+				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
 			"
 
 .PHONY: down
@@ -211,7 +211,7 @@ integration-test-release:			# Run integration test on the release Instill Core
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       # Run integration test on the Helm latest for Instill Core
-	@make build-latest COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-latest
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
@@ -256,7 +256,7 @@ endif
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       # Run integration test on the Helm release for Instill Core
-	@make build-release COMPONENT_ENV=${COMPONENT_TEST_ENV}
+	@make build-release
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \

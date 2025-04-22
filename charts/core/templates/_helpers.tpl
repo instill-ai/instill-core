@@ -480,6 +480,14 @@ internal TLS secret names
   {{- end -}}
 {{- end -}}
 
+{{- define "core.internalTLS.artifactBackend.secretName" -}}
+  {{- if eq .Values.internalTLS.certSource "secret" -}}
+    {{- .Values.internalTLS.artifactBackend.secretName -}}
+  {{- else -}}
+    {{- printf "%s-artifact-backend-internal-tls" (include "core.fullname" .) -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "core.internalTLS.console.secretName" -}}
   {{- if eq .Values.internalTLS.certSource "secret" -}}
     {{- .Values.internalTLS.console.secretName -}}

@@ -7,6 +7,9 @@ metadata:
     app.kubernetes.io/component: openfga
   annotations:
     rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.openfga.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   strategy:
     type: {{ .Values.updateStrategy.type }}
@@ -48,6 +51,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- with .Values.openfga.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.database.enabled }}
         - name: wait-for-db
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -65,6 +71,10 @@ spec:
           command: ['sh', '-c']
           args:
           - >
+            until pg_isready; do
+              echo "Waiting for database to be ready...";
+              sleep 2;
+            done;
             createdb || true
           env:
             - name: PGDATABASE
@@ -92,6 +102,9 @@ spec:
             {{- if .Values.openfga.extraEnv }}
             {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
             {{- end }}
+        {{- with .Values.openfga.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: openfga
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
@@ -161,6 +174,9 @@ spec:
             - containerPort: 8083
               protocol: TCP
           {{- end }}
+        {{- with .Values.openfga.sidecarContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.openfga.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
