@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.4-beta](https://github.com/instill-ai/instill-core/compare/v0.50.3-beta...v0.50.4-beta) (2025-04-22)
+
+
+### Bug Fixes
+
+* **ray,grafana:** fix ray dashboard embedding grafana ([#1215](https://github.com/instill-ai/instill-core/issues/1215)) ([fa4c4da](https://github.com/instill-ai/instill-core/commit/fa4c4da0a91758a709710e35e57cabb2d5739da7))
+
 ## [0.50.3-beta](https://github.com/instill-ai/instill-core/compare/v0.50.2-beta...v0.50.3-beta) (2025-04-17)
 
 
