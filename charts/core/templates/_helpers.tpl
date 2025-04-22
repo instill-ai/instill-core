@@ -554,3 +554,91 @@ minio
     {{- "" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Rollout configurations for api-gateway
+*/}}
+{{- define "core.apiGateway.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.apiGateway" . }}
+  previewService: {{ template "core.apiGateway" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for artifact-backend
+*/}}
+{{- define "core.artifactBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.artifactBackend" . }}
+  previewService: {{ template "core.artifactBackend" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for mgmt-backend
+*/}}
+{{- define "core.mgmtBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.mgmtBackend" . }}
+  previewService: {{ template "core.mgmtBackend" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for model-backend
+*/}}
+{{- define "core.modelBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.modelBackend" . }}
+  previewService: {{ template "core.modelBackend" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for openfga
+*/}}
+{{- define "core.openfga.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.openfga" . }}
+  previewService: {{ template "core.openfga" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for pipeline-backend
+*/}}
+{{- define "core.pipelineBackend.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.pipelineBackend" . }}
+  previewService: {{ template "core.pipelineBackend" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for pipeline-backend-worker
+*/}}
+{{- define "core.pipelineBackendWorker.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.pipelineBackendWorker" . }}
+  previewService: {{ template "core.pipelineBackendWorker" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}
+
+{{/*
+Rollout configurations for registry
+*/}}
+{{- define "core.registry.strategy" -}}
+blueGreen:
+  activeService: {{ template "core.registry" . }}
+  previewService: {{ template "core.registry" . }}-preview
+  autoPromotionEnabled: false
+  scaleDownDelaySeconds: 900
+{{- end -}}

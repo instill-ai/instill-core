@@ -5,8 +5,13 @@ metadata:
   name: {{ template "core.openfga" . }}
 spec:
   scaleTargetRef:
+    {{- if .Values.tags.argoRollout }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
+    {{- end }}
     name: {{ template "core.openfga" . }}
     labels:
     {{- include "core.labels" . | nindent 4 }}

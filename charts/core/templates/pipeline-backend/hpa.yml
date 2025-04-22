@@ -8,8 +8,13 @@ metadata:
     app.kubernetes.io/component: pipeline-backend
 spec:
   scaleTargetRef:
+    {{- if .Values.tags.argoRollout }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
+    {{- end }}
     name: {{ template "core.pipelineBackend" . }}
   minReplicas: {{ .Values.pipelineBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackend.autoscaling.maxReplicas }}
@@ -38,8 +43,13 @@ metadata:
     app.kubernetes.io/component: pipeline-backend-worker
 spec:
   scaleTargetRef:
+    {{- if .Values.tags.argoRollout }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
+    {{- end }}
     name: {{ template "core.pipelineBackendWorker" . }}
   minReplicas: {{ .Values.pipelineBackendWorker.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackendWorker.autoscaling.maxReplicas }}

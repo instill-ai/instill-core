@@ -1713,3 +1713,4 @@ milvus:
         namespace: instill-ai
 tags:
   observability: true
+  argoRollout: false
