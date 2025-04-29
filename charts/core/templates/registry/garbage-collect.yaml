@@ -4,7 +4,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ template "core.registry" . }}-garbage-collector
+  name: {{ include "core.registry" . }}-garbage-collector
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry
@@ -73,7 +73,7 @@ spec:
           volumes:
             - name: config
               configMap:
-                name: {{ template "core.registry" . }}
+                name: {{ include "core.registry" . }}
             {{- if eq .Values.registry.config.storage.type "filesystem" }}
             - name: data-volume
             {{- if not .Values.persistence.enabled }}
@@ -83,7 +83,7 @@ spec:
                 claimName: {{ $registry.existingClaim }}
             {{- else }}
               persistentVolumeClaim:
-                claimName: {{ template "core.registryDataVolume" . }}
+                claimName: {{ include "core.registryDataVolume" . }}
             {{- end }}
             {{- end }}
             {{- with .Values.registry.extraVolumes }}

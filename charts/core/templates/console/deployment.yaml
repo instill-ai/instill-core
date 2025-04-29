@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.console" . }}
+  name: {{ include "core.console" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: console
@@ -77,7 +77,7 @@ spec:
           command: ["./entrypoint.sh"]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "core.console.port" . }}
+              containerPort: {{ include "core.console.port" . }}
               protocol: TCP
           volumeMounts:
             {{- if .Values.internalTLS.enabled }}
@@ -122,7 +122,7 @@ spec:
         {{- if .Values.internalTLS.enabled }}
         - name: console-internal-certs
           secret:
-            secretName: {{ template "core.internalTLS.console.secretName" . }}
+            secretName: {{ include "core.internalTLS.console.secretName" . }}
         {{- end }}
         {{- with .Values.console.extraVolumes }}
         {{- toYaml . | nindent 8 }}

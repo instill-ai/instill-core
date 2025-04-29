@@ -1,9 +1,12 @@
-## -- Provide a name in place of core
+# -- Provide a name in place of core
 nameOverride:
-## -- Override the deployment namespace
-namespaceOverride:
-## -- Provide a name to substitute for the full names of resources
+
+# -- Provide a name to substitute for the full names of resources
 fullnameOverride:
+
+# -- Override the deployment namespace
+namespaceOverride:
+
 # -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
@@ -11,19 +14,26 @@ updateStrategy:
   rollingUpdate:
     maxSurge: 1
     maxUnavailable: 0
+
 # -- Set the cluster as the primary one in a multi-region environment.
 isPrimaryCluster: true
+
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
+
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
+
 # -- The maximum data payload to backend services (MB)
-maxDataSizeMB: 512
+maxDataSizeMB: 1024
+
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets:
+
+# -- Set how to expose the api-gateway service
 expose:
-  # -- Set how to expose the api-gateway service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
+  # -- Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
   type: clusterIP
   tls:
@@ -118,6 +128,7 @@ expose:
       temporal:
     # Annotations on the LoadBalancer service
     annotations: {}
+
 # -- The external URL for Instill Core services. It is used to
 # populate the API endpoints showed on the console
 #
@@ -132,6 +143,7 @@ expose:
 # If Instill Core is deployed behind the proxy, set it as the URL of the proxy (without protocol and port)
 apiGatewayURL: http://localhost:8080
 consoleURL: http://localhost:3000
+
 # -- The internal TLS used for Core components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -192,6 +204,7 @@ internalTLS:
     crt: ""
     # Content of ray's TLS key file, only available when `certSource` is "manual"
     key: ""
+
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
@@ -234,6 +247,7 @@ persistence:
       accessMode: ReadWriteOnce
       size: 250Gi
       annotations: {}
+
 # -- The usage collector configuration
 usage:
   usageidentifieruid:
@@ -241,6 +255,7 @@ usage:
   tlsenabled: true
   host: usage.instill.tech
   port: 443
+
 # -- The configuration of api-gateway
 apiGateway:
   # -- The image of api-gateway
@@ -307,6 +322,7 @@ apiGateway:
     spec:
       minAvailable:
       maxUnavailable:
+
 # -- The configuration of mgmt-backend
 mgmtBackend:
   # -- The image of mgmt-backend
@@ -386,6 +402,7 @@ mgmtBackend:
     cert:
     key:
     serverName:
+
 # -- The configuration of pipeline-backend
 pipelineBackend:
   # -- The image of pipeline-backend
@@ -476,6 +493,8 @@ pipelineBackend:
     password: minioadmin
     bucketname: instill-ai-pipeline
     secure: false
+
+# -- The configuration of pipeline-backend-worker
 pipelineBackendWorker:
   # -- Annotation for deployment
   annotations: {}
@@ -525,6 +544,7 @@ pipelineBackendWorker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
@@ -621,6 +641,7 @@ modelBackend:
     password: minioadmin
     bucketname: instill-ai-model
     secure: false
+
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- The image of artifact-backend
@@ -698,6 +719,7 @@ artifactBackend:
   numberOfWorkers: 20
   blob:
     hostport: http://localhost:8080
+
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
@@ -754,6 +776,434 @@ console:
     spec:
       minAvailable:
       maxUnavailable:
+
+# -- The configuration of OpenFGA
+openfga:
+  image:
+    repository: openfga/openfga
+    tag: v1.5.1
+    pullPolicy: IfNotPresent
+  # -- Annotation for deployment
+  annotations: {}
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The number of replica for mgmt-backend
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra sidecar containers
+  sidecarContainers: []
+  # -- Additional pod annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  # -- The pod resource
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetAverageMemoryUtilization:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+
+# -- The configuration of registry
+registry:
+  enabled: true
+  image:
+    repository: registry
+    tag: 2.8.3
+    pullPolicy: IfNotPresent
+  configPath: /etc/docker/registry/config.yml
+  serviceAccountName: ""
+  automountServiceAccountToken: false
+  replicaCount: 1
+  extraEnv: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  extraInitContainers: []
+  sidecarContainers: []
+  podAnnotations: {}
+  serviceAnnotations: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetAverageMemoryUtilization:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
+  garbageCollect:
+    enabled: true
+    deleteUntagged: true
+    schedule: "10 0 * * 1"
+    maintenanceSchedule: "*/30 0 * * 1"
+  config:
+    version: 0.1
+    log:
+      level: Info
+      formatter: text
+      fields:
+        service: registry
+        environment: k8s:ce
+    storage:
+      type: filesystem
+      filesystem:
+        rootdirectory: /var/lib/registry
+        maxthreads: 100
+      gcs:
+        bucket:
+        keyfile:
+        credentials:
+          type:
+          project_id:
+          private_key_id:
+          private_key:
+          client_email:
+          client_id:
+          auth_uri:
+          token_uri:
+          auth_provider_x509_cert_url:
+          client_x509_cert_url:
+        rootdirectory:
+        chunksize:
+      s3:
+        accesskey:
+        secretkey:
+        region:
+        regionendpoint:
+        forcepathstyle:
+        accelerate:
+        bucket:
+        encrypt:
+        keyid:
+        secure:
+        skipverify:
+        v4auth:
+        chunksize:
+        storageclass:
+        multipartcopychunksize:
+        multipartcopymaxconcurrency:
+        multipartcopythresholdsize:
+        rootdirectory:
+        usedualstack:
+        useragent:
+        objectacl:
+        loglevel: debug
+      delete:
+        enabled: true
+      redirect:
+        disable: false
+      cache:
+        blobdescriptor: redis
+        blobdescriptorsize: 10000
+      maintenance:
+        uploadpurging:
+          enabled: true
+          age: 168h
+          interval: 24h
+          dryrun: false
+        readonly:
+          enabled: false
+    http:
+      addr: 0.0.0.0:5000
+      prefix: /
+      secret: i-love-instill-ai
+      relativeurls: false
+      draintimeout: 60s
+      tls:
+        certificate:
+        key:
+      debug:
+        addr: 0.0.0.0:5001
+        prometheus:
+          enabled: true
+          path: /metrics
+      headers:
+        X-Content-Type-Options: [nosniff]
+      http2:
+        disabled: false
+      h2c:
+        enabled: false
+    redis:
+      addr: core-redis:6379
+      dialtimeout: 100ms
+      readtimeout: 100ms
+      writetimeout: 100ms
+      pool:
+        maxidle: 16
+        maxactive: 128
+        idletimeout: 300s
+      tls:
+        enabled: false
+
+# -- The configuration of PostgreSQL
+database:
+  # -- If external database is used, set "enabled" to false
+  # and fill the connection information in "external" section
+  enabled: true
+  # -- The image of postgresql
+  image:
+    repository: postgres
+    tag: 15-alpine
+    pullPolicy: IfNotPresent
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The initial superuser password for internal database
+  password: "password"
+  # -- The size limit for Shared memory, pgSQL use it for shared_buffer
+  shmSizeLimit: 512Mi
+  # -- The pod resource
+  resources: {}
+  # -- The timeout used in livenessProbe; 1 to 5 seconds
+  livenessProbe:
+    timeoutSeconds: 1
+  # -- The timeout used in readinessProbe; 1 to 5 seconds
+  readinessProbe:
+    timeoutSeconds: 1
+  # -- Additional pod annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # -- The maximum number of connections in the idle connection pool per pod.
+  # If it <=0, no idle connections are retained.
+  maxIdleConns: 5
+  # -- The maximum number of open connections to the database per pod.
+  # If it <= 0, then there is no limit on the number of open connections.
+  maxOpenConns: 10
+  # -- The maximum amount of time in minutes a connection may be reused.
+  # Expired connections may be closed lazily before reuse.
+  # If it <= 0, connections are not closed due to a connection's age.
+  maxConnLifeTime: 30m
+  # -- The configuration of external database
+  external:
+    host:
+    port:
+    username:
+    password:
+    dbSecretName: ""
+    dbSecretKey: ""
+  externalReplica:
+    host:
+    port:
+    username:
+    password:
+
+# -- The configuration of Redis
+redis:
+  # -- If external Redis is used, set "enabled" to false
+  # and fill the connection information in "external" section
+  enabled: true
+  # -- The image of redis
+  image:
+    repository: redis
+    tag: 8.0-M04-alpine3.21
+    pullPolicy: IfNotPresent
+  # -- Set the service account to be used, default if left empty
+  serviceAccountName: ""
+  # -- Mount the service account token
+  automountServiceAccountToken: false
+  # -- The pod resource
+  resources: {}
+  ## -- The priority class to run the pod as
+  priorityClassName:
+  # -- Additional pod annotations
+  podAnnotations: {}
+  # -- Additional service annotations
+  serviceAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  ## -- The configuration of external redis
+  external:
+    # -- Address for redis: <host_redis>:<port_redis>
+    addr:
+
+# -- The configuration of InfluxDB
+influxdb2:
+  enabled: true
+  # Admin user configuration
+  adminUser:
+    user: admin
+    token: i-love-instill-ai
+    organization: instill-ai
+    bucket: instill-ai
+    retention_policy: 1w
+  # -- The configuration of external InfluxDB
+  external:
+    # -- The URL of the external InfluxDB
+    url:
+    # -- The token of the external InfluxDB
+    token:
+    # -- The organization of the external InfluxDB
+    organization:
+    # -- The bucket of the external InfluxDB
+    bucket:
+
+# -- The configuration of milvus
+# https://github.com/zilliztech/milvus-helm/blob/master/charts/milvus/values.yaml
+milvus:
+  enabled: true
+  image:
+    all:
+      repository: milvusdb/milvus
+      tag: v2.4.1
+      pullPolicy: IfNotPresent
+  nodeselector: {}
+  tolerations: []
+  affinity: {}
+  log:
+    level: "error"
+    file:
+      maxSize: 10 # MB
+      maxAge: 12 # day
+      maxBackups: 2
+    format: "json" # text/json
+  cluster:
+    enabled: true
+  rootCoordinator:
+    enabled: false
+  queryCoordinator:
+    enabled: false
+  indexCoordinator:
+    enabled: false
+  dataCoordinator:
+    enabled: false
+  mixCoordinator:
+    enabled: true
+  # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
+  # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
+  # TODO: MinIO is used by services like pipeline or artifact, not only Milvus.
+  # Therefore, it shouldn't be defined as a Milvus dependency (INS-7341).
+  minio:
+    mode: distributed
+    nodeSelector: {}
+    replicas: 2
+    persistence:
+      size: 50Gi
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 10
+      successThreshold: 1
+      failureThreshold: 10
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
+    environment:
+      MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: "on"
+      # TODO: If fullnameOverride is set, artifact's host might change. This
+      # should be set through templates, which could be done along with the
+      # MinIO extraction from Milvus (INS-7341).
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: "http://core-artifact-backend:3082/v1alpha/minio-audit"
+  etcd:
+    nodeSelector: {}
+    enabled: true
+    replicaCount: 1
+  pulsar:
+    nodeSelector: {}
+    enabled: false
+    bookkeeper:
+      replicaCount: 1
+      volumes:
+        journal:
+          name: journal
+          size: 10Gi
+        ledgers:
+          name: ledgers
+          size: 20Gi
+      resources:
+        requests:
+          memory:
+          cpu: 0.5
+  kafka:
+    nodeSelector: {}
+    enabled: true
+    replicaCount: 1
+    defaultReplicationFactor: 1
+    offsetsTopicReplicationFactor: 1
+    persistence:
+      enabled: true
+      storageClass:
+      accessMode: ReadWriteOnce
+      size: 30Gi
+    zookeeper:
+      nodeSelector: {}
+      enabled: true
+      replicaCount: 1
+  broker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
+  autorecovery:
+    resources:
+      requests:
+        cpu: 0.5
+  proxy:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 0.5
+  # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
+  extraConfigFiles:
+    user.yaml: |
+      etcd:
+        rootPath: core-milvus
+        log:
+          level: info
+      minio:
+        bucketName: core-milvus
+      pulsar:
+        namespace: instill-ai
+
 # -- The configuration of KubeRay Operator
 kuberay-operator:
   image:
@@ -824,6 +1274,8 @@ ray:
 # -- The configuration of Temporal
 temporal:
   # -- Enable Temporal deployment or not
+  # If true, Temporal will be deployed as a part of the core deployment.
+  # If false, Temporal will be deployed as a separate deployment.
   enabled: true
   server:
     # -- Enable Temporal server
@@ -831,16 +1283,9 @@ temporal:
     # -- The image of Temporal server
     image:
       repository: temporalio/server
-      tag: 1.22.3
+      tag: 1.27.2
       pullPolicy: IfNotPresent
     dynamicConfig: {}
-    # matching.numTaskqueueReadPartitions:
-    #   - value: 5
-    #     constraints: {}
-    # matching.numTaskqueueWritePartitions:
-    #   - value: 5
-    #     constraints: {}
-
     config:
       logLevel: "debug,info"
       # IMPORTANT: This value cannot be changed, once it's set.
@@ -851,25 +1296,15 @@ temporal:
         default:
           driver: "sql"
           sql:
-            driver: "postgres"
-            host:
-            port: 5432
+            driver: "postgres12_pgx"
             database: "temporal"
-            existingSecret: ""
-            secretName: ""
             maxConns: 20
             maxConnLifetime: "1h"
-            # connectAttributes:
-            # tx_isolation: 'READ-COMMITTED'
         visibility:
           driver: "sql"
           sql:
-            driver: "postgres"
-            host:
-            port: 5432
+            driver: "postgres12_pgx"
             database: "temporal_visibility"
-            existingSecret: ""
-            secretName: ""
             maxConns: 20
             maxConnLifetime: "1h"
             # connectAttributes:
@@ -884,7 +1319,7 @@ temporal:
       serviceMonitor:
         enabled: false
         interval: 30s
-        # Set additional lables to all the ServiceMonitor resources
+        # Set additional labels to all the ServiceMonitor resources
         additionalLabels: {}
         #  label1: value1
         #  label2: value2
@@ -1061,7 +1496,7 @@ temporal:
     # -- The image of Temporal admin-tools
     image:
       repository: temporalio/admin-tools
-      tag: 1.22.3
+      tag: 1.27
       pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
@@ -1086,7 +1521,7 @@ temporal:
     # -- The image of Temporal UI
     image:
       repository: temporalio/ui
-      tag: 2.9.0
+      tag: 2.37.0
       pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
@@ -1112,93 +1547,11 @@ temporal:
       routing:
         default_to_namespace: default
         issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
-  image:
-    tag: 1.22.3
-# -- The configuration of PostgreSQL
-database:
-  # -- If external database is used, set "enabled" to false
-  # and fill the connection information in "external" section
-  enabled: true
-  # -- The image of postgresql
-  image:
-    repository: postgres
-    tag: 15-alpine
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The initial superuser password for internal database
-  password: "password"
-  # -- The size limit for Shared memory, pgSQL use it for shared_buffer
-  shmSizeLimit: 512Mi
-  # -- The pod resource
-  resources: {}
-  # -- The timeout used in livenessProbe; 1 to 5 seconds
-  livenessProbe:
-    timeoutSeconds: 1
-  # -- The timeout used in readinessProbe; 1 to 5 seconds
-  readinessProbe:
-    timeoutSeconds: 1
-  # -- Additional pod annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  # -- The maximum number of connections in the idle connection pool per pod.
-  # If it <=0, no idle connections are retained.
-  maxIdleConns: 5
-  # -- The maximum number of open connections to the database per pod.
-  # If it <= 0, then there is no limit on the number of open connections.
-  maxOpenConns: 10
-  # -- The maximum amount of time in minutes a connection may be reused.
-  # Expired connections may be closed lazily before reuse.
-  # If it <= 0, connections are not closed due to a connection's age.
-  maxConnLifeTime: 30m
-  # -- The configuration of external database
   external:
-    host:
-    port:
-    username:
-    password:
-    dbSecretName: ""
-    dbSecretKey: ""
-  external_replica:
-    host:
-    port:
-    username:
-    password:
-# -- The configuration of Redis
-redis:
-  # -- If external Redis is used, set "enabled" to false
-  # and fill the connection information in "external" section
-  enabled: true
-  # -- The image of redis
-  image:
-    repository: redis
-    tag: 8.0-M04-alpine3.21
-    pullPolicy: IfNotPresent
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The pod resource
-  resources: {}
-  ## -- The priority class to run the pod as
-  priorityClassName:
-  # -- Additional pod annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  ## -- The configuration of external redis
-  external:
-    # -- Address for redis: <host_redis>:<port_redis>
-    addr:
+    hostPort:
+      host:
+      port:
+
 # -- The configuration of Elasticsearch
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
@@ -1211,9 +1564,8 @@ elasticsearch:
   httpPort: 9200
   createCert: false
   visibilityIndex: "temporal_visibility_v1_dev"
-  extraEnvs:
-    - name: ELASTIC_PASSWORD
-      value: "password"
+  secret:
+    password: password
   persistence:
     enabled: false
   esConfig:
@@ -1221,31 +1573,10 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
-  imageTag: "7.17.23"
-# -- The configuration of InfluxDB Cloud
-influxdbCloud:
-  url: "http://core-influxdb2:8086"
-  token: "i-love-instill-ai"
-  organization: "instill-ai"
-  bucket: "instill-ai"
-  influxdbCloudSecretName: ""
-  influxdbCloudSecretKey: ""
-# -- The configuration of InfluxDB 2
-influxdb2:
-  enabled: true
-  service:
-    port: 8086
-  # Admin user configuration
-  adminUser:
-    user: admin
-    organization: instill-ai
-    bucket: instill-ai
-    retention_policy: 1w
-    # These values are only used if existingSecret is not set
-    password: password
-    token: i-love-instill-ai
+
 # -- The configuration of Jaeger
 jaeger:
+  enabled: true
   provisionDataStore:
     cassandra: false
   storage:
@@ -1263,7 +1594,6 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
   query:
     initContainers:
       - name: wait-for-elasticsearch
@@ -1275,6 +1605,7 @@ jaeger:
 
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
+  enabled: true
   mode: deployment
   # This is required and recommanded for the upgrade from 0.88.0 to 0.89.0
   # https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/UPGRADING.md#0880-to-0890
@@ -1350,10 +1681,12 @@ opentelemetry-collector:
           receivers:
             - otlp
             - jaeger
+
 # -- The configuration of Prometheus Stack
 kube-prometheus-stack:
-  nameOverride: core
-  fullnameOverride: core
+  enabled: true
+  nameOverride: core-kube-prometheus-stack
+  fullnameOverride: core-kube-prometheus-stack
   nodeExporter:
     enabled: false
   alertmanager:
@@ -1364,6 +1697,13 @@ kube-prometheus-stack:
       scrapeInterval: 5s
       evaluationInterval: 10s
       additionalScrapeConfigs:
+        - job_name: "api-gateway"
+          scrape_interval: 5s
+          static_configs:
+            - targets:
+                - "core-api-gateway:8071"
+              labels:
+                app: api-gateway
         - job_name: "temporal"
           metrics_path: /metrics
           scheme: http
@@ -1373,27 +1713,22 @@ kube-prometheus-stack:
                 - core-pipeline-backend-worker:8096
               labels:
                 app: temporal
+        - job_name: "kuberay"
+          static_configs:
+            - targets:
+                - "core-kuberay-head-svc:8080"
+              labels:
+                app: kuberay
         - job_name: "otel-collector"
           static_configs:
             - targets:
                 - "core-opentelemetry-collector:9001"
               labels:
                 app: opentelemetry-collector
-        - job_name: "ray"
-          static_configs:
-            - targets:
-                - "core-ray-head-svc:8080"
-              labels:
-                app: ray
-        - job_name: "api-gateway"
-          scrape_interval: 5s
-          static_configs:
-            - targets:
-                - "core-api-gateway:8071"
-              labels:
-                app: api-gateway
   grafana:
     enabled: true
+    nameOverride: core-kube-prometheus-stack-grafana
+    fullnameOverride: core-kube-prometheus-stack-grafana
     admin:
       existingSecret: "core-grafana-admin-secret"
       userKey: username
@@ -1402,6 +1737,14 @@ kube-prometheus-stack:
       dashboardproviders.yaml:
         apiVersion: 1
         providers:
+          - name: API Gateway
+            orgId: 1
+            folder: API Gateway
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/api-gateway
           - name: Temporal
             orgId: 1
             folder: Temporal
@@ -1418,14 +1761,6 @@ kube-prometheus-stack:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/ray
-          - name: API Gateway
-            orgId: 1
-            folder: API Gateway
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/api-gateway
     dashboardsConfigMaps:
       temporal: "core-grafana-temporal-dashboards"
       api-gateway: "core-grafana-api-gateway-dashboards"
@@ -1448,320 +1783,3 @@ kube-prometheus-stack:
           enabled: false
       dashboards:
         enabled: true
-# -- The configuration of OpenFGA
-openfga:
-  image:
-    repository: openfga/openfga
-    tag: v1.5.1
-    pullPolicy: IfNotPresent
-  # -- Annotation for deployment
-  annotations: {}
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for mgmt-backend
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init first containers
-  extraInitFirstContainers: []
-  # extraInitFirstContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: []
-  # -- Additional pod annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  # -- The pod resource
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-# -- The configuration of registry
-registry:
-  enabled: true
-  image:
-    repository: registry
-    tag: 2.8.3
-    pullPolicy: IfNotPresent
-  configPath: /etc/docker/registry/config.yml
-  serviceAccountName: ""
-  automountServiceAccountToken: false
-  replicaCount: 1
-  extraEnv: []
-  extraVolumes: []
-  extraVolumeMounts: []
-  extraInitContainers: []
-  sidecarContainers: []
-  podAnnotations: {}
-  serviceAnnotations: {}
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
-  garbageCollect:
-    enabled: true
-    deleteUntagged: true
-    schedule: "10 0 * * 1"
-    maintenanceSchedule: "*/30 0 * * 1"
-  config:
-    version: 0.1
-    log:
-      level: Info
-      formatter: text
-      fields:
-        service: registry
-        environment: k8s:ce
-    storage:
-      type: filesystem
-      filesystem:
-        rootdirectory: /var/lib/registry
-        maxthreads: 100
-      gcs:
-        bucket:
-        keyfile:
-        credentials:
-          type:
-          project_id:
-          private_key_id:
-          private_key:
-          client_email:
-          client_id:
-          auth_uri:
-          token_uri:
-          auth_provider_x509_cert_url:
-          client_x509_cert_url:
-        rootdirectory:
-        chunksize:
-      s3:
-        accesskey:
-        secretkey:
-        region:
-        regionendpoint:
-        forcepathstyle:
-        accelerate:
-        bucket:
-        encrypt:
-        keyid:
-        secure:
-        skipverify:
-        v4auth:
-        chunksize:
-        storageclass:
-        multipartcopychunksize:
-        multipartcopymaxconcurrency:
-        multipartcopythresholdsize:
-        rootdirectory:
-        usedualstack:
-        useragent:
-        objectacl:
-        loglevel: debug
-      delete:
-        enabled: true
-      redirect:
-        disable: false
-      cache:
-        blobdescriptor: redis
-        blobdescriptorsize: 10000
-      maintenance:
-        uploadpurging:
-          enabled: true
-          age: 168h
-          interval: 24h
-          dryrun: false
-        readonly:
-          enabled: false
-    http:
-      addr: 0.0.0.0:5000
-      prefix: /
-      secret: i-love-instill-ai
-      relativeurls: false
-      draintimeout: 60s
-      tls:
-        certificate:
-        key:
-      debug:
-        addr: 0.0.0.0:5001
-        prometheus:
-          enabled: true
-          path: /metrics
-      headers:
-        X-Content-Type-Options: [nosniff]
-      http2:
-        disabled: false
-      h2c:
-        enabled: false
-    redis:
-      addr: core-redis:6379
-      dialtimeout: 100ms
-      readtimeout: 100ms
-      writetimeout: 100ms
-      pool:
-        maxidle: 16
-        maxactive: 128
-        idletimeout: 300s
-      tls:
-        enabled: false
-# -- The configuration of milvus
-# https://github.com/zilliztech/milvus-helm/blob/master/charts/milvus/values.yaml
-milvus:
-  image:
-    all:
-      repository: milvusdb/milvus
-      tag: v2.4.1
-      pullPolicy: IfNotPresent
-  nodeselector: {}
-  tolerations: []
-  affinity: {}
-  log:
-    level: "error"
-    file:
-      maxSize: 10 # MB
-      maxAge: 12 # day
-      maxBackups: 2
-    format: "json" # text/json
-  cluster:
-    enabled: true
-  rootCoordinator:
-    enabled: false
-  queryCoordinator:
-    enabled: false
-  indexCoordinator:
-    enabled: false
-  dataCoordinator:
-    enabled: false
-  mixCoordinator:
-    enabled: true
-  # https://github.com/zilliztech/milvus-helm/blob/adc5c36dbb417fb259c81535b9b623861fe3f14f/charts/milvus/values.yaml#L485C9-L485C85
-  # ref: https://github.com/zilliztech/milvus-helm/blob/master/charts/minio/README.md
-  # TODO: MinIO is used by services like pipeline or artifact, not only Milvus.
-  # Therefore, it shouldn't be defined as a Milvus dependency (INS-7341).
-  minio:
-    mode: distributed
-    nodeSelector: {}
-    replicas: 2
-    persistence:
-      size: 50Gi
-    livenessProbe:
-      enabled: true
-      initialDelaySeconds: 10
-      periodSeconds: 5
-      timeoutSeconds: 10
-      successThreshold: 1
-      failureThreshold: 10
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 5
-      periodSeconds: 5
-      timeoutSeconds: 1
-      successThreshold: 1
-      failureThreshold: 5
-    environment:
-      MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: "on"
-      # TODO: If fullnameOverride is set, artifact's host might change. This
-      # should be set through templates, which could be done along with the
-      # MinIO extraction from Milvus (INS-7341).
-      MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: "http://core-artifact-backend:3082/v1alpha/minio-audit"
-  etcd:
-    nodeSelector: {}
-    enabled: true
-    replicaCount: 1
-  pulsar:
-    nodeSelector: {}
-    enabled: false
-    bookkeeper:
-      replicaCount: 1
-      volumes:
-        journal:
-          name: journal
-          size: 10Gi
-        ledgers:
-          name: ledgers
-          size: 20Gi
-      resources:
-        requests:
-          memory:
-          cpu: 0.5
-  kafka:
-    nodeSelector: {}
-    enabled: true
-    replicaCount: 1
-    defaultReplicationFactor: 1
-    offsetsTopicReplicationFactor: 1
-    persistence:
-      enabled: true
-      storageClass:
-      accessMode: ReadWriteOnce
-      size: 30Gi
-    zookeeper:
-      nodeSelector: {}
-      enabled: true
-      replicaCount: 1
-  broker:
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 0.5
-  autorecovery:
-    resources:
-      requests:
-        cpu: 0.5
-  proxy:
-    replicaCount: 1
-    resources:
-      requests:
-        cpu: 0.5
-  # https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
-  extraConfigFiles:
-    user.yaml: |
-      etcd:
-        rootPath: core-milvus
-        log:
-          level: info
-      minio:
-        bucketName: core-milvus
-      pulsar:
-        namespace: instill-ai
-tags:
-  observability: true

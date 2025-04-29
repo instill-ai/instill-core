@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "core.console" . }}
+  name: {{ include "core.console" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: console
@@ -17,7 +17,7 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
       port: {{ default (include "core.console.port" .) $clusterIP.ports.console }}
-      targetPort: {{ template "core.console.port" . }}
+      targetPort: {{ include "core.console.port" . }}
 {{- else if or (eq .Values.expose.type "ingress") (eq .Values.expose.type "nodePort")}}
 {{- $nodePort := .Values.expose.nodePort }}
   {{- with $nodePort.annotations }}
@@ -29,7 +29,7 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
       port: {{ default (include "core.console.port" .) $nodePort.ports.console.port }}
-      targetPort: {{ template "core.console.port" . }}
+      targetPort: {{ include "core.console.port" . }}
       {{- if and (ge ($nodePort.ports.console.nodePort | int) (30000 | int)) (le ($nodePort.ports.console.nodePort | int) (32767 | int)) }}
       nodePort: {{ $nodePort.ports.console.nodePort }}
       {{- end }}
@@ -51,7 +51,7 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
       port: {{ default (include "core.console.port" .) $loadBalancer.ports.console }}
-      targetPort: {{ template "core.console.port" . }}
+      targetPort: {{ include "core.console.port" . }}
 {{- end }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}

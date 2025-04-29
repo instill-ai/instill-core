@@ -81,7 +81,7 @@ jobs:
           yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
           yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
           yq ".ray.image.tag=\"$RAY_VERSION\"" -i charts/core/values.yaml
-          yq ".temporal.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
+          yq ".temporal.server.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
           yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
           yq ".artifactBackend.image.tag=\"$ARTIFACT_BACKEND_VERSION\"" -i charts/core/values.yaml
       - name: Get current chart version

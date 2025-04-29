@@ -3,13 +3,13 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "core.redis" . }}
+  name: {{ include "core.redis" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: redis
 spec:
   replicas: 1
-  serviceName: {{ template "core.redis" . }}
+  serviceName: {{ include "core.redis" . }}
   selector:
     matchLabels:
       {{- include "core.matchLabels" . | nindent 6 }}
@@ -67,7 +67,7 @@ spec:
             claimName: {{ $redis.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: {{ template "core.redisDataVolume" . }}
+            claimName: {{ include "core.redisDataVolume" . }}
         {{- end }}
     {{- with .Values.redis.nodeSelector }}
       nodeSelector:

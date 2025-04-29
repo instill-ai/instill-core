@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "core.openfga" . }}
+  name: {{ include "core.openfga" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: openfga
@@ -17,7 +17,7 @@ spec:
     - name: openfga-grpc
       port: 8081
       targetPort: 8081
-    {{- if .Values.database.external_replica }}
+    {{- if .Values.database.externalReplica }}
     - name: openfga-read-replica
       port: 8082
       targetPort: 8082
