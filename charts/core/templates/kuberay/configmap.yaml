@@ -1,13 +1,15 @@
+{{- if (index .Values "ray-cluster").enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "core.ray" . }}-podman
+  name: {{ include "core.ray" . }}-podman
+  namespace: {{ .Release.Namespace }}
 data:
   registries.conf: |
-    unqualified-search-registries = ["{{ template "core.registry" . }}:{{ template "core.registry.port" . }}", "docker.io", "quay.io"]
+    unqualified-search-registries = ["{{ include "core.registry" . }}:{{ include "core.registry.port" . }}", "docker.io", "quay.io"]
 
     [[registry]]
-    location = "{{ template "core.registry" . }}:{{ template "core.registry.port" . }}"
+    location = "{{ include "core.registry" . }}:{{ include "core.registry.port" . }}"
     insecure = true
   policy.json: |
     {
@@ -25,3 +27,4 @@ data:
   storage.conf: |
     [storage]
     driver = "overlay"
+{{- end }}

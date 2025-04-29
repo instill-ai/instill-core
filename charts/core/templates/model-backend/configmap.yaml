@@ -50,14 +50,14 @@ data:
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
     ray:
-      host: {{ include "core.ray.host" . }}
+      host: {{ include "core.kuberay.host" . }}
       port:
-        grpc: {{ include "core.ray.serveGrpcPort" . }}
-        client: {{ include "core.ray.servePort" . }}
-        dashboard: {{ include "core.ray.dashboardPort" . }}
-        gcs: {{ include "core.ray.gcsPort" . }}
-        serve: {{ include "core.ray.servePort" . }}
-        metrics: {{ include "core.ray.metricsPort" . }}
+        grpc: {{ include "core.kuberay.serveGrpcPort" . }}
+        client: {{ include "core.kuberay.servePort" . }}
+        dashboard: {{ include "core.kuberay.dashboardPort" . }}
+        gcs: {{ include "core.kuberay.gcsPort" . }}
+        serve: {{ include "core.kuberay.servePort" . }}
+        metrics: {{ include "core.kuberay.metricsPort" . }}
       modelstore: /model-store
       vram: {{ (index .Values "ray-cluster").vram }}
     database:
