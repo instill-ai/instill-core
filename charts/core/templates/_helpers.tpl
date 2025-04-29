@@ -35,28 +35,6 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{- end -}}
 
 {{/*
-Ray fullname
-*/}}
-{{- define "ray.fullname" -}}
-  {{- if .Values.ray.namespaceOverride -}}
-    {{- .Values.ray.namespaceOverride -}}
-  {{- else -}}
-    {{- printf "%s" (include "core.name" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Inter namespace DNS suffix
-*/}}
-{{- define "ray.suffix" -}}
-  {{- if .Values.ray.namespaceOverride -}}
-    {{- printf ".%s.svc.cluster.local" (include "ray.fullname" .) -}}
-  {{- else -}}
-    {{- printf "" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "core.chart" -}}
@@ -257,40 +235,67 @@ Temporal
   {{- printf "8096" -}}
 {{- end -}}
 
-{{- define "core.kuberay-operator" -}}
-  {{- printf "%s-kuberay-operator" (include "ray.fullname" .) -}}
-{{- end -}}
-
+{{/*
+KubeRay
+*/}}
 {{- define "core.ray" -}}
-  {{- printf "%s-ray" (include "ray.fullname" .) -}}
+    {{- printf "%s-kuberay" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.rayServiceName" -}}
-  {{- printf "%s-ray-head-svc%s" (include "ray.fullname" .) (include "ray.suffix" .) -}}
+{{- define "core.kuberay.host" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "%s-head-svc" (include "core.ray" .) -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.host -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.clientPort" -}}
-  {{- printf "10001" -}}
+{{- define "core.kuberay.clientPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "10001" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.clientPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.gcsPort" -}}
-  {{- printf "6379" -}}
+{{- define "core.kuberay.gcsPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "6379" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.gcsPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.dashboardPort" -}}
-  {{- printf "8265" -}}
+{{- define "core.kuberay.dashboardPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8265" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.dashboardPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.servePort" -}}
-  {{- printf "8000" -}}
+{{- define "core.kuberay.servePort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8000" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.servePort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.serveGrpcPort" -}}
-  {{- printf "9000" -}}
+{{- define "core.kuberay.serveGrpcPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "9000" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.serveGrpcPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.metricsPort" -}}
-  {{- printf "8080" -}}
+{{- define "core.kuberay.metricsPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8080" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.metricsPort -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*

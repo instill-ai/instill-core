@@ -1206,18 +1206,25 @@ milvus:
 
 # -- The configuration of KubeRay Operator
 kuberay-operator:
+  enabled: true
+  nameOverride: core-kuberay-operator
+  fullnameOverride: core-kuberay-operator
   image:
     repository: quay.io/kuberay/operator
     tag: v1.3.2
     pullPolicy: IfNotPresent
-  fullnameOverride: ""
-  watchNamespace:
-    - "instill-ai"
-# -- The configuration of Ray
-ray:
-  namespaceOverride:
-  vram:
-  spec:
+
+# -- The configuration of RayCluster
+ray-cluster:
+  enabled: true
+  vram: # TODO: This variable should belong to model-backend
+  image:
+    repository: instill/ray
+    tag: 0.6.1-alpha
+    pullPolicy: IfNotPresent
+  head:
+    rayVersion: "2.44.1"
+    enableInTreeAutoscaling: true
     autoscalerOptions:
       resources:
         limits:
@@ -1226,51 +1233,130 @@ ray:
         requests:
           cpu: "500m"
           memory: "512Mi"
-  image:
-    repository: instill/ray
-    version: "2.44.1"
-    tag: 0.6.1-alpha
-    pullPolicy: IfNotPresent
-  headGroupSpec:
+    rayStartParams:
+      num-cpus: "0"
+      num-gpus: "0"
+      disable-usage-stats: "true"
     resources:
       limits:
         cpu: "1"
-        memory: "4Gi"
-        nvidia.com/gpu: 0
+        memory: "8Gi"
       requests:
         cpu: "1"
-        memory: "4Gi"
-        nvidia.com/gpu: 0
+        memory: "8Gi"
     affinity: {}
     nodeSelector: {}
-  workerGroupSpecs:
-    - replicas: 1
-      minReplicas: 1
-      maxReplicas: 1
-      groupName: "cpu-group"
-      gpuWorkerGroup:
-        enabled: false
-        # https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/kuberay/ray-cluster.complete.yaml#L39
-        customResource: # "'\"{\\\"3060\\\": 1}\"'"
-        resources:
-          limits:
-            cpu: "2"
-            memory: "8Gi"
-            nvidia.com/gpu: 1
-          requests:
-            cpu: "2"
-            memory: "8Gi"
-            nvidia.com/gpu: 1
-      resources:
-        limits:
-          cpu: "2"
-          memory: "8Gi"
-        requests:
-          cpu: "2"
-          memory: "8Gi"
-      affinity: {}
-      nodeSelector: {}
-      # add more worker groups under here
+    volumes:
+      - name: core-kuberay-podman
+        configMap:
+          name: core-kuberay-podman
+          defaultMode: 0666
+          items:
+            - key: registries.conf
+              path: registries.conf
+            - key: policy.json
+              path: policy.json
+            - key: storage.conf
+              path: storage.conf
+    volumeMounts:
+      - mountPath: /home/ray/.config/containers/
+        name: core-kuberay-podman
+    containerEnv:
+      - name: RAY_GRAFANA_IFRAME_HOST
+        value: http://localhost:3001
+      - name: RAY_GRAFANA_HOST
+        value: http://core-kube-prometheus-stack-grafana:80
+      - name: RAY_PROMETHEUS_HOST
+        value: http://core-kube-prometheus-stack-prometheus:9090
+      - name: RAY_TASK_MAX_RETRIES
+        value: "2"
+      - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
+        value: "3600"
+    securityContext:
+      privileged: true
+    lifecycle:
+      postStart:
+        exec:
+          command:
+            - "/bin/bash"
+            - "-c"
+            - >
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
+              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+                sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
+              fi;
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "ray stop"]
+  worker:
+    groupName: "cpu-group"
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 1
+    rayStartParams:
+      num-cpus: "2"
+      disable-usage-stats: "true"
+    resources:
+      limits:
+        cpu: "2"
+        memory: "8Gi"
+      requests:
+        cpu: "2"
+        memory: "8Gi"
+    affinity: {}
+    nodeSelector: {}
+    volumes:
+      - name: core-kuberay-podman
+        configMap:
+          name: core-kuberay-podman
+          defaultMode: 0666
+          items:
+            - key: registries.conf
+              path: registries.conf
+            - key: policy.json
+              path: policy.json
+            - key: storage.conf
+              path: storage.conf
+    volumeMounts:
+      - mountPath: /home/ray/.config/containers/
+        name: core-kuberay-podman
+    containerEnv:
+      - name: RAY_TASK_MAX_RETRIES
+        value: "2"
+      - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
+        value: "3600"
+    securityContext:
+      privileged: true
+    lifecycle:
+      postStart:
+        exec:
+          command:
+            - "/bin/bash"
+            - "-c"
+            - >
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
+              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+                sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
+              fi;
+              while true; do
+                ray health-check 2>/dev/null;
+                if [ "$?" = "0" ]; then
+                    break;
+                fi;
+                sleep 1;
+              done;
+              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "ray stop"]
+  external:
+    host:
+    clientPort:
+    gcsPort:
+    dashboardPort:
+    servePort:
+    metricsPort:
+
 # -- The configuration of Temporal
 temporal:
   # -- Enable Temporal deployment or not
