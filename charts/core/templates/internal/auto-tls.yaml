@@ -13,7 +13,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "core.internalTLS.apiGateway.secretName" . }}"
+  name: "{{ include "core.internalTLS.apiGateway.secretName" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -24,7 +24,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "core.internalTLS.mgmtBackend.secretName" . }}"
+  name: "{{ include "core.internalTLS.mgmtBackend.secretName" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -35,7 +35,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "core.internalTLS.pipelineBackend.secretName" . }}"
+  name: "{{ include "core.internalTLS.pipelineBackend.secretName" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -46,7 +46,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "core.internalTLS.modelBackend.secretName" . }}"
+  name: "{{ include "core.internalTLS.modelBackend.secretName" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
 type: kubernetes.io/tls
@@ -57,7 +57,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "{{ template "core.internalTLS.console.secretName" . }}"
+  name: "{{ include "core.internalTLS.console.secretName" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
 type: kubernetes.io/tls

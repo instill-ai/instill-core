@@ -84,25 +84,6 @@ app.kubernetes.io/name: {{ include "core.name" . }}
 {{- end -}}
 
 {{/*
-Flags for auto-gen TLS certificate
-*/}}
-{{- define "core.autoGenCert" -}}
-  {{- if and .Values.expose.tls.enabled (eq .Values.expose.tls.certSource "auto") -}}
-    {{- printf "true" -}}
-  {{- else -}}
-    {{- printf "false" -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.autoGenCertForIngress" -}}
-  {{- if and (eq (include "core.autoGenCert" .) "true") (eq .Values.expose.type "ingress") -}}
-    {{- printf "true" -}}
-  {{- else -}}
-    {{- printf "false" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 api-gateway
 */}}
 {{- define "core.apiGateway" -}}
@@ -198,8 +179,8 @@ artifact-backend
 {{- define "core.artifactBackend.privatePort" -}}
 {{- printf "3082" -}}
 {{- end -}}
-{{/*
 
+{{/*
 console
 */}}
 {{- define "core.console" -}}
@@ -313,7 +294,7 @@ Temporal
 {{- end -}}
 
 {{/*
-database
+Database
 */}}
 {{- define "core.database" -}}
   {{- printf "%s-database" (include "core.fullname" .) -}}
@@ -343,7 +324,7 @@ database
   {{- end -}}
 {{- end -}}
 
-{{- define "core.database.rawPassword" -}}
+{{- define "core.database.password" -}}
   {{- if .Values.database.enabled -}}
     {{- .Values.database.password -}}
   {{- else -}}
@@ -352,31 +333,57 @@ database
 {{- end -}}
 
 {{/*
-redis address host:port
+Redis
 */}}
-{{- define "core.redis.addr" -}}
-  {{- with .Values.redis -}}
-    {{- ternary (printf "%s:6379" (include "core.redis" $ )) .external.addr .enabled -}}
-  {{- end -}}
-{{- end -}}
-
 {{- define "core.redis" -}}
   {{- printf "%s-redis" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.database.encryptedPassword" -}}
-  {{- include "core.database.rawPassword" . | b64enc | quote -}}
+{{- define "core.redis.addr" -}}
+  {{- if .Values.redis.enabled -}}
+    {{- printf "%s:6379" (include "core.redis" .) -}}
+  {{- else -}}
+    {{- .Values.redis.external.addr -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
-influxdb
+Influxdb2
 */}}
-{{- define "core.influxdb" -}}
+{{- define "core.influxdb2" -}}
   {{- printf "%s-influxdb2" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.influxdb.port" -}}
-  {{- printf "8086" -}}
+{{- define "core.influxdb2.url" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- printf "http://%s:80" (include "core.influxdb2" .) -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.url -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.token" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.token -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.token -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.organization" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.organization -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.organization -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.bucket" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.bucket -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.bucket -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -531,34 +538,4 @@ minio
 
 {{- define "core.minio.port" -}}
   {{- printf "9000" -}}
-{{- end -}}
-
-{{- define "databasePasswordSecret" -}}
-{{- $secret := (lookup "v1" "Secret" .Release.Namespace .Values.database.external.dbSecretName) -}}
-{{- if and $secret $secret.data -}}
-    {{- if hasKey $secret.data .Values.database.external.dbSecretKey -}}
-        {{- index $secret.data .Values.database.external.dbSecretKey | b64dec -}}
-    {{- else -}}
-        {{- /* Return empty if password key doesn't exist */ -}}
-        {{- "" -}}
-    {{- end -}}
-{{- else -}}
-    {{- /* Return empty if secret doesn't exist or has no data */ -}}
-    {{- "" -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "influxdbCloudToken" -}}
-{{- $token := (lookup "v1" "Secret" .Release.Namespace .Values.influxdbCloud.influxdbCloudSecretName) -}}
-{{- if and $token $token.data -}}
-    {{- if hasKey $token.data .Values.influxdbCloud.influxdbCloudSecretKey -}}
-        {{- index $token.data .Values.influxdbCloud.influxdbCloudSecretKey | b64dec -}}
-    {{- else -}}
-        {{- /* Return empty if password key doesn't exist */ -}}
-        {{- "" -}}
-    {{- end -}}
-{{- else -}}
-    {{- /* Return empty if secret doesn't exist or has no data */ -}}
-    {{- "" -}}
-{{- end -}}
 {{- end -}}

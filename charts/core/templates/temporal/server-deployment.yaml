@@ -80,17 +80,17 @@ spec:
             {{- end }}
           env:
             - name: PGHOST
-              value: "{{ template "core.database" $ }}.instill-ai.svc.cluster.local"
+              value: "{{ include "core.database" $ }}.instill-ai.svc.cluster.local"
             - name: PGPORT
-              value: "{{ template "core.database.port" $ }}"
+              value: "{{ include "core.database.port" $ }}"
             - name: PGUSER
-              value: "{{ template "core.database.username" $ }}"
+              value: "{{ include "core.database.username" $ }}"
             - name: PGPASSWORD
-              value: "{{ template "core.database.rawPassword" $ }}"
+              value: "{{ include "core.database.password" $ }}"
             - name: TEMPORAL_FRONTEND_HOST
-              value: "{{ template "core.temporal" $ }}-frontend"
+              value: "{{ include "core.temporal" $ }}-frontend"
             - name: TEMPORAL_FRONTEND_GRPCPORT
-              value: "{{ template "core.temporal.frontend.grpcPort" $ }}"
+              value: "{{ include "core.temporal.frontend.grpcPort" $ }}"
         {{- end }}
         {{- with $.Values.temporal.server.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
@@ -127,10 +127,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: ELASTIC_USERNAME
-              value: "elastic"
-            - name: ELASTIC_PASSWORD
-              value: "password"
             - name: TEMPORAL_STORE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -154,9 +150,9 @@ spec:
             - name: ES_VIS_INDEX
               value: "{{ $.Values.elasticsearch.visibilityIndex }}"
             - name: ES_USER
-              value: $(ELASTIC_USERNAME)
+              value: "elastic"
             - name: ES_PWD
-              value: $(ELASTIC_PASSWORD)
+              value: "password"
             - name: SERVICES
               value: "{{ $service }}"
             {{- with $.Values.temporal.server.extraEnv }}

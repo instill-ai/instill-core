@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.temporal.admintools" . }}
+  name: {{ include "core.temporal.admintools" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: temporal-admintools
@@ -39,9 +39,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
           - name: PGHOST
-            value: {{ template "core.database" . }}
+            value: {{ include "core.database" . }}
           - name: PGUSER
-            value: {{ template "core.database.username" . }}
+            value: {{ include "core.database.username" . }}
       {{- end }}
       containers:
         - name: temporal-admin-tools
@@ -57,15 +57,13 @@ spec:
           args:
             - >
               if ! psql -h ${SQL_HOST} -p ${SQL_PORT} -U ${SQL_USER} -W ${SQL_PASSWORD} -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='temporal'" | grep -q "1 row"; then
-                SQL_DATABASE=temporal temporal-sql-tool drop -f &&
                 SQL_DATABASE=temporal temporal-sql-tool create &&
                 SQL_DATABASE=temporal temporal-sql-tool setup -v 0.0 &&
-                SQL_DATABASE=temporal temporal-sql-tool update-schema -d schema/postgresql/v96/temporal/versioned &&
-                SQL_DATABASE=temporal_visibility temporal-sql-tool drop -f &&
+                SQL_DATABASE=temporal temporal-sql-tool update-schema -d schema/postgresql/v12/temporal/versioned &&
                 SQL_DATABASE=temporal_visibility temporal-sql-tool create &&
                 SQL_DATABASE=temporal_visibility temporal-sql-tool setup -v 0.0 &&
                 SQL_DATABASE=temporal_visibility temporal-sql-tool setup-schema -v 0.0 &&
-                SQL_DATABASE=temporal_visibility temporal-sql-tool update -schema-dir schema/postgresql/v96/visibility/versioned
+                SQL_DATABASE=temporal_visibility temporal-sql-tool update -schema-dir schema/postgresql/v12/visibility/versioned
               fi &&
               tail -f /dev/null
           ports:
@@ -74,17 +72,17 @@ spec:
               protocol: TCP
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
             - name:  SQL_PLUGIN
-              value: "postgres"
+              value: "{{ $.Values.temporal.server.config.persistence.default.sql.driver }}"
             - name:  SQL_HOST
-              value: "{{ template "core.database" . }}"
+              value: "{{ include "core.database" . }}"
             - name:  SQL_PORT
-              value: "{{ template "core.database.port" . }}"
+              value: "{{ include "core.database.port" . }}"
             - name:  SQL_USER
-              value: "{{ template "core.database.username" . }}"
+              value: "{{ include "core.database.username" . }}"
             - name:  SQL_PASSWORD
-              value: "{{ template "core.database.rawPassword" . }}"
+              value: "{{ include "core.database.password" . }}"
       {{- with .Values.temporal.admintools.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

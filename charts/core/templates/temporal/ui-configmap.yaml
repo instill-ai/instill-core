@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "core.temporal" . }}
+  name: {{ include "core.temporal" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: temporal-ui

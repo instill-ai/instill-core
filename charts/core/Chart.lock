@@ -1,16 +1,19 @@
 dependencies:
-- name: milvus
-  repository: https://zilliztech.github.io/milvus-helm/
-  version: 4.1.30
-- name: kuberay-operator
-  repository: https://ray-project.github.io/kuberay-helm/
-  version: 1.3.2
-- name: elasticsearch
-  repository: https://helm.elastic.co
-  version: 7.17.3
 - name: influxdb2
   repository: https://helm.influxdata.com
   version: 2.1.1
+- name: milvus
+  repository: https://zilliztech.github.io/milvus-helm
+  version: 4.1.30
+- name: kuberay-operator
+  repository: https://ray-project.github.io/kuberay-helm
+  version: 1.3.2
+- name: ray-cluster
+  repository: https://ray-project.github.io/kuberay-helm
+  version: 0.4.0
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 8.5.1
 - name: jaeger
   repository: https://jaegertracing.github.io/helm-charts
   version: 3.4.1
@@ -20,5 +23,5 @@ dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 70.3.0
-digest: sha256:cba040f1033590a03d103d9e58e208a53044d65a67fff78059220e91bfe8303c
-generated: "2025-04-14T22:13:13.566722+01:00"
+digest: sha256:94f44c7c5d281f6b20dc19caa91f518777112b71ed49c19de420f8e515ed1ced
+generated: "2025-04-28T23:46:59.609456+01:00"

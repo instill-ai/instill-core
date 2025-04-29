@@ -31,7 +31,7 @@ data:
             databaseName: {{ $.Values.temporal.server.config.persistence.default.sql.database }}
             connectAddr: {{ include "core.database" $ }}:{{ include "core.database.port" $ }}
             connectProtocol: "tcp"
-            user: {{ template "core.database.username" $ }}
+            user: {{ include "core.database.username" $ }}
             password: "{{ `{{ .Env.TEMPORAL_STORE_PASSWORD }}` }}"
             {{- with (omit $.Values.temporal.server.config.persistence.default.sql "driver" "driverName" "host" "port" "connectAddr" "connectProtocol" "database" "databaseName" "user" "password") }}
             {{- toYaml . | nindent 12 }}
@@ -43,7 +43,7 @@ data:
             databaseName: {{ $.Values.temporal.server.config.persistence.default.sql.database }}
             connectAddr: {{ include "core.database" $ }}:{{ include "core.database.port" $ }}
             connectProtocol: "tcp"
-            user: {{ template "core.database.username" $ }}
+            user: {{ include "core.database.username" $ }}
             password: "{{ `{{ .Env.TEMPORAL_VISIBILITY_STORE_PASSWORD }}` }}"
             {{- with (omit $.Values.temporal.server.config.persistence.visibility.sql "driver" "driverName" "host" "port" "connectAddr" "connectProtocol" "database" "databaseName" "user" "password") }}
             {{- toYaml . | nindent 12 }}

@@ -2,7 +2,7 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "core.pipelineBackend" . }}
+  name: {{ include "core.pipelineBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
@@ -10,7 +10,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "core.pipelineBackend" . }}
+    name: {{ include "core.pipelineBackend" . }}
   minReplicas: {{ .Values.pipelineBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackend.autoscaling.maxReplicas }}
   metrics:
@@ -32,7 +32,7 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "core.pipelineBackendWorker" . }}
+  name: {{ include "core.pipelineBackendWorker" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend-worker
@@ -40,7 +40,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "core.pipelineBackendWorker" . }}
+    name: {{ include "core.pipelineBackendWorker" . }}
   minReplicas: {{ .Values.pipelineBackendWorker.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackendWorker.autoscaling.maxReplicas }}
   metrics:

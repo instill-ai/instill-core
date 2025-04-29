@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.openfga" . }}
+  name: {{ include "core.openfga" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: openfga
@@ -61,9 +61,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "core.database" . }}
+              value: {{ include "core.database" . }}
             - name: PGUSER
-              value: {{ template "core.database.username" . }}
+              value: {{ include "core.database.username" . }}
         {{- end }}
         - name: openfga-createdb
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
@@ -80,13 +80,13 @@ spec:
             - name: PGDATABASE
               value: openfga
             - name: PGHOST
-              value: "{{ default (include "core.database.host" .) .Values.database.external.host }}"
+              value: "{{ include "core.database.host" . }}"
             - name: PGPORT
-              value: "{{ default (include "core.database.port" .) .Values.database.external.port }}"
+              value: "{{ include "core.database.port" . }}"
             - name: PGUSER
-              value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
+              value: "{{ include "core.database.username" . }}"
             - name: PGPASSWORD
-              value: "{{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}"
+              value: "{{ include "core.database.password" . }}"
             {{- if .Values.openfga.extraEnv }}
             {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
             {{- end }}
@@ -98,7 +98,7 @@ spec:
             - name: OPENFGA_DATASTORE_ENGINE
               value: postgres
             - name: OPENFGA_DATASTORE_URI
-              value: postgres://{{ default (include "core.database.username" .) .Values.database.external.username }}:{{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}@{{ default (include "core.database.host" .) .Values.database.external.host }}:{{ default (include "core.database.port" .) .Values.database.external.port }}/openfga?sslmode=disable
+              value: postgres://{{ default (include "core.database.username" .) .Values.database.external.username }}:{{ default (include "core.database.password" .) .Values.database.external.password }}@{{ default (include "core.database.host" .) .Values.database.external.host }}:{{ default (include "core.database.port" .) .Values.database.external.port }}/openfga?sslmode=disable
             {{- if .Values.openfga.extraEnv }}
             {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
             {{- end }}
@@ -128,7 +128,7 @@ spec:
             - name: PGUSER
               value: "{{ default (include "core.database.username" .) .Values.database.external.username }}"
             - name: PGPASSWORD
-              value: "{{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}"
+              value: "{{ default (include "core.database.password" .) .Values.database.external.password }}"
             {{- if .Values.openfga.extraEnv }}
             {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
             {{- end }}
@@ -137,7 +137,7 @@ spec:
               protocol: TCP
             - containerPort: 8081
               protocol: TCP
-        {{- if .Values.database.external_replica }}
+        {{- if .Values.database.externalReplica }}
         - name: openfga-read-replica
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
           imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
@@ -158,13 +158,13 @@ spec:
             - name: PGDATABASE
               value: openfga
             - name: PGHOST
-              value: "{{ default (include "core.database.host" .) .Values.database.external_replica.host }}"
+              value: "{{ default (include "core.database.host" .) .Values.database.externalReplica.host }}"
             - name: PGPORT
-              value: "{{ default (include "core.database.port" .) .Values.database.external_replica.port }}"
+              value: "{{ default (include "core.database.port" .) .Values.database.externalReplica.port }}"
             - name: PGUSER
-              value: "{{ default (include "core.database.username" .) .Values.database.external_replica.username }}"
+              value: "{{ default (include "core.database.username" .) .Values.database.externalReplica.username }}"
             - name: PGPASSWORD
-              value: "{{ include "databasePasswordSecret" . | default .Values.database.external_replica.password | default (include "core.database.rawPassword" .) }}"
+              value: "{{ default (include "core.database.password" .) .Values.database.externalReplica.password }}"
             {{- if .Values.openfga.extraEnv }}
             {{- toYaml .Values.openfga.extraEnv | nindent 12 }}
             {{- end }}

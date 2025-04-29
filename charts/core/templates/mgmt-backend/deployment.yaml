@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.mgmtBackend" . }}
+  name: {{ include "core.mgmtBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend
@@ -62,9 +62,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "core.database" . }}
+              value: {{ include "core.database" . }}
             - name: PGUSER
-              value: {{ template "core.database.username" . }}
+              value: {{ include "core.database.username" . }}
         {{- end }}
         {{- if not .Values.mgmtBackend.temporal.hostPort }}
         - name: temporal-admin-tools
@@ -80,7 +80,7 @@ spec:
               if [[ ! $(tctl --namespace mgmt-backend namespace list | grep mgmt-backend) ]]; then tctl --namespace mgmt-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
         {{- if .Values.isPrimaryCluster }}
         - name: mgmt-backend-migration
@@ -147,10 +147,10 @@ spec:
           command: [./{{ .Values.mgmtBackend.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
-              containerPort: {{ template "core.mgmtBackend.privatePort" . }}
+              containerPort: {{ include "core.mgmtBackend.privatePort" . }}
               protocol: TCP
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-              containerPort: {{ template "core.mgmtBackend.publicPort" . }}
+              containerPort: {{ include "core.mgmtBackend.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
@@ -199,11 +199,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.mgmtBackend" . }}
+            name: {{ include "core.mgmtBackend" . }}
         {{- if .Values.internalTLS.enabled }}
         - name: mgmt-internal-certs
           secret:
-            secretName: {{ template "core.internalTLS.mgmtBackend.secretName" . }}
+            secretName: {{ include "core.internalTLS.mgmtBackend.secretName" . }}
         {{- end }}
         {{- with .Values.mgmtBackend.extraVolumes }}
         {{- toYaml . | nindent 8 }}

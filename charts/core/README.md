@@ -4,7 +4,7 @@
 
 The Helm chart of Instill Core
 
-# Requirements
+## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
