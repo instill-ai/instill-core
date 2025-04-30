@@ -52,7 +52,7 @@ COMPONENT_TEST_ENV := .env.component-test
 
 .PHONY: all
 all:			## Launch all services with their up-to-date release version
-	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_RELEASE_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
@@ -68,7 +68,7 @@ endif
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
-	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_LATEST_TAG} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
@@ -158,7 +158,7 @@ logs:			## Tail all logs with -n 10
 
 .PHONY: pull
 pull:			## Pull all service images
-	@docker inspect --type=image instill/ray:${RAY_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray Serve image, but the image pulling process should be just a one-time effort.\n" && sleep 5
+	@docker inspect --type=image instill/ray:${RAY_VERSION} >/dev/null 2>&1 || printf "\033[1;33mINFO:\033[0m This may take a while due to the enormous size of the Ray image, but the image pulling process should be just a one-time effort.\n" && sleep 5
 	@EDITION= DEFAULT_USER_UID= docker compose pull
 
 .PHONY: stop

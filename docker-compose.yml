@@ -429,10 +429,7 @@ services:
   ray:
     container_name: ${RAY_HOST}
     image: ${RAY_IMAGE}:${RAY_RELEASE_TAG}
-    # for dind podman
-    privileged: true
-    devices:
-      - "/dev/fuse"
+    privileged: true # for dind podman
     restart: unless-stopped
     environment:
       - RAY_ADDRESS=0.0.0.0:6379
@@ -458,7 +455,7 @@ services:
       interval: 60s
       timeout: 5s
       retries: 2
-    shm_size: 10.24gb
+    shm_size: 4gb
     ports:
       - ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD}
 
