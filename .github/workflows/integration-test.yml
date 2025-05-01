@@ -1,0 +1,48 @@
+name: Integration Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  determine-target:
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.set-target.outputs.target }}
+    steps:
+      - name: Set target based on branch
+        id: set-target
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/release-please--branches--main" ]]; then
+            echo "target=release" >> $GITHUB_OUTPUT
+          else
+            echo "target=latest" >> $GITHUB_OUTPUT
+          fi
+
+  backend:
+    needs: determine-target
+    strategy:
+      fail-fast: false
+      matrix:
+        # Include artifact-backend only for latest builds
+        component:
+          [mgmt-backend, pipeline-backend, model-backend, artifact-backend]
+    uses: ./.github/workflows/integration-test-backend.yml
+    with:
+      component: ${{ matrix.component }}
+      target: ${{ needs.determine-target.outputs.target }}
+
+  model-deploy:
+    needs: determine-target
+    uses: ./.github/workflows/integration-test-model-deploy.yml
+    with:
+      target: ${{ needs.determine-target.outputs.target }}
+
+  # TODO: Enable console integration test once the issue is fixed
+  # console:
+  #   needs: determine-target
+  #   uses: ./.github/workflows/integration-test-console.yml
+  #   with:
+  #     target: ${{ needs.determine-target.outputs.target }}
