@@ -314,6 +314,8 @@ services:
       CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
       CFG_INITMODEL_PATH: ${INITMODEL_PATH}
     entrypoint: ./model-backend-init-model
+    volumes:
+      - ${INITMODEL_PATH:-/dev/null}:${INITMODEL_PATH:-/dev/null}
     depends_on:
       model_backend:
         condition: service_healthy
@@ -563,6 +565,8 @@ services:
     restart: unless-stopped
     volumes:
       - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
+    ports:
+      - ${REGISTRY_EXTERNAL_PORT}:${REGISTRY_PORT}
     depends_on:
       redis:
         condition: service_healthy

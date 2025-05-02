@@ -1,5 +1,7 @@
 .DEFAULT_GOAL:=help
 
+SHELL := /bin/bash
+
 #============================================================================
 
 # load environment variables
@@ -181,6 +183,22 @@ ps:				## List all service containers
 top:			## Display all running service processes
 	@EDITION= DEFAULT_USER_UID= docker compose top
 
+.PHONY: integration-test-model-deploy-latest
+integration-test-model-deploy-latest:       	 	# Run integration test on the latest Instill Core to build, push and deploy dummy models
+	@make latest EDITION=local-ce:test
+	@make build-and-push-models
+	@make latest EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
+	@make wait-models-deploy
+	@make down
+
+.PHONY: integration-test-model-deploy-release
+integration-test-model-deploy-release:       	 	# Run integration test on the released Instill Core to build, push and deploy dummy models
+	@make all EDITION=local-ce:test
+	@make build-and-push-models
+	@make all EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
+	@make wait-models-deploy
+	@make down
+
 .PHONY: integration-test-latest
 integration-test-latest:			# Run integration test on the latest Instill Core
 	@make build-latest
@@ -196,7 +214,7 @@ integration-test-latest:			# Run integration test on the latest Instill Core
 	@make down
 
 .PHONY: integration-test-release
-integration-test-release:			# Run integration test on the release Instill Core
+integration-test-release:			# Run integration test on the released Instill Core
 	@make build-release
 	@make all EDITION=local-ce:test COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
@@ -318,7 +336,7 @@ console-integration-test-latest:			# Run console integration test on the latest 
 	@make down
 
 .PHONY: console-integration-test-release
-console-integration-test-release:			# Run console integration test on the release Instill Core
+console-integration-test-release:			# Run console integration test on the released Instill Core
 	@make all EDITION=local-ce:test INSTILL_CORE_HOST=${API_GATEWAY_HOST} COMPONENT_ENV=${COMPONENT_TEST_ENV}
 	@docker run --rm \
 		-e NEXT_PUBLIC_GENERAL_API_VERSION=v1beta \
@@ -490,6 +508,25 @@ endif
 	@kubectl delete namespace instill-ai
 	@pkill -f "port-forward"
 	@make down
+
+.PHONY: build-and-push-models
+build-and-push-models:	# Helper target to build and push models
+	@./integration-test/scripts/build_and_push_models.sh "$(PWD)/integration-test/models" "localhost:5001"
+
+.PHONY: wait-models-deploy
+wait-models-deploy:  # Helper target to wait for model deployment
+	@model_count=$$(jq length integration-test/models/inventory.json); \
+	timeout=600; elapsed=0; spinner='|/-\\'; i=0; \
+	while [ "$$(curl -s http://localhost:8265/api/serve/applications/ | jq ".applications | to_entries | map(select(.key | contains(\"dummy-\")) | .value.status) | length == $$model_count and all(. == \"RUNNING\")")" != "true" ]; do \
+		running_count=$$(curl -s http://localhost:8265/api/serve/applications/ | jq '.applications | to_entries | map(select(.key | contains("dummy-")) | .value.status) | map(select(. == "RUNNING")) | length'); \
+		printf "\r[Waiting %3ds/%ds] %s models still deploying... (%d/%d RUNNING)" "$$elapsed" "$$timeout" "$${spinner:$$((i % 4)):1}" "$$running_count" "$$model_count"; \
+		sleep 1; elapsed=$$((elapsed+1)); \
+		if [ "$$elapsed" -ge "$$timeout" ]; then \
+			echo "\nTimeout waiting for models to deploy!"; exit 1; \
+		fi; \
+		i=$$((i + 1)); \
+	done; \
+	printf "\nAll %d models deployed and running.\n" "$$model_count"
 
 .PHONY: help
 help:       	## Show this help

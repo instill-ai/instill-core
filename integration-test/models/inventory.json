@@ -9,7 +9,7 @@
     "task": "TASK_CLASSIFICATION",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -22,7 +22,7 @@
     "task": "TASK_DETECTION",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -35,7 +35,7 @@
     "task": "TASK_INSTANCE_SEGMENTATION",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -48,7 +48,7 @@
     "task": "TASK_KEYPOINT",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -61,7 +61,7 @@
     "region": "REGION_LOCAL",
     "hardware": "CPU",
     "task": "TASK_SEMANTIC_SEGMENTATION",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -74,7 +74,7 @@
     "task": "TASK_COMPLETION",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -87,7 +87,7 @@
     "task": "TASK_CHAT",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -100,7 +100,7 @@
     "task": "TASK_TEXT_TO_IMAGE",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -113,7 +113,7 @@
     "task": "TASK_CHAT",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -126,7 +126,7 @@
     "task": "TASK_EMBEDDING",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   },
   {
@@ -139,7 +139,7 @@
     "task": "TASK_EMBEDDING",
     "region": "REGION_LOCAL",
     "hardware": "CPU",
-    "version": "latest",
+    "version": "dev",
     "configuration": {}
   }
 ]
