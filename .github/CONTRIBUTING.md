@@ -46,7 +46,7 @@ applications:
   client ID and secret must be injected.
 
 You can set the values of these global secrets in
-[`.env.component`](./.env.component) before running the Docker container in
+[`.env.secrets.component`](./.env.secrets.component) before running the Docker container in
 order to add a global configuration to your components. These values will
 be injected into `pipeline-backend`. Additionally, `console` will also
 receive the OAuth configuration values.
