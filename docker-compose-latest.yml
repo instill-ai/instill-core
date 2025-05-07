@@ -164,9 +164,11 @@ services:
     ports:
       - ${MILVUS_PORT}:19530
     command: milvus run standalone
+
   openfga:
     ports:
       - ${OPENFGA_PORT}:8081
+
   minio:
     ports:
       - ${MINIO_EXTERNAL_PORT}:${MINIO_PORT}

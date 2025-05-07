@@ -7,6 +7,8 @@ volumes:
     name: elasticsearch-data
   model_store:
     name: model-store
+  minio_data:
+    name: minio-data
 
 services:
   api_gateway:
@@ -134,7 +136,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
-    env_file: ${COMPONENT_ENV}
+    env_file: ${ENV_SECRETS_COMPONENT}
     environment:
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
@@ -186,7 +188,7 @@ services:
     container_name: ${PIPELINE_BACKEND_HOST}-worker
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
-    env_file: ${COMPONENT_ENV}
+    env_file: ${ENV_SECRETS_COMPONENT}
     environment:
       CFG_SERVER_PRIVATEPORT: ${PIPELINE_BACKEND_PRIVATEPORT}
       CFG_SERVER_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
@@ -371,8 +373,8 @@ services:
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     restart: unless-stopped
     env_file:
-      - path: ${COMPONENT_ENV}
-      - path: .env.console
+      - path: ${ENV_SECRETS_COMPONENT}
+      - path: ${ENV_SECRETS_CONSOLE}
     environment:
       NEXT_PUBLIC_GENERAL_API_VERSION: v1beta
       NEXT_PUBLIC_MODEL_API_VERSION: v1alpha
@@ -393,17 +395,19 @@ services:
     image: ${TEMPORAL_IMAGE}:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
-      DB: postgresql
+      DB: postgres12_pgx
       DB_PORT: ${POSTGRESQL_PORT}
       POSTGRES_USER: postgres
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
-      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/docker.yaml
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
       ENABLE_ES: "true"
       ES_SEEDS: elasticsearch
       ES_VERSION: v7
     ports:
       - ${TEMPORAL_PORT}:7233
+    volumes:
+      - ${CONFIG_DIR_PATH}/temporal/development-sql.yaml:/etc/temporal/config/dynamicconfig/development-sql.yaml
     healthcheck:
       test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
       start_period: 20s
@@ -599,7 +603,7 @@ services:
       MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT: on
       MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT: http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PRIVATEPORT}${ARTIFACT_MINIO_WEBHOOK}
     volumes:
-      - ${MINIO_DATA_DIR}:/data
+      - minio_data:/data
     command:
       - server
       - /data
