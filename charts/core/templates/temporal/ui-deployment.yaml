@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.temporal.ui" . }}
+  name: {{ include "core.temporal.ui" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: temporal-ui
@@ -44,7 +44,7 @@ spec:
           imagePullPolicy: {{ .Values.temporal.ui.image.pullPolicy }}
           env:
             - name: TEMPORAL_ADDRESS
-              value: {{ include "core.temporal" . }}-frontend.{{ .Release.Namespace }}.svc:{{ template "core.temporal.frontend.grpcPort" . }}
+              value: {{ include "core.temporal" . }}-frontend.{{ .Release.Namespace }}.svc:{{ include "core.temporal.frontend.grpcPort" . }}
           ports:
             - name: http
               containerPort: 8080

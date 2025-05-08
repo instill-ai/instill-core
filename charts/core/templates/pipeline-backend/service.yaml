@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "core.pipelineBackend" . }}
+  name: {{ include "core.pipelineBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
@@ -13,14 +13,14 @@ metadata:
 spec:
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
-      port: {{ template "core.pipelineBackend.privatePort" . }}
-      targetPort: {{ template "core.pipelineBackend.privatePort" . }}
+      port: {{ include "core.pipelineBackend.privatePort" . }}
+      targetPort: {{ include "core.pipelineBackend.privatePort" . }}
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-      port: {{ template "core.pipelineBackend.publicPort" . }}
-      targetPort: {{ template "core.pipelineBackend.publicPort" . }}
+      port: {{ include "core.pipelineBackend.publicPort" . }}
+      targetPort: {{ include "core.pipelineBackend.publicPort" . }}
     - name: temporal-metrics
-      port: {{ template "core.temporal.metrics.port" . }}
-      targetPort: {{ template "core.temporal.metrics.port" . }}
+      port: {{ include "core.temporal.metrics.port" . }}
+      targetPort: {{ include "core.temporal.metrics.port" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "core.pipelineBackendWorker" . }}
+  name: {{ include "core.pipelineBackendWorker" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend-worker
@@ -39,14 +39,14 @@ metadata:
 spec:
   ports:
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
-      port: {{ template "core.pipelineBackend.privatePort" . }}
-      targetPort: {{ template "core.pipelineBackend.privatePort" . }}
+      port: {{ include "core.pipelineBackend.privatePort" . }}
+      targetPort: {{ include "core.pipelineBackend.privatePort" . }}
     - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-      port: {{ template "core.pipelineBackend.publicPort" . }}
-      targetPort: {{ template "core.pipelineBackend.publicPort" . }}
+      port: {{ include "core.pipelineBackend.publicPort" . }}
+      targetPort: {{ include "core.pipelineBackend.publicPort" . }}
     - name: temporal-metrics
-      port: {{ template "core.temporal.metrics.port" . }}
-      targetPort: {{ template "core.temporal.metrics.port" . }}
+      port: {{ include "core.temporal.metrics.port" . }}
+      targetPort: {{ include "core.temporal.metrics.port" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend-worker

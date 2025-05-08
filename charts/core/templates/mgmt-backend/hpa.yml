@@ -2,12 +2,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "core.mgmtBackend" . }}
+  name: {{ include "core.mgmtBackend" . }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "core.mgmtBackend" . }}
+    name: {{ include "core.mgmtBackend" . }}
     labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend

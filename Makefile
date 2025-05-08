@@ -247,8 +247,7 @@ helm-integration-test-latest:                       # Run integration test on th
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
-		--set tags.observability=true
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG}
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
@@ -292,8 +291,7 @@ helm-integration-test-release:                       # Run integration test on t
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
-		--set tags.observability=true
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG}
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
 		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
@@ -360,7 +358,6 @@ console-helm-integration-test-latest:                       # Run console integr
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -370,14 +367,13 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -387,7 +383,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}
@@ -438,7 +434,6 @@ console-helm-integration-test-release:                       # Run console integ
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -448,14 +443,13 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -465,7 +459,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}

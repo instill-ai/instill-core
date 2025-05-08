@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "core.artifactBackend" . }}
+  name: {{ include "core.artifactBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: artifact-backend
 data:
   config.yaml: |+
     server:
-      privateport: {{ template "core.artifactBackend.privatePort" . }}
-      publicport: {{ template "core.artifactBackend.publicPort" . }}
+      privateport: {{ include "core.artifactBackend.privatePort" . }}
+      publicport: {{ include "core.artifactBackend.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
         {{- toYaml .Values.usage | nindent 8 }}
@@ -21,16 +21,16 @@ data:
       {{- end }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
     database:
-      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}      
-      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
-      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
-      {{- if .Values.database.external_replica }}
+      username: {{ include "core.database.username" . }}
+      password: {{ include "core.database.password" . }}
+      host: {{ include "core.database.host" . }}
+      port: {{ include "core.database.port" . }}
+      {{- if .Values.database.externalReplica }}
       replica:
-        username: {{ .Values.database.external_replica.username | default "" }}
-        password: {{ include "databasePasswordSecret" . | default .Values.database.external_replica.password | default "" }}
-        host: {{ .Values.database.external_replica.host | default ""  }}
-        port: {{ .Values.database.external_replica.port | default ""  }}
+        username: {{ .Values.database.externalReplica.username | default "" }}
+        password: {{ .Values.database.externalReplica.password | default "" }}
+        host: {{ .Values.database.externalReplica.host | default ""  }}
+        port: {{ .Values.database.externalReplica.port | default ""  }}
         replicationtimeframe: 1
       {{- end }}
       name: artifact
@@ -45,52 +45,52 @@ data:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     influxdb:
-      url: {{ .Values.influxdbCloud.url }}
-      token: {{ include "influxdbCloudToken" . | default .Values.influxdbCloud.token }}
-      org: {{ .Values.influxdbCloud.organization }}
-      bucket: {{ .Values.influxdbCloud.bucket }}
+      url: {{ include "core.influxdb2.url" . }}
+      token: {{ include "core.influxdb2.token" . }}
+      org: {{ include "core.influxdb2.organization" . }}
+      bucket: {{ include "core.influxdb2.bucket" . }}
       flushinterval: 10 # In seconds for non-blocking batch mode
       https:
         cert:
         key:
     log:
-      external: {{ .Values.tags.observability }}
+      external: false
       otelcollector:
-        host: {{ template "core.otel" . }}
-        port: {{ template "core.otel.port" . }}
+        host: {{ include "core.otel" . }}
+        port: {{ include "core.otel.port" . }}
     openfga:
-      host: {{ template "core.openfga" . }}
+      host: {{ include "core.openfga" . }}
       port: 8081
-      {{- if .Values.database.external_replica }}
+      {{- if .Values.database.externalReplica }}
       replica:
-        host: {{ template "core.openfga" . }}
+        host: {{ include "core.openfga" . }}
         port: 8083
         replicationtimeframe: 1
       {{- end }}
     registry:
-      host: {{ template "core.registry" . }}
-      port: {{ template "core.registry.port" . }}
+      host: {{ include "core.registry" . }}
+      port: {{ include "core.registry.port" . }}
     minio:
-      host: {{ template "core.minio" . }}
+      host: {{ include "core.minio" . }}
       port: {{ .Values.artifactBackend.minio.port }}
       user: {{ .Values.artifactBackend.minio.user }}
       password: {{ .Values.artifactBackend.minio.password }}
       bucketname: {{ .Values.artifactBackend.minio.bucketname }}
     mgmtbackend:
-      host: {{ template "core.mgmtBackend" . }}
-      publicport: {{ template "core.mgmtBackend.publicPort" . }}
-      privateport: {{ template "core.mgmtBackend.privatePort" . }}
+      host: {{ include "core.mgmtBackend" . }}
+      publicport: {{ include "core.mgmtBackend.publicPort" . }}
+      privateport: {{ include "core.mgmtBackend.privatePort" . }}
     pipelinebackend:
-      host: {{ template "core.pipelineBackend" . }}
-      publicport: {{ template "core.pipelineBackend.publicPort" . }}
-      privateport: {{ template "core.pipelineBackend.privatePort" . }}
+      host: {{ include "core.pipelineBackend" . }}
+      publicport: {{ include "core.pipelineBackend.publicPort" . }}
+      privateport: {{ include "core.pipelineBackend.privatePort" . }}
     modelbackend:
-      host: {{ template "core.modelBackend" . }}
-      publicport: {{ template "core.modelBackend.publicPort" . }}
-      privateport: {{ template "core.modelBackend.privatePort" . }}
+      host: {{ include "core.modelBackend" . }}
+      publicport: {{ include "core.modelBackend.publicPort" . }}
+      privateport: {{ include "core.modelBackend.privatePort" . }}
     milvus:
-      host: {{ template "core.milvus" . }}
-      port: {{ template "core.milvus.port" . }}
+      host: {{ include "core.milvus" . }}
+      port: {{ include "core.milvus.port" . }}
     filetoembeddingworker:
       numberofworkers: {{ .Values.artifactBackend.numberOfWorkers }}
     blob:

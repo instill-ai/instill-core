@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.apiGateway" . }}
+  name: {{ include "core.apiGateway" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: api-gateway
@@ -63,13 +63,13 @@ spec:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
           env:
             - name: MGMT_BACKEND_HOST
-              value: "{{ template "core.mgmtBackend" . }}"
+              value: "{{ include "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
-              value: "{{ template "core.mgmtBackend.publicPort" . }}"
+              value: "{{ include "core.mgmtBackend.publicPort" . }}"
             - name: PIPELINE_BACKEND_HOST
-              value: "{{ template "core.pipelineBackend" . }}"
+              value: "{{ include "core.pipelineBackend" . }}"
             - name: PIPELINE_BACKEND_PORT
-              value: "{{ template "core.pipelineBackend.publicPort" . }}"
+              value: "{{ include "core.pipelineBackend.publicPort" . }}"
         {{- if .Values.temporal.enabled }}
         - name: temporal-admin-tools
           securityContext:
@@ -82,7 +82,7 @@ spec:
               until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
         {{- with .Values.apiGateway.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
@@ -120,20 +120,20 @@ spec:
               --config krakend.json
           ports:
             - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
-              containerPort: {{ template "core.apiGateway.httpPort" . }}
+              containerPort: {{ include "core.apiGateway.httpPort" . }}
               protocol: TCP
             - name: stats
-              containerPort: {{ template "core.apiGateway.statsPort" . }}
+              containerPort: {{ include "core.apiGateway.statsPort" . }}
               protocol: TCP
             - name: metrics
-              containerPort: {{ template "core.apiGateway.metricsPort" . }}
+              containerPort: {{ include "core.apiGateway.metricsPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
               mountPath: {{ .Values.apiGateway.configPath }}
               subPath: ".env"
             {{- if .Values.apiGateway.tls.enabled }}
-            - name: {{ template "core.internalTLS.apiGateway.secretName" . }}
+            - name: {{ include "core.internalTLS.apiGateway.secretName" . }}
               mountPath: "/etc/instill-ai/core/ssl/api-gateway"
               readOnly: true
             {{- end }}
@@ -150,11 +150,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.apiGateway" . }}
+            name: {{ include "core.apiGateway" . }}
         {{- if .Values.apiGateway.tls.enabled }}
-        - name: {{ template "core.internalTLS.apiGateway.secretName" . }}
+        - name: {{ include "core.internalTLS.apiGateway.secretName" . }}
           secret:
-            secretName: {{ template "core.internalTLS.apiGateway.secretName" . }}
+            secretName: {{ include "core.internalTLS.apiGateway.secretName" . }}
             items:
             - key: tls.crt
               path: tls.crt

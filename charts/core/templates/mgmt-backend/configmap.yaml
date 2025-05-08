@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "core.mgmtBackend" . }}
+  name: {{ include "core.mgmtBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend
 data:
   config.yaml: |+
     server:
-      privateport: {{ template "core.mgmtBackend.privatePort" . }}
-      publicport: {{ template "core.mgmtBackend.publicPort" . }}
+      privateport: {{ include "core.mgmtBackend.privatePort" . }}
+      publicport: {{ include "core.mgmtBackend.publicPort" . }}
       edition: {{ .Values.edition }}
       usage:
         {{- toYaml .Values.usage | nindent 8 }}
@@ -21,24 +21,24 @@ data:
       {{- end }}
       instillcorehost: {{ .Values.mgmtBackend.instillCoreHost }}
     pipelinebackend:
-      host: {{ template "core.pipelineBackend" . }}
-      publicport: {{ template "core.pipelineBackend.publicPort" . }}
+      host: {{ include "core.pipelineBackend" . }}
+      publicport: {{ include "core.pipelineBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
         cert: /etc/instill-ai/pipeline/ssl/pipeline/tls.crt
         key: /etc/instill-ai/pipeline/ssl/pipeline/tls.key
       {{- end }}
     database:
-      username: {{ default (include "core.database.username" .) .Values.database.external.username }}
-      password: {{ include "databasePasswordSecret" . | default .Values.database.external.password | default (include "core.database.rawPassword" .) }}
-      host: {{ default (include "core.database.host" .) .Values.database.external.host }}
-      port: {{ default (include "core.database.port" .) .Values.database.external.port }}
-      {{- if .Values.database.external_replica }}
+      username: {{ include "core.database.username" . }}
+      password: {{ include "core.database.password" . }}
+      host: {{ include "core.database.host" . }}
+      port: {{ include "core.database.port" . }}
+      {{- if .Values.database.externalReplica }}
       replica:
-        username: {{ .Values.database.external_replica.username | default "" }}
-        password: {{ include "databasePasswordSecret" . | default .Values.database.external_replica.password | default "" }}
-        host: {{ .Values.database.external_replica.host | default ""  }}
-        port: {{ .Values.database.external_replica.port | default ""  }}
+        username: {{ .Values.database.externalReplica.username | default "" }}
+        password: {{ .Values.database.externalReplica.password | default "" }}
+        host: {{ .Values.database.externalReplica.host | default ""  }}
+        port: {{ .Values.database.externalReplica.port | default ""  }}
         replicationtimeframe: 1
       {{- end }}
       name: mgmt
@@ -53,25 +53,25 @@ data:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     influxdb:
-      url: {{ .Values.influxdbCloud.url }}
-      token: {{ include "influxdbCloudToken" . | default .Values.influxdbCloud.token }}
-      org: {{ .Values.influxdbCloud.organization }}
-      bucket: {{ .Values.influxdbCloud.bucket }}
+      url: {{ include "core.influxdb2.url" . }}
+      token: {{ include "core.influxdb2.token" . }}
+      org: {{ include "core.influxdb2.organization" . }}
+      bucket: {{ include "core.influxdb2.bucket" . }}
       flushinterval: 10s
       https:
         cert:
         key:
     log:
-      external: {{ .Values.tags.observability }}
+      external: false
       otelcollector:
-        host: {{ template "core.otel" . }}
-        port: {{ template "core.otel.port" . }}
+        host: {{ include "core.otel" . }}
+        port: {{ include "core.otel.port" . }}
     openfga:
-      host: {{ template "core.openfga" . }}
+      host: {{ include "core.openfga" . }}
       port: 8080
-      {{- if .Values.database.external_replica }}
+      {{- if .Values.database.externalReplica }}
       replica:
-        host: {{ template "core.openfga" . }}
+        host: {{ include "core.openfga" . }}
         port: 8082
         replicationtimeframe: 1
       {{- end }}

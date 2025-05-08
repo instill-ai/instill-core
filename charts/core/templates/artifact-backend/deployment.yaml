@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.artifactBackend" . }}
+  name: {{ include "core.artifactBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: artifact-backend
@@ -62,9 +62,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "core.database" . }}
+              value: {{ include "core.database" . }}
             - name: PGUSER
-              value: {{ template "core.database.username" . }}
+              value: {{ include "core.database.username" . }}
         {{- end }}
         - name: artifact-backend-migration
           image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
@@ -90,9 +90,9 @@ spec:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/__readiness)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
           env:
             - name: PIPELINE_BACKEND_HOST
-              value: "{{ template "core.pipelineBackend" . }}"
+              value: "{{ include "core.pipelineBackend" . }}"
             - name: PIPELINE_BACKEND_PORT
-              value: "{{ template "core.pipelineBackend.publicPort" . }}"
+              value: "{{ include "core.pipelineBackend.publicPort" . }}"
         - name: artifact-backend-init
           image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
           imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
@@ -131,10 +131,10 @@ spec:
           command: [./{{ .Values.artifactBackend.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-admin
-              containerPort: {{ template "core.artifactBackend.privatePort" . }}
+              containerPort: {{ include "core.artifactBackend.privatePort" . }}
               protocol: TCP
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-              containerPort: {{ template "core.artifactBackend.publicPort" . }}
+              containerPort: {{ include "core.artifactBackend.publicPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
@@ -157,11 +157,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.artifactBackend" . }}
+            name: {{ include "core.artifactBackend" . }}
         {{- if .Values.internalTLS.enabled }}
         - name: artifact-internal-certs
           secret:
-            secretName: {{ template "core.internalTLS.artifactBackend.secretName" . }}
+            secretName: {{ include "core.internalTLS.artifactBackend.secretName" . }}
         {{- end }}
         {{- with .Values.artifactBackend.extraVolumes }}
         {{- toYaml . | nindent 8 }}

@@ -4,7 +4,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "core.modelStoreDataVolume" . }}
+  name: {{ include "core.modelStoreDataVolume" . }}
   annotations:
   {{- range $key, $value := $modelStore.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -36,7 +36,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "core.registryDataVolume" . }}
+  name: {{ include "core.registryDataVolume" . }}
   annotations:
   {{- range $key, $value := $registry.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -68,7 +68,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "core.databaseDataVolume" . }}
+  name: {{ include "core.databaseDataVolume" . }}
   annotations:
   {{- range $key, $value := $database.annotations }}
     {{ $key }}: {{ $value | quote }}
@@ -99,7 +99,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "core.redisDataVolume" . }}
+  name: {{ include "core.redisDataVolume" . }}
   annotations:
   {{- range $key, $value := $redis.annotations }}
     {{ $key }}: {{ $value | quote }}
