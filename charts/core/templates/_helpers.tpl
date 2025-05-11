@@ -238,13 +238,13 @@ Temporal
 {{/*
 KubeRay
 */}}
-{{- define "core.ray" -}}
+{{- define "core.kuberay" -}}
     {{- printf "%s-kuberay" (include "core.fullname" .) -}}
 {{- end -}}
 
 {{- define "core.kuberay.host" -}}
   {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "%s-head-svc" (include "core.ray" .) -}}
+    {{- printf "%s-head-svc" (include "core.kuberay" .) -}}
   {{- else -}}
     {{- printf "%s" (index .Values "ray-cluster").external.host -}}
   {{- end -}}

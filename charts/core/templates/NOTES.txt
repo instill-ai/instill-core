@@ -31,41 +31,41 @@ export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ incl
 echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if eq .Values.expose.type "clusterIP" }}
   export API_GATEWAY_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export API_GATEWAY_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $API_GATEWAY_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export API_GATEWAY_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${API_GATEWAY_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   export CONSOLE_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export CONSOLE_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $CONSOLE_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export CONSOLE_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${CONSOLE_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   {{- if .Values.jaeger.enabled }}
   export JAEGER_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=query,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export JAEGER_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $JAEGER_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export JAEGER_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${JAEGER_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   {{- end }}
   {{- if and (index .Values "kube-prometheus-stack" "enabled") (index .Values "kube-prometheus-stack" "prometheus" "enabled") }}
   export PROMETHEUS_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name=prometheus,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export PROMETHEUS_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $PROMETHEUS_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export PROMETHEUS_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${PROMETHEUS_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   {{- end }}
   {{- if and (index .Values "kube-prometheus-stack" "enabled") (index .Values "kube-prometheus-stack" "grafana" "enabled") }}
-  export GRAFANA_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export GRAFANA_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $GRAFANA_POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export GRAFANA_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ .Release.Namespace }}-kube-prometheus-stack-grafana,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export GRAFANA_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${GRAFANA_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   export RAY_HEAD_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "ray.io/identifier=core-ray-head" -o jsonpath="{.items[0].metadata.name}")
-  export RAY_HEAD_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $RAY_HEAD_POD_NAME -o jsonpath="{.spec.containers[0].ports[?(@.name=='dashboard')].containerPort}")
+  export RAY_HEAD_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${RAY_HEAD_POD_NAME} -o jsonpath="{.spec.containers[0].ports[?(@.name=='dashboard')].containerPort}")
   {{- end }}
   echo "Access to the api-gateway http://localhost:8080 and console http://localhost:3000 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $API_GATEWAY_POD_NAME 8080:${API_GATEWAY_CONTAINER_PORT}"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $CONSOLE_POD_NAME 3000:${CONSOLE_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${API_GATEWAY_POD_NAME} 8080:${API_GATEWAY_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${CONSOLE_POD_NAME} 3000:${CONSOLE_CONTAINER_PORT}"
   {{- if .Values.jaeger.enabled }}
   echo "Access to the observability stack"
   echo "Jaeger UI at http://localhost:16686 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $JAEGER_POD_NAME 16686:${JAEGER_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${JAEGER_POD_NAME} 16686:${JAEGER_CONTAINER_PORT}"
   {{- end }}
   {{- if and (index .Values "kube-prometheus-stack" "enabled") (index .Values "kube-prometheus-stack" "prometheus" "enabled") }}
   echo "Prometheus UI at http://localhost:9090 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $PROMETHEUS_POD_NAME 9090:${PROMETHEUS_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${PROMETHEUS_POD_NAME} 9090:${PROMETHEUS_CONTAINER_PORT}"
   {{- end }}
   {{- if and (index .Values "kube-prometheus-stack" "enabled") (index .Values "kube-prometheus-stack" "grafana" "enabled") }}
   echo "Grafana UI at http://localhost:3001 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $GRAFANA_POD_NAME 3001:${GRAFANA_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${GRAFANA_POD_NAME} 3001:${GRAFANA_CONTAINER_PORT}"
   {{- end }}
   {{- if (index .Values "ray-cluster" "enabled") }}
   echo "Ray Dashboard at http://localhost:8265 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward $RAY_HEAD_POD_NAME 8265:${RAY_HEAD_CONTAINER_PORT}"
+  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${RAY_HEAD_POD_NAME} 8265:${RAY_HEAD_CONTAINER_PORT}"
   {{- end }}
 {{- end }}

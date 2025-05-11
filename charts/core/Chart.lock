@@ -10,7 +10,7 @@ dependencies:
   version: 1.3.2
 - name: ray-cluster
   repository: https://ray-project.github.io/kuberay-helm
-  version: 0.4.0
+  version: 1.3.2
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 8.5.1
@@ -23,5 +23,5 @@ dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 70.3.0
-digest: sha256:94f44c7c5d281f6b20dc19caa91f518777112b71ed49c19de420f8e515ed1ced
-generated: "2025-04-28T23:46:59.609456+01:00"
+digest: sha256:88794c7d365f8054f541d840ad013d6693a03c21801b3b2e554f72655089617a
+generated: "2025-05-09T11:29:28.157632+01:00"

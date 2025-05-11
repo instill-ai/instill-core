@@ -1,0 +1,33 @@
+{{- if .Values.persistence.enabled }}
+{{- $database := .Values.persistence.persistentVolumeClaim.database -}}
+{{- if and (not $database.existingClaim) .Values.database.enabled }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "core.databaseDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $database.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - {{ $database.accessMode }}
+  resources:
+    requests:
+      storage: {{ $database.size }}
+  {{- if $database.storageClass }}
+    {{- if eq "-" $database.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $database.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

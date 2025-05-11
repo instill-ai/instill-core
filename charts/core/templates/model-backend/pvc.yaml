@@ -1,0 +1,32 @@
+{{- if .Values.persistence.enabled }}
+{{- $modelStore := .Values.persistence.persistentVolumeClaim.modelStore -}}
+{{- if not $modelStore.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "core.modelStoreDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $modelStore.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+spec:
+  accessModes:
+    - {{ $modelStore.accessMode }}
+  resources:
+    requests:
+      storage: {{ $modelStore.size }}
+  {{- if $modelStore.storageClass }}
+    {{- if eq "-" $modelStore.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $modelStore.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
