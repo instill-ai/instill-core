@@ -12,6 +12,7 @@ services:
       context: ./${API_GATEWAY_HOST}
       args:
         SERVICE_NAME: api-gateway
+        KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
 
   mgmt_backend:
     profiles:
