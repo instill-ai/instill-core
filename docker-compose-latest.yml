@@ -1,24 +1,14 @@
 services:
   api_gateway:
     profiles:
-      - all
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - api-gateway
     image: ${API_GATEWAY_IMAGE}:latest
     environment:
       LOG_LEVEL: DEBUG
 
   mgmt_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - mgmt-backend
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -29,12 +19,7 @@ services:
 
   mgmt_backend_worker:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - mgmt-backend
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -42,12 +27,7 @@ services:
 
   pipeline_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-model
-      - exclude-artifact
+      - pipeline-backend
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -58,12 +38,7 @@ services:
 
   pipeline_backend_worker:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-model
-      - exclude-artifact
+      - pipeline-backend
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -71,24 +46,14 @@ services:
 
   model_backend_worker:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-artifact
+      - model-backend
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
 
   model_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-artifact
+      - model-backend
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -99,22 +64,12 @@ services:
 
   model_backend_init_model:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-artifact
+      - model-backend
     image: ${MODEL_BACKEND_IMAGE}:latest
 
   artifact_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
+      - artifact-backend
     image: ${ARTIFACT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -125,12 +80,7 @@ services:
 
   console:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - console
     image: ${CONSOLE_IMAGE}:latest
     environment:
       NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}

@@ -143,7 +143,7 @@ build-latest:				## Build latest image. Set BUILD_ALL_FROM_SOURCE=true to build 
 			--build-arg XK6_VERSION=${XK6_VERSION} \
 			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
-			--build-arg CACHE_DATE="$(shell date)" \
+			--build-arg CACHE_DATE="$(shell date +%Y%m%d%H%M%S)" \
 			--target latest \
 			-t ${INSTILL_CORE_IMAGE_NAME}:latest . && \
 		if [ "$(BUILD_ALL_FROM_SOURCE)" = "true" ]; then \
