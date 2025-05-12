@@ -2,16 +2,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "core.modelBackend" . }}-init-model
+  name: {{ include "core.modelBackend" . }}-init-model
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: model-backend
   annotations:
-    # This is what defines this resource as a hook. Without this line, the
-    # job is considered part of the release.
     "helm.sh/hook": post-install
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   template:
     metadata:
@@ -44,9 +41,9 @@ spec:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PORT}/v1alpha/health/model)" != "200" ]]; do echo waiting for model-backend; sleep 1; done
           env:
             - name: MODEL_BACKEND_HOST
-              value: "{{ template "core.modelBackend" . }}"
+              value: "{{ include "core.modelBackend" . }}"
             - name: MODEL_BACKEND_PORT
-              value: "{{ template "core.modelBackend.publicPort" . }}"
+              value: "{{ include "core.modelBackend.publicPort" . }}"
       containers:
       - name: model-backend-init-model
         image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
@@ -58,11 +55,11 @@ spec:
             subPath: config.yaml
         env:
           - name: MODEL_BACKEND_HOST
-            value: "{{ template "core.modelBackend" . }}"
+            value: "{{ include "core.modelBackend" . }}"
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.modelBackend" . }}
+            name: {{ include "core.modelBackend" . }}
       {{- with .Values.modelBackend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

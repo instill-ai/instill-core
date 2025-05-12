@@ -3,12 +3,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "core.registry" . }}
+  name: {{ include "core.registry" . }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "core.registry" . }}
+    name: {{ include "core.registry" . }}
     labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry

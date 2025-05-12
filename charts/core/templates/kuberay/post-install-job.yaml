@@ -1,0 +1,30 @@
+{{- if (index .Values "ray-cluster" "enabled") -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: patch-{{ include "core.kuberay" . }}-gcs
+  labels:
+    app.kubernetes.io/component: kuberay
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: patch-raycluster
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Patching RayCluster resource..."
+          kubectl patch raycluster {{ include "core.kuberay" . }} \
+            --namespace {{ include "core.namespace" . }}  \
+            --type=merge \
+            -p '{"spec":{"gcsFaultToleranceOptions":{"redisAddress":"{{ default (include "core.redis.addr" .) .Values.redis.external.addr }}"}}}'
+          export RAYCLUSTER_HEAD_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "ray.io/identifier=core-kuberay-head" -o jsonpath="{.items[0].metadata.name}")
+          kubectl delete pod $RAYCLUSTER_HEAD_POD_NAME --namespace {{ .Release.Namespace }}
+{{- end }}

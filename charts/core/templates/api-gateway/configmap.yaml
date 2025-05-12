@@ -1,47 +1,47 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "core.apiGateway" . }}
+  name: {{ include "core.apiGateway" . }}
 data:
   .env: |-
     LOG_LEVEL={{ upper .Values.logLevel }}
 
     # api-gateway
-    API_GATEWAY_HOST={{ template "core.apiGateway" . }}
-    API_GATEWAY_PORT={{ template "core.apiGateway.httpPort" . }}
-    API_GATEWAY_STATS_PORT={{ template "core.apiGateway.statsPort" . }}
-    API_GATEWAY_METRICS_PORT={{ template "core.apiGateway.metricsPort" . }}
+    API_GATEWAY_HOST={{ include "core.apiGateway" . }}
+    API_GATEWAY_PORT={{ include "core.apiGateway.httpPort" . }}
+    API_GATEWAY_STATS_PORT={{ include "core.apiGateway.statsPort" . }}
+    API_GATEWAY_METRICS_PORT={{ include "core.apiGateway.metricsPort" . }}
     {{- if .Values.apiGateway.tls.enabled }}
     API_GATEWAY_CERT_FILE=/etc/instill-ai/core/ssl/api-gateway/tls.crt
     API_GATEWAY_KEY_FILE=/etc/instill-ai/core/ssl/api-gateway/tls.key
     {{- end }}
 
     # mgmt-backend
-    MGMT_BACKEND_HOST={{ template "core.mgmtBackend" . }}
-    MGMT_BACKEND_PUBLICPORT={{ template "core.mgmtBackend.publicPort" . }}
-    MGMT_BACKEND_PRIVATEPORT={{ template "core.mgmtBackend.privatePort" . }}
+    MGMT_BACKEND_HOST={{ include "core.mgmtBackend" . }}
+    MGMT_BACKEND_PUBLICPORT={{ include "core.mgmtBackend.publicPort" . }}
+    MGMT_BACKEND_PRIVATEPORT={{ include "core.mgmtBackend.privatePort" . }}
 
     # pipeline-backend
-    PIPELINE_BACKEND_HOST={{ template "core.pipelineBackend" . }}
-    PIPELINE_BACKEND_PUBLICPORT={{ template "core.pipelineBackend.publicPort" . }}
+    PIPELINE_BACKEND_HOST={{ include "core.pipelineBackend" . }}
+    PIPELINE_BACKEND_PUBLICPORT={{ include "core.pipelineBackend.publicPort" . }}
 
     # model-backend
-    MODEL_BACKEND_HOST={{ template "core.modelBackend" . }}
-    MODEL_BACKEND_PUBLICPORT={{ template "core.modelBackend.publicPort" . }}
-    MODEL_BACKEND_PRIVATEPORT={{ template "core.modelBackend.privatePort" . }}
+    MODEL_BACKEND_HOST={{ include "core.modelBackend" . }}
+    MODEL_BACKEND_PUBLICPORT={{ include "core.modelBackend.publicPort" . }}
+    MODEL_BACKEND_PRIVATEPORT={{ include "core.modelBackend.privatePort" . }}
 
     # artifact-backend
-    ARTIFACT_BACKEND_HOST={{ template "core.artifactBackend" . }}
-    ARTIFACT_BACKEND_PUBLICPORT={{ template "core.artifactBackend.publicPort" . }}
-    ARTIFACT_BACKEND_PRIVATEPORT={{ template "core.artifactBackend.privatePort" . }}
+    ARTIFACT_BACKEND_HOST={{ include "core.artifactBackend" . }}
+    ARTIFACT_BACKEND_PUBLICPORT={{ include "core.artifactBackend.publicPort" . }}
+    ARTIFACT_BACKEND_PRIVATEPORT={{ include "core.artifactBackend.privatePort" . }}
 
     # registry
-    REGISTRY_HOST={{ template "core.registry" . }}
-    REGISTRY_PORT={{ template "core.registry.port" . }}
+    REGISTRY_HOST={{ include "core.registry" . }}
+    REGISTRY_PORT={{ include "core.registry.port" . }}
 
     # minio
-    MINIO_HOST={{ template "core.minio" . }}
-    MINIO_PORT={{ template "core.minio.port" . }}
+    MINIO_HOST={{ include "core.minio" . }}
+    MINIO_PORT={{ include "core.minio.port" . }}
 
     # Additional Hosts
     {{- range $host := .Values.apiGateway.additionalHosts }}

@@ -35,28 +35,6 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{- end -}}
 
 {{/*
-Ray fullname
-*/}}
-{{- define "ray.fullname" -}}
-  {{- if .Values.ray.namespaceOverride -}}
-    {{- .Values.ray.namespaceOverride -}}
-  {{- else -}}
-    {{- printf "%s" (include "core.name" .) -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Inter namespace DNS suffix
-*/}}
-{{- define "ray.suffix" -}}
-  {{- if .Values.ray.namespaceOverride -}}
-    {{- printf ".%s.svc.cluster.local" (include "ray.fullname" .) -}}
-  {{- else -}}
-    {{- printf "" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "core.chart" -}}
@@ -81,25 +59,6 @@ MatchLabels
 {{- define "core.matchLabels" -}}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/name: {{ include "core.name" . }}
-{{- end -}}
-
-{{/*
-Flags for auto-gen TLS certificate
-*/}}
-{{- define "core.autoGenCert" -}}
-  {{- if and .Values.expose.tls.enabled (eq .Values.expose.tls.certSource "auto") -}}
-    {{- printf "true" -}}
-  {{- else -}}
-    {{- printf "false" -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.autoGenCertForIngress" -}}
-  {{- if and (eq (include "core.autoGenCert" .) "true") (eq .Values.expose.type "ingress") -}}
-    {{- printf "true" -}}
-  {{- else -}}
-    {{- printf "false" -}}
-  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -198,8 +157,8 @@ artifact-backend
 {{- define "core.artifactBackend.privatePort" -}}
 {{- printf "3082" -}}
 {{- end -}}
-{{/*
 
+{{/*
 console
 */}}
 {{- define "core.console" -}}
@@ -276,44 +235,71 @@ Temporal
   {{- printf "8096" -}}
 {{- end -}}
 
-{{- define "core.kuberay-operator" -}}
-  {{- printf "%s-kuberay-operator" (include "ray.fullname" .) -}}
+{{/*
+KubeRay
+*/}}
+{{- define "core.kuberay" -}}
+    {{- printf "%s-kuberay" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.ray" -}}
-  {{- printf "%s-ray" (include "ray.fullname" .) -}}
+{{- define "core.kuberay.host" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "%s-head-svc" (include "core.kuberay" .) -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.host -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.rayServiceName" -}}
-  {{- printf "%s-ray-head-svc%s" (include "ray.fullname" .) (include "ray.suffix" .) -}}
+{{- define "core.kuberay.clientPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "10001" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.clientPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.clientPort" -}}
-  {{- printf "10001" -}}
+{{- define "core.kuberay.gcsPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "6379" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.gcsPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.gcsPort" -}}
-  {{- printf "6379" -}}
+{{- define "core.kuberay.dashboardPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8265" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.dashboardPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.dashboardPort" -}}
-  {{- printf "8265" -}}
+{{- define "core.kuberay.servePort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8000" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.servePort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.servePort" -}}
-  {{- printf "8000" -}}
+{{- define "core.kuberay.serveGrpcPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "9000" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.serveGrpcPort -}}
+  {{- end -}}
 {{- end -}}
 
-{{- define "core.ray.serveGrpcPort" -}}
-  {{- printf "9000" -}}
-{{- end -}}
-
-{{- define "core.ray.metricsPort" -}}
-  {{- printf "8080" -}}
+{{- define "core.kuberay.metricsPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "8080" -}}
+  {{- else -}}
+    {{- printf "%s" (index .Values "ray-cluster").external.metricsPort -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
-database
+Database
 */}}
 {{- define "core.database" -}}
   {{- printf "%s-database" (include "core.fullname" .) -}}
@@ -343,7 +329,7 @@ database
   {{- end -}}
 {{- end -}}
 
-{{- define "core.database.rawPassword" -}}
+{{- define "core.database.password" -}}
   {{- if .Values.database.enabled -}}
     {{- .Values.database.password -}}
   {{- else -}}
@@ -352,31 +338,57 @@ database
 {{- end -}}
 
 {{/*
-redis address host:port
+Redis
 */}}
-{{- define "core.redis.addr" -}}
-  {{- with .Values.redis -}}
-    {{- ternary (printf "%s:6379" (include "core.redis" $ )) .external.addr .enabled -}}
-  {{- end -}}
-{{- end -}}
-
 {{- define "core.redis" -}}
   {{- printf "%s-redis" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.database.encryptedPassword" -}}
-  {{- include "core.database.rawPassword" . | b64enc | quote -}}
+{{- define "core.redis.addr" -}}
+  {{- if .Values.redis.enabled -}}
+    {{- printf "%s:6379" (include "core.redis" .) -}}
+  {{- else -}}
+    {{- .Values.redis.external.addr -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
-influxdb
+Influxdb2
 */}}
-{{- define "core.influxdb" -}}
+{{- define "core.influxdb2" -}}
   {{- printf "%s-influxdb2" (include "core.fullname" .) -}}
 {{- end -}}
 
-{{- define "core.influxdb.port" -}}
-  {{- printf "8086" -}}
+{{- define "core.influxdb2.url" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- printf "http://%s:80" (include "core.influxdb2" .) -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.url -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.token" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.token -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.token -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.organization" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.organization -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.organization -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.influxdb2.bucket" -}}
+  {{- if .Values.influxdb2.enabled -}}
+    {{- .Values.influxdb2.adminUser.bucket -}}
+  {{- else -}}
+    {{- .Values.influxdb2.external.bucket -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -531,34 +543,4 @@ minio
 
 {{- define "core.minio.port" -}}
   {{- printf "9000" -}}
-{{- end -}}
-
-{{- define "databasePasswordSecret" -}}
-{{- $secret := (lookup "v1" "Secret" .Release.Namespace .Values.database.external.dbSecretName) -}}
-{{- if and $secret $secret.data -}}
-    {{- if hasKey $secret.data .Values.database.external.dbSecretKey -}}
-        {{- index $secret.data .Values.database.external.dbSecretKey | b64dec -}}
-    {{- else -}}
-        {{- /* Return empty if password key doesn't exist */ -}}
-        {{- "" -}}
-    {{- end -}}
-{{- else -}}
-    {{- /* Return empty if secret doesn't exist or has no data */ -}}
-    {{- "" -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "influxdbCloudToken" -}}
-{{- $token := (lookup "v1" "Secret" .Release.Namespace .Values.influxdbCloud.influxdbCloudSecretName) -}}
-{{- if and $token $token.data -}}
-    {{- if hasKey $token.data .Values.influxdbCloud.influxdbCloudSecretKey -}}
-        {{- index $token.data .Values.influxdbCloud.influxdbCloudSecretKey | b64dec -}}
-    {{- else -}}
-        {{- /* Return empty if password key doesn't exist */ -}}
-        {{- "" -}}
-    {{- end -}}
-{{- else -}}
-    {{- /* Return empty if secret doesn't exist or has no data */ -}}
-    {{- "" -}}
-{{- end -}}
 {{- end -}}

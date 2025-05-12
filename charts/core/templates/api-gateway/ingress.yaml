@@ -22,7 +22,7 @@ apiVersion: networking.k8s.io/v1
 {{- end }}
 kind: Ingress
 metadata:
-  name: "{{ template "core.apiGateway" . }}"
+  name: "{{ include "core.apiGateway" . }}"
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: api-gateway
@@ -49,16 +49,16 @@ spec:
 {{- if semverCompare "<1.19-0" (include "core.ingress.kubeVersion" .) }}
       - path: {{ .rootPath }}
         backend:
-          serviceName: {{ template "core.apiGateway" . }}
-          servicePort: {{ template "core.apiGateway.httpPort" . }}
+          serviceName: {{ include "core.apiGateway" . }}
+          servicePort: {{ include "core.apiGateway.httpPort" . }}
 {{- else }}
       - path: {{ .rootPath }}
         pathType: ImplementationSpecific
         backend:
           service:
-            name: {{ template "core.apiGateway" . }}
+            name: {{ include "core.apiGateway" . }}
             port:
-              number: {{ template "core.apiGateway.httpPort" . }}
+              number: {{ include "core.apiGateway.httpPort" . }}
 {{- end }}
     {{- if $ingress.hosts.apiGateway }}
     host: {{ $ingress.hosts.apiGateway }}

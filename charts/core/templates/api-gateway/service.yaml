@@ -16,13 +16,13 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
       port: {{ default (include "core.apiGateway.httpPort" .) $clusterIP.ports.apiGatewayHttp }}
-      targetPort: {{ template "core.apiGateway.httpPort" . }}
+      targetPort: {{ include "core.apiGateway.httpPort" . }}
     - name: stats
       port: {{ default (include "core.apiGateway.statsPort" .) $clusterIP.ports.apiGatewayStats }}
-      targetPort: {{ template "core.apiGateway.statsPort" . }}
+      targetPort: {{ include "core.apiGateway.statsPort" . }}
     - name: metrics
       port: {{ default (include "core.apiGateway.metricsPort" .) $clusterIP.ports.apiGatewayMetrics }}
-      targetPort: {{ template "core.apiGateway.metricsPort" . }}
+      targetPort: {{ include "core.apiGateway.metricsPort" . }}
 {{- else if eq .Values.expose.type "nodePort" }}
 {{- $nodePort := .Values.expose.nodePort }}
   name: {{ include "core.apiGateway" . }}
@@ -38,19 +38,19 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
       port: {{ default (include "core.apiGateway.httpPort" .) $nodePort.ports.apiGatewayHttp.port }}
-      targetPort: {{ template "core.apiGateway.httpPort" . }}
+      targetPort: {{ include "core.apiGateway.httpPort" . }}
       {{- if and (ge ($nodePort.ports.apiGatewayHttp.nodePort | int) (30000 | int)) (le ($nodePort.ports.apiGatewayHttp.nodePort | int) (32767 | int)) }}
       nodePort: {{ $nodePort.ports.apiGatewayHttp.nodePort }}
       {{- end }}
     - name: stats
       port: {{ default (include "core.apiGateway.statsPort" .) $nodePort.ports.apiGatewayStats.port }}
-      targetPort: {{ template "core.apiGateway.statsPort" . }}
+      targetPort: {{ include "core.apiGateway.statsPort" . }}
       {{- if and (ge ($nodePort.ports.apiGatewayStats.nodePort | int) (30000 | int)) (le ($nodePort.ports.apiGatewayStats.nodePort | int) (32767 | int)) }}
       nodePort: {{ $nodePort.ports.apiGatewayStats.nodePort }}
       {{- end }}
     - name: metrics
       port: {{ default (include "core.apiGateway.metricsPort" .) $nodePort.ports.apiGatewayMetrics.port }}
-      targetPort: {{ template "core.apiGateway.metricsPort" . }}
+      targetPort: {{ include "core.apiGateway.metricsPort" . }}
       {{- if and (ge ($nodePort.ports.apiGatewayMetrics.nodePort | int) (30000 | int)) (le ($nodePort.ports.apiGatewayMetrics.nodePort | int) (32767 | int)) }}
       nodePort: {{ $nodePort.ports.apiGatewayMetrics.nodePort }}
       {{- end }}
@@ -76,13 +76,13 @@ spec:
   ports:
     - name: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
       port: {{ default (include "core.apiGateway.httpPort" .) $loadBalancer.ports.apiGatewayHttp }}
-      targetPort: {{ template "core.apiGateway.httpPort" . }}
+      targetPort: {{ include "core.apiGateway.httpPort" . }}
     - name: stats
       port: {{ default (include "core.apiGateway.statsPort" .) $loadBalancer.ports.apiGatewayStats }}
-      targetPort: {{ template "core.apiGateway.statsPort" . }}
+      targetPort: {{ include "core.apiGateway.statsPort" . }}
     - name: metrics
       port: {{ default (include "core.apiGateway.metricsPort" .) $loadBalancer.ports.apiGatewayMetrics }}
-      targetPort: {{ template "core.apiGateway.metricsPort" . }}
+      targetPort: {{ include "core.apiGateway.metricsPort" . }}
 {{- end }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}

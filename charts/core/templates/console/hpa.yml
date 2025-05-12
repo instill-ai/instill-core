@@ -2,12 +2,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ template "core.console" . }}
+  name: {{ include "core.console" . }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "core.console" . }}
+    name: {{ include "core.console" . }}
     labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: console

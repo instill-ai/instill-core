@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.registry" . }}
+  name: {{ include "core.registry" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: registry
@@ -75,14 +75,14 @@ spec:
             httpGet:
               path: /
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ template "core.registry.port" . }}
+              port: {{ include "core.registry.port" . }}
             periodSeconds: 10
             initialDelaySeconds: 10
           livenessProbe:
             httpGet:
               path: /
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
-              port: {{ template "core.registry.port" . }}
+              port: {{ include "core.registry.port" . }}
             periodSeconds: 10
             initialDelaySeconds: 10
           {{- if .Values.registry.resources }}
@@ -91,10 +91,10 @@ spec:
           {{- end }}
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}
-              containerPort: {{ template "core.registry.port" . }}
+              containerPort: {{ include "core.registry.port" . }}
               protocol: TCP
             - name: metrics
-              containerPort: {{ template "core.registry.metricsPort" . }}
+              containerPort: {{ include "core.registry.metricsPort" . }}
               protocol: TCP
           volumeMounts:
             - name: config
@@ -114,7 +114,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.registry" . }}
+            name: {{ include "core.registry" . }}
         {{- if eq .Values.registry.config.storage.type "filesystem" }}
         - name: data-volume
         {{- if not .Values.persistence.enabled }}
@@ -124,7 +124,7 @@ spec:
             claimName: {{ $registry.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: {{ template "core.registryDataVolume" . }}
+            claimName: {{ include "core.registryDataVolume" . }}
         {{- end }}
         {{- end }}
         {{- with .Values.registry.extraVolumes }}

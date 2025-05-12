@@ -1,0 +1,33 @@
+{{- if .Values.persistence.enabled }}
+{{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
+{{- if and (not $redis.existingClaim) .Values.redis.enabled }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "core.redisDataVolume" . }}
+  annotations:
+  {{- range $key, $value := $redis.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  accessModes:
+    - {{ $redis.accessMode }}
+  resources:
+    requests:
+      storage: {{ $redis.size }}
+  {{- if $redis.storageClass }}
+    {{- if eq "-" $redis.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $redis.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -3,13 +3,13 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "core.database" . }}
+  name: {{ include "core.database" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
 spec:
   replicas: 1
-  serviceName: "{{ template "core.database" . }}"
+  serviceName: "{{ include "core.database" . }}"
   selector:
     matchLabels:
       {{- include "core.matchLabels" . | nindent 6 }}
@@ -61,7 +61,7 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                name: {{ template "core.database" . }}
+                name: {{ include "core.database" . }}
           env:
             # put the data into a sub directory to avoid the permission issue in k8s with restricted psp enabled
             - name: PGDATA
@@ -85,7 +85,7 @@ spec:
             claimName: {{ $database.existingClaim }}
         {{- else }}
           persistentVolumeClaim:
-            claimName: {{ template "core.databaseDataVolume" . }}
+            claimName: {{ include "core.databaseDataVolume" . }}
         {{- end }}
       {{- with .Values.database.nodeSelector }}
       nodeSelector:

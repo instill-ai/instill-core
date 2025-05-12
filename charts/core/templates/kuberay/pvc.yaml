@@ -1,0 +1,62 @@
+{{- if .Values.persistence.enabled }}
+{{- $kuberayHead := .Values.persistence.persistentVolumeClaim.kuberayHead -}}
+{{- $kuberayWorker := .Values.persistence.persistentVolumeClaim.kuberayWorker -}}
+{{- if and (not $kuberayHead.existingClaim) (index .Values "ray-cluster").enabled }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "core.kuberay" . }}-head
+  annotations:
+  {{- range $key, $value := (index .Values "ray-cluster").head.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kuberay
+spec:
+  accessModes:
+    - {{ $kuberayHead.accessMode }}
+  resources:
+    requests:
+      storage: {{ $kuberayHead.size }}
+  {{- if $kuberayHead.storageClass }}
+    {{- if eq "-" $kuberayHead.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $kuberayHead.storageClass }}
+    {{- end }}
+  {{- end }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "core.kuberay" . }}-worker
+  annotations:
+  {{- range $key, $value := (index .Values "ray-cluster").worker.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if eq .Values.persistence.resourcePolicy "keep" }}
+    helm.sh/resource-policy: keep
+  {{- end }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kuberay
+spec:
+  accessModes:
+    - {{ $kuberayWorker.accessMode }}
+  resources:
+    requests:
+      storage: {{ $kuberayWorker.size }}
+  {{- if $kuberayWorker.storageClass }}
+    {{- if eq "-" $kuberayWorker.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ $kuberayWorker.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -34,11 +34,13 @@ endif
 
 UNAME_S := $(shell uname -s)
 
-INSTILL_CORE_IMAGE_NAME := instill/core
+INSTILL_CORE_IMAGE_NAME := instill/instill-core
 INSTILL_CORE_VERSION := $(shell git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 2-)
 
-INSTILL_CORE_BUILD_CONTAINER_NAME := instill-core-build
-INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME := instill-core-integration-test
+CONTAINER_BUILD_NAME := instill-core-build
+CONTAINER_BACKEND_INTEGRATION_TEST_NAME := instill-core-backend-integration-test
+
+# TODO: Remove these
 INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME := instill-core-console-integration-test
 INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME := instill/console-playwright
 
@@ -87,9 +89,55 @@ else
 		docker compose ${COMPOSE_FILES} -f docker-compose-latest.yml up -d --quiet-pull
 endif
 
+.PHONY: helm-latest
+helm-latest:
+	@helm install ${HELM_RELEASE_NAME} charts/core \
+		--namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set apiGateway.image.tag=latest \
+		--set mgmtBackend.image.tag=latest \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set artifactBackend.image.tag=latest \
+		--set pipelineBackend.image.tag=latest \
+		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.image.tag=latest \
+		--set console.image.tag=latest \
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG}
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "ray.io/identifier=${HELM_RELEASE_NAME}-kuberay-head" -o jsonpath="{.items[0].metadata.name}") ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
+
+.PHONY: helm-release
+helm-release:
+	@helm install ${HELM_RELEASE_NAME} charts/core \
+		--namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:test \
+		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
+		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG}
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "ray.io/identifier=${HELM_RELEASE_NAME}-kuberay-head" -o jsonpath="{.items[0].metadata.name}") ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
+
+
 .PHONY: build-latest
-build-latest:				## Build latest images for all services
-		@docker build --progress plain \
+build-latest:				## Build latest image. Set BUILD_ALL_FROM_SOURCE=true to build all service images from source.
+	@bash -c ' \
+		set -e; \
+		trap "$(MAKE) down" ERR INT TERM && \
+		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
 			--build-arg XK6_VERSION=${XK6_VERSION} \
@@ -97,65 +145,84 @@ build-latest:				## Build latest images for all services
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(shell date)" \
 			--target latest \
-			-t ${INSTILL_CORE_IMAGE_NAME}:latest .
-		@docker run --rm \
-			-v /var/run/docker.sock:/var/run/docker.sock \
-			-v ./.env:/instill-core/.env \
-			-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
-			--name ${INSTILL_CORE_BUILD_CONTAINER_NAME}-latest \
-			${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
-				API_GATEWAY_VERSION=latest \
-				MGMT_BACKEND_VERSION=latest \
-				PIPELINE_BACKEND_VERSION=latest \
-				MODEL_BACKEND_VERSION=latest \
-				ARTIFACT_BACKEND_VERSION=latest \
-				CONSOLE_VERSION=latest \
-				ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
-				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
-			"
+			-t ${INSTILL_CORE_IMAGE_NAME}:latest . && \
+		if [ "$(BUILD_ALL_FROM_SOURCE)" = "true" ]; then \
+			docker run --rm \
+				-v /var/run/docker.sock:/var/run/docker.sock \
+				-v ./.env:/instill-core/.env \
+				-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
+				--name ${CONTAINER_BUILD_NAME}-latest \
+				${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
+					API_GATEWAY_VERSION=latest \
+					MGMT_BACKEND_VERSION=latest \
+					PIPELINE_BACKEND_VERSION=latest \
+					MODEL_BACKEND_VERSION=latest \
+					ARTIFACT_BACKEND_VERSION=latest \
+					CONSOLE_VERSION=latest \
+					ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
+					COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
+				"; \
+		fi \
+	'
 
 .PHONY: build-release
-build-release:				## Build release images for all services
-	@docker build --progress plain \
-		--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
-		--build-arg K6_VERSION=${K6_VERSION} \
-		--build-arg XK6_VERSION=${XK6_VERSION} \
-		--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
-		--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
-		--build-arg CACHE_DATE="$(shell date)" \
-		--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-		--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-		--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-		--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-		--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
-		--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
-		--target release \
-		-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} .
-	@docker run --rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v ./.env:/instill-core/.env \
-		-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
-		--name ${INSTILL_CORE_BUILD_CONTAINER_NAME}-release \
-			${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
-				API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-				MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-				PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-				MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-				ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
-				CONSOLE_VERSION=${CONSOLE_VERSION} \
-				ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
-				COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
-			"
+build-release:				## Build release image. Set BUILD_ALL_FROM_SOURCE=true to build all service images from source.
+	@bash -c ' \
+		set -e; \
+		trap "$(MAKE) down" ERR INT TERM && \
+		docker build --progress plain \
+			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+			--build-arg K6_VERSION=${K6_VERSION} \
+			--build-arg XK6_VERSION=${XK6_VERSION} \
+			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
+			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
+			--build-arg CACHE_DATE="$(shell date)" \
+			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
+			--target release \
+			-t ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} . && \
+		if [ "$(BUILD_ALL_FROM_SOURCE)" = "true" ]; then \
+			docker run --rm \
+				-v /var/run/docker.sock:/var/run/docker.sock \
+				-v ./.env:/instill-core/.env \
+				-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
+				--name ${CONTAINER_BUILD_NAME}-release \
+				${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
+					API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+					MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+					PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+					MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+					ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+					CONSOLE_VERSION=${CONSOLE_VERSION} \
+					ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
+					COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
+				"; \
+		fi \
+	'
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
-	@docker rm -f ${INSTILL_CORE_BUILD_CONTAINER_NAME}-latest >/dev/null 2>&1
-	@docker rm -f ${INSTILL_CORE_BUILD_CONTAINER_NAME}-release >/dev/null 2>&1
-	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest >/dev/null 2>&1
-	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release >/dev/null 2>&1
-	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest >/dev/null 2>&1
-	@docker rm -f ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release >/dev/null 2>&1
-	@EDITION= DEFAULT_USER_UID= docker compose down --remove-orphans -v
+	@docker rm -f ${CONTAINER_BUILD_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BUILD_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
+	@if EDITION= DEFAULT_USER_UID= docker compose ps --services | grep -q .; then \
+		EDITION= DEFAULT_USER_UID= docker compose down --remove-orphans -v; \
+	fi
+	@if helm list --namespace instill-ai | grep -q "core"; then \
+		echo "Uninstalling Helm release core --namespace instill-ai" && \
+		helm uninstall core --namespace instill-ai >/dev/null 2>&1; \
+		echo "Deleting namespace instill-ai" && \
+		kubectl delete namespace instill-ai >/dev/null 2>&1; \
+		echo "Killing port-forward processes" && \
+		pkill -f "port-forward" >/dev/null 2>&1; \
+	fi
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -207,7 +274,7 @@ integration-test-latest:			# Run integration test on the latest Instill Core
 	@make latest EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
 		--network instill-network \
-		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
@@ -220,7 +287,7 @@ integration-test-release:			# Run integration test on the released Instill Core
 	@make all EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
 		--network instill-network \
-		--name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-release \
+		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
@@ -230,39 +297,16 @@ integration-test-release:			# Run integration test on the released Instill Core
 
 .PHONY: helm-integration-test-latest
 helm-integration-test-latest:                       # Run integration test on the Helm latest for Instill Core
-	@make build-latest
-	@helm install ${HELM_RELEASE_NAME} charts/core \
-		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
-		--set apiGateway.image.tag=latest \
-		--set mgmtBackend.image.tag=latest \
-		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set artifactBackend.image.tag=latest \
-		--set pipelineBackend.image.tag=latest \
-		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
-		--set 'pipelineBackend.extraEnv[0].value=foo' \
-		--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
-		--set 'pipelineBackend.extraEnv[1].value=foo' \
-		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set modelBackend.image.tag=latest \
-		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
-		--set tags.observability=true
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
-	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
+	@$(MAKE) helm-latest
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
-	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
+	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
-	@docker run --rm --network host --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
+	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
@@ -275,39 +319,16 @@ endif
 
 .PHONY: helm-integration-test-release
 helm-integration-test-release:                       # Run integration test on the Helm release for Instill Core
-	@make build-release
-	@helm install ${HELM_RELEASE_NAME} charts/core \
-		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
-		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
-		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
-		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
-		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
-		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID' \
-		--set 'pipelineBackend.extraEnv[0].value=foo' \
-		--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET' \
-		--set 'pipelineBackend.extraEnv[1].value=foo' \
-		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
-		--set tags.observability=true
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
-	@export API_GATEWAY_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace ${HELM_NAMESPACE} port-forward $${API_GATEWAY_POD_NAME} ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-	@export DATABASE_POD_NAME=$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") && \
-		kubectl --namespace ${HELM_NAMESPACE} port-forward $${DATABASE_POD_NAME} ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
+	@$(MAKE) helm-release
 	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
 ifeq ($(UNAME_S),Darwin)
-	@docker run --rm --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
+	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"
 else ifeq ($(UNAME_S),Linux)
-	@docker run --rm --network host --name ${INSTILL_CORE_INTEGRATION_TEST_CONTAINER_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
+	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
@@ -360,7 +381,6 @@ console-helm-integration-test-latest:                       # Run console integr
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -370,14 +390,13 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -387,7 +406,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray.image.tag=${RAY_LATEST_TAG} \
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}
@@ -438,7 +457,6 @@ console-helm-integration-test-release:                       # Run console integ
 ifeq ($(UNAME_S),Darwin)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -448,14 +466,13 @@ ifeq ($(UNAME_S),Darwin)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://host.docker.internal:${API_GATEWAY_PORT} \
 		--set consoleURL=http://host.docker.internal:${CONSOLE_PORT}
 else ifeq ($(UNAME_S),Linux)
 	@helm install ${HELM_RELEASE_NAME} charts/core --namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:test \
-		--set tags.observability=false \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -465,7 +482,7 @@ else ifeq ($(UNAME_S),Linux)
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray.image.tag=${RAY_RELEASE_TAG} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
 		--set apiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set console.serverApiGatewayURL=http://localhost:${API_GATEWAY_PORT} \
 		--set consoleURL=http://localhost:${CONSOLE_PORT}

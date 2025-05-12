@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.pipelineBackend" . }}
+  name: {{ include "core.pipelineBackend" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
@@ -62,9 +62,9 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "core.database" . }}
+              value: {{ include "core.database" . }}
             - name: PGUSER
-              value: {{ template "core.database.username" . }}
+              value: {{ include "core.database.username" . }}
         {{- end }}
         {{- if not .Values.pipelineBackend.temporal.hostPort }}
         - name: temporal-admin-tools
@@ -80,7 +80,7 @@ spec:
               if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ template "core.temporal" . }}-frontend:{{ template "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
         {{- end }}
         - name: pipeline-backend-migration
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}
@@ -126,9 +126,9 @@ spec:
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PORT}/v1beta/health/mgmt)" != "200" ]]; do echo waiting for mgmt-backend; sleep 1; done
           env:
             - name: MGMT_BACKEND_HOST
-              value: "{{ template "core.mgmtBackend" . }}"
+              value: "{{ include "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
-              value: "{{ template "core.mgmtBackend.publicPort" . }}"
+              value: "{{ include "core.mgmtBackend.publicPort" . }}"
         {{- with .Values.pipelineBackend.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -158,7 +158,7 @@ spec:
           command: [./{{ .Values.pipelineBackend.commandName.main }}]
           ports:
             - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-              containerPort: {{ template "core.pipelineBackend.publicPort" . }}
+              containerPort: {{ include "core.pipelineBackend.publicPort" . }}
               protocol: TCP
           env:
           {{- if .Values.pipelineBackend.extraEnv }}
@@ -181,11 +181,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.pipelineBackend" . }}
+            name: {{ include "core.pipelineBackend" . }}
         {{- if .Values.internalTLS.enabled }}
         - name: pipeline-internal-certs
           secret:
-            secretName: {{ template "core.internalTLS.pipelineBackend.secretName" . }}
+            secretName: {{ include "core.internalTLS.pipelineBackend.secretName" . }}
         {{- end }}
         {{- with .Values.pipelineBackend.extraVolumes }}
         {{- toYaml . | nindent 8 }}
@@ -206,7 +206,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "core.pipelineBackendWorker" . }}
+  name: {{ include "core.pipelineBackendWorker" . }}
   labels:
     {{- include "core.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend-worker
@@ -266,10 +266,21 @@ spec:
           command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
           env:
             - name: PGHOST
-              value: {{ template "core.database" . }}
+              value: {{ include "core.database" . }}
             - name: PGUSER
-              value: {{ template "core.database.username" . }}
+              value: {{ include "core.database.username" . }}
         {{- end }}
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
+          env:
+            - name: PIPELINE_BACKEND_HOST
+              value: "{{ include "core.pipelineBackend" . }}"
+            - name: PIPELINE_BACKEND_PORT
+              value: "{{ include "core.pipelineBackend.publicPort" . }}"
         {{- with .Values.pipelineBackend.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -299,7 +310,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "core.pipelineBackend" . }}
+            name: {{ include "core.pipelineBackend" . }}
         {{- with .Values.pipelineBackend.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
