@@ -50,10 +50,7 @@ services:
           "CMD-SHELL",
           "curl -f http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}/__health",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       influxdb:
         condition: service_healthy
@@ -92,10 +89,7 @@ services:
           "CMD-SHELL",
           "wget --no-verbose --tries=1 --spider http://${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PUBLICPORT}/v1beta/health/mgmt",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -170,10 +164,7 @@ services:
           "CMD-SHELL",
           "curl -f http://${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PUBLICPORT}/v1beta/health/pipeline",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       temporal:
         condition: service_healthy
@@ -261,10 +252,7 @@ services:
           "CMD-SHELL",
           "curl -f http://${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PUBLICPORT}/v1alpha/health/model",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       model_backend_worker:
         condition: service_started
@@ -356,10 +344,7 @@ services:
           "CMD-SHELL",
           "curl -f  http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PUBLICPORT}/v1alpha/health/artifact",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -391,7 +376,7 @@ services:
     entrypoint: ./entrypoint.sh
 
   temporal:
-    container_name: temporal
+    container_name: ${TEMPORAL_HOST}
     image: ${TEMPORAL_IMAGE}:${TEMPORAL_VERSION}
     restart: unless-stopped
     environment:
@@ -410,10 +395,7 @@ services:
       - ${CONFIG_DIR_PATH}/temporal/development-sql.yaml:/etc/temporal/config/dynamicconfig/development-sql.yaml
     healthcheck:
       test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
     depends_on:
       pg_sql:
         condition: service_healthy
@@ -457,10 +439,7 @@ services:
       - /var/lib/containers:/var/lib/containers
     healthcheck:
       test: ["CMD", "ray", "status"]
-      start_period: 20s
-      interval: 60s
-      timeout: 5s
-      retries: 2
+      retries: 10
     shm_size: 4gb
     ports:
       - ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD}
@@ -475,10 +454,6 @@ services:
       - ${CONFIG_DIR_PATH}/postgresql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      start_period: 20s
-      start_interval: 1s
-      interval: 1s
-      timeout: 5s
       retries: 10
 
   redis:
@@ -489,10 +464,7 @@ services:
       ALLOW_EMPTY_PASSWORD: "true"
     healthcheck:
       test: ["CMD-SHELL", "redis-cli --raw incr ping"]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
 
   elasticsearch:
     container_name: ${ELASTICSEARCH_HOST}
@@ -510,14 +482,8 @@ services:
       - elasticsearch_data:/var/lib/elasticsearch/data
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "curl -f http://${ELASTICSEARCH_HOST}:9200/_cluster/health",
-        ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+        ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      retries: 10
 
   influxdb:
     container_name: ${INFLUXDB_HOST}
@@ -535,10 +501,7 @@ services:
     healthcheck:
       test:
         ["CMD-SHELL", "curl -f http://${INFLUXDB_HOST}:${INFLUXDB_PORT}/health"]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 2
+      retries: 10
 
   openfga_migrate:
     image: ${OPENFGA_IMAGE}:${OPENFGA_VERSION}
@@ -589,10 +552,7 @@ services:
           "CMD-SHELL",
           "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz",
         ]
-      start_period: 20s
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      retries: 10
 
   minio:
     container_name: ${MINIO_HOST}
