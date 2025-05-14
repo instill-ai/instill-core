@@ -1,12 +1,7 @@
 services:
   api_gateway:
     profiles:
-      - all
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - api-gateway
     image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     build:
       context: ./${API_GATEWAY_HOST}
@@ -16,12 +11,7 @@ services:
 
   mgmt_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - mgmt
     image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     build:
       context: ./${MGMT_BACKEND_HOST}
@@ -30,12 +20,7 @@ services:
 
   pipeline_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-model
-      - exclude-artifact
+      - pipeline
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     build:
       context: ./${PIPELINE_BACKEND_HOST}
@@ -45,12 +30,7 @@ services:
 
   model_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-artifact
+      - model
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     build:
       context: ./${MODEL_BACKEND_HOST}
@@ -60,24 +40,14 @@ services:
 
   console:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-pipeline
-      - exclude-model
-      - exclude-artifact
+      - console
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     build:
       context: ./${CONSOLE_HOST}
 
   artifact_backend:
     profiles:
-      - all
-      - exclude-api-gateway
-      - exclude-mgmt
-      - exclude-console
-      - exclude-pipeline
-      - exclude-model
+      - artifact
     image: ${ARTIFACT_BACKEND_IMAGE}:${ARTIFACT_BACKEND_VERSION}
     build:
       context: ./${ARTIFACT_BACKEND_HOST}

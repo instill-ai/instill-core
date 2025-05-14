@@ -8,7 +8,7 @@ services:
 
   mgmt_backend:
     profiles:
-      - mgmt-backend
+      - mgmt
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -19,7 +19,7 @@ services:
 
   mgmt_backend_worker:
     profiles:
-      - mgmt-backend
+      - mgmt
     image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -27,7 +27,7 @@ services:
 
   pipeline_backend:
     profiles:
-      - pipeline-backend
+      - pipeline
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -38,7 +38,7 @@ services:
 
   pipeline_backend_worker:
     profiles:
-      - pipeline-backend
+      - pipeline
     image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -46,14 +46,14 @@ services:
 
   model_backend_worker:
     profiles:
-      - model-backend
+      - model
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
 
   model_backend:
     profiles:
-      - model-backend
+      - model
     image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
@@ -64,12 +64,12 @@ services:
 
   model_backend_init_model:
     profiles:
-      - model-backend
+      - model
     image: ${MODEL_BACKEND_IMAGE}:latest
 
   artifact_backend:
     profiles:
-      - artifact-backend
+      - artifact
     image: ${ARTIFACT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
