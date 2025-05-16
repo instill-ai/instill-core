@@ -1,7 +1,3 @@
-networks:
-  default:
-    name: instill-network
-
 services:
   otel_collector:
     container_name: ${OTEL_COLLECTOR_HOST}
@@ -17,7 +13,7 @@ services:
     container_name: ${JAEGER_HOST}
     image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
     ports:
-      - ${JAEGER_LOCAL_PORT}:${JAEGER_PORT}
+      - ${JAEGER_HOST_PORT}:${JAEGER_PORT}
 
   prometheus:
     container_name: ${PROMETHEUS_HOST}
@@ -25,7 +21,7 @@ services:
     volumes:
       - ${CONFIG_DIR_PATH}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - ${PROMETHEUS_LOCAL_PORT}:${PROMETHEUS_PORT}
+      - ${PROMETHEUS_HOST_PORT}:${PROMETHEUS_PORT}
 
   grafana:
     container_name: ${GRAFANA_HOST}
@@ -41,4 +37,4 @@ services:
       - ${CONFIG_DIR_PATH}/grafana/dashboards/ray:/var/lib/grafana/dashboards/ray
       - ${CONFIG_DIR_PATH}/grafana/dashboards/temporal:/var/lib/grafana/dashboards/temporal
     ports:
-      - ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT}
+      - ${GRAFANA_HOST_PORT}:${GRAFANA_PORT}

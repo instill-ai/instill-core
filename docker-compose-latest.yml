@@ -5,25 +5,10 @@ services:
     image: ${API_GATEWAY_IMAGE}:latest
     environment:
       LOG_LEVEL: DEBUG
-
-  mgmt_backend:
-    profiles:
-      - mgmt
-    image: ${MGMT_BACKEND_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
     ports:
-      - ${MGMT_BACKEND_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
-      - ${MGMT_BACKEND_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
-
-  mgmt_backend_worker:
-    profiles:
-      - mgmt
-    image: ${MGMT_BACKEND_IMAGE}:latest
-    environment:
-      CFG_SERVER_DEBUG: "true"
-      CFG_SERVER_EDITION: ${EDITION}
+      - ${API_GATEWAY_HOST_PORT}:${API_GATEWAY_PORT}
+      - ${API_GATEWAY_STATS_HOST_PORT}:${API_GATEWAY_STATS_PORT}
+      - ${API_GATEWAY_METRICS_HOST_PORT}:${API_GATEWAY_METRICS_PORT}
 
   pipeline_backend:
     profiles:
@@ -33,8 +18,8 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
     ports:
-      - ${PIPELINE_BACKEND_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
-      - ${PIPELINE_BACKEND_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
+      - ${PIPELINE_BACKEND_HOST_PRIVATEPORT}:${PIPELINE_BACKEND_PRIVATEPORT}
+      - ${PIPELINE_BACKEND_HOST_PUBLICPORT}:${PIPELINE_BACKEND_PUBLICPORT}
 
   pipeline_backend_worker:
     profiles:
@@ -44,12 +29,16 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
 
-  model_backend_worker:
+  artifact_backend:
     profiles:
-      - model
-    image: ${MODEL_BACKEND_IMAGE}:latest
+      - artifact
+    image: ${ARTIFACT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+    ports:
+      - ${ARTIFACT_BACKEND_HOST_PRIVATEPORT}:${ARTIFACT_BACKEND_PRIVATEPORT}
+      - ${ARTIFACT_BACKEND_HOST_PUBLICPORT}:${ARTIFACT_BACKEND_PUBLICPORT}
 
   model_backend:
     profiles:
@@ -59,24 +48,39 @@ services:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
     ports:
-      - ${MODEL_BACKEND_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
-      - ${MODEL_BACKEND_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
+      - ${MODEL_BACKEND_HOST_PRIVATEPORT}:${MODEL_BACKEND_PRIVATEPORT}
+      - ${MODEL_BACKEND_HOST_PUBLICPORT}:${MODEL_BACKEND_PUBLICPORT}
 
   model_backend_init_model:
     profiles:
       - model
     image: ${MODEL_BACKEND_IMAGE}:latest
 
-  artifact_backend:
+  model_backend_worker:
     profiles:
-      - artifact
-    image: ${ARTIFACT_BACKEND_IMAGE}:latest
+      - model
+    image: ${MODEL_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+
+  mgmt_backend:
+    profiles:
+      - mgmt
+    image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
     ports:
-      - ${ARTIFACT_BACKEND_PRIVATEPORT}:${ARTIFACT_BACKEND_PRIVATEPORT}
-      - ${ARTIFACT_BACKEND_PUBLICPORT}:${ARTIFACT_BACKEND_PUBLICPORT}
+      - ${MGMT_BACKEND_HOST_PRIVATEPORT}:${MGMT_BACKEND_PRIVATEPORT}
+      - ${MGMT_BACKEND_HOST_PUBLICPORT}:${MGMT_BACKEND_PUBLICPORT}
+
+  mgmt_backend_worker:
+    profiles:
+      - mgmt
+    image: ${MGMT_BACKEND_IMAGE}:latest
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
 
   console:
     profiles:
@@ -86,40 +90,46 @@ services:
       NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}
       NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}
       NODE_ENV: development
-    ports:
-      - ${CONSOLE_PORT}:${CONSOLE_PORT}
 
   temporal:
     ports:
-      - ${TEMPORAL_PORT}:7233
+      - ${TEMPORAL_HOST_PORT}:${TEMPORAL_PORT}
+
+  temporal_ui:
+    ports:
+      - ${TEMPORAL_UI_HOST_PORT}:${TEMPORAL_UI_PORT}
 
   ray:
     image: ${RAY_IMAGE}:${RAY_LATEST_TAG}
     ports:
-      - ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD}
+      - ${RAY_DASHBOARD_HOST_PORT}:${RAY_PORT_DASHBOARD}
 
   pg_sql:
     ports:
-      - ${POSTGRESQL_PORT}:5432
+      - ${POSTGRESQL_HOST_PORT}:${POSTGRESQL_PORT}
 
   redis:
     ports:
-      - ${REDIS_PORT}:6379
-
-  registry:
-    ports:
-      - ${REGISTRY_EXTERNAL_PORT}:5000
+      - ${REDIS_HOST_PORT}:${REDIS_PORT}
 
   milvus:
     ports:
-      - ${MILVUS_PORT}:19530
+      - ${MILVUS_HOST_PORT}:${MILVUS_PORT}
     command: milvus run standalone
+
+  influxdb:
+    ports:
+      - ${INFLUXDB_HOST_PORT}:${INFLUXDB_PORT}
 
   openfga:
     ports:
-      - ${OPENFGA_PORT}:8081
+      - ${OPENFGA_HOST_PORT}:${OPENFGA_PORT}
+
+  registry:
+    ports:
+      - ${REGISTRY_HOST_PORT}:${REGISTRY_PORT}
 
   minio:
     ports:
-      - ${MINIO_EXTERNAL_PORT}:${MINIO_PORT}
-      - ${MINIO_CONSOLE_EXTERNAL_PORT}:${MINIO_CONSOLE_PORT}
+      - ${MINIO_HOST_PORT}:${MINIO_PORT}
+      - ${MINIO_CONSOLE_HOST_PORT}:${MINIO_CONSOLE_PORT}
