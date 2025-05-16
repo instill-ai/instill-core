@@ -48,9 +48,9 @@ HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := core
 
 # By default, these files are used to load the secrets (OAuth, API keys, etc.)
-ENV_SECRETS_COMPONENT ?= .env.secrets.component
-ENV_SECRETS_COMPONENT_TEST ?= .env.secrets.component.test
-ENV_SECRETS_CONSOLE ?= .env.secrets.console
+ENV_SECRETS_COMPONENT := .env.secrets.component
+ENV_SECRETS_COMPONENT_TEST := .env.secrets.component.test
+ENV_SECRETS_CONSOLE := .env.secrets.console
 
 # Configuration directory path
 CONFIG_DIR_PATH ?= ./configs
@@ -108,7 +108,7 @@ helm-latest:
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "ray.io/identifier=${HELM_RELEASE_NAME}-kuberay-head" -o jsonpath="{.items[0].metadata.name}") ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD} > /dev/null 2>&1 &
-	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_HOST_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
 
 .PHONY: helm-release
 helm-release:
@@ -129,7 +129,7 @@ helm-release:
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "ray.io/identifier=${HELM_RELEASE_NAME}-kuberay-head" -o jsonpath="{.items[0].metadata.name}") ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD} > /dev/null 2>&1 &
-	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_LOCAL_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/name=${HELM_RELEASE_NAME}-kube-prometheus-stack-grafana" -o jsonpath="{.items[0].metadata.name}") ${GRAFANA_HOST_PORT}:${GRAFANA_PORT} > /dev/null 2>&1 &
 
 
 .PHONY: build-latest
@@ -273,7 +273,7 @@ integration-test-model-deploy-release:       	 	# Run integration test on the re
 integration-test-latest:			# Run integration test on the latest Instill Core
 	@make latest EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
-		--network instill-network \
+		--network ${COMPOSE_NETWORK_NAME} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
 		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
@@ -286,7 +286,7 @@ integration-test-latest:			# Run integration test on the latest Instill Core
 integration-test-release:			# Run integration test on the released Instill Core
 	@make all EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
-		--network instill-network \
+		--network ${COMPOSE_NETWORK_NAME} \
 		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
 		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
@@ -351,7 +351,7 @@ console-integration-test-latest:			# Run console integration test on the latest 
 		-e NEXT_SERVER_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		--network instill-network \
+		--network ${COMPOSE_NETWORK_NAME} \
 		--entrypoint ./entrypoint-playwright.sh \
 		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-latest \
 		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:latest
@@ -369,7 +369,7 @@ console-integration-test-release:			# Run console integration test on the releas
 		-e NEXT_SERVER_API_GATEWAY_URL=http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT} \
 		-e NEXT_PUBLIC_SELF_SIGNED_CERTIFICATION=false \
 		-e NEXT_PUBLIC_INSTILL_AI_USER_COOKIE_NAME=instill-ai-user \
-		--network instill-network \
+		--network ${COMPOSE_NETWORK_NAME} \
 		--entrypoint ./entrypoint-playwright.sh \
 		--name ${INSTILL_CORE_CONSOLE_INTEGRATION_TEST_CONTAINER_NAME}-release \
 		${INSTILL_CORE_CONSOLE_PLAYWRIGHT_IMAGE_NAME}:${CONSOLE_VERSION}
@@ -529,7 +529,7 @@ endif
 
 .PHONY: build-and-push-models
 build-and-push-models:	# Helper target to build and push models
-	@./integration-test/scripts/build_and_push_models.sh "$(PWD)/integration-test/models" "localhost:5001"
+	@./integration-test/scripts/build_and_push_models.sh "$(PWD)/integration-test/models" "localhost:${REGISTRY_HOST_PORT}"
 
 .PHONY: wait-models-deploy
 wait-models-deploy:  # Helper target to wait for model deployment
