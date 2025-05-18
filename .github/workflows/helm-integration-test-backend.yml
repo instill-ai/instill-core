@@ -13,7 +13,6 @@ on:
 jobs:
   helm-integration-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master

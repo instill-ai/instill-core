@@ -23,6 +23,7 @@ jobs:
 
   backend:
     needs: determine-target
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -36,9 +37,53 @@ jobs:
 
   model-deploy:
     needs: determine-target
-    uses: ./.github/workflows/integration-test-model-deploy.yml
-    with:
-      target: ${{ needs.determine-target.outputs.target }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Checkout Python SDK
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/python-sdk
+          path: python-sdk
+
+      - name: Install Python SDK (editable mode)
+        run: |
+          cd python-sdk
+          git submodule update --init --remote --recursive
+          pip install --upgrade pip
+          pip install -e .
+          # Verify installation and environment
+          python -c "import instill; print('Instill SDK version:', instill.__version__)"
+          which instill
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+          path: instill-core
+
+      - name: Run model deployment integration test (${{ needs.determine-target.outputs.target }})
+        run: |
+          cd instill-core
+          make integration-test-model-deploy-${{ needs.determine-target.outputs.target }}
 
   # TODO: Enable console integration test once the issue is fixed
   # console:
