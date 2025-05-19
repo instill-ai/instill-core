@@ -215,7 +215,7 @@ down:			## Stop all services and remove all service containers and volumes
 	@if EDITION= DEFAULT_USER_UID= docker compose ps --services | grep -q .; then \
 		EDITION= DEFAULT_USER_UID= docker compose down --remove-orphans -v; \
 	fi
-	@if helm list --namespace instill-ai | grep -q "core"; then \
+	@if helm list --namespace instill-ai | grep -q "core" >/dev/null 2>&1; then \
 		echo "Uninstalling Helm release core --namespace instill-ai" && \
 		helm uninstall core --namespace instill-ai >/dev/null 2>&1; \
 		echo "Deleting namespace instill-ai" && \
