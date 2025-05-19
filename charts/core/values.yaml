@@ -29,7 +29,7 @@ edition: k8s-ce
 maxDataSizeMB: 1024
 
 # -- Use this set to assign a list of default pullSecrets
-imagePullSecrets:
+imagePullSecrets: []
 
 # -- Set how to expose the api-gateway service
 expose:
@@ -218,13 +218,6 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     # If external database is used, the following settings for database will be ignored
-    modelStore:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 512Mi
-      annotations: {}
     database:
       existingClaim: ""
       storageClass: ""

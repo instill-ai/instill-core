@@ -1,4 +1,3 @@
-{{- $modelStore := .Values.persistence.persistentVolumeClaim.modelStore -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -212,16 +211,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "core.modelBackend" . }}
-        - name: model-store
-        {{- if not .Values.persistence.enabled }}
-          emptyDir: {}
-        {{- else if $modelStore.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ $modelStore.existingClaim }}
-        {{- else }}
-          persistentVolumeClaim:
-            claimName: core-model-store-data-volume
-        {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: model-internal-certs
           secret:

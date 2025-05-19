@@ -58,7 +58,6 @@ data:
         gcs: {{ include "core.kuberay.gcsPort" . }}
         serve: {{ include "core.kuberay.servePort" . }}
         metrics: {{ include "core.kuberay.metricsPort" . }}
-      modelstore: /model-store
       vram: {{ (index .Values "ray-cluster").vram }}
     database:
       username: {{ include "core.database.username" . }}
