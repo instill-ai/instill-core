@@ -52,13 +52,12 @@ data:
     ray:
       host: {{ include "core.kuberay.host" . }}
       port:
-        grpc: {{ include "core.kuberay.serveGrpcPort" . }}
-        client: {{ include "core.kuberay.servePort" . }}
+        grpc: {{ include "core.kuberay.grpcPort" . }}
+        client: {{ include "core.kuberay.clientPort" . }}
         dashboard: {{ include "core.kuberay.dashboardPort" . }}
         gcs: {{ include "core.kuberay.gcsPort" . }}
         serve: {{ include "core.kuberay.servePort" . }}
         metrics: {{ include "core.kuberay.metricsPort" . }}
-      vram: {{ (index .Values "ray-cluster").vram }}
     database:
       username: {{ include "core.database.username" . }}
       password: {{ include "core.database.password" . }}

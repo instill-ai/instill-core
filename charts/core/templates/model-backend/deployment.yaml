@@ -124,15 +124,6 @@ spec:
               value: "{{ include "core.mgmtBackend" . }}"
             - name: MGMT_BACKEND_PORT
               value: "{{ include "core.mgmtBackend.publicPort" . }}"
-        - name: chmod-model-store
-          securityContext:
-            runAsUser: 0
-            runAsGroup: 0
-          image: busybox
-          command: ["sh", "-c", "chmod -R 777 /model-store"]
-          volumeMounts:
-          - name: model-store
-            mountPath: /model-store
         {{- with .Values.modelBackend.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -152,8 +143,6 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-store
-              mountPath: /model-store
             {{- with .Values.modelBackend.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -191,8 +180,6 @@ spec:
             - name: config
               mountPath: {{ .Values.modelBackend.configPath }}
               subPath: config.yaml
-            - name: model-store
-              mountPath: /model-store
             {{- if .Values.internalTLS.enabled }}
             - name: model-internal-certs
               mountPath: "/etc/instill-ai/model/ssl/model"

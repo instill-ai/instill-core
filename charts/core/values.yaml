@@ -1371,7 +1371,7 @@ ray-cluster:
                 fi;
                 sleep 1;
               done;
-              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
+              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1384,7 +1384,7 @@ ray-cluster:
     metricsPort:
 
 # -- The configuration of KubeRay Operator
-# If ray-cluster enabled: false, kuberay-operator will not be applied
+# If ray-cluster.enabled=false, kuberay-operator will not be applied
 kuberay-operator:
   nameOverride: core-kuberay-operator
   fullnameOverride: core-kuberay-operator

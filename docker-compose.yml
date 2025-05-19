@@ -444,7 +444,7 @@ services:
         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
       fi &&
       ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_PORT_METRICS} --disable-usage-stats &&
-      serve start --http-host=0.0.0.0 --grpc-port ${RAY_PORT_GRPC} --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server &&
+      serve start --http-host=0.0.0.0 --grpc-port ${RAY_PORT_GRPC} --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
       - /var/lib/containers:/var/lib/containers
