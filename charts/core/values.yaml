@@ -1,12 +1,9 @@
 # -- Provide a name in place of core
 nameOverride:
-
 # -- Provide a name to substitute for the full names of resources
 fullnameOverride:
-
 # -- Override the deployment namespace
 namespaceOverride:
-
 # -- The update strategy for deployments with persistent volumes: "RollingUpdate" or "Recreate"
 # Set it as "Recreate" when "RWM" for volumes isn't supported
 updateStrategy:
@@ -14,23 +11,17 @@ updateStrategy:
   rollingUpdate:
     maxSurge: 1
     maxUnavailable: 0
-
 # -- Set the cluster as the primary one in a multi-region environment.
 isPrimaryCluster: true
-
 # -- Logging level: debug, info, warning, error or fatal
 logLevel: info
-
 # -- Enable development mode
 # if edition is "k8s-ce:dev", console will be launched with CODE_ENV=development. Otherwise, CODE_ENV=production
 edition: k8s-ce
-
 # -- The maximum data payload to backend services (MB)
 maxDataSizeMB: 1024
-
 # -- Use this set to assign a list of default pullSecrets
 imagePullSecrets: []
-
 # -- Set how to expose the api-gateway service
 expose:
   # -- Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
@@ -128,7 +119,6 @@ expose:
       temporal:
     # Annotations on the LoadBalancer service
     annotations: {}
-
 # -- The external URL for Instill Core services. It is used to
 # populate the API endpoints showed on the console
 #
@@ -143,7 +133,6 @@ expose:
 # If Instill Core is deployed behind a proxy, set it as the URL of the proxy (without protocol and port)
 apiGatewayURL: http://localhost:8080
 consoleURL: http://localhost:3000
-
 # -- The internal TLS used for Core components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -204,7 +193,6 @@ internalTLS:
     crt: ""
     # Content of ray's TLS key file, only available when `certSource` is "manual"
     key: ""
-
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
@@ -254,7 +242,6 @@ persistence:
       accessMode: ReadWriteOnce
       size: 100Gi
       annotations: {}
-
 # -- The usage collector configuration
 usage:
   usageidentifieruid:
@@ -262,13 +249,12 @@ usage:
   tlsenabled: true
   host: usage.instill.tech
   port: 443
-
 # -- The configuration of api-gateway
 apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.33.2-beta
+    tag: 0.33.3-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -329,13 +315,12 @@ apiGateway:
     spec:
       minAvailable:
       maxUnavailable:
-
 # -- The configuration of mgmt-backend
 mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.22.2-beta
+    tag: 0.22.3-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -409,13 +394,12 @@ mgmtBackend:
     cert:
     key:
     serverName:
-
 # -- The configuration of pipeline-backend
 pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.52.2-beta
+    tag: 0.52.5-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -500,7 +484,6 @@ pipelineBackend:
     password: minioadmin
     bucketname: instill-ai-pipeline
     secure: false
-
 # -- The configuration of pipeline-backend-worker
 pipelineBackendWorker:
   # -- Annotation for deployment
@@ -551,13 +534,12 @@ pipelineBackendWorker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.35.3-alpha
+    tag: 0.35.4-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -648,13 +630,12 @@ modelBackend:
     password: minioadmin
     bucketname: instill-ai-model
     secure: false
-
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.24.3-alpha
+    tag: 0.24.5-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -726,7 +707,6 @@ artifactBackend:
   numberOfWorkers: 20
   blob:
     hostport: http://localhost:8080
-
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
@@ -734,7 +714,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.65.0-beta
+    tag: 0.66.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -783,7 +763,6 @@ console:
     spec:
       minAvailable:
       maxUnavailable:
-
 # -- The configuration of OpenFGA
 openfga:
   image:
@@ -843,7 +822,6 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
-
 # -- The configuration of registry
 registry:
   enabled: true
@@ -980,7 +958,6 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
-
 # -- The configuration of PostgreSQL
 database:
   # -- If external database is used, set "enabled" to false
@@ -1037,7 +1014,6 @@ database:
     port:
     username:
     password:
-
 # -- The configuration of Redis
 redis:
   # -- If external Redis is used, set "enabled" to false
@@ -1067,7 +1043,6 @@ redis:
   external:
     # -- Address for redis: <host_redis>:<port_redis>
     addr:
-
 # -- The configuration of InfluxDB
 influxdb2:
   enabled: true
@@ -1088,7 +1063,6 @@ influxdb2:
     organization:
     # -- The bucket of the external InfluxDB
     bucket:
-
 # -- The configuration of milvus
 # https://github.com/zilliztech/milvus-helm/blob/master/charts/milvus/values.yaml
 milvus:
@@ -1210,7 +1184,6 @@ milvus:
         bucketName: core-milvus
       pulsar:
         namespace: instill-ai
-
 # -- The configuration of RayCluster
 ray-cluster:
   enabled: true
@@ -1296,10 +1269,19 @@ ray-cluster:
             - "/bin/bash"
             - "-c"
             - >
-              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
-              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
+
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1360,18 +1342,34 @@ ray-cluster:
             - "/bin/bash"
             - "-c"
             - >
-              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
-              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
-              fi;
-              while true; do
+              fi; while true; do
+
+
+
+
+
+
+
+
+
                 ray health-check 2>/dev/null;
                 if [ "$?" = "0" ]; then
                     break;
                 fi;
                 sleep 1;
-              done;
-              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
+              done; serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
+
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1382,7 +1380,6 @@ ray-cluster:
     dashboardPort:
     servePort:
     metricsPort:
-
 # -- The configuration of KubeRay Operator
 # If ray-cluster.enabled=false, kuberay-operator will not be applied
 kuberay-operator:
@@ -1395,7 +1392,6 @@ kuberay-operator:
   env:
     - name: ENABLE_GCS_FT_REDIS_CLEANUP
       value: "false"
-
 # -- The configuration of Temporal
 temporal:
   # -- Enable Temporal deployment or not
@@ -1621,7 +1617,7 @@ temporal:
     # -- The image of Temporal admin-tools
     image:
       repository: temporalio/admin-tools
-      tag: 1.27
+      tag: 1.27.2
       pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
@@ -1676,7 +1672,6 @@ temporal:
     hostPort:
       host:
       port:
-
 # -- The configuration of Elasticsearch
 elasticsearch:
   # -- If external Elasticsearch is used, set "enabled" to false
@@ -1698,7 +1693,6 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
-
 # -- The configuration of Jaeger
 jaeger:
   enabled: true
@@ -1719,6 +1713,7 @@ jaeger:
         args:
           - >
             while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
+
   query:
     initContainers:
       - name: wait-for-elasticsearch
@@ -1806,7 +1801,6 @@ opentelemetry-collector:
           receivers:
             - otlp
             - jaeger
-
 # -- The configuration of Prometheus Stack
 kube-prometheus-stack:
   enabled: true
@@ -1908,3 +1902,6 @@ kube-prometheus-stack:
           enabled: false
       dashboards:
         enabled: true
+ray:
+  image:
+    tag: 0.6.3-alpha
