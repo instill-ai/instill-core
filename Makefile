@@ -103,7 +103,8 @@ helm-latest:
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
-		--set ray-cluster.image.tag=${RAY_LATEST_TAG}
+		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
+		--timeout 3600s
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
@@ -124,7 +125,8 @@ helm-release:
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray-cluster.image.tag=${RAY_RELEASE_TAG}
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
+		--timeout 3600s
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
@@ -548,5 +550,5 @@ wait-models-deploy:  # Helper target to wait for model deployment
 
 .PHONY: help
 help:       	## Show this help
-	@echo "\nMake Application with Instill Core"
+	@printf "\nMake Application with Instill Core"
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

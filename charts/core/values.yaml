@@ -29,7 +29,7 @@ edition: k8s-ce
 maxDataSizeMB: 1024
 
 # -- Use this set to assign a list of default pullSecrets
-imagePullSecrets:
+imagePullSecrets: []
 
 # -- Set how to expose the api-gateway service
 expose:
@@ -218,13 +218,6 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     # If external database is used, the following settings for database will be ignored
-    modelStore:
-      existingClaim: ""
-      storageClass: ""
-      subPath: ""
-      accessMode: ReadWriteOnce
-      size: 512Mi
-      annotations: {}
     database:
       existingClaim: ""
       storageClass: ""
@@ -1378,7 +1371,7 @@ ray-cluster:
                 fi;
                 sleep 1;
               done;
-              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server
+              serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1391,7 +1384,7 @@ ray-cluster:
     metricsPort:
 
 # -- The configuration of KubeRay Operator
-# If ray-cluster enabled: false, kuberay-operator will not be applied
+# If ray-cluster.enabled=false, kuberay-operator will not be applied
 kuberay-operator:
   nameOverride: core-kuberay-operator
   fullnameOverride: core-kuberay-operator

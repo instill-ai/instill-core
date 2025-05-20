@@ -216,7 +216,6 @@ services:
       CFG_RAY_PORT_DASHBOARD: ${RAY_PORT_DASHBOARD}
       CFG_RAY_PORT_METRICS: ${RAY_PORT_METRICS}
       CFG_RAY_PORT_GCS: ${RAY_PORT_GCS}
-      CFG_RAY_MODELSTORE: /model-store
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -265,7 +264,6 @@ services:
       CFG_RAY_HOST: ${RAY_HOST}
       CFG_RAY_PORT_GRPC: ${RAY_PORT_GRPC}
       CFG_RAY_PORT_SERVE: ${RAY_PORT_SERVE}
-      CFG_RAY_MODELSTORE: /model-store
       CFG_DATABASE_HOST: ${POSTGRESQL_HOST}
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
@@ -446,7 +444,7 @@ services:
         sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml;
       fi &&
       ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_PORT_METRICS} --disable-usage-stats &&
-      serve start --http-host=0.0.0.0 --grpc-port ${RAY_PORT_GRPC} --grpc-servicer-functions user_defined_pb2_grpc.add_RayUserDefinedServiceServicer_to_server &&
+      serve start --http-host=0.0.0.0 --grpc-port ${RAY_PORT_GRPC} --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server &&
       tail -f /dev/null'
     volumes:
       - /var/lib/containers:/var/lib/containers

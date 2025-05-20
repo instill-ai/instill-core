@@ -246,31 +246,19 @@ KubeRay
   {{- if (index .Values "ray-cluster").enabled -}}
     {{- printf "%s-head-svc" (include "core.kuberay" .) -}}
   {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.host -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%s" .external.host -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "core.kuberay.clientPort" -}}
+{{- define "core.kuberay.grpcPort" -}}
   {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "10001" -}}
+    {{- printf "9000" -}}
   {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.clientPort -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.gcsPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "6379" -}}
-  {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.gcsPort -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.dashboardPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "8265" -}}
-  {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.dashboardPort -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.grpc) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -278,15 +266,39 @@ KubeRay
   {{- if (index .Values "ray-cluster").enabled -}}
     {{- printf "8000" -}}
   {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.servePort -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.serve) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
-{{- define "core.kuberay.serveGrpcPort" -}}
+{{- define "core.kuberay.dashboardPort" -}}
   {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "9000" -}}
+    {{- printf "8265" -}}
   {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.serveGrpcPort -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.dashboard) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.kuberay.clientPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "10001" -}}
+  {{- else -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.client) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "core.kuberay.gcsPort" -}}
+  {{- if (index .Values "ray-cluster").enabled -}}
+    {{- printf "6379" -}}
+  {{- else -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.gcs) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -294,7 +306,9 @@ KubeRay
   {{- if (index .Values "ray-cluster").enabled -}}
     {{- printf "8080" -}}
   {{- else -}}
-    {{- printf "%s" (index .Values "ray-cluster").external.metricsPort -}}
+    {{- with index .Values "ray-cluster" }}
+      {{- printf "%d" (int .external.port.metrics) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -511,10 +525,6 @@ internal TLS secret names
 {{/*
 Persistent Volume Claims
 */}}
-{{- define "core.modelStoreDataVolume" -}}
-  {{- printf "%s-model-store-data-volume" (include "core.fullname" .) -}}
-{{- end -}}
-
 {{- define "core.registryDataVolume" -}}
   {{- printf "%s-registry-data-volume" (include "core.fullname" .) -}}
 {{- end -}}

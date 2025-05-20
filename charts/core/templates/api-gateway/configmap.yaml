@@ -46,6 +46,9 @@ data:
     # Additional Hosts
     {{- range $host := .Values.apiGateway.additionalHosts }}
     {{ $host.name }}_HOST={{ $host.host }}
+    {{- if $host.port }}
+    {{ $host.name }}_PORT={{ $host.port }}
+    {{- end }}
     {{- if $host.publicPort }}
     {{ $host.name }}_PUBLICPORT={{ $host.publicPort }}
     {{- end }}
