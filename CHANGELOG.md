@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.5-beta](https://github.com/instill-ai/instill-core/compare/v0.50.4-beta...v0.50.5-beta) (2025-05-20)
+
+
+### Bug Fixes
+
+* **ray:** fix podman fs issue causing deployment hanging ([#1222](https://github.com/instill-ai/instill-core/issues/1222)) ([d0c53ce](https://github.com/instill-ai/instill-core/commit/d0c53ce847f6b5748f994b3243cc842925b59cb7))
+
 ## [0.50.4-beta](https://github.com/instill-ai/instill-core/compare/v0.50.3-beta...v0.50.4-beta) (2025-04-22)
 
 
