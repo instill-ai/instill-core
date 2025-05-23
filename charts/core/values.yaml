@@ -1184,7 +1184,8 @@ milvus:
         bucketName: core-milvus
       pulsar:
         namespace: instill-ai
-# -- The configuration of RayCluster
+
+# -- The configuration of RayCluster CRD
 ray-cluster:
   enabled: true
   fullnameOverride: core-kuberay
@@ -1209,13 +1210,7 @@ ray-cluster:
       num-cpus: "0"
       num-gpus: "0"
       disable-usage-stats: "true"
-    resources:
-      limits:
-        cpu: "1"
-        memory: "8Gi"
-      requests:
-        cpu: "1"
-        memory: "8Gi"
+    resources: {}
     affinity: {}
     nodeSelector: {}
     ports:
@@ -1242,8 +1237,6 @@ ray-cluster:
               path: registries.conf
             - key: policy.json
               path: policy.json
-            - key: storage.conf
-              path: storage.conf
     volumeMounts:
       - mountPath: /home/ray/.local/share/containers
         name: core-kuberay-head
@@ -1294,13 +1287,7 @@ ray-cluster:
     rayStartParams:
       num-cpus: "2"
       disable-usage-stats: "true"
-    resources:
-      limits:
-        cpu: "2"
-        memory: "8Gi"
-      requests:
-        cpu: "2"
-        memory: "8Gi"
+    resources: {}
     affinity: {}
     nodeSelector: {}
     ports:
@@ -1321,8 +1308,6 @@ ray-cluster:
               path: registries.conf
             - key: policy.json
               path: policy.json
-            - key: storage.conf
-              path: storage.conf
     volumeMounts:
       - mountPath: /home/ray/.local/share/containers
         name: core-kuberay-worker

@@ -93,7 +93,7 @@ endif
 helm-latest:
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
+		--set edition=k8s-ce:latest \
 		--set apiGateway.image.tag=latest \
 		--set mgmtBackend.image.tag=latest \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -104,8 +104,8 @@ helm-latest:
 		--set modelBackend.image.tag=latest \
 		--set console.image.tag=latest \
 		--set ray-cluster.image.tag=${RAY_LATEST_TAG} \
-		--timeout 3600s
-	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
+		--timeout 5m0s
+	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=3600s
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "ray.io/identifier=${HELM_RELEASE_NAME}-kuberay-head" -o jsonpath="{.items[0].metadata.name}") ${RAY_PORT_DASHBOARD}:${RAY_PORT_DASHBOARD} > /dev/null 2>&1 &
@@ -115,7 +115,7 @@ helm-latest:
 helm-release:
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:test \
+		--set edition=k8s-ce:release \
 		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
 		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -126,7 +126,7 @@ helm-release:
 		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
 		--set console.image.tag=${CONSOLE_VERSION} \
 		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
-		--timeout 3600s
+		--timeout 5m0s
 	@kubectl rollout status deployment ${HELM_RELEASE_NAME}-api-gateway --namespace ${HELM_NAMESPACE} --timeout=600s
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=console" -o jsonpath="{.items[0].metadata.name}") ${CONSOLE_PORT}:${CONSOLE_PORT} > /dev/null 2>&1 &
