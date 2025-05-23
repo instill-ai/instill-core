@@ -528,6 +528,7 @@ services:
     environment:
       - OPENFGA_DATASTORE_ENGINE=postgres
       - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
+      - OPENFGA_CHECK_QUERY_CACHE_ENABLED=true
     command: run
     depends_on:
       openfga_migrate:
