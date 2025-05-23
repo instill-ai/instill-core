@@ -117,6 +117,8 @@ spec:
               value: "false"
             - name: OPENFGA_DATASTORE_METRICS_ENABLED
               value: "false"
+            - name: OPENFGA_CHECK_QUERY_CACHE_ENABLED
+              value: "true"
             - name: OPENFGA_DATASTORE_ENGINE
               value: postgres
             - name: PGDATABASE
