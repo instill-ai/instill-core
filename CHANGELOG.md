@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-05-23)
+
+
+### Miscellaneous Chores
+
+* release v0.50.6-beta ([6294eed](https://github.com/instill-ai/instill-core/commit/6294eed4209f0d84c25b384b839763253e0ae620))
+
 ## [0.50.5-beta](https://github.com/instill-ai/instill-core/compare/v0.50.4-beta...v0.50.5-beta) (2025-05-20)
 
 
