@@ -10,6 +10,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   backoffLimit: 3
+  ttlSecondsAfterFinished: 10
   template:
     spec:
       restartPolicy: Never
@@ -20,17 +21,9 @@ spec:
         - /bin/sh
         - -c
         - |
-          echo "Waiting for RayCluster head pod to be ready..."
-          until kubectl get pods --namespace {{ .Release.Namespace }} -l "ray.io/identifier=core-kuberay-head" -o jsonpath="{.items[0].status.phase}" | grep -q "Running"; do
-            echo "Waiting for RayCluster head pod to be Running..."
-            sleep 10
-          done
           echo "Patching RayCluster resource..."
           kubectl patch raycluster {{ include "core.kuberay" . }} \
             --namespace {{ include "core.namespace" . }}  \
             --type=merge \
             -p '{"spec":{"gcsFaultToleranceOptions":{"redisAddress":"{{ default (include "core.redis.addr" .) .Values.redis.external.addr }}"}}}'
-          export RAYCLUSTER_HEAD_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "ray.io/identifier=core-kuberay-head" -o jsonpath="{.items[0].metadata.name}")
-          # restart the head pod to apply the CRD patch
-          kubectl delete pod $RAYCLUSTER_HEAD_POD_NAME --namespace {{ .Release.Namespace }}
 {{- end }}
