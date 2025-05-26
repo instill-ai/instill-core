@@ -1184,14 +1184,15 @@ milvus:
         bucketName: core-milvus
       pulsar:
         namespace: instill-ai
-# -- The configuration of RayCluster
+
+# -- The configuration of RayCluster CRD
 ray-cluster:
   enabled: true
   fullnameOverride: core-kuberay
   vram: # TODO: This variable belongs to model-backend, which will be moved to model-backend
   image:
     repository: instill/ray
-    tag: 0.6.1-alpha
+    tag: 0.6.3-alpha
     pullPolicy: IfNotPresent
   head:
     rayVersion: "2.44.1"
@@ -1209,13 +1210,7 @@ ray-cluster:
       num-cpus: "0"
       num-gpus: "0"
       disable-usage-stats: "true"
-    resources:
-      limits:
-        cpu: "1"
-        memory: "8Gi"
-      requests:
-        cpu: "1"
-        memory: "8Gi"
+    resources: {}
     affinity: {}
     nodeSelector: {}
     ports:
@@ -1242,8 +1237,6 @@ ray-cluster:
               path: registries.conf
             - key: policy.json
               path: policy.json
-            - key: storage.conf
-              path: storage.conf
     volumeMounts:
       - mountPath: /home/ray/.local/share/containers
         name: core-kuberay-head
@@ -1270,15 +1263,6 @@ ray-cluster:
             - "-c"
             - >
               export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
-
-
-
-
-
-
-
-
-
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
 
@@ -1294,13 +1278,7 @@ ray-cluster:
     rayStartParams:
       num-cpus: "2"
       disable-usage-stats: "true"
-    resources:
-      limits:
-        cpu: "2"
-        memory: "8Gi"
-      requests:
-        cpu: "2"
-        memory: "8Gi"
+    resources: {}
     affinity: {}
     nodeSelector: {}
     ports:
@@ -1321,8 +1299,6 @@ ray-cluster:
               path: registries.conf
             - key: policy.json
               path: policy.json
-            - key: storage.conf
-              path: storage.conf
     volumeMounts:
       - mountPath: /home/ray/.local/share/containers
         name: core-kuberay-worker
@@ -1343,33 +1319,14 @@ ray-cluster:
             - "-c"
             - >
               export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
-
-
-
-
-
-
-
-
-
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi; while true; do
-
-
-
-
-
-
-
-
-
                 ray health-check 2>/dev/null;
                 if [ "$?" = "0" ]; then
                     break;
                 fi;
                 sleep 1;
               done; serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
-
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1902,6 +1859,3 @@ kube-prometheus-stack:
           enabled: false
       dashboards:
         enabled: true
-ray:
-  image:
-    tag: 0.6.3-alpha

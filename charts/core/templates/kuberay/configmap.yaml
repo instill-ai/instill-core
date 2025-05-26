@@ -24,7 +24,4 @@ data:
         }
       }
     }
-  storage.conf: |
-    [storage]
-    driver = "overlay"
 {{- end }}
