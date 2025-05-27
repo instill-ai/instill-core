@@ -531,7 +531,7 @@ endif
 
 .PHONY: build-and-push-models
 build-and-push-models:	# Helper target to build and push models
-	@./integration-test/scripts/build_and_push_models.sh "$(PWD)/integration-test/models" "localhost:${REGISTRY_HOST_PORT}"
+	@./integration-test/scripts/build-and-push-models.sh "$(PWD)/integration-test/models" "localhost:${REGISTRY_HOST_PORT}"
 
 .PHONY: wait-models-deploy
 wait-models-deploy:  # Helper target to wait for model deployment
