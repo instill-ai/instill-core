@@ -1,0 +1,103 @@
+# Helper functions for common make targets
+
+# Function to ensure user_uid exists
+define ensure_user_uid
+	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
+		mkdir -p ${SYSTEM_CONFIG_PATH} && \
+		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
+	fi
+endef
+
+# Function to launch docker compose with GPU support
+define COMPOSE_GPU
+	@cat docker-compose-nvidia.yml | yq '.services.ray.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
+		$(1) docker compose $(2) -f - up -d --quiet-pull
+endef
+
+# Function to launch docker compose without GPU support
+define COMPOSE_CPU
+	@$(1) docker compose $(2) up -d --quiet-pull
+endef
+
+# Function to launch Helm chart
+define HELM
+	@helm install ${HELM_RELEASE_NAME} charts/core \
+		--namespace ${HELM_NAMESPACE} --create-namespace \
+		--set edition=k8s-ce:$(1) \
+		--set apiGateway.image.tag=$(if $(filter latest,$(1)),latest,${API_GATEWAY_VERSION}) \
+		--set mgmtBackend.image.tag=$(if $(filter latest,$(1)),latest,${MGMT_BACKEND_VERSION}) \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set artifactBackend.image.tag=$(if $(filter latest,$(1)),latest,${ARTIFACT_BACKEND_VERSION}) \
+		--set pipelineBackend.image.tag=$(if $(filter latest,$(1)),latest,${PIPELINE_BACKEND_VERSION}) \
+		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set modelBackend.image.tag=$(if $(filter latest,$(1)),latest,${MODEL_BACKEND_VERSION}) \
+		--set console.image.tag=$(if $(filter latest,$(1)),latest,${CONSOLE_VERSION}) \
+		--set ray-cluster.image.tag=$(if $(filter latest,$(1)),${RAY_LATEST_TAG},${RAY_RELEASE_TAG}) \
+		$(if $(filter true,$(2)),--set jaeger.enabled=false --set opentelemetry-collector.enabled=false --set kube-prometheus-stack.enabled=false,) \
+		--timeout 10m0s
+endef
+
+# Function to build image
+define BUILD
+	@bash -c ' \
+		set -e; \
+		trap "$(MAKE) down" ERR INT TERM && \
+		docker build --progress plain \
+			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+			--build-arg K6_VERSION=${K6_VERSION} \
+			--build-arg XK6_VERSION=${XK6_VERSION} \
+			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
+			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
+			--build-arg CACHE_DATE="$(if $(filter latest,$(1)),$(shell date +%Y%m%d%H%M%S),$(shell date))" \
+			$(if $(filter release,$(1)),--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION}) \
+			--target $(1) \
+			-t ${INSTILL_CORE_IMAGE_NAME}:$(if $(filter latest,$(1)),latest,${INSTILL_CORE_VERSION}) . && \
+		if [ "$(BUILD_ALL_FROM_SOURCE)" = "true" ]; then \
+			docker run --rm \
+				-v /var/run/docker.sock:/var/run/docker.sock \
+				-v ./.env:/instill-core/.env \
+				-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
+				--name ${CONTAINER_BUILD_NAME}-$(1) \
+				${INSTILL_CORE_IMAGE_NAME}:$(if $(filter latest,$(1)),latest,${INSTILL_CORE_VERSION}) /bin/sh -c " \
+					$(if $(filter latest,$(1)),API_GATEWAY_VERSION=latest \
+					MGMT_BACKEND_VERSION=latest \
+					PIPELINE_BACKEND_VERSION=latest \
+					MODEL_BACKEND_VERSION=latest \
+					ARTIFACT_BACKEND_VERSION=latest \
+					CONSOLE_VERSION=latest,API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
+					MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+					PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
+					MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+					ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+					CONSOLE_VERSION=${CONSOLE_VERSION}) \
+					ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
+					COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
+				"; \
+		fi \
+	'
+endef
+
+# Function to remove containers
+define REMOVE_CONTAINERS
+	@docker rm -f ${CONTAINER_BUILD_NAME}-$(1) >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-$(1) >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-$(1) >/dev/null 2>&1
+endef
+
+# Function to cleanup helm release
+define CLEANUP_HELM
+	@if timeout 3s helm list --namespace instill-ai 2>/dev/null | grep -q "core" >/dev/null 2>&1; then \
+		echo "Uninstalling Helm release core --namespace instill-ai" && \
+		helm uninstall core --namespace instill-ai >/dev/null 2>&1; \
+		echo "Deleting namespace instill-ai" && \
+		kubectl delete namespace instill-ai >/dev/null 2>&1; \
+		echo "Killing port-forward processes" && \
+		pkill -f "port-forward" >/dev/null 2>&1 || true; \
+	fi
+endef
