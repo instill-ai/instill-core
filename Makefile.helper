@@ -8,6 +8,14 @@ define ensure_user_uid
 	fi
 endef
 
+# Function to get common compose parameters
+define GET_COMPOSE_PARAMS
+	$(if $(filter true,$(CI)),EDITION=local-ce:test,EDITION=$${EDITION:=local-ce}) \
+	DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) \
+	$(if $(filter true,$(CI)),ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST},ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT}) \
+	$(if $(filter latest,$(1)),RAY_LATEST_TAG=${RAY_LATEST_TAG},RAY_RELEASE_TAG=${RAY_RELEASE_TAG})
+endef
+
 # Function to launch docker compose with GPU support
 define COMPOSE_GPU
 	@cat docker-compose-nvidia.yml | yq '.services.ray.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
@@ -21,6 +29,7 @@ endef
 
 # Function to launch Helm chart
 define HELM
+	@cd charts/core && helm dependency update
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=k8s-ce:$(1) \
@@ -34,8 +43,19 @@ define HELM
 		--set modelBackend.image.tag=$(if $(filter latest,$(1)),latest,${MODEL_BACKEND_VERSION}) \
 		--set console.image.tag=$(if $(filter latest,$(1)),latest,${CONSOLE_VERSION}) \
 		--set ray-cluster.image.tag=$(if $(filter latest,$(1)),${RAY_LATEST_TAG},${RAY_RELEASE_TAG}) \
-		$(if $(filter true,$(2)),--set jaeger.enabled=false --set opentelemetry-collector.enabled=false --set kube-prometheus-stack.enabled=false,) \
-		--timeout 10m0s
+		$(if $(filter true,$(2)),--set ray-cluster.head.autoscaling.enableInTreeAutoscaling=false,) \
+		$(if $(filter true,$(2)),--set ray-cluster.head.resources.requests.cpu=0,) \
+		$(if $(filter true,$(2)),--set ray-cluster.head.resources.requests.memory=0,) \
+		$(if $(filter true,$(2)),--set ray-cluster.worker.resources.requests.cpu=0,) \
+		$(if $(filter true,$(2)),--set ray-cluster.worker.resources.requests.memory=0,) \
+		$(if $(filter true,$(2)),--set jaeger.enabled=false,) \
+		$(if $(filter true,$(2)),--set opentelemetry-collector.enabled=false,) \
+		$(if $(filter true,$(2)),--set kube-prometheus-stack.enabled=false,) \
+		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID',) \
+		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
+		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
+		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
+		--timeout 20m0s
 endef
 
 # Function to build image
@@ -76,7 +96,6 @@ define BUILD
 					MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 					ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 					CONSOLE_VERSION=${CONSOLE_VERSION}) \
-					ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT} \
 					COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
 				"; \
 		fi \
@@ -85,13 +104,13 @@ endef
 
 # Function to remove containers
 define REMOVE_CONTAINERS
-	@docker rm -f ${CONTAINER_BUILD_NAME}-$(1) >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-$(1) >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-$(1) >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_BUILD_NAME}-latest ${CONTAINER_BUILD_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-latest ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
 endef
 
 # Function to cleanup helm release
-define CLEANUP_HELM
+define REMOVE_HELM_RESOURCES
 	@if timeout 3s helm list --namespace instill-ai 2>/dev/null | grep -q "core" >/dev/null 2>&1; then \
 		echo "Uninstalling Helm release core --namespace instill-ai" && \
 		helm uninstall core --namespace instill-ai >/dev/null 2>&1; \
@@ -100,4 +119,56 @@ define CLEANUP_HELM
 		echo "Killing port-forward processes" && \
 		pkill -f "port-forward" >/dev/null 2>&1 || true; \
 	fi
+endef
+
+# Function to run model deployment integration test
+define MODEL_DEPLOY_TEST
+	@make $(1) EDITION=local-ce:test
+	@make build-and-push-models
+	@make $(1) EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
+	@make wait-models-deploy
+	@make down
+endef
+
+# Function to run backend integration test
+define COMPOSE_INTEGRATION_TEST
+	@make $(1) EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
+	@docker run --rm \
+		--network ${COMPOSE_NETWORK_NAME} \
+		--name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-$(2) \
+		${INSTILL_CORE_IMAGE_NAME}:$(if $(filter latest,$(2)),latest,${INSTILL_CORE_VERSION}) /bin/sh -c " \
+			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
+		"
+	@make down
+endef
+
+# Function to run Helm backend integration test
+define HELM_INTEGRATION_TEST
+	@$(MAKE) helm-$(1) CI=true
+	@bash -c 'while [[ "$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core -o jsonpath={..status.phase})" != *"Running"* ]]; do \
+		echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"; \
+		sleep 10; \
+	done; \
+	echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"'
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
+	@if [ "$(UNAME_S)" = "Darwin" ]; then \
+		docker run --rm --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-$(1) ${INSTILL_CORE_IMAGE_NAME}:$(if $(filter latest,$(1)),latest,${INSTILL_CORE_VERSION}) /bin/sh -c " \
+			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
+		"; \
+	else \
+		docker run --rm --network host --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-$(1) ${INSTILL_CORE_IMAGE_NAME}:$(if $(filter latest,$(1)),latest,${INSTILL_CORE_VERSION}) /bin/sh -c " \
+			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
+			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
+		"; \
+	fi
+	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
+	@kubectl delete namespace instill-ai
+	@pkill -f "port-forward"
+	@make down
 endef

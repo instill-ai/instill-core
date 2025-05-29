@@ -38,7 +38,7 @@ INSTILL_CORE_IMAGE_NAME := instill/instill-core
 INSTILL_CORE_VERSION := $(shell git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 2-)
 
 CONTAINER_BUILD_NAME := instill-core-build
-CONTAINER_BACKEND_INTEGRATION_TEST_NAME := instill-core-backend-integration-test
+CONTAINER_COMPOSE_INTEGRATION_TEST_NAME := instill-core-compose-integration-test
 
 HELM_NAMESPACE := instill-ai
 HELM_RELEASE_NAME := core
@@ -59,18 +59,18 @@ include Makefile.helper
 all:			## Launch all services with their up-to-date release version
 	$(call ensure_user_uid)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	$(call COMPOSE_GPU,EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT},${COMPOSE_FILES})
+	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,release),${COMPOSE_FILES})
 else
-	$(call COMPOSE_CPU,EDITION=$${EDITION:=local-ce} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_RELEASE_TAG=${RAY_RELEASE_TAG} ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT},${COMPOSE_FILES})
+	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,release),${COMPOSE_FILES})
 endif
 
 .PHONY: latest
 latest:			## Lunch all dependent services with their latest codebase
 	$(call ensure_user_uid)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	$(call COMPOSE_GPU,COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT},${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,latest) COMPOSE_PROFILES=${PROFILE},${COMPOSE_FILES} -f docker-compose-latest.yml)
 else
-	$(call COMPOSE_CPU,COMPOSE_PROFILES=${PROFILE} EDITION=$${EDITION:=local-ce:latest} DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) RAY_LATEST_TAG=${RAY_LATEST_TAG} ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT},${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,latest) COMPOSE_PROFILES=${PROFILE},${COMPOSE_FILES} -f docker-compose-latest.yml)
 endif
 
 .PHONY: helm-latest
@@ -94,9 +94,8 @@ down:			## Stop all services and remove all service containers and volumes
 	@if EDITION= DEFAULT_USER_UID= docker compose ps --services | grep -q .; then \
 		EDITION= DEFAULT_USER_UID= docker compose down --remove-orphans -v; \
 	fi
-	$(call REMOVE_CONTAINERS,latest)
-	$(call REMOVE_CONTAINERS,release)
-	$(call CLEANUP_HELM)
+	$(call REMOVE_CONTAINERS)
+	$(call REMOVE_HELM_RESOURCES)
 
 .PHONY: logs
 logs:			## Tail all logs with -n 10
@@ -129,89 +128,27 @@ top:			## Display all running service processes
 
 .PHONY: integration-test-model-deploy-latest
 integration-test-model-deploy-latest:       	 	# Run integration test on the latest Instill Core to build, push and deploy dummy models
-	@make latest EDITION=local-ce:test
-	@make build-and-push-models
-	@make latest EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
-	@make wait-models-deploy
-	@make down
+	$(call MODEL_DEPLOY_TEST,latest)
 
 .PHONY: integration-test-model-deploy-release
 integration-test-model-deploy-release:       	 	# Run integration test on the released Instill Core to build, push and deploy dummy models
-	@make all EDITION=local-ce:test
-	@make build-and-push-models
-	@make all EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
-	@make wait-models-deploy
-	@make down
+	$(call MODEL_DEPLOY_TEST,all)
 
-.PHONY: integration-test-latest
-integration-test-latest:			# Run integration test on the latest Instill Core
-	@make latest EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
-	@docker run --rm \
-		--network ${COMPOSE_NETWORK_NAME} \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-latest \
-		${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
-		"
-	@make down
+.PHONY: compose-integration-test-latest
+compose-integration-test-latest:			# Run integration test on the latest Instill Core Docker Compose
+	$(call COMPOSE_INTEGRATION_TEST,latest,latest)
 
-.PHONY: integration-test-release
-integration-test-release:			# Run integration test on the released Instill Core
-	@make all EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
-	@docker run --rm \
-		--network ${COMPOSE_NETWORK_NAME} \
-		--name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-release \
-		${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
-		"
-	@make down
+.PHONY: compose-integration-test-release
+compose-integration-test-release:			# Run integration test on the released Instill Core Docker Compose
+	$(call COMPOSE_INTEGRATION_TEST,all,release)
 
 .PHONY: helm-integration-test-latest
-helm-integration-test-latest:                       # Run integration test on the Helm latest for Instill Core
-	@$(MAKE) helm-latest
-	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-ifeq ($(UNAME_S),Darwin)
-	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
-		"
-else ifeq ($(UNAME_S),Linux)
-	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-latest ${INSTILL_CORE_IMAGE_NAME}:latest /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
-		"
-endif
-	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
-	@kubectl delete namespace instill-ai
-	@pkill -f "port-forward"
-	@make down
+helm-integration-test-latest:                       # Run integration test on the latest Instill Core Helm
+	$(call HELM_INTEGRATION_TEST,latest)
 
 .PHONY: helm-integration-test-release
-helm-integration-test-release:                       # Run integration test on the Helm release for Instill Core
-	@$(MAKE) helm-release
-	@while ! nc -vz localhost ${API_GATEWAY_PORT} > /dev/null 2>&1; do sleep 1; done
-ifeq ($(UNAME_S),Darwin)
-	@docker run --rm --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
-		"
-else ifeq ($(UNAME_S),Linux)
-	@docker run --rm --network host --name ${CONTAINER_BACKEND_INTEGRATION_TEST_NAME}-helm-release ${INSTILL_CORE_IMAGE_NAME}:${INSTILL_CORE_VERSION} /bin/sh -c " \
-			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
-			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
-		"
-endif
-	@helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}
-	@kubectl delete namespace instill-ai
-	@pkill -f "port-forward"
-	@make down
+helm-integration-test-release:                       # Run integration test on the released Instill Core Helm
+	$(call HELM_INTEGRATION_TEST,release)
 
 .PHONY: build-and-push-models
 build-and-push-models:	# Helper target to build and push models

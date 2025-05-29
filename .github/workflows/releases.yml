@@ -16,15 +16,12 @@ jobs:
       TAG_NAME: ${{ steps.release.outputs.tag_name }}
       SHA: ${{ steps.release.outputs.sha }}
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.botGitHubToken }}
-          release-type: simple
-          command: manifest
           config-file: release-please/config.json
           manifest-file: release-please/manifest.json
-          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"chore","section":"Miscellaneous","hidden":false}]'
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
         with:
@@ -56,6 +53,9 @@ jobs:
     steps:
       - name: Install yq
         uses: mikefarah/yq@v4
+        with:
+          cmd: yq --version
+
       - name: Install semver-tool
         run: |
           git clone https://github.com/fsaintjacques/semver-tool.git

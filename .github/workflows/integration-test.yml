@@ -21,18 +21,95 @@ jobs:
             echo "target=latest" >> $GITHUB_OUTPUT
           fi
 
-  backend:
+  compose:
     needs: determine-target
-    strategy:
-      fail-fast: false
-      matrix:
-        # Include artifact-backend only for latest builds
-        component:
-          [mgmt-backend, pipeline-backend, model-backend, artifact-backend]
-    uses: ./.github/workflows/integration-test-backend.yml
-    with:
-      component: ${{ matrix.component }}
-      target: ${{ needs.determine-target.outputs.target }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill Core Docker Compose integration test (${{ needs.determine-target.outputs.target }})
+        # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
+        # connection creation on `pipeline-backend`.
+        run: |
+          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
+            make build-latest
+            make compose-integration-test-latest
+          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
+            make build-release
+            make compose-integration-test-release
+          else
+            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
+            exit 1
+          fi
+
+  helm:
+    needs: determine-target
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Setup Minikube
+        run: |
+          minikube start --cpus 4 --memory 12288 --disk-size 80000mb
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill Core Helm integration test(${{ needs.determine-target.outputs.target }})
+        # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
+        # connection creation on `pipeline-backend`.
+        run: |
+          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
+            make build-latest
+            make helm-integration-test-latest
+          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
+            make build-release
+            make helm-integration-test-release
+          else
+            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
+            exit 1
+          fi
 
   model-deploy:
     needs: determine-target

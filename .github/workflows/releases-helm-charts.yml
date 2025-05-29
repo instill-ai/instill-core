@@ -22,6 +22,8 @@ jobs:
 
       - name: Install yq - portable yaml processor
         uses: mikefarah/yq@v4
+        with:
+          cmd: yq --version
 
       - name: Collect charts
         id: charts
