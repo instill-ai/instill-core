@@ -12,27 +12,26 @@ permissions:
 
 jobs:
   update-website:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout instill.tech repository
-      uses: actions/checkout@v4
-      with:
-        repository: instill-ai/instill.tech
-        token: ${{ secrets.botGitHubToken }}
-    - name: Modify the version in website
-      run: |
-        # On release triggers, GITHUB_REF_NAME is the release name (e.g.
-        # 'v0.10.0-beta')
-        sed -i "s/core: \".*\"/core: \"${GITHUB_REF_NAME}\"/" version.mjs
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.botGitHubToken }}
-        commit-message: 'chore: update  Instill Core version'
-        title: 'docs(document): update Instill Core version'
-        body: Sync version with latest Core release
-        branch: chore/update-doc-version
-        base: main
-        draft: false
+      - name: Checkout instill.tech repository
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill.tech
+          token: ${{ secrets.botGitHubToken }}
+      - name: Modify the version in website
+        run: |
+          # On release triggers, GITHUB_REF_NAME is the release name (e.g.
+          # 'v0.10.0-beta')
+          sed -i "s/core: \".*\"/core: \"${GITHUB_REF_NAME}\"/" version.mjs
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.botGitHubToken }}
+          commit-message: "chore: update  Instill Core version"
+          title: "docs(document): update Instill Core version"
+          body: Sync version with latest Core release
+          branch: chore/update-doc-version
+          base: main
+          draft: false

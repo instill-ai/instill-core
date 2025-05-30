@@ -6,6 +6,10 @@ on:
     branches:
       - "**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   determine-target:
     runs-on: ubuntu-latest
@@ -21,21 +25,111 @@ jobs:
             echo "target=latest" >> $GITHUB_OUTPUT
           fi
 
-  backend:
+  compose:
     needs: determine-target
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Include artifact-backend only for latest builds
-        component:
-          [mgmt-backend, pipeline-backend, model-backend, artifact-backend]
-    uses: ./.github/workflows/integration-test-backend.yml
-    with:
-      component: ${{ matrix.component }}
-      target: ${{ needs.determine-target.outputs.target }}
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
 
-  model-deploy:
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill Core Docker Compose integration test (${{ needs.determine-target.outputs.target }})
+        # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
+        # connection creation on `pipeline-backend`.
+        run: |
+          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
+            make build-latest
+            make compose-integration-test-latest
+          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
+            make build-release
+            make compose-integration-test-release
+          else
+            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
+            exit 1
+          fi
+
+      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+        if: always()
+        run: |
+          make down
+
+  helm:
+    needs: determine-target
+    runs-on: ubuntu-24.04-8core
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Setup Minikube
+        run: |
+          minikube start --cpus 6 --memory 24576 --disk-size 100000mb
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill Core Helm integration test(${{ needs.determine-target.outputs.target }})
+        # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
+        # connection creation on `pipeline-backend`.
+        run: |
+          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
+            make build-latest
+            make helm-integration-test-latest
+          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
+            make build-release
+            make helm-integration-test-release
+          else
+            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
+            exit 1
+          fi
+
+      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+        if: always()
+        run: |
+          make down
+
+  model:
     needs: determine-target
     runs-on: ubuntu-latest
     steps:
@@ -79,15 +173,16 @@ jobs:
         with:
           repository: instill-ai/instill-core
           path: instill-core
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Run model deployment integration test (${{ needs.determine-target.outputs.target }})
+      - name: Run model integration test (${{ needs.determine-target.outputs.target }})
+        working-directory: instill-core
         run: |
-          cd instill-core
-          make integration-test-model-deploy-${{ needs.determine-target.outputs.target }}
+          make model-integration-test-${{ needs.determine-target.outputs.target }}
 
-  # TODO: Enable console integration test once the issue is fixed
-  # console:
-  #   needs: determine-target
-  #   uses: ./.github/workflows/integration-test-console.yml
-  #   with:
-  #     target: ${{ needs.determine-target.outputs.target }}
+      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+        if: always()
+        working-directory: instill-core
+        run: |
+          make down
