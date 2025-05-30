@@ -1361,7 +1361,7 @@ temporal:
     # -- The image of Temporal server
     image:
       repository: temporalio/server
-      tag: 1.27.2
+      tag: 1.27
       pullPolicy: IfNotPresent
     dynamicConfig: {}
     config:
@@ -1574,7 +1574,7 @@ temporal:
     # -- The image of Temporal admin-tools
     image:
       repository: temporalio/admin-tools
-      tag: 1.27.2
+      tag: 1.27
       pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""

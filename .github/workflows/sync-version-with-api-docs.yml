@@ -12,27 +12,26 @@ permissions:
 
 jobs:
   update-api-docs:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout protobufs repository
-      uses: actions/checkout@v4
-      with:
-        repository: instill-ai/protobufs
-        token: ${{ secrets.botGitHubToken }}
-    - name: Modify the API version in OpenAPI configuration
-      run: |
-        # On release triggers, GITHUB_REF_NAME is the release name (e.g.
-        # 'v0.10.0-beta')
-        sed -i "s/version: \".*\"/version: \"${GITHUB_REF_NAME}\"/" openapi/v2/conf.proto
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.botGitHubToken }}
-        commit-message: 'chore: update API version'
-        title: 'docs(openapi): Update API version'
-        body: Sync API version with latest Core release
-        branch: chore/update-api-version
-        base: main
-        draft: false
+      - name: Checkout protobufs repository
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/protobufs
+          token: ${{ secrets.botGitHubToken }}
+      - name: Modify the API version in OpenAPI configuration
+        run: |
+          # On release triggers, GITHUB_REF_NAME is the release name (e.g.
+          # 'v0.10.0-beta')
+          sed -i "s/version: \".*\"/version: \"${GITHUB_REF_NAME}\"/" openapi/v2/conf.proto
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.botGitHubToken }}
+          commit-message: "chore: update API version"
+          title: "docs(openapi): Update API version"
+          body: Sync API version with latest Core release
+          branch: chore/update-api-version
+          base: main
+          draft: false

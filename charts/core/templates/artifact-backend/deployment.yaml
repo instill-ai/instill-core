@@ -87,7 +87,7 @@ spec:
           command: ['sh', '-c']
           args:
           - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/__readiness)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PORT}/v1beta/health/pipeline)" != "200" ]]; do echo waiting for pipeline-backend; sleep 1; done
           env:
             - name: PIPELINE_BACKEND_HOST
               value: "{{ include "core.pipelineBackend" . }}"

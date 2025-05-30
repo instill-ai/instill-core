@@ -1,0 +1,79 @@
+name: Make
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  determine-target:
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.set-target.outputs.target }}
+    steps:
+      - name: Set target based on branch
+        id: set-target
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/release-please--branches--main" ]]; then
+            echo "target=all" >> $GITHUB_OUTPUT
+          else
+            echo "target=latest" >> $GITHUB_OUTPUT
+          fi
+
+  make:
+    needs: determine-target
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+          build-mount-path: "/var/lib/docker"
+
+      - name: Restart docker
+        run: sudo service docker restart
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+
+      - name: Load .env file
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: .env
+
+      - name: Launch Instill Core (${{ needs.determine-target.outputs.target }})
+        run: |
+          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
+            make latest EDITION=local-ce:test
+          elif [ "${{ needs.determine-target.outputs.target }}" == "all" ]; then
+            make all EDITION=local-ce:test
+          else
+            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
+            exit 1
+          fi
+
+      - name: List all docker containers
+        run: |
+          docker ps -a
+          sleep ${{ needs.determine-target.outputs.target == 'all' && '60' || '30' }}
+
+      - name: Probe to Instill Core services healthcheck endpoint
+        run: |
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/mgmt
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/pipeline
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/model
+          curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/artifact
+
+      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+        if: always()
+        run: |
+          make down
