@@ -117,7 +117,7 @@ define REMOVE_HELM_RESOURCES
 		echo "Deleting namespace ${HELM_NAMESPACE}" && \
 		kubectl delete namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
 		echo "Killing port-forward processes" && \
-		ps aux | grep "[p]ort-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \
+		ps aux | grep "[k]ubectl port-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \
 	fi
 endef
 

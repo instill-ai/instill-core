@@ -6,10 +6,6 @@ on:
     branches:
       - "**"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   determine-target:
     runs-on: ubuntu-latest
@@ -77,7 +73,7 @@ jobs:
 
   helm:
     needs: determine-target
-    runs-on: ubuntu-24.04-8core
+    runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -95,7 +91,7 @@ jobs:
 
       - name: Setup Minikube
         run: |
-          minikube start --cpus 6 --memory 24576 --disk-size 100000mb
+          minikube start --cpus 4 --memory 12288 --disk-size 80000mb
 
       - name: Checkout repo
         uses: actions/checkout@v4
