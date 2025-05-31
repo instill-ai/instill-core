@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-05-31)
+
+
+### Bug Fixes
+
+* **helm:** fix helm post install timeout issue ([#1232](https://github.com/instill-ai/instill-core/issues/1232)) ([93d27ba](https://github.com/instill-ai/instill-core/commit/93d27ba9ca841c8039201c8955ceab9cf3f8b47b))
+
+
+### Miscellaneous
+
+* **helm,ray:** update ray configuration ([#1238](https://github.com/instill-ai/instill-core/issues/1238)) ([91323b0](https://github.com/instill-ai/instill-core/commit/91323b0b440612a32e8a10b5bba89290643a16d3))
+* **helm:** bump up chart and app version ([b1b0fc7](https://github.com/instill-ai/instill-core/commit/b1b0fc7c72ea8121ea3d903e7e7fe94f512532e3))
+* **openfga:** enable check-query cache ([#1236](https://github.com/instill-ai/instill-core/issues/1236)) ([a8e74fa](https://github.com/instill-ai/instill-core/commit/a8e74fad6f0db0551e6572135e294b575d33c093))
+* release v0.50.6-beta ([6294eed](https://github.com/instill-ai/instill-core/commit/6294eed4209f0d84c25b384b839763253e0ae620))
+
 ## [0.50.5-beta](https://github.com/instill-ai/instill-core/compare/v0.50.4-beta...v0.50.5-beta) (2025-05-20)
 
 
