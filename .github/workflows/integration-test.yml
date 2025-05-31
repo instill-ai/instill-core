@@ -6,13 +6,13 @@ on:
     branches:
       - "**"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   determine-target:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      !startsWith(github.ref, 'refs/heads/release-please--branches') ||
+      (startsWith(github.ref, 'refs/heads/release-please--branches') && contains(github.event.head_commit.message, 'chore(main): release'))
     outputs:
       target: ${{ steps.set-target.outputs.target }}
     steps:
@@ -77,7 +77,7 @@ jobs:
 
   helm:
     needs: determine-target
-    runs-on: ubuntu-24.04-8core
+    runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -95,7 +95,7 @@ jobs:
 
       - name: Setup Minikube
         run: |
-          minikube start --cpus 6 --memory 24576 --disk-size 100000mb
+          minikube start --cpus 4 --memory 12288 --disk-size 80000mb
 
       - name: Checkout repo
         uses: actions/checkout@v4
