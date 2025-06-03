@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-06-03)
+
+
+### Bug Fixes
+
+* **helm:** fix helm post install timeout issue ([#1232](https://github.com/instill-ai/instill-core/issues/1232)) ([cb4a925](https://github.com/instill-ai/instill-core/commit/cb4a925046fd5bc0dc9e017420066c9181c2cef9))
+
+
+### Miscellaneous
+
+* **docker-compose:** expose registry port ([#1246](https://github.com/instill-ai/instill-core/issues/1246)) ([52198d4](https://github.com/instill-ai/instill-core/commit/52198d464359176d96ec9ab06b6d9aeb683d97c8))
+* **env:** bump service version ([#1242](https://github.com/instill-ai/instill-core/issues/1242)) ([da4b131](https://github.com/instill-ai/instill-core/commit/da4b1314ee58beca095f5a71532144239ace87be))
+* **env:** upgrade OpenFGA version ([#1240](https://github.com/instill-ai/instill-core/issues/1240)) ([cf55b7b](https://github.com/instill-ai/instill-core/commit/cf55b7bf2ffd07054cd5128572b6a68225f46b68))
+* **helm,ray:** update ray configuration ([#1238](https://github.com/instill-ai/instill-core/issues/1238)) ([91323b0](https://github.com/instill-ai/instill-core/commit/91323b0b440612a32e8a10b5bba89290643a16d3))
+* **helm:** bump up chart and app version ([b1b0fc7](https://github.com/instill-ai/instill-core/commit/b1b0fc7c72ea8121ea3d903e7e7fe94f512532e3))
+* **helm:** update usage server address ([#1245](https://github.com/instill-ai/instill-core/issues/1245)) ([f0b9f39](https://github.com/instill-ai/instill-core/commit/f0b9f392abb1860cdd8890a91d73aa14d62a3e03))
+* **openfga:** enable check-query cache ([#1236](https://github.com/instill-ai/instill-core/issues/1236)) ([a8e74fa](https://github.com/instill-ai/instill-core/commit/a8e74fad6f0db0551e6572135e294b575d33c093))
+* **readme:** update domain name ([#1243](https://github.com/instill-ai/instill-core/issues/1243)) ([d29b6a4](https://github.com/instill-ai/instill-core/commit/d29b6a4a7f29bd68f5c29ea912a3b752fb5c56d1))
+* release v0.50.6-beta ([6294eed](https://github.com/instill-ai/instill-core/commit/6294eed4209f0d84c25b384b839763253e0ae620))
+
+
+### Tests
+
+* **helm,workflows:** fix make down exit 2 issue ([#1239](https://github.com/instill-ai/instill-core/issues/1239)) ([11e12fc](https://github.com/instill-ai/instill-core/commit/11e12fcf744ac6a108fb6fc65e15f3a47432b1b5))
+
 ## [0.50.5-beta](https://github.com/instill-ai/instill-core/compare/v0.50.4-beta...v0.50.5-beta) (2025-05-20)
 
 
