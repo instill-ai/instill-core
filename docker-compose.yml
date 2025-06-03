@@ -571,6 +571,8 @@ services:
     container_name: ${REGISTRY_HOST}
     image: ${REGISTRY_IMAGE}:${REGISTRY_VERSION}
     restart: unless-stopped
+    ports:
+      - ${REGISTRY_HOST_PORT}:${REGISTRY_PORT}
     volumes:
       - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
     depends_on:
