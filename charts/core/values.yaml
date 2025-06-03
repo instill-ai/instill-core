@@ -247,7 +247,7 @@ usage:
   usageidentifieruid:
   enabled: true
   tlsenabled: true
-  host: usage.instill.tech
+  host: usage.instill-ai.com
   port: 443
 # -- The configuration of api-gateway
 apiGateway:
