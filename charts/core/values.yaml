@@ -320,7 +320,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.22.3-beta
+    tag: 0.22.4-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -399,7 +399,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.52.5-beta
+    tag: 0.53.0-beta
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -539,7 +539,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.35.4-alpha
+    tag: 0.35.7-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -635,7 +635,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.24.5-alpha
+    tag: 0.25.0-alpha
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -714,7 +714,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.66.0-beta
+    tag: 0.68.0-beta
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -1184,7 +1184,6 @@ milvus:
         bucketName: core-milvus
       pulsar:
         namespace: instill-ai
-
 # -- The configuration of RayCluster CRD
 ray-cluster:
   enabled: true
@@ -1192,7 +1191,7 @@ ray-cluster:
   vram: # TODO: This variable belongs to model-backend, which will be moved to model-backend
   image:
     repository: instill/ray
-    tag: 0.6.3-alpha
+    tag: 0.6.5-alpha
     pullPolicy: IfNotPresent
   head:
     rayVersion: "2.44.1"
@@ -1263,6 +1262,15 @@ ray-cluster:
             - "-c"
             - >
               export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
 
@@ -1319,14 +1327,33 @@ ray-cluster:
             - "-c"
             - >
               export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi; while true; do
+
+
+
+
+
+
+
+
+
                 ray health-check 2>/dev/null;
                 if [ "$?" = "0" ]; then
                     break;
                 fi;
                 sleep 1;
               done; serve start --http-host=0.0.0.0 --grpc-port 9000 --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server
+
       preStop:
         exec:
           command: ["/bin/sh", "-c", "ray stop"]
@@ -1361,7 +1388,7 @@ temporal:
     # -- The image of Temporal server
     image:
       repository: temporalio/server
-      tag: 1.27
+      tag: "1.27"
       pullPolicy: IfNotPresent
     dynamicConfig: {}
     config:
@@ -1574,7 +1601,7 @@ temporal:
     # -- The image of Temporal admin-tools
     image:
       repository: temporalio/admin-tools
-      tag: 1.27
+      tag: "1.27"
       pullPolicy: IfNotPresent
     # -- Set the service account to be used, default if left empty
     serviceAccountName: ""
