@@ -767,7 +767,7 @@ console:
 openfga:
   image:
     repository: openfga/openfga
-    tag: v1.5.1
+    tag: v1.8.13
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
