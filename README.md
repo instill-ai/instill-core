@@ -114,7 +114,7 @@ Please visit our [official documentation](https://www.instill-ai.dev/docs?utm_so
 
 Additional resources:
 
-- [API Reference](https://openapi.instill.tech)
+- [API Reference](https://openapi.instill-ai.dev)
 - [Cookbooks](https://github.com/instill-ai/cookbook)
 - [Tutorials](https://www.instill-ai.dev/blog)
 - [Examples](https://www.instill-ai.dev/docs/examples)
