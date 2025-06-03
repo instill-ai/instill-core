@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.7-beta](https://github.com/instill-ai/instill-core/compare/v0.50.6-beta...v0.50.7-beta) (2025-06-03)
+
+
+### Miscellaneous
+
+* **helm:** bump up chart and app version ([5d54b7c](https://github.com/instill-ai/instill-core/commit/5d54b7c30a55a32d432311a9e5f5ff4ed53bafac))
+
 ## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-06-03)
 
 
