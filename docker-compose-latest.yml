@@ -125,10 +125,6 @@ services:
     ports:
       - ${OPENFGA_HOST_PORT}:${OPENFGA_PORT}
 
-  registry:
-    ports:
-      - ${REGISTRY_HOST_PORT}:${REGISTRY_PORT}
-
   minio:
     ports:
       - ${MINIO_HOST_PORT}:${MINIO_PORT}
