@@ -19,12 +19,12 @@ endef
 # Function to launch docker compose with GPU support
 define COMPOSE_GPU
 	@cat docker-compose-nvidia.yml | yq '.services.ray.deploy.resources.reservations.devices[0].device_ids |= (strenv(NVIDIA_VISIBLE_DEVICES) | split(",")) | ..style="double"' | \
-		$(1) docker compose $(2) -f - up -d --quiet-pull
+		$(1) docker compose $(2) -f - up -d
 endef
 
 # Function to launch docker compose without GPU support
 define COMPOSE_CPU
-	@$(1) docker compose $(2) up -d --quiet-pull
+	@$(1) docker compose $(2) up -d
 endef
 
 # Function to launch Helm chart

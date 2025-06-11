@@ -2,19 +2,19 @@ apiVersion: 1
 
 providers:
   - name: API Gateway # Default dashboards provided by KrakenD
-    folder: API Gateway
     type: file
+    folder: API Gateway
     disableDeletion: true
     options:
       path: /var/lib/grafana/dashboards/api-gateway
   - name: Ray # Default dashboards provided by Ray
-    folder: Ray
     type: file
+    folder: Ray
     disableDeletion: true
     options:
       path: /var/lib/grafana/dashboards/ray
   - name: Temporal # Default dashboards provided by Temporal
-    folder: Temporal
     type: file
+    folder: Temporal
     options:
       path: /var/lib/grafana/dashboards/temporal

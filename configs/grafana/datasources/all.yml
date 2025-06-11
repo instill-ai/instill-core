@@ -1,18 +1,69 @@
 apiVersion: 1
 
 datasources:
-  - access: proxy
-    id: 1
-    orgId: 1
-    name: Prometheus
+  - name: Prometheus
     type: prometheus
-    typeName: Prometheus
-    url: http://prometheus:9090
-    user: ""
-    database: ""
-    basicAuth: false
+    uid: prometheus
+    url: http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
+    access: proxy
+    orgId: 1
     isDefault: true
+    basicAuth: false
+    readOnly: false
+    editable: false
     jsonData:
       httpMethod: POST
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    url: http://${TEMPO_HOST}:${TEMPO_HTTP_PORT}
+    access: proxy
+    orgId: 1
+    isDefault: false
+    basicAuth: false
     readOnly: false
-    editable: true
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: "loki"
+        spanStartTimeShift: "-1h"
+        spanEndTimeShift: "1h"
+        filterByTraceID: true
+        filterBySpanID: true
+      tracesToMetrics:
+        datasourceUid: "prometheus"
+        spanStartTimeShift: "-1h"
+        spanEndTimeShift: "1h"
+      serviceMap:
+        datasourceUid: "prometheus"
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      traceQuery:
+        timeShiftEnabled: true
+        spanStartTimeShift: "-1h"
+        spanEndTimeShift: "1h"
+      spanBar:
+        type: "Tag"
+        tag: "http.path"
+      streamingEnabled:
+        search: true
+  - name: Loki
+    type: loki
+    uid: loki
+    url: http://${LOKI_HOST}:${LOKI_PORT}
+    access: proxy
+    orgId: 1
+    basicAuth: false
+    isDefault: false
+    readOnly: false
+    editable: false
+    jsonData:
+      httpMethod: POST
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: "trace_id: ([a-f0-9]+)"
+          name: TraceID
+          url: "$${__value.raw}"
+          urlDisplayLabel: "View Trace"
