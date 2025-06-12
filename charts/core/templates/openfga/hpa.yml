@@ -20,7 +20,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ . }}
+          averageUtilization: {{ .Values.openfga.autoscaling.targetCPUUtilizationPercentage }}
 {{- end }}
 {{- with .Values.openfga.autoscaling.targetAverageMemoryUtilization }}
     - type: Resource
@@ -28,6 +28,6 @@ spec:
         name: memory
         target:
           type: AverageValue
-          averageValue: {{ . }}
+          averageValue: {{ .Values.openfga.autoscaling.targetMemoryUtilizationPercentage }}
 {{- end }}
 {{- end }}
