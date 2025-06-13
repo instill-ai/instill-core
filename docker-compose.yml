@@ -449,13 +449,17 @@ services:
     privileged: true # for dind podman
     restart: unless-stopped
     environment:
-      - RAY_ADDRESS=0.0.0.0:6379
-      - RAY_REDIS_ADDRESS=redis:6379
+      - RAY_REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://${GRAFANA_IFRAME_HOST}:${GRAFANA_HOST_PORT}
       - RAY_ENABLE_CLUSTER_STATUS_LOG=0
       - RAY_WORKER_REGISTER_TIMEOUT_SECONDS=3600
+    ports:
+      - 8265:8265
+      - 8000:8000
+    volumes:
+      - /var/lib/containers:/var/lib/containers
     entrypoint: ["/bin/bash", "-c"]
     command: |
       'if [[ $${NVIDIA_VISIBLE_DEVICES} == all ]]; then
@@ -464,8 +468,6 @@ services:
       ray start --head --node-ip-address=0.0.0.0 --dashboard-host=0.0.0.0 --metrics-export-port ${RAY_PORT_METRICS} --disable-usage-stats &&
       serve start --http-host=0.0.0.0 --grpc-port ${RAY_PORT_GRPC} --grpc-servicer-functions user_defined_pb2_grpc.add_UserDefinedServiceServicer_to_server &&
       tail -f /dev/null'
-    volumes:
-      - /var/lib/containers:/var/lib/containers
     shm_size: 4gb
     healthcheck:
       test: ["CMD", "ray", "status"]
