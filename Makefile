@@ -158,6 +158,7 @@ wait-models-deploy:  # Helper target to wait for model deployment
 	@model_count=$$(jq length integration-test/models/inventory.json); \
 	timeout=1800; elapsed=0; spinner='|/-\\'; i=0; \
 	while [ "$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://ray:8265/api/serve/applications/ | jq ".applications | to_entries | map(select(.key | contains(\"dummy-\")) | .value.status) | length == $$model_count and all(. == \"RUNNING\")")" != "true" ]; do \
+		echo "$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://ray:8265/api/serve/applications/ )";
 		running_count=$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://ray:8265/api/serve/applications/ | jq '.applications | to_entries | map(select(.key | contains("dummy-")) | .value.status) | map(select(. == "RUNNING")) | length'); \
 		printf "\r[Waiting %3ds/%ds] %s models still deploying... (%d/%d RUNNING)" "$$elapsed" "$$timeout" "$${spinner:$$((i % 4)):1}" "$$running_count" "$$model_count"; \
 		sleep 1; elapsed=$$((elapsed+1)); \
