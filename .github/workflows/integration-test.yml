@@ -131,7 +131,8 @@ jobs:
 
   model:
     needs: determine-target
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-8core
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
