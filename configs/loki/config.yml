@@ -1,0 +1,53 @@
+auth_enabled: false
+
+limits_config:
+  allow_structured_metadata: true
+  volume_enabled: true
+
+server:
+  http_listen_port: ${LOKI_PORT}
+
+common:
+  ring:
+    instance_addr: 0.0.0.0
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /tmp/loki
+
+schema_config:
+  configs:
+    - from: 2020-05-15
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /tmp/loki/index
+    cache_location: /tmp/loki/index_cache
+  filesystem:
+    directory: /tmp/loki/chunks
+  index_queries_cache_config:
+    redis:
+      endpoint: ${REDIS_HOST}:${REDIS_PORT}
+
+# Add chunk cache configuration
+chunk_store_config:
+  chunk_cache_config:
+    redis:
+      endpoint: ${REDIS_HOST}:${REDIS_PORT}
+
+# Add query results cache configuration
+query_range:
+  cache_results: true
+  results_cache:
+    cache:
+      redis:
+        endpoint: ${REDIS_HOST}:${REDIS_PORT}
+
+pattern_ingester:
+  enabled: true

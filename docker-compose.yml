@@ -87,9 +87,6 @@ services:
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
     command:
       - /bin/sh
       - -c
@@ -149,9 +146,6 @@ services:
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
     entrypoint: ./pipeline-backend-worker
     depends_on:
       pipeline_backend:
@@ -179,8 +173,6 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     command:
       - /bin/sh
       - -c
@@ -234,8 +226,6 @@ services:
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     command:
       - /bin/sh
       - -c
@@ -283,8 +273,6 @@ services:
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./model-backend-worker
     depends_on:
       temporal:
@@ -296,8 +284,6 @@ services:
     restart: on-failure
     environment:
       MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
       CFG_INITMODEL_PATH: ${INITMODEL_PATH}
     entrypoint: ./model-backend-init-model
@@ -325,8 +311,6 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     command:
@@ -372,8 +356,6 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./mgmt-backend-worker
@@ -415,12 +397,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
-      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
       ENABLE_ES: "true"
       ES_SEEDS: ${ELASTICSEARCH_HOST}
       ES_VERSION: v7
     volumes:
-      - ${CONFIG_DIR_PATH}/temporal/development-sql.yaml:/etc/temporal/config/dynamicconfig/development-sql.yaml
+      - ${CONFIG_DIR_PATH}/temporal/development-sql.yml:/etc/temporal/config/dynamicconfig/development-sql.yml
     healthcheck:
       test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
       interval: 5s
@@ -449,8 +431,8 @@ services:
     privileged: true # for dind podman
     restart: unless-stopped
     environment:
-      - RAY_ADDRESS=0.0.0.0:6379
-      - RAY_REDIS_ADDRESS=redis:6379
+      - RAY_ADDRESS=0.0.0.0:${REDIS_PORT}
+      - RAY_REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://${GRAFANA_IFRAME_HOST}:${GRAFANA_HOST_PORT}
@@ -574,7 +556,7 @@ services:
     ports:
       - ${REGISTRY_HOST_PORT}:${REGISTRY_PORT}
     volumes:
-      - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
+      - ${CONFIG_DIR_PATH}/registry/config.yml:/etc/docker/registry/config.yml
     depends_on:
       redis:
         condition: service_healthy
