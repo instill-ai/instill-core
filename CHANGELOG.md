@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.50.7-beta](https://github.com/instill-ai/instill-core/compare/v0.50.6-beta...v0.50.7-beta) (2025-06-15)
+
+
+### Miscellaneous
+
+* **env:** change the REGISTRY_HOST_PORT to 5001 ([#1248](https://github.com/instill-ai/instill-core/issues/1248)) ([6152780](https://github.com/instill-ai/instill-core/commit/61527809ffaa9630c8304afad8f94165944fe911))
+* **helm:** bump up chart and app version ([5d54b7c](https://github.com/instill-ai/instill-core/commit/5d54b7c30a55a32d432311a9e5f5ff4ed53bafac))
+
 ## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-06-03)
 
 
