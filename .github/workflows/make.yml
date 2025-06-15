@@ -53,9 +53,9 @@ jobs:
       - name: Launch Instill Core (${{ needs.determine-target.outputs.target }})
         run: |
           if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
-            make latest EDITION=local-ce:test
+            make latest EDITION=docker-ce:test
           elif [ "${{ needs.determine-target.outputs.target }}" == "all" ]; then
-            make all EDITION=local-ce:test
+            make all EDITION=docker-ce:test
           else
             echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
             exit 1

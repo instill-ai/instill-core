@@ -254,8 +254,6 @@ services:
       retries: 10
       start_period: 15s
     depends_on:
-      model_backend_worker:
-        condition: service_started
       ray:
         condition: service_healthy
       temporal:
@@ -287,6 +285,8 @@ services:
       CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./model-backend-worker
     depends_on:
+      model_backend:
+        condition: service_healthy
       temporal:
         condition: service_healthy
 
@@ -317,7 +317,7 @@ services:
       CFG_SERVER_DEBUG: "false"
       CFG_SERVER_USAGE_ENABLED: ${USAGE_ENABLED}
       CFG_SERVER_EDITION: ${EDITION}
-      CFG_SERVER_DEFAULTUSERUID: ${DEFAULT_USER_UID}
+      CFG_SERVER_DEFAULTUSERUID: ${DEFAULT_USER_UID:-""}
       CFG_SERVER_INSTILLCOREHOST: http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT}
       CFG_PIPELINEBACKEND_HOST: ${PIPELINE_BACKEND_HOST}
       CFG_PIPELINEBACKEND_PUBLICPORT: ${PIPELINE_BACKEND_PUBLICPORT}
@@ -449,8 +449,7 @@ services:
     privileged: true # for dind podman
     restart: unless-stopped
     environment:
-      - RAY_ADDRESS=0.0.0.0:6379
-      - RAY_REDIS_ADDRESS=redis:6379
+      - RAY_REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
       - RAY_GRAFANA_HOST=http://${GRAFANA_HOST}:${GRAFANA_PORT}
       - RAY_PROMETHEUS_HOST=http://${PROMETHEUS_HOST}:${PROMETHEUS_PORT}
       - RAY_GRAFANA_IFRAME_HOST=http://${GRAFANA_IFRAME_HOST}:${GRAFANA_HOST_PORT}
@@ -519,7 +518,7 @@ services:
     healthcheck:
       test:
         ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 5s
+      interval: 10s
       timeout: 3s
       retries: 10
       start_period: 50s

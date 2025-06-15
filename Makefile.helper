@@ -10,7 +10,7 @@ endef
 
 # Function to get common compose parameters
 define GET_COMPOSE_PARAMS
-	$(if $(filter true,$(CI)),EDITION=local-ce:test,EDITION=$${EDITION:=local-ce}) \
+	$(if $(filter true,$(CI)),EDITION=docker-ce:test,EDITION=$${EDITION:=local-ce}) \
 	DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) \
 	$(if $(filter true,$(CI)),ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST},ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT}) \
 	$(if $(filter latest,$(1)),RAY_LATEST_TAG=${RAY_LATEST_TAG},RAY_RELEASE_TAG=${RAY_RELEASE_TAG})
@@ -32,7 +32,7 @@ define HELM
 	@cd charts/core && helm dependency update
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=k8s-ce:$(1) \
+		--set edition=$(if $(filter true,$(2)),k8s-ce:test,$(if $(filter latest,$(1)),k8s-ce:latest,k8s-ce)) \
 		--set apiGateway.image.tag=$(if $(filter latest,$(1)),latest,${API_GATEWAY_VERSION}) \
 		--set mgmtBackend.image.tag=$(if $(filter latest,$(1)),latest,${MGMT_BACKEND_VERSION}) \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -121,18 +121,9 @@ define REMOVE_HELM_RESOURCES
 	fi
 endef
 
-# Function to run model deployment integration test
-define MODEL_INTEGRATION_TEST
-	@$(MAKE) $(1) EDITION=local-ce:test
-	@$(MAKE) build-and-push-models
-	@$(MAKE) $(1) EDITION=local-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
-	@$(MAKE) wait-models-deploy
-	@$(MAKE) down
-endef
-
 # Function to run backend integration test
 define COMPOSE_INTEGRATION_TEST
-	@$(MAKE) $(1) EDITION=local-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
+	@$(MAKE) $(1) EDITION=docker-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
 		--network ${COMPOSE_NETWORK_NAME} \
 		--name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-$(2) \
@@ -178,5 +169,14 @@ define HELM_INTEGRATION_TEST
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"; \
 	fi
+	@$(MAKE) down
+endef
+
+# Function to run model deployment integration test
+define MODEL_INTEGRATION_TEST
+	@EDITION=docker-ce:test docker compose up registry -d
+	@$(MAKE) build-and-push-models
+	@$(MAKE) $(1) EDITION=docker-ce:test INITMODEL_ENABLED=true INITMODEL_PATH=${PWD}/integration-test/models/inventory.json
+	@$(MAKE) wait-models-deploy
 	@$(MAKE) down
 endef
