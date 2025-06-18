@@ -14,18 +14,22 @@ spec:
   minReplicas: {{ .Values.pipelineBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackend.autoscaling.maxReplicas }}
   metrics:
+{{- with .Values.pipelineBackend.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.pipelineBackend.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ . }}
+{{- end}}
+{{- with .Values.pipelineBackend.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.pipelineBackend.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ . }}
+{{- end }}
 {{- end }}
 ---
 {{- if .Values.pipelineBackendWorker.autoscaling.enabled }}
@@ -44,16 +48,20 @@ spec:
   minReplicas: {{ .Values.pipelineBackendWorker.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.pipelineBackendWorker.autoscaling.maxReplicas }}
   metrics:
+{{- with .Values.pipelineBackendWorker.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.pipelineBackendWorker.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.pipelineBackendWorker.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.pipelineBackendWorker.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ . }}
+{{- end }}
 {{- end }}

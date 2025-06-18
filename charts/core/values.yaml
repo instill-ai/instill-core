@@ -306,7 +306,7 @@ apiGateway:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -380,7 +380,7 @@ mgmtBackend:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   podDisruptionBudget:
     enabled: false
     spec:
@@ -615,7 +615,7 @@ modelBackend:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -693,7 +693,7 @@ artifactBackend:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   podDisruptionBudget:
     enabled: false
     spec:
@@ -816,7 +816,7 @@ openfga:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   podDisruptionBudget:
     enabled: false
     spec:
@@ -849,7 +849,7 @@ registry:
     minReplicas:
     maxReplicas:
     targetCPUUtilizationPercentage:
-    targetAverageMemoryUtilization:
+    targetMemoryUtilizationPercentage:
   podDisruptionBudget:
     enabled: false
     spec:

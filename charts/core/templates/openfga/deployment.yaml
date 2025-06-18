@@ -109,6 +109,10 @@ spec:
         - name: openfga
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
           imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          {{- if .Values.openfga.resources }}
+          resources:
+            {{- toYaml .Values.openfga.resources | nindent 12 }}
+          {{- end }}
           args: ['run']
           env:
             - name: OPENFGA_PLAYGROUND_ENABLED
@@ -143,6 +147,10 @@ spec:
         - name: openfga-read-replica
           image: {{ .Values.openfga.image.repository }}:{{ .Values.openfga.image.tag }}
           imagePullPolicy: {{ .Values.openfga.image.pullPolicy }}
+          {{- if .Values.openfga.resources }}
+          resources:
+            {{- toYaml .Values.openfga.resources | nindent 12 }}
+          {{- end }}
           args: ['run']
           env:
             - name: OPENFGA_HTTP_ADDR
