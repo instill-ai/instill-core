@@ -254,7 +254,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.33.3-beta
+    tag: 0.34.0
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -320,7 +320,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.22.4-beta
+    tag: 0.23.0
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -399,7 +399,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.53.0-beta
+    tag: 0.55.0
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -539,7 +539,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.35.7-alpha
+    tag: 0.36.0
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -635,7 +635,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.25.0-alpha
+    tag: 0.26.0
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -714,7 +714,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.68.0-beta
+    tag: 0.68.1
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
@@ -1191,7 +1191,7 @@ ray-cluster:
   vram: # TODO: This variable belongs to model-backend, which will be moved to model-backend
   image:
     repository: instill/ray
-    tag: 0.6.5-alpha
+    tag: 0.6.6
     pullPolicy: IfNotPresent
   head:
     rayVersion: "2.44.1"
@@ -1271,6 +1271,15 @@ ray-cluster:
 
 
 
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
 
@@ -1336,8 +1345,26 @@ ray-cluster:
 
 
 
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi; while true; do
+
+
+
+
+
+
+
+
+
 
 
 
