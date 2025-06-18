@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.51.0](https://github.com/instill-ai/instill-core/compare/v0.50.6-beta...v0.51.0) (2025-06-18)
+
+
+### Bug Fixes
+
+* **docker-compose:** add the missing pipeline and model config ([#1265](https://github.com/instill-ai/instill-core/issues/1265)) ([b01860a](https://github.com/instill-ai/instill-core/commit/b01860a0eeda395d8db4e079438980f70b2e1b72))
+
+
+### Miscellaneous
+
+* **catalog:** add converting pipelines to database model ([#1252](https://github.com/instill-ai/instill-core/issues/1252)) ([490c7ac](https://github.com/instill-ai/instill-core/commit/490c7ac757b5d8dadcf6dc1bb316a3fe20d531a4))
+* **env:** bump console version ([#1266](https://github.com/instill-ai/instill-core/issues/1266)) ([afef8b0](https://github.com/instill-ai/instill-core/commit/afef8b0ba39b5abeb64f68df9d3e7177af156428))
+* **env:** bump rc versions ([#1262](https://github.com/instill-ai/instill-core/issues/1262)) ([a8969d3](https://github.com/instill-ai/instill-core/commit/a8969d3498ca6a2e3c0400dbc30ef909f891dc11))
+* **env:** bump release versions ([#1267](https://github.com/instill-ai/instill-core/issues/1267)) ([44e4102](https://github.com/instill-ai/instill-core/commit/44e41022fc2c5ef39150a662fdfb478fc1b665e6))
+* **env:** change the REGISTRY_HOST_PORT to 5001 ([#1248](https://github.com/instill-ai/instill-core/issues/1248)) ([6152780](https://github.com/instill-ai/instill-core/commit/61527809ffaa9630c8304afad8f94165944fe911))
+* **helm:** bump up chart and app version ([5d54b7c](https://github.com/instill-ai/instill-core/commit/5d54b7c30a55a32d432311a9e5f5ff4ed53bafac))
+* release v0.50.7 ([8bfeab7](https://github.com/instill-ai/instill-core/commit/8bfeab7afee69711eed2376566f8fa4e9b004ce5))
+* release v0.51.0 ([21d39f9](https://github.com/instill-ai/instill-core/commit/21d39f99db46690ea5df8f7e85f884f91e28d252))
+
+
+### Documentation
+
+* **CONTRIBUTING:** update guideline ([#1264](https://github.com/instill-ai/instill-core/issues/1264)) ([b9c1fe8](https://github.com/instill-ai/instill-core/commit/b9c1fe89fd9f2bce9793af652b4a0d8cda8eb780))
+
 ## [0.50.6-beta](https://github.com/instill-ai/instill-core/compare/v0.50.5-beta...v0.50.6-beta) (2025-06-03)
 
 
