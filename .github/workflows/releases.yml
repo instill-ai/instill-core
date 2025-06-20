@@ -6,8 +6,6 @@ on:
       - main
     paths-ignore:
       - "README.md"
-    tags:
-      - "*-rc"
 
 jobs:
   release-please:
