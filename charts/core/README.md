@@ -22,7 +22,7 @@ The Helm chart of Instill Core
 Once Helm has been set up correctly, add the repo as follows:
 
 ```bash
-helm repo add instill-ai https://helm.instill-ai.dev
+helm repo add instill-ai https://helm.instill-ai.com
 ```
 
 If you had already added this repo earlier, run `helm repo update` to retrieve

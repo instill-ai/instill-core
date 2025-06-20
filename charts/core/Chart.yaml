@@ -12,7 +12,7 @@ keywords:
   - Data
 sources:
   - https://github.com/instill-ai/instill-core
-home: "https://www.instill-ai.dev"
+home: "https://www.instill-ai.com"
 icon: https://artifacts.instill-ai.com/imgs/helm-core-logo.png
 maintainers:
   - name: Instill AI LTD
