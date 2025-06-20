@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "README.md"
+    tags:
+      - "*-rc"
 
 jobs:
   release-please:
@@ -46,75 +50,3 @@ jobs:
           git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} pointing to tag ${{ steps.release.outputs.tag_name }}"
           git push origin v${{ steps.release.outputs.major }}
           git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
-  release-helm-charts:
-    runs-on: ubuntu-latest
-    needs: release-please
-    if: ${{ needs.release-please.outputs.RELEASE_CREATED }}
-    steps:
-      - name: Install yq
-        uses: mikefarah/yq@v4
-        with:
-          cmd: yq --version
-
-      - name: Install semver-tool
-        run: |
-          git clone https://github.com/fsaintjacques/semver-tool.git
-          cd semver-tool
-          sudo make install && /usr/local/bin/semver --version
-      - name: Install helm-docs
-        run: |
-          arch="$(uname -m)"
-          curl -s https://api.github.com/repos/norwoodj/helm-docs/releases/latest \
-          | yq --indent 0 --no-colors --input-format json --unwrapScalar \
-            ".assets[] | select(.name | test("\""^helm-docs_.+_Linux_${arch}\.tar\.gz$"\"")) | .browser_download_url" \
-          | xargs curl -SsL \
-          | tar zxf - -C /usr/local/bin
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.botGitHubToken }}
-      - name: Update component image versions
-        run: |
-          source .env
-          yq ".apiGateway.image.tag=\"$API_GATEWAY_VERSION\"" -i charts/core/values.yaml
-          yq ".mgmtBackend.image.tag=\"$MGMT_BACKEND_VERSION\"" -i charts/core/values.yaml
-          yq ".pipelineBackend.image.tag=\"$PIPELINE_BACKEND_VERSION\"" -i charts/core/values.yaml
-          yq ".modelBackend.image.tag=\"$MODEL_BACKEND_VERSION\"" -i charts/core/values.yaml
-          yq ".console.image.tag=\"$CONSOLE_VERSION\"" -i charts/core/values.yaml
-          yq ".ray-cluster.image.tag=\"$RAY_VERSION\"" -i charts/core/values.yaml
-          yq ".temporal.server.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
-          yq ".temporal.admintools.image.tag=\"$TEMPORAL_VERSION\"" -i charts/core/values.yaml
-          yq ".artifactBackend.image.tag=\"$ARTIFACT_BACKEND_VERSION\"" -i charts/core/values.yaml
-      - name: Get current chart version
-        id: get-current-chart-version
-        run: |
-          echo "version=$(yq .version charts/core/Chart.yaml)" >> $GITHUB_OUTPUT
-      - name: Bump SemVer
-        id: bump-semver
-        run: |
-          echo "next-version=$(semver bump patch ${{ steps.get-current-chart-version.outputs.version }})-beta" >> $GITHUB_OUTPUT
-      - name: Bump up Helm chart version
-        run: |
-          yq ".version=\"${{ steps.bump-semver.outputs.next-version }}\"" -i charts/core/Chart.yaml
-      - name: Bump up Helm app version
-        run: |
-          string=${{ needs.release-please.outputs.TAG_NAME }}
-          appVersion=${string#"v"}
-          yq ".appVersion=\"$appVersion\"" -i charts/core/Chart.yaml
-      - name: Generate helm-doc
-        run: |
-          helm-docs charts/core
-      - name: Import GPG Key
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.botGPGPrivateKey }}
-          passphrase: ${{ secrets.botGPGPassphrase }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_tag_gpgsign: true
-      - name: Commit and push the updated Helm chart
-        run: |
-          if [[ `git status --porcelain` ]]; then
-            git add charts
-            git commit -S -m "chore(helm): bump up chart and app version" -m "triggered by commit: https://github.com/instill-ai/core/commit/${{ needs.release-please.outputs.SHA }}"
-            git push
-          fi
