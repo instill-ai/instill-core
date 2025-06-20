@@ -23,13 +23,13 @@ spec:
           type: Utilization
           averageUtilization: {{ . }}
 {{- end }}
-{{- with .Values.registry.autoscaling.targetAverageMemoryUtilization }}
+{{- with .Values.registry.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
-          type: AverageValue
-          averageValue: {{ . }}
+          type: Utilization
+          averageUtilization: {{ . }}
 {{- end }}
 {{- end }}
 {{- end }}
