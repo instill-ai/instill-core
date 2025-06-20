@@ -1,13 +1,44 @@
 {
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "last-release-sha": "b29d8e82f3f680ff6aa364695852de6a81ca931b",
+  "group-pull-request-title-pattern": "chore${scope}: release v${version}",
+  "pull-request-title-pattern": "chore${scope}: release v${version}",
   "packages": {
     ".": {
+      "package-name": "instill-core",
       "release-type": "simple",
       "draft": false,
       "prerelease": false,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
+      "include-component-in-tag": false,
       "extra-files": [
-        "README.md"
+        {
+          "type": "generic",
+          "path": "README.md"
+        },
+        {
+          "type": "yaml",
+          "path": "charts/core/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
+    },
+    "charts/core": {
+      "package-name": "helm-chart",
+      "release-type": "helm",
+      "draft": false,
+      "prerelease": false,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "skip-changelog": true,
+      "skip-github-release": true,
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "charts/core/Chart.yaml",
+          "jsonpath": "$.version"
+        }
       ]
     }
   },

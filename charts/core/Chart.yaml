@@ -2,7 +2,7 @@ apiVersion: v2
 name: core
 description: The Helm chart of Instill Core
 type: application
-version: 0.1.63-beta #! auto-updated by the CI workflow
+version: 0.1.63 #! auto-updated by the CI workflow
 appVersion: 0.51.0 #! auto-updated by the CI workflow
 keywords:
   - unstructured data
@@ -12,7 +12,7 @@ keywords:
   - Data
 sources:
   - https://github.com/instill-ai/instill-core
-home: "https://www.instill-ai.dev"
+home: "https://www.instill-ai.com"
 icon: https://artifacts.instill-ai.com/imgs/helm-core-logo.png
 maintainers:
   - name: Instill AI LTD
