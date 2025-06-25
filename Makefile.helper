@@ -70,11 +70,19 @@ define BUILD
 			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(if $(filter latest,$(1)),$(shell date +%Y%m%d%H%M%S),$(shell date))" \
-			$(if $(filter release,$(1)),--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+			$(if $(filter latest,$(1)), \
+			--build-arg API_GATEWAY_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/api-gateway.git HEAD | cut -c1-7) \
+			--build-arg PIPELINE_BACKEND_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/pipeline-backend.git HEAD | cut -c1-7) \
+			--build-arg ARTIFACT_BACKEND_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/artifact-backend.git HEAD | cut -c1-7) \
+			--build-arg MODEL_BACKEND_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/model-backend.git HEAD | cut -c1-7) \
+			--build-arg MGMT_BACKEND_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/mgmt-backend.git HEAD | cut -c1-7) \
+			--build-arg CONSOLE_COMMIT_SHORT_HASH=$(shell git ls-remote https://github.com/instill-ai/console.git HEAD | cut -c1-7)) \
+			$(if $(filter release,$(1)), \
+			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION}) \
 			--target $(1) \
 			-t ${INSTILL_CORE_IMAGE_NAME}:$(1) . && \

@@ -7,6 +7,7 @@ services:
       context: ./${API_GATEWAY_HOST}
       args:
         SERVICE_NAME: api-gateway
+        SERVICE_VERSION: ${API_GATEWAY_VERSION}
         KRAKEND_CE_VERSION: ${KRAKEND_CE_VERSION}
 
   pipeline_backend:
@@ -17,33 +18,7 @@ services:
       context: ./${PIPELINE_BACKEND_HOST}
       args:
         SERVICE_NAME: ${PIPELINE_BACKEND_HOST}
-        SERVICE_VERSION: ${PIPELINE_BACKEND_IMAGE}
-
-  model_backend:
-    profiles:
-      - model
-    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
-    build:
-      context: ./${MODEL_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MODEL_BACKEND_HOST}
-        SERVICE_VERSION: ${MODEL_BACKEND_IMAGE}
-
-  console:
-    profiles:
-      - console
-    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
-    build:
-      context: ./${CONSOLE_HOST}
-
-  mgmt_backend:
-    profiles:
-      - mgmt
-    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
-    build:
-      context: ./${MGMT_BACKEND_HOST}
-      args:
-        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        SERVICE_VERSION: ${PIPELINE_BACKEND_VERSION}
 
   artifact_backend:
     profiles:
@@ -53,3 +28,31 @@ services:
       context: ./${ARTIFACT_BACKEND_HOST}
       args:
         SERVICE_NAME: ${ARTIFACT_BACKEND_HOST}
+        SERVICE_VERSION: ${ARTIFACT_BACKEND_VERSION}
+
+  model_backend:
+    profiles:
+      - model
+    image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
+    build:
+      context: ./${MODEL_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MODEL_BACKEND_HOST}
+        SERVICE_VERSION: ${MODEL_BACKEND_VERSION}
+
+  mgmt_backend:
+    profiles:
+      - mgmt
+    image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
+    build:
+      context: ./${MGMT_BACKEND_HOST}
+      args:
+        SERVICE_NAME: ${MGMT_BACKEND_HOST}
+        SERVICE_VERSION: ${MGMT_BACKEND_VERSION}
+
+  console:
+    profiles:
+      - console
+    image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
+    build:
+      context: ./${CONSOLE_HOST}
