@@ -31,12 +31,37 @@ RUN echo "Instill Core latest codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
+ARG API_GATEWAY_COMMIT_SHORT_HASH
+ARG PIPELINE_BACKEND_COMMIT_SHORT_HASH
+ARG ARTIFACT_BACKEND_COMMIT_SHORT_HASH
+ARG MODEL_BACKEND_COMMIT_SHORT_HASH
+ARG MGMT_BACKEND_COMMIT_SHORT_HASH
+ARG CONSOLE_COMMIT_SHORT_HASH
+
 RUN git clone --depth=1 https://github.com/instill-ai/api-gateway.git
-RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
-RUN git clone --depth=1 https://github.com/instill-ai/console.git
+RUN cd api-gateway && git config advice.detachedHead false && git fetch origin && git checkout ${API_GATEWAY_COMMIT_SHORT_HASH}
+
 RUN git clone --depth=1 https://github.com/instill-ai/pipeline-backend.git
+RUN cd pipeline-backend && git config advice.detachedHead false && git fetch origin && git checkout ${PIPELINE_BACKEND_COMMIT_SHORT_HASH}
+
+RUN git clone --depth=1 https://github.com/instill-ai/artifact-backend.git
+RUN cd artifact-backend && git config advice.detachedHead false && git fetch origin && git checkout ${ARTIFACT_BACKEND_COMMIT_SHORT_HASH}
+
 RUN git clone --depth=1 https://github.com/instill-ai/model-backend.git
+RUN cd model-backend && git config advice.detachedHead false && git fetch origin && git checkout ${MODEL_BACKEND_COMMIT_SHORT_HASH}
+
+RUN git clone --depth=1 https://github.com/instill-ai/mgmt-backend.git
+RUN cd mgmt-backend && git config advice.detachedHead false && git fetch origin && git checkout ${MGMT_BACKEND_COMMIT_SHORT_HASH}
+
+RUN git clone --depth=1 https://github.com/instill-ai/console.git
+RUN cd console && git config advice.detachedHead false && git fetch origin && git checkout ${CONSOLE_COMMIT_SHORT_HASH}
+
+ENV API_GATEWAY_VERSION=${API_GATEWAY_COMMIT_SHORT_HASH}
+ENV PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_COMMIT_SHORT_HASH}
+ENV ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_COMMIT_SHORT_HASH}
+ENV MODEL_BACKEND_VERSION=${MODEL_BACKEND_COMMIT_SHORT_HASH}
+ENV MGMT_BACKEND_VERSION=${MGMT_BACKEND_COMMIT_SHORT_HASH}
+ENV CONSOLE_VERSION=${CONSOLE_COMMIT_SHORT_HASH}
 
 FROM alpine:${ALPINE_VERSION} AS release
 
@@ -50,10 +75,23 @@ RUN echo "Instill Core release codebase cloned on ${CACHE_DATE}"
 
 WORKDIR /instill-core
 
-ARG API_GATEWAY_VERSION MGMT_BACKEND_VERSION CONSOLE_VERSION PIPELINE_BACKEND_VERSION MODEL_BACKEND_VERSION ARTIFACT_BACKEND_VERSION
+ARG API_GATEWAY_VERSION
+ARG PIPELINE_BACKEND_VERSION
+ARG ARTIFACT_BACKEND_VERSION
+ARG MODEL_BACKEND_VERSION
+ARG MGMT_BACKEND_VERSION
+ARG CONSOLE_VERSION
+
 RUN git clone --depth=1 -b v${API_GATEWAY_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/api-gateway.git
+RUN git clone --depth=1 -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
+RUN git clone --depth=1 -b v${ARTIFACT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/artifact-backend.git
+RUN git clone --depth=1 -b v${MODEL_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/model-backend.git
 RUN git clone --depth=1 -b v${MGMT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/mgmt-backend.git
 RUN git clone --depth=1 -b v${CONSOLE_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/console.git
-RUN git clone --depth=1 -b v${PIPELINE_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/pipeline-backend.git
-RUN git clone --depth=1 -b v${MODEL_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/model-backend.git
-RUN git clone --depth=1 -b v${ARTIFACT_BACKEND_VERSION} -c advice.detachedHead=false https://github.com/instill-ai/artifact-backend.git
+
+ENV API_GATEWAY_VERSION=${API_GATEWAY_VERSION}
+ENV PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION}
+ENV ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION}
+ENV MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION}
+ENV MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION}
+ENV CONSOLE_VERSION=${CONSOLE_VERSION}

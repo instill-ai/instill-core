@@ -63,6 +63,14 @@ define BUILD
 	@bash -c ' \
 		set -e; \
 		trap "$(MAKE) down" ERR INT TERM && \
+		$(if $(filter latest,$(1)), \
+			API_GATEWAY_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/api-gateway.git HEAD | cut -c1-7) && \
+			PIPELINE_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/pipeline-backend.git HEAD | cut -c1-7) && \
+			ARTIFACT_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/artifact-backend.git HEAD | cut -c1-7) && \
+			MODEL_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/model-backend.git HEAD | cut -c1-7) && \
+			MGMT_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/mgmt-backend.git HEAD | cut -c1-7) && \
+			CONSOLE_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/console.git HEAD | cut -c1-7) && \
+		) \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
@@ -70,11 +78,19 @@ define BUILD
 			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(if $(filter latest,$(1)),$(shell date +%Y%m%d%H%M%S),$(shell date))" \
-			$(if $(filter release,$(1)),--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
+			$(if $(filter latest,$(1)), \
+			--build-arg API_GATEWAY_COMMIT_SHORT_HASH=$$API_GATEWAY_COMMIT_SHORT_HASH \
+			--build-arg PIPELINE_BACKEND_COMMIT_SHORT_HASH=$$PIPELINE_BACKEND_COMMIT_SHORT_HASH \
+			--build-arg ARTIFACT_BACKEND_COMMIT_SHORT_HASH=$$ARTIFACT_BACKEND_COMMIT_SHORT_HASH \
+			--build-arg MODEL_BACKEND_COMMIT_SHORT_HASH=$$MODEL_BACKEND_COMMIT_SHORT_HASH \
+			--build-arg MGMT_BACKEND_COMMIT_SHORT_HASH=$$MGMT_BACKEND_COMMIT_SHORT_HASH \
+			--build-arg CONSOLE_COMMIT_SHORT_HASH=$$CONSOLE_COMMIT_SHORT_HASH) \
+			$(if $(filter release,$(1)), \
+			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
+			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
+			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
 			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION}) \
 			--target $(1) \
 			-t ${INSTILL_CORE_IMAGE_NAME}:$(1) . && \
@@ -85,18 +101,36 @@ define BUILD
 				-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
 				--name ${CONTAINER_BUILD_NAME}-$(1) \
 				${INSTILL_CORE_IMAGE_NAME}:$(1) /bin/sh -c " \
-					$(if $(filter latest,$(1)),API_GATEWAY_VERSION=latest \
-					MGMT_BACKEND_VERSION=latest \
+					API_GATEWAY_SERVICE_NAME=$(API_GATEWAY_HOST) \
+					PIPELINE_BACKEND_SERVICE_NAME=$(PIPELINE_BACKEND_HOST) \
+					ARTIFACT_BACKEND_SERVICE_NAME=$(ARTIFACT_BACKEND_HOST) \
+					MODEL_BACKEND_SERVICE_NAME=$(MODEL_BACKEND_HOST) \
+					MGMT_BACKEND_SERVICE_NAME=$(MGMT_BACKEND_HOST) \
+					$(if $(filter release,$(1)), \
+					API_GATEWAY_VERSION=$(API_GATEWAY_VERSION) \
+					API_GATEWAY_SERVICE_VERSION=$(API_GATEWAY_VERSION) \
+					PIPELINE_BACKEND_VERSION=$(PIPELINE_BACKEND_VERSION) \
+					PIPELINE_BACKEND_SERVICE_VERSION=$(PIPELINE_BACKEND_VERSION) \
+					ARTIFACT_BACKEND_VERSION=$(ARTIFACT_BACKEND_VERSION) \
+					ARTIFACT_BACKEND_SERVICE_VERSION=$(ARTIFACT_BACKEND_VERSION) \
+					MODEL_BACKEND_VERSION=$(MODEL_BACKEND_VERSION) \
+					MODEL_BACKEND_SERVICE_VERSION=$(MODEL_BACKEND_VERSION) \
+					MGMT_BACKEND_VERSION=$(MGMT_BACKEND_VERSION) \
+					MGMT_BACKEND_SERVICE_VERSION=$(MGMT_BACKEND_VERSION) \
+					CONSOLE_VERSION=$(CONSOLE_VERSION)) \
+					$(if $(filter latest,$(1)), \
+					API_GATEWAY_VERSION=latest \
+					API_GATEWAY_SERVICE_VERSION=$$API_GATEWAY_COMMIT_SHORT_HASH \
 					PIPELINE_BACKEND_VERSION=latest \
-					MODEL_BACKEND_VERSION=latest \
+					PIPELINE_BACKEND_SERVICE_VERSION=$$PIPELINE_BACKEND_COMMIT_SHORT_HASH \
 					ARTIFACT_BACKEND_VERSION=latest \
-					CONSOLE_VERSION=latest,API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
-					MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-					PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
-					MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
-					ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
-					CONSOLE_VERSION=${CONSOLE_VERSION}) \
-					COMPOSE_PROFILES=${PROFILE} docker compose -f docker-compose-build.yml --progress plain build \
+					ARTIFACT_BACKEND_SERVICE_VERSION=$$ARTIFACT_BACKEND_COMMIT_SHORT_HASH \
+					MODEL_BACKEND_VERSION=latest \
+					MODEL_BACKEND_SERVICE_VERSION=$$MODEL_BACKEND_COMMIT_SHORT_HASH \
+					MGMT_BACKEND_VERSION=latest \
+					MGMT_BACKEND_SERVICE_VERSION=$$MGMT_BACKEND_COMMIT_SHORT_HASH \
+					CONSOLE_VERSION=latest) \
+					docker compose -f docker-compose-build.yml build --pull \
 				"; \
 		fi \
 	'
