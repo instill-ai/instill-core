@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.52.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.52.0) (2025-07-02)
+
+
+### Miscellaneous
+
+* **charts:** update README for new domain instill-ai.com ([#1270](https://github.com/instill-ai/instill-core/issues/1270)) ([f5f58eb](https://github.com/instill-ai/instill-core/commit/f5f58eb2f4ba53b2831f56ca20b138d08892b0dc))
+* **env:** bump rc versions ([#1274](https://github.com/instill-ai/instill-core/issues/1274)) ([53b4c50](https://github.com/instill-ai/instill-core/commit/53b4c50f77f51269608ccca75a9722afdd16a7d3))
+* **env:** bump release version ([dcb664d](https://github.com/instill-ai/instill-core/commit/dcb664d6b2a4f9ca9d657a569b986f33079db29c))
+* **hpa:** update hpa for all the backend-services ([#1269](https://github.com/instill-ai/instill-core/issues/1269)) ([0c679f1](https://github.com/instill-ai/instill-core/commit/0c679f13d12c9b8aae4a41529e06e4bf5b3e3ebf))
+* release v0.52.0 ([1ff15c3](https://github.com/instill-ai/instill-core/commit/1ff15c39e3acb5d342a36588b6a486b7995b9302))
+
 ## [0.51.0](https://github.com/instill-ai/instill-core/compare/v0.50.6-beta...v0.51.0) (2025-06-18)
 
 
