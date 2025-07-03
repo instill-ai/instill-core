@@ -37,6 +37,7 @@ define HELM
 		--set mgmtBackend.image.tag=$(if $(filter latest,$(1)),latest,${MGMT_BACKEND_VERSION}) \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.image.tag=$(if $(filter latest,$(1)),latest,${ARTIFACT_BACKEND_VERSION}) \
+		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set pipelineBackend.image.tag=$(if $(filter latest,$(1)),latest,${PIPELINE_BACKEND_VERSION}) \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
