@@ -20,6 +20,7 @@ data:
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
       maxdatasize: {{ .Values.maxDataSizeMB }}
+      instillcorehost: {{ .Values.artifactBackend.instillCoreHost }}
     database:
       username: {{ include "core.database.username" . }}
       password: {{ include "core.database.password" . }}
