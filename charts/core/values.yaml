@@ -648,6 +648,8 @@ artifactBackend:
   configPath: /artifact-backend/config/config.yaml
   # -- The database migration version
   dbVersion: 22
+  # -- The host of instill-core
+  instillCoreHost:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
   # -- Mount the service account token
