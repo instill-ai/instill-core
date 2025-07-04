@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.52.1](https://github.com/instill-ai/instill-core/compare/v0.52.0...v0.52.1) (2025-07-04)
+
+
+### Miscellaneous
+
+* **helm,compose:** add `instillCoreHost` environment variable to artifact-backend ([#1275](https://github.com/instill-ai/instill-core/issues/1275)) ([f341850](https://github.com/instill-ai/instill-core/commit/f3418501c594d3165312dd89f226e2e91fe3edba))
+
 ## [0.52.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.52.0) (2025-07-02)
 
 
