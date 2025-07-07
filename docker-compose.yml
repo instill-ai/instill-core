@@ -45,7 +45,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --spider http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}/__health",
+          "wget -qO- --no-verbose http://${API_GATEWAY_HOST}:${API_GATEWAY_PORT}/__health",
         ]
       interval: 5s
       timeout: 3s
@@ -103,7 +103,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --spider http://${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PUBLICPORT}/v1beta/health/pipeline",
+          "wget -qO- --no-verbose http://${PIPELINE_BACKEND_HOST}:${PIPELINE_BACKEND_PUBLICPORT}/v1beta/health/pipeline",
         ]
       interval: 5s
       timeout: 3s
@@ -201,7 +201,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --spider http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PUBLICPORT}/v1alpha/health/artifact",
+          "wget -qO- --no-verbose http://${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PUBLICPORT}/v1alpha/health/artifact",
         ]
       interval: 5s
       timeout: 3s
@@ -257,7 +257,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --spider http://${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PUBLICPORT}/v1alpha/health/model",
+          "wget -qO- --no-verbose http://${MODEL_BACKEND_HOST}:${MODEL_BACKEND_PUBLICPORT}/v1alpha/health/model",
         ]
       interval: 5s
       timeout: 3s
@@ -353,7 +353,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --spider http://${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PUBLICPORT}/v1beta/health/mgmt",
+          "wget -qO- --no-verbose http://${MGMT_BACKEND_HOST}:${MGMT_BACKEND_PUBLICPORT}/v1beta/health/mgmt",
         ]
       interval: 5s
       timeout: 3s
