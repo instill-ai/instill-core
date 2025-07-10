@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.52.1](https://github.com/instill-ai/instill-core/compare/v0.52.0...v0.52.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* **compose:** fix health check command ([#1277](https://github.com/instill-ai/instill-core/issues/1277)) ([19b0071](https://github.com/instill-ai/instill-core/commit/19b007110cccc3f99396b6ea4c8a6818f1cb2d5d))
+
+
+### Miscellaneous
+
+* **env:** bump OpenFGA version ([#1278](https://github.com/instill-ai/instill-core/issues/1278)) ([613a105](https://github.com/instill-ai/instill-core/commit/613a1058ae319cb7f6392b5597eb762ddc78c23f))
+* **helm,compose:** add `instillCoreHost` environment variable to artifact-backend ([#1275](https://github.com/instill-ai/instill-core/issues/1275)) ([f341850](https://github.com/instill-ai/instill-core/commit/f3418501c594d3165312dd89f226e2e91fe3edba))
+
 ## [0.52.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.52.0) (2025-07-02)
 
 
