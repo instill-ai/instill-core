@@ -390,9 +390,9 @@ mgmtBackend:
   temporal:
     hostPort:
     namespace:
-    ca:
-    cert:
-    key:
+    serverRootCA:
+    clientCert:
+    clientKey:
     serverName:
 # -- The configuration of pipeline-backend
 pipelineBackend:
@@ -562,9 +562,9 @@ modelBackend:
     hostPort:
     namespace:
     retention:
-    ca:
-    cert:
-    key:
+    serverRootCA:
+    clientCert:
+    clientKey:
     serverName:
     workflow:
       maxWorkflowTimeout: 3600 # in seconds
