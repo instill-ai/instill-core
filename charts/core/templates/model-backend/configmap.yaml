@@ -86,9 +86,9 @@ data:
       hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
       namespace: {{ default "model-backend" .Values.modelBackend.temporal.namespace }}
       retention: {{ default "1d" .Values.modelBackend.temporal.retention }}
-      ca: {{ default "" .Values.modelBackend.temporal.ca }}
-      cert: {{ default "" .Values.modelBackend.temporal.cert }}
-      key: {{ default "" .Values.modelBackend.temporal.key }}
+      serverrootca: {{ default "" .Values.modelBackend.temporal.serverRootCA }}
+      clientcert: {{ default "" .Values.modelBackend.temporal.clientCert }}
+      clientkey: {{ default "" .Values.modelBackend.temporal.clientKey }}
       serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
     initmodel:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
