@@ -400,6 +400,7 @@ mgmtBackend:
     clientCert:
     clientKey:
     serverName:
+    insecureSkipVerify:
 
 # -- The configuration of pipeline-backend
 pipelineBackend:
@@ -575,6 +576,7 @@ modelBackend:
     clientCert:
     clientKey:
     serverName:
+    insecureSkipVerify:
     workflow:
       maxWorkflowTimeout: 3600 # in seconds
       maxWorkflowRetry: 3
