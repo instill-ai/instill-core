@@ -297,12 +297,11 @@ services:
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: on-failure
     environment:
-      MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
       CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
-      CFG_INITMODEL_PATH: ${INITMODEL_PATH}
+      CFG_INITMODEL_INVENTORY: ${INITMODEL_INVENTORY}
     entrypoint: ./model-backend-init-model
     volumes:
-      - ${INITMODEL_PATH:-/dev/null}:${INITMODEL_PATH:-/dev/null}
+      - ${INITMODEL_INVENTORY:-/dev/null}:${INITMODEL_INVENTORY:-/dev/null}
     depends_on:
       model_backend:
         condition: service_healthy
