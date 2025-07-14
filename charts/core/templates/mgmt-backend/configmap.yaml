@@ -82,3 +82,4 @@ data:
       clientcert: {{ default "" .Values.mgmtBackend.temporal.clientCert }}
       clientkey: {{ default "" .Values.mgmtBackend.temporal.clientKey }}
       serverName: {{ default "" .Values.mgmtBackend.temporal.serverName }}
+      insecureskipverify: {{ default "true" .Values.mgmtBackend.temporal.insecureSkipVerify }}
