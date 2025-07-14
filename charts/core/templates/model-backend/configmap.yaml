@@ -90,6 +90,7 @@ data:
       clientcert: {{ default "" .Values.modelBackend.temporal.clientCert }}
       clientkey: {{ default "" .Values.modelBackend.temporal.clientKey }}
       serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
+      insecureskipverify: {{ default "true" .Values.modelBackend.temporal.insecureSkipVerify }}
     initmodel:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
     openfga:
