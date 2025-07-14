@@ -1,35 +1,135 @@
+volumes:
+  tempo-data:
+    name: ${COMPOSE_VOLUME_TEMPO_DATA}
+
 services:
+  pipeline_backend:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  pipeline_backend_worker:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  artifact_backend:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  model_backend:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  model_backend_worker:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  model_backend_init_model:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  mgmt_backend:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
+  mgmt_backend_worker:
+    environment:
+      CFG_OTELCOLLECTOR_ENABLE: true
+      CFG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      CFG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+
   otel_collector:
     container_name: ${OTEL_COLLECTOR_HOST}
     image: ${OTEL_COLLECTOR_IMAGE}:${OTEL_COLLECTOR_VERSION}
-    command: --config=/configs/otel-collector/config.yaml
+    environment:
+      OTEL_COLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      OTEL_COLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
+      TEMPO_HOST: ${TEMPO_HOST}
+      TEMPO_OTLP_GRPC_PORT: ${TEMPO_OTLP_GRPC_PORT}
+      LOKI_HOST: ${LOKI_HOST}
+      LOKI_PORT: ${LOKI_PORT}
     volumes:
-      - ${CONFIG_DIR_PATH}:/configs
+      - ${CONFIG_DIR_PATH}/otel-collector/config.yml:/configs/otel-collector/config.yml
+    command: --config=/configs/otel-collector/config.yml
     depends_on:
-      - jaeger
       - prometheus
+      - tempo
 
-  jaeger:
-    container_name: ${JAEGER_HOST}
-    image: ${JAEGER_IMAGE}:${JAEGER_VERSION}
-    ports:
-      - ${JAEGER_HOST_PORT}:${JAEGER_PORT}
+  tempo:
+    container_name: ${TEMPO_HOST}
+    image: ${TEMPO_IMAGE}:${TEMPO_VERSION}
+    environment:
+      TEMPO_HOST: ${TEMPO_HOST}
+      TEMPO_HTTP_PORT: ${TEMPO_HTTP_PORT}
+      TEMPO_GRPC_PORT: ${TEMPO_GRPC_PORT}
+      TEMPO_OTLP_GRPC_PORT: ${TEMPO_OTLP_GRPC_PORT}
+      TEMPO_OTLP_HTTP_PORT: ${TEMPO_OTLP_HTTP_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      PROMETHEUS_HOST: ${PROMETHEUS_HOST}
+      PROMETHEUS_PORT: ${PROMETHEUS_PORT}
+    volumes:
+      - tempo-data:/var/tempo
+      - ${CONFIG_DIR_PATH}/tempo/config.yml:/etc/config.yml
+    command:
+      - -config.file=/etc/config.yml
+      - -config.expand-env=true
+    depends_on:
+      - redis
+
+  loki:
+    container_name: ${LOKI_HOST}
+    image: ${LOKI_IMAGE}:${LOKI_VERSION}
+    environment:
+      LOKI_HOST: ${LOKI_HOST}
+      LOKI_PORT: ${LOKI_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    volumes:
+      - ${CONFIG_DIR_PATH}/loki/config.yml:/etc/loki/config.yml
+    command:
+      - -config.file=/etc/loki/config.yml
+      - -config.expand-env=true
+    depends_on:
+      - redis
 
   prometheus:
     container_name: ${PROMETHEUS_HOST}
     image: ${PROMETHEUS_IMAGE}:v${PROMETHEUS_VERSION}
     volumes:
-      - ${CONFIG_DIR_PATH}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${CONFIG_DIR_PATH}/prometheus/prometheus.yml:/prometheus/prometheus.yml
     ports:
       - ${PROMETHEUS_HOST_PORT}:${PROMETHEUS_PORT}
+    command:
+      - "--web.enable-remote-write-receiver"
+      - "--enable-feature=native-histograms"
 
   grafana:
     container_name: ${GRAFANA_HOST}
     image: ${GRAFANA_IMAGE}:${GRAFANA_VERSION}
     environment:
-      - GF_SECURITY_ALLOW_EMBEDDING=true
-      - GF_SECURITY_COOKIE_SECURE=true
-      - GF_SECURITY_COOKIE_SAMESITE=true
+      GF_SECURITY_ALLOW_EMBEDDING: true
+      GF_SECURITY_COOKIE_SECURE: true
+      GF_SECURITY_COOKIE_SAMESITE: true
+      PROMETHEUS_HOST: ${PROMETHEUS_HOST}
+      PROMETHEUS_PORT: ${PROMETHEUS_PORT}
+      TEMPO_HOST: ${TEMPO_HOST}
+      TEMPO_HTTP_PORT: ${TEMPO_HTTP_PORT}
+      LOKI_HOST: ${LOKI_HOST}
+      LOKI_PORT: ${LOKI_PORT}
     volumes:
       - ${CONFIG_DIR_PATH}/grafana/datasources/all.yml:/etc/grafana/provisioning/datasources/all.yml
       - ${CONFIG_DIR_PATH}/grafana/dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yml
