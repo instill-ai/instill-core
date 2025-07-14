@@ -43,6 +43,10 @@ data:
     MINIO_HOST={{ include "core.minio" . }}
     MINIO_PORT={{ include "core.minio.port" . }}
 
+    # otel-collector
+    OTEL_COLLECTOR_HOST={{ include "core.otel" . }}
+    OTEL_COLLECTOR_PORT={{ include "core.otel.port" . }}
+
     # Additional Hosts
     {{- range $host := .Values.apiGateway.additionalHosts }}
     {{ $host.name }}_HOST={{ $host.host }}
