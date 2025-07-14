@@ -35,6 +35,8 @@ services:
       REGISTRY_PORT: ${REGISTRY_PORT}
       MINIO_HOST: ${MINIO_HOST}
       MINIO_PORT: ${MINIO_PORT}
+      OTEL_COLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
+      OTEL_COLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     ports:
       - ${API_GATEWAY_HOST_PORT}:${API_GATEWAY_PORT}
     command: /bin/bash -c "
@@ -89,9 +91,6 @@ services:
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
     command:
       - /bin/sh
       - -c
@@ -152,9 +151,6 @@ services:
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_OTELCOLLECTOR_HOST: ${OTEL_COLLECTOR_HOST}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
     entrypoint: ./pipeline-backend-worker
     depends_on:
       pipeline_backend:
@@ -188,8 +184,6 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     command:
       - /bin/sh
       - -c
@@ -244,8 +238,6 @@ services:
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     command:
       - /bin/sh
       - -c
@@ -294,8 +286,6 @@ services:
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
     entrypoint: ./model-backend-worker
     depends_on:
       model_backend:
@@ -308,8 +298,6 @@ services:
     restart: on-failure
     environment:
       MODEL_BACKEND_HOST: ${MODEL_BACKEND_HOST}
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_INITMODEL_ENABLED: ${INITMODEL_ENABLED}
       CFG_INITMODEL_PATH: ${INITMODEL_PATH}
     entrypoint: ./model-backend-init-model
@@ -338,8 +326,6 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     command:
@@ -386,8 +372,6 @@ services:
       CFG_DATABASE_PORT: ${POSTGRESQL_PORT}
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
-      CFG_LOG_EXTERNAL: ${OBSERVE_ENABLED}
-      CFG_LOG_OTELCOLLECTOR_PORT: ${OTEL_COLLECTOR_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./mgmt-backend-worker
@@ -428,12 +412,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
-      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
       ENABLE_ES: "true"
       ES_SEEDS: ${ELASTICSEARCH_HOST}
       ES_VERSION: v7
     volumes:
-      - ${CONFIG_DIR_PATH}/temporal/development-sql.yaml:/etc/temporal/config/dynamicconfig/development-sql.yaml
+      - ${CONFIG_DIR_PATH}/temporal/development-sql.yml:/etc/temporal/config/dynamicconfig/development-sql.yml
     healthcheck:
       test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
       interval: 5s
@@ -484,7 +468,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-      start_period: 20s
+      start_period: 60s
 
   pg_sql:
     container_name: ${POSTGRESQL_HOST}
@@ -586,7 +570,7 @@ services:
     ports:
       - ${REGISTRY_HOST_PORT}:${REGISTRY_PORT}
     volumes:
-      - ${CONFIG_DIR_PATH}/registry/config.yaml:/etc/docker/registry/config.yml
+      - ${CONFIG_DIR_PATH}/registry/config.yml:/etc/docker/registry/config.yml
     depends_on:
       redis:
         condition: service_healthy

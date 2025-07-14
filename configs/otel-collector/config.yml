@@ -3,7 +3,7 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: otel-collector:8095
+        endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT}
 
 # (2) Processors
 processors:
@@ -18,12 +18,16 @@ processors:
 exporters:
   debug:
   otlp:
-    endpoint: jaeger:14250
+    endpoint: ${env:TEMPO_HOST}:${env:TEMPO_OTLP_GRPC_PORT}
+    tls:
+      insecure: true
+  otlphttp/logs:
+    endpoint: "http://${env:LOKI_HOST}:${env:LOKI_PORT}/otlp"
     tls:
       insecure: true
   prometheus:
-    endpoint: otel-collector:9001
-    namespace: instill-ai
+    endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PROMETHEUS_PORT}
+    namespace: instill-core
     send_timestamps: true
     enable_open_metrics: true
 
@@ -39,3 +43,7 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [debug, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp/logs]
