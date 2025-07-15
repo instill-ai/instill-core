@@ -28,8 +28,10 @@ datasources:
         datasourceUid: "loki"
         spanStartTimeShift: "-1h"
         spanEndTimeShift: "1h"
-        filterByTraceID: true
-        filterBySpanID: true
+        filterByTraceID: false
+        filterBySpanID: false
+        customQuery: true
+        query: '{service_name="$${__span.tags["service.name"]}"} | trace_id="$${__span.traceId}"'
       tracesToMetrics:
         datasourceUid: "prometheus"
         spanStartTimeShift: "-1h"
@@ -63,7 +65,8 @@ datasources:
       httpMethod: POST
       derivedFields:
         - datasourceUid: tempo
-          matcherRegex: "trace_id: ([a-f0-9]+)"
-          name: TraceID
-          url: "$${__value.raw}"
+          matcherRegex: trace_id
+          matcherType: label
+          name: trace_id
+          url: $${__value.raw}
           urlDisplayLabel: "View Trace"
