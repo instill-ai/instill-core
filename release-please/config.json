@@ -7,6 +7,7 @@
     ".": {
       "package-name": "instill-core",
       "release-type": "simple",
+      "release-as": "0.53.0",
       "draft": false,
       "prerelease": false,
       "bump-minor-pre-major": true,
@@ -27,6 +28,7 @@
     "charts/core": {
       "package-name": "helm-chart",
       "release-type": "helm",
+      "release-as": "0.1.64",
       "draft": false,
       "prerelease": false,
       "bump-minor-pre-major": true,
@@ -36,7 +38,7 @@
       "extra-files": [
         {
           "type": "yaml",
-          "path": "charts/core/Chart.yaml",
+          "path": "Chart.yaml",
           "jsonpath": "$.version"
         }
       ]
