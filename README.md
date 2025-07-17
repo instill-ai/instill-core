@@ -60,7 +60,7 @@ Execute the following commands to pull pre-built images with all the dependencie
 
 <!-- x-release-please-start-version -->
 ```bash
-$ git clone -b v0.51.0 https://github.com/instill-ai/instill-core.git && cd instill-core
+$ git clone -b v0.53.0 https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
 $ make all
