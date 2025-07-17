@@ -18,28 +18,35 @@ Please refer to [prerequisites section](../README.md#prerequisites) to make sure
 
 ### Launch the local dev system
 
+**Instill Core CE** is built with the [microservice architecture](/docs/faq#tech). We use Docker Compose for local development. Each service is nothing but a running container. Developing new features simply means to develop, containerize and deploy the new codebase.
+
 Clone the repo and launch the `latest` version of the codebase for all dependencies:
 
 ```shell
-git clone https://github.com/instill-ai/instill-core.git && cd instill-core
+# Clone and move to the instill-core repository
+git clone https://github.com/instill-ai/instill-core.git
+cd instill-core
 
-# launch all latest service components
+# Launch all services with their very latest versions
 make latest
 ```
 
-The `latest` target comes along with an env variable `PROFILE` which is intended to specify which service component you want to develop on. Available options are:
+Once every containers are up and running, the developer can access all services through:
 
-- `api-gateway`
-- `mgmt`
-- `pipeline`
-- `model`
-- `artifact`
-- `console`
+* [`api-gateway`](https://github.com/instill-ai/api-gateway/blob/main/config/config.yaml) (`localhost:8080`)
+  * A service to handle API requests and responses.
+* [`pipeline-backend`](https://github.com/instill-ai/pipeline-backend/blob/main/config/config.yaml)(`localhost:8081`)
+  * A service for building and managing unstructured data pipelines.
+* [`artifact-backend`](https://github.com/instill-ai/artifact-backend/blob/main/config/config.yaml)(`localhost:8082`)
+  * A service for managing all RAG related resources.
+* [`model-backend`](https://github.com/instill-ai/model-backend/blob/main/config/config.yaml)(`localhost:8083`)
+  * A service for importing and serving AI models.
+* [`mgmt-backend`](https://github.com/instill-ai/mgmt-backend/blob/main/config/config.yaml)(`localhost:8084`)
+  * A service for user account management, including authentication, authorization, admission control and usage metrics.
+* [`console`](https://github.com/instill-ai/console/blob/main/.env) (`localhost:3000`)
+  * A service provides GUI user interface for accessing **Instill Core CE**.
 
-When you set `PROFILE={service}`, it means you want to launch that particular services. By default, `PROFILE=api-gateway,mgmt,pipeline,model,artifact,console`.
-You can later on spin up and down the developed service in its dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend/blob/main/.github/CONTRIBUTING.md#local-development) as an example.
-
-#### Component environment variables
+### Component environment variables
 
 Some components can be configured with global secrets. This has several
 applications:
@@ -54,6 +61,63 @@ You can set the values of these global secrets in
 order to add a global configuration to your components. These values will
 be injected into `pipeline-backend`. Additionally, `console` will also
 receive the OAuth configuration values.
+
+### Developing on a specific service
+
+Let's say, you are working on a new feature for `pipeline-backend`. You will need to remove the running containers first:
+
+```shell
+docker rm pipeline-backend
+docker rm pipeline-backend-worker
+```
+
+And now move to the `pipeline-backend` codebase:
+
+```shell
+# Clone and move to the pipeline-backend repository
+git clone https://github.com/instill-ai/pipeline-backend.git
+cd pipeline-backend
+```
+
+#### Build and run the dev image
+
+```shell
+make build-dev
+make dev
+```
+
+Now, you have the development environment set up in the container, where you can compile and run the binaries, as well as run the integration tests in the container.
+
+#### Start the `pipeline-backend` server
+
+```shell
+docker exec -it pipeline-backend bash
+go run ./cmd/migration
+go run ./cmd/init
+go run ./cmd/main
+```
+
+#### Start the Temporal worker
+
+```shell
+docker exec -it pipeline-backend bash
+go run ./cmd/worker
+```
+
+#### Run the integration tests
+
+During local development, you can run the integration test to make sure your latest `pipeline-backend` works as intended:
+
+```shell
+docker exec -it pipeline-backend bash
+make integration-test API_GATEWAY_URL=api-gateway:8080 DB_HOST=pg-sql
+```
+
+#### Remove the dev container
+
+```shell
+make rm
+```
 
 ### Tear down the local dev system
 
@@ -72,6 +136,25 @@ You can build all the service images by running:
 ```shell
 make build-{latest,release} BUILD_ALL_FROM_SOURCE=true
 ```
+
+## Configurations
+
+### Backend Services
+
+**Instill Core CE** loads a [`.env`](https://github.com/instill-ai/instill-core/blob/main/.env) file that contains key/value pairs defining required environment variables. You can customize the file based on your configuration.
+
+Besides, **Instill Core CE** uses [Koanf](https://github.com/knadh/koanf) library for configuration. It supports loading configuration from multiple sources and makes it available to the service. To override the default configuration, you can set the corresponding environment variables, which are passed to the Docker Compose [file](https://github.com/instill-ai/instill-core/blob/main/docker-compose.yml). Note that all configuration environment variables for each backend service are prefixed with `CFG_`.
+
+### Frontend Console
+
+To access Instill Core Console, set the host by overriding the environment variables:
+
+```shellscript .env
+<code_block_to_apply_changes_from>
+INSTILL_CORE_HOST={HOSTNAME}
+```
+
+By default `HOSTNAME` is set to `localhost`.
 
 ### Sending PRs
 

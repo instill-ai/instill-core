@@ -67,9 +67,9 @@ endif
 latest:			## Lunch all dependent services with their latest codebase
 	$(call ensure_user_uid)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,latest) COMPOSE_PROFILES=${PROFILE},${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,latest),${COMPOSE_FILES} -f docker-compose-latest.yml)
 else
-	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,latest) COMPOSE_PROFILES=${PROFILE},${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,latest),${COMPOSE_FILES} -f docker-compose-latest.yml)
 endif
 
 .PHONY: helm-latest
