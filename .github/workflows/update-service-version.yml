@@ -133,8 +133,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.botGitHubToken }}
-          commit-message: "chore(env): update ${{ steps.service-config.outputs.version_var }} to ${{ steps.commit-hash.outputs.short_hash }}"
-          title: "chore(env): update ${{ steps.service-config.outputs.version_var }} to ${{ steps.commit-hash.outputs.short_hash }}"
+          commit-message: "chore(env): update ${{ steps.service-config.outputs.version_var }}"
+          title: "chore(env): update ${{ steps.service-config.outputs.version_var }}"
           body: |
             Because
             - The version of the ${{ steps.service-config.outputs.repository }} service is not updated in the instill-core repository.

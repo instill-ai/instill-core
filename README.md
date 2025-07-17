@@ -75,7 +75,7 @@ Execute the following commands to build images with all the dependencies to laun
 $ git clone https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
-$ make latest
+$ make all
 ```
 
 > [!IMPORTANT]

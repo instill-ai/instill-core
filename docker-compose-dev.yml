@@ -2,7 +2,6 @@ services:
   api_gateway:
     profiles:
       - api-gateway
-    image: ${API_GATEWAY_IMAGE}:latest
     environment:
       LOG_LEVEL: DEBUG
     ports:
@@ -13,7 +12,6 @@ services:
   pipeline_backend:
     profiles:
       - pipeline
-    image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -24,7 +22,6 @@ services:
   pipeline_backend_worker:
     profiles:
       - pipeline
-    image: ${PIPELINE_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -32,7 +29,6 @@ services:
   artifact_backend:
     profiles:
       - artifact
-    image: ${ARTIFACT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -43,7 +39,6 @@ services:
   model_backend:
     profiles:
       - model
-    image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -54,19 +49,16 @@ services:
   model_backend_init_model:
     profiles:
       - model
-    image: ${MODEL_BACKEND_IMAGE}:latest
 
   model_backend_worker:
     profiles:
       - model
-    image: ${MODEL_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
 
   mgmt_backend:
     profiles:
       - mgmt
-    image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -77,7 +69,6 @@ services:
   mgmt_backend_worker:
     profiles:
       - mgmt
-    image: ${MGMT_BACKEND_IMAGE}:latest
     environment:
       CFG_SERVER_DEBUG: "true"
       CFG_SERVER_EDITION: ${EDITION}
@@ -85,7 +76,6 @@ services:
   console:
     profiles:
       - console
-    image: ${CONSOLE_IMAGE}:latest
     environment:
       NEXT_PUBLIC_USAGE_COLLECTION_ENABLED: ${USAGE_ENABLED}
       NEXT_PUBLIC_CONSOLE_EDITION: ${EDITION}

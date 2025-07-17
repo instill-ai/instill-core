@@ -18,26 +18,14 @@ Please refer to [prerequisites section](../README.md#prerequisites) to make sure
 
 ### Launch the local dev system
 
-Clone the repo and launch the `latest` version of the codebase for all dependencies:
+Clone the repo and launch the codebase for all dependencies:
 
 ```shell
 git clone https://github.com/instill-ai/instill-core.git && cd instill-core
 
-# launch all latest service components
-make latest
+# launch all service components
+make all
 ```
-
-The `latest` target comes along with an env variable `PROFILE` which is intended to specify which service component you want to develop on. Available options are:
-
-- `api-gateway`
-- `mgmt`
-- `pipeline`
-- `model`
-- `artifact`
-- `console`
-
-When you set `PROFILE={service}`, it means you want to launch that particular services. By default, `PROFILE=api-gateway,mgmt,pipeline,model,artifact,console`.
-You can later on spin up and down the developed service in its dev container. Please take the [pipeline-backend](https://github.com/instill-ai/pipeline-backend/blob/main/.github/CONTRIBUTING.md#local-development) as an example.
 
 #### Component environment variables
 
@@ -61,16 +49,6 @@ Simply run:
 
 ```shell
 make down
-```
-
-### Build the local images
-
-We use Docker multi-stage builds to create `instill/instill-core:{latest,release}` images, which utilize Docker-in-Docker (dind) to build all the images of **🔮 Instill Core** defined in the [docker-compose-build.yml](../docker-compose-build.yml) compose file.
-
-You can build all the service images by running:
-
-```shell
-make build-{latest,release} BUILD_ALL_FROM_SOURCE=true
 ```
 
 ### Sending PRs
