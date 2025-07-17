@@ -1,5 +1,6 @@
+ARG GOLANG_VERSION=1.24.4
 ARG ALPINE_VERSION=3.21
-FROM golang:alpine${ALPINE_VERSION} AS base
+FROM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS base
 
 RUN apk add --update docker docker-compose docker-cli-compose docker-cli-buildx openrc containerd git bash make wget vim curl openssl util-linux
 
