@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.53.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.53.0) (2025-07-17)
+
+
+### Features
+
+* **observe:** update observablity stack ([#1250](https://github.com/instill-ai/instill-core/issues/1250)) ([d3595c4](https://github.com/instill-ai/instill-core/commit/d3595c4de39b0182de1d812bd4b82db1ec639aa7))
+
+
+### Bug Fixes
+
+* **compose:** fix health check command ([#1277](https://github.com/instill-ai/instill-core/issues/1277)) ([e37c638](https://github.com/instill-ai/instill-core/commit/e37c638befd51e7fe653fc9e08149f73cb95df2a))
+* **release:** fix release tag ([f01561d](https://github.com/instill-ai/instill-core/commit/f01561d101a32158b4098b19221e44b352595af4))
+* **release:** fix release tag ([4a55e81](https://github.com/instill-ai/instill-core/commit/4a55e8115f5c1aaf10d57b48b8f85dd9e997278f))
+
+
+### Miscellaneous
+
+* **charts:** update README for new domain instill-ai.com ([#1270](https://github.com/instill-ai/instill-core/issues/1270)) ([f5f58eb](https://github.com/instill-ai/instill-core/commit/f5f58eb2f4ba53b2831f56ca20b138d08892b0dc))
+* **env:** bump backend versions ([#1280](https://github.com/instill-ai/instill-core/issues/1280)) ([2acdcc5](https://github.com/instill-ai/instill-core/commit/2acdcc57e15dd4354e948f42a1a84be093dcf1dd))
+* **env:** bump OpenFGA version ([#1278](https://github.com/instill-ai/instill-core/issues/1278)) ([167a7f0](https://github.com/instill-ai/instill-core/commit/167a7f08cbc115ea3a8e6f0f955cb4a4cf1c88ea))
+* **env:** bump rc versions ([#1274](https://github.com/instill-ai/instill-core/issues/1274)) ([53b4c50](https://github.com/instill-ai/instill-core/commit/53b4c50f77f51269608ccca75a9722afdd16a7d3))
+* **env:** bump release version ([dcb664d](https://github.com/instill-ai/instill-core/commit/dcb664d6b2a4f9ca9d657a569b986f33079db29c))
+* **env:** bump service version ([#1284](https://github.com/instill-ai/instill-core/issues/1284)) ([f33c0b4](https://github.com/instill-ai/instill-core/commit/f33c0b4056874c3a0aa59e2de3bd014d716028d9))
+* **helm,compose:** add `instillCoreHost` environment variable to artifact-backend ([#1275](https://github.com/instill-ai/instill-core/issues/1275)) ([60978f3](https://github.com/instill-ai/instill-core/commit/60978f3ef399aa7df9caa596321c2fb2b63cc3af))
+* **helm:** add insecureSkipVerify setting for Temporal ([#1281](https://github.com/instill-ai/instill-core/issues/1281)) ([5b83224](https://github.com/instill-ai/instill-core/commit/5b8322435d571df8c955a3b9c9ba0534fc9b7ce3))
+* **helm:** bump up chart and app version ([b29d8e8](https://github.com/instill-ai/instill-core/commit/b29d8e82f3f680ff6aa364695852de6a81ca931b))
+* **helm:** update outdated Temporal config ([#1279](https://github.com/instill-ai/instill-core/issues/1279)) ([9eb297c](https://github.com/instill-ai/instill-core/commit/9eb297ce940b6487a8c2d421e89471eaf99c16d2))
+* **hpa:** update hpa for all the backend-services ([#1269](https://github.com/instill-ai/instill-core/issues/1269)) ([0c679f1](https://github.com/instill-ai/instill-core/commit/0c679f13d12c9b8aae4a41529e06e4bf5b3e3ebf))
+
 ## [0.51.0](https://github.com/instill-ai/instill-core/compare/v0.50.6-beta...v0.51.0) (2025-06-18)
 
 
