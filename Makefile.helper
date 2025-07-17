@@ -147,6 +147,9 @@ define HELM_INTEGRATION_TEST
 		"; \
 	fi
 	@$(MAKE) down
+	@echo "Cleaning up port-forwarding processes on ports ${API_GATEWAY_PORT} and ${POSTGRESQL_PORT}..."
+	@lsof -ti:${API_GATEWAY_PORT} | xargs -r kill -9 2>/dev/null || true
+	@lsof -ti:${POSTGRESQL_PORT} | xargs -r kill -9 2>/dev/null || true
 endef
 
 # Function to run model deployment integration test
