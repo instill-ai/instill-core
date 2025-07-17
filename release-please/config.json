@@ -7,6 +7,7 @@
     ".": {
       "package-name": "instill-core",
       "release-type": "simple",
+      "release-as": "0.53.0",
       "draft": false,
       "prerelease": false,
       "bump-minor-pre-major": true,
