@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.53.1](https://github.com/instill-ai/instill-core/compare/v0.53.0...v0.53.1) (2025-07-19)
+
+
+### Miscellaneous
+
+* **release-plesase:** fix last-release-sha ([e339aa3](https://github.com/instill-ai/instill-core/commit/e339aa3d13fde0a87a2338249a0fade16c8d6edc))
+
 ## [0.53.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.53.0) (2025-07-17)
 
 
