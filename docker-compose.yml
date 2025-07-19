@@ -10,7 +10,7 @@ volumes:
 
 services:
   api_gateway:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${API_GATEWAY_HOST}
     image: ${API_GATEWAY_IMAGE}:${API_GATEWAY_VERSION}
     restart: unless-stopped
@@ -59,7 +59,7 @@ services:
         condition: service_healthy
 
   pipeline_backend:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${PIPELINE_BACKEND_HOST}
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
@@ -119,7 +119,7 @@ services:
         condition: service_started
 
   pipeline_backend_worker:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${PIPELINE_BACKEND_HOST}-worker
     image: ${PIPELINE_BACKEND_IMAGE}:${PIPELINE_BACKEND_VERSION}
     restart: unless-stopped
@@ -156,7 +156,7 @@ services:
         condition: service_healthy
 
   artifact_backend:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${ARTIFACT_BACKEND_HOST}
     image: ${ARTIFACT_BACKEND_IMAGE}:${ARTIFACT_BACKEND_VERSION}
     restart: unless-stopped
@@ -209,7 +209,7 @@ services:
         condition: service_healthy
 
   model_backend:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${MODEL_BACKEND_HOST}
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
@@ -268,7 +268,7 @@ services:
         condition: service_healthy
 
   model_backend_worker:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${MODEL_BACKEND_HOST}-worker
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: unless-stopped
@@ -290,7 +290,7 @@ services:
         condition: service_healthy
 
   model_backend_init_model:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${MODEL_BACKEND_HOST}-init-model
     image: ${MODEL_BACKEND_IMAGE}:${MODEL_BACKEND_VERSION}
     restart: on-failure
@@ -305,7 +305,7 @@ services:
         condition: service_healthy
 
   mgmt_backend:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${MGMT_BACKEND_HOST}
     image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
@@ -353,7 +353,7 @@ services:
         condition: service_started
 
   mgmt_backend_worker:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${MGMT_BACKEND_HOST}-worker
     image: ${MGMT_BACKEND_IMAGE}:${MGMT_BACKEND_VERSION}
     restart: unless-stopped
@@ -377,7 +377,7 @@ services:
         condition: service_healthy
 
   console:
-    pull_policy: always
+    pull_policy: missing
     container_name: ${CONSOLE_HOST}
     image: ${CONSOLE_IMAGE}:${CONSOLE_VERSION}
     restart: unless-stopped
