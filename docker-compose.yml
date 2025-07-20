@@ -52,7 +52,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 10s
     depends_on:
       influxdb:
@@ -106,7 +106,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 15s
     depends_on:
       temporal:
@@ -198,7 +198,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 10s
     depends_on:
       pg_sql:
@@ -251,7 +251,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 15s
     depends_on:
       ray:
@@ -340,7 +340,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 10s
     depends_on:
       pg_sql:
@@ -419,7 +419,7 @@ services:
       test: ["CMD-SHELL", "tctl --address temporal:7233 cluster health"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 20s
     depends_on:
       pg_sql:
@@ -464,7 +464,7 @@ services:
       test: ["CMD", "ray", "status"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 60s
 
   pg_sql:
@@ -479,7 +479,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 20s
 
   redis:
@@ -492,7 +492,7 @@ services:
       test: ["CMD-SHELL", "redis-cli --raw incr ping"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 5s
 
   elasticsearch:
@@ -512,9 +512,9 @@ services:
     healthcheck:
       test:
         ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 10s
+      interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 50s
 
   influxdb:
@@ -533,7 +533,7 @@ services:
         ["CMD-SHELL", "curl -f http://${INFLUXDB_HOST}:${INFLUXDB_PORT}/health"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 10s
 
   openfga_migrate:
@@ -588,7 +588,7 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 60
       start_period: 15s
 
   minio:
