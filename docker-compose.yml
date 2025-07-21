@@ -341,7 +341,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 60
-      start_period: 20s
+      start_period: 120s
     depends_on:
       mgmt_backend_worker:
         condition: service_started
