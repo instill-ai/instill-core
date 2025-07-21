@@ -7,26 +7,8 @@ on:
       - "**"
 
 jobs:
-  determine-target:
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      !startsWith(github.ref, 'refs/heads/release-please--branches') ||
-      (startsWith(github.ref, 'refs/heads/release-please--branches') && contains(github.event.head_commit.message, 'chore(main): release'))
-    outputs:
-      target: ${{ steps.set-target.outputs.target }}
-    steps:
-      - name: Set target based on branch
-        id: set-target
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/release-please--branches--main" ]]; then
-            echo "target=release" >> $GITHUB_OUTPUT
-          else
-            echo "target=latest" >> $GITHUB_OUTPUT
-          fi
 
   compose:
-    needs: determine-target
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
@@ -55,28 +37,18 @@ jobs:
         with:
           envFile: .env
 
-      - name: Launch Instill Core Docker Compose integration test (${{ needs.determine-target.outputs.target }})
+      - name: Launch Instill Core Docker Compose integration test
         # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
         # connection creation on `pipeline-backend`.
         run: |
-          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
-            make build-latest
-            make compose-integration-test-latest
-          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
-            make build-release
-            make compose-integration-test-release
-          else
-            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
-            exit 1
-          fi
+          make compose-integration-test
 
-      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+      - name: Tear down Instill Core
         if: always()
         run: |
           make down
 
   helm:
-    needs: determine-target
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
@@ -109,20 +81,11 @@ jobs:
         with:
           envFile: .env
 
-      - name: Launch Instill Core Helm integration test(${{ needs.determine-target.outputs.target }})
+      - name: Launch Instill Core Helm integration test
         # CFG_COMPONENT_SECRETS_GITHUB* variables are injected to test OAuth
         # connection creation on `pipeline-backend`.
         run: |
-          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
-            make build-latest
-            make helm-integration-test-latest
-          elif [ "${{ needs.determine-target.outputs.target }}" == "release" ]  ; then
-            make build-release
-            make helm-integration-test-release
-          else
-            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
-            exit 1
-          fi
+          make helm-integration-test
 
       - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
         if: always()
@@ -130,7 +93,6 @@ jobs:
           make down
 
   model:
-    needs: determine-target
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
@@ -176,12 +138,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Run model integration test (${{ needs.determine-target.outputs.target }})
+      - name: Run model integration test
         working-directory: instill-core
         run: |
-          make model-integration-test-${{ needs.determine-target.outputs.target }}
+          make model-integration-test
 
-      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+      - name: Tear down Instill Core
         if: always()
         working-directory: instill-core
         run: |

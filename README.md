@@ -63,7 +63,7 @@ Execute the following commands to pull pre-built images with all the dependencie
 $ git clone -b v0.53.0 https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
-$ make all
+$ make compose-run
 ```
 <!-- x-release-please-end -->
 
@@ -75,7 +75,7 @@ Execute the following commands to build images with all the dependencies to laun
 $ git clone https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
-$ make latest
+$ make compose-dev
 ```
 
 > [!IMPORTANT]

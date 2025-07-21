@@ -82,8 +82,7 @@ cd pipeline-backend
 #### Build and run the dev image
 
 ```shell
-make build-dev
-make dev
+make compose-dev
 ```
 
 Now, you have the development environment set up in the container, where you can compile and run the binaries, as well as run the integration tests in the container.

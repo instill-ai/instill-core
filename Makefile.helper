@@ -12,8 +12,7 @@ endef
 define GET_COMPOSE_PARAMS
 	$(if $(filter true,$(CI)),EDITION=docker-ce:test,EDITION=$${EDITION:=local-ce}) \
 	DEFAULT_USER_UID=$$(cat ${SYSTEM_CONFIG_PATH}/user_uid) \
-	$(if $(filter true,$(CI)),ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST},ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT}) \
-	$(if $(filter latest,$(1)),RAY_LATEST_TAG=${RAY_LATEST_TAG},RAY_RELEASE_TAG=${RAY_RELEASE_TAG})
+	$(if $(filter true,$(CI)),ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST},ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT})
 endef
 
 # Function to launch docker compose with GPU support
@@ -32,116 +31,59 @@ define HELM
 	@cd charts/core && helm dependency update
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
-		--set edition=$(if $(filter true,$(2)),k8s-ce:test,$(if $(filter latest,$(1)),k8s-ce:latest,k8s-ce)) \
-		--set apiGateway.image.tag=$(if $(filter latest,$(1)),latest,${API_GATEWAY_VERSION}) \
-		--set mgmtBackend.image.tag=$(if $(filter latest,$(1)),latest,${MGMT_BACKEND_VERSION}) \
+		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
+		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
+		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set artifactBackend.image.tag=$(if $(filter latest,$(1)),latest,${ARTIFACT_BACKEND_VERSION}) \
+		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set pipelineBackend.image.tag=$(if $(filter latest,$(1)),latest,${PIPELINE_BACKEND_VERSION}) \
+		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set modelBackend.image.tag=$(if $(filter latest,$(1)),latest,${MODEL_BACKEND_VERSION}) \
-		--set console.image.tag=$(if $(filter latest,$(1)),latest,${CONSOLE_VERSION}) \
-		--set ray-cluster.image.tag=$(if $(filter latest,$(1)),${RAY_LATEST_TAG},${RAY_RELEASE_TAG}) \
-		$(if $(filter true,$(2)),--set ray-cluster.head.autoscaling.enableInTreeAutoscaling=false,) \
-		$(if $(filter true,$(2)),--set ray-cluster.head.resources.requests.cpu=0,) \
-		$(if $(filter true,$(2)),--set ray-cluster.head.resources.requests.memory=0,) \
-		$(if $(filter true,$(2)),--set ray-cluster.worker.resources.requests.cpu=0,) \
-		$(if $(filter true,$(2)),--set ray-cluster.worker.resources.requests.memory=0,) \
-		$(if $(filter true,$(2)),--set jaeger.enabled=false,) \
-		$(if $(filter true,$(2)),--set opentelemetry-collector.enabled=false,) \
-		$(if $(filter true,$(2)),--set kube-prometheus-stack.enabled=false,) \
-		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID',) \
-		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
-		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
-		$(if $(filter true,$(2)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
+		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
+		--set console.image.tag=${CONSOLE_VERSION} \
+		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
+		$(if $(filter true,$(1)),--set ray-cluster.head.autoscaling.enableInTreeAutoscaling=false,) \
+		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.cpu=0,) \
+		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.memory=0,) \
+		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.cpu=0,) \
+		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.memory=0,) \
+		$(if $(filter true,$(1)),--set jaeger.enabled=false,) \
+		$(if $(filter true,$(1)),--set opentelemetry-collector.enabled=false,) \
+		$(if $(filter true,$(1)),--set kube-prometheus-stack.enabled=false,) \
+		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID',) \
+		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
+		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
+		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
 		--timeout 30m0s
 endef
 
 # Function to build image
-define BUILD
+define BUILD_TEST
 	@bash -c ' \
 		set -e; \
 		trap "$(MAKE) down" ERR INT TERM && \
-		$(if $(filter latest,$(1)), \
-			API_GATEWAY_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/api-gateway.git HEAD | cut -c1-7) && \
-			PIPELINE_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/pipeline-backend.git HEAD | cut -c1-7) && \
-			ARTIFACT_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/artifact-backend.git HEAD | cut -c1-7) && \
-			MODEL_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/model-backend.git HEAD | cut -c1-7) && \
-			MGMT_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/mgmt-backend.git HEAD | cut -c1-7) && \
-			CONSOLE_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/console.git HEAD | cut -c1-7) && \
-		) \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
 			--build-arg K6_VERSION=${K6_VERSION} \
 			--build-arg XK6_VERSION=${XK6_VERSION} \
 			--build-arg XK6_SQL_VERSION=${XK6_SQL_VERSION} \
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
-			--build-arg CACHE_DATE="$(if $(filter latest,$(1)),$(shell date +%Y%m%d%H%M%S),$(shell date))" \
-			$(if $(filter latest,$(1)), \
-			--build-arg API_GATEWAY_COMMIT_SHORT_SHA=$$API_GATEWAY_COMMIT_SHORT_SHA \
-			--build-arg PIPELINE_BACKEND_COMMIT_SHORT_SHA=$$PIPELINE_BACKEND_COMMIT_SHORT_SHA \
-			--build-arg ARTIFACT_BACKEND_COMMIT_SHORT_SHA=$$ARTIFACT_BACKEND_COMMIT_SHORT_SHA \
-			--build-arg MODEL_BACKEND_COMMIT_SHORT_SHA=$$MODEL_BACKEND_COMMIT_SHORT_SHA \
-			--build-arg MGMT_BACKEND_COMMIT_SHORT_SHA=$$MGMT_BACKEND_COMMIT_SHORT_SHA \
-			--build-arg CONSOLE_COMMIT_SHORT_SHA=$$CONSOLE_COMMIT_SHORT_SHA) \
-			$(if $(filter release,$(1)), \
+			--build-arg CACHE_DATE="$(shell date)" \
 			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
 			--build-arg ARTIFACT_BACKEND_VERSION=${ARTIFACT_BACKEND_VERSION} \
 			--build-arg MODEL_BACKEND_VERSION=${MODEL_BACKEND_VERSION} \
 			--build-arg MGMT_BACKEND_VERSION=${MGMT_BACKEND_VERSION} \
-			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION}) \
-			--target $(1) \
-			-t ${INSTILL_CORE_IMAGE_NAME}:$(1) . && \
-		if [ "$(BUILD_ALL_FROM_SOURCE)" = "true" ]; then \
-			docker run --rm \
-				-v /var/run/docker.sock:/var/run/docker.sock \
-				-v ./.env:/instill-core/.env \
-				-v ./docker-compose-build.yml:/instill-core/docker-compose-build.yml \
-				--name ${CONTAINER_BUILD_NAME}-$(1) \
-				${INSTILL_CORE_IMAGE_NAME}:$(1) /bin/sh -c " \
-					API_GATEWAY_SERVICE_NAME=$(API_GATEWAY_HOST) \
-					PIPELINE_BACKEND_SERVICE_NAME=$(PIPELINE_BACKEND_HOST) \
-					ARTIFACT_BACKEND_SERVICE_NAME=$(ARTIFACT_BACKEND_HOST) \
-					MODEL_BACKEND_SERVICE_NAME=$(MODEL_BACKEND_HOST) \
-					MGMT_BACKEND_SERVICE_NAME=$(MGMT_BACKEND_HOST) \
-					$(if $(filter release,$(1)), \
-					API_GATEWAY_VERSION=$(API_GATEWAY_VERSION) \
-					API_GATEWAY_SERVICE_VERSION=$(API_GATEWAY_VERSION) \
-					PIPELINE_BACKEND_VERSION=$(PIPELINE_BACKEND_VERSION) \
-					PIPELINE_BACKEND_SERVICE_VERSION=$(PIPELINE_BACKEND_VERSION) \
-					ARTIFACT_BACKEND_VERSION=$(ARTIFACT_BACKEND_VERSION) \
-					ARTIFACT_BACKEND_SERVICE_VERSION=$(ARTIFACT_BACKEND_VERSION) \
-					MODEL_BACKEND_VERSION=$(MODEL_BACKEND_VERSION) \
-					MODEL_BACKEND_SERVICE_VERSION=$(MODEL_BACKEND_VERSION) \
-					MGMT_BACKEND_VERSION=$(MGMT_BACKEND_VERSION) \
-					MGMT_BACKEND_SERVICE_VERSION=$(MGMT_BACKEND_VERSION) \
-					CONSOLE_VERSION=$(CONSOLE_VERSION)) \
-					$(if $(filter latest,$(1)), \
-					API_GATEWAY_VERSION=latest \
-					API_GATEWAY_SERVICE_VERSION=$$API_GATEWAY_COMMIT_SHORT_SHA \
-					PIPELINE_BACKEND_VERSION=latest \
-					PIPELINE_BACKEND_SERVICE_VERSION=$$PIPELINE_BACKEND_COMMIT_SHORT_SHA \
-					ARTIFACT_BACKEND_VERSION=latest \
-					ARTIFACT_BACKEND_SERVICE_VERSION=$$ARTIFACT_BACKEND_COMMIT_SHORT_SHA \
-					MODEL_BACKEND_VERSION=latest \
-					MODEL_BACKEND_SERVICE_VERSION=$$MODEL_BACKEND_COMMIT_SHORT_SHA \
-					MGMT_BACKEND_VERSION=latest \
-					MGMT_BACKEND_SERVICE_VERSION=$$MGMT_BACKEND_COMMIT_SHORT_SHA \
-					CONSOLE_VERSION=latest) \
-					docker compose -f docker-compose-build.yml build --pull \
-				"; \
-		fi \
+			--build-arg CONSOLE_VERSION=${CONSOLE_VERSION} \
+			-t ${INSTILL_CORE_IMAGE_NAME}:${GIT_COMMIT_SHA} . \
 	'
 endef
 
 # Function to remove containers
 define REMOVE_CONTAINERS
-	@docker rm -f ${CONTAINER_BUILD_NAME}-latest ${CONTAINER_BUILD_NAME}-release >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-latest ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-release >/dev/null 2>&1
-	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-latest ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-release >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}:${GIT_COMMIT_SHA} >/dev/null 2>&1
+	@docker rm -f ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm:${GIT_COMMIT_SHA} >/dev/null 2>&1
 endef
 
 # Function to cleanup helm release
@@ -158,11 +100,11 @@ endef
 
 # Function to run backend integration test
 define COMPOSE_INTEGRATION_TEST
-	@$(MAKE) $(1) EDITION=docker-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
+	@$(MAKE) compose-run EDITION=docker-ce:test ENV_SECRETS_COMPONENT=${ENV_SECRETS_COMPONENT_TEST}
 	@docker run --rm \
 		--network ${COMPOSE_NETWORK_NAME} \
-		--name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-$(2) \
-		${INSTILL_CORE_IMAGE_NAME}:$(2) /bin/sh -c " \
+		--name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-${GIT_COMMIT_SHA} \
+		${INSTILL_CORE_IMAGE_NAME}:${GIT_COMMIT_SHA} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT} DB_HOST=pg-sql' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=${API_GATEWAY_HOST}:${API_GATEWAY_PORT}' \
@@ -172,7 +114,7 @@ endef
 
 # Function to run Helm backend integration test
 define HELM_INTEGRATION_TEST
-	@$(MAKE) helm-$(1) CI=true
+	@$(MAKE) helm CI=true
 	@bash -c 'while [[ "$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core -o jsonpath={..status.phase})" != *"Running"* ]]; do \
 		echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"; \
 		sleep 10; \
@@ -181,7 +123,7 @@ define HELM_INTEGRATION_TEST
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
 	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@echo "Waiting for port-forwarding to be ready..."
-	@timeout=60; \
+	@timeout=120; \
 		while ! nc -z localhost ${API_GATEWAY_PORT} >/dev/null 2>&1 || ! nc -z localhost ${POSTGRESQL_PORT} >/dev/null 2>&1; do \
 			if [ $$timeout -le 0 ]; then \
 				echo "Timeout waiting for port-forwarding"; \
@@ -192,26 +134,29 @@ define HELM_INTEGRATION_TEST
 		done;
 	@echo "Port-forwarding is ready"
 	@if [ "$(UNAME_S)" = "Darwin" ]; then \
-		docker run --rm --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-$(1) ${INSTILL_CORE_IMAGE_NAME}:$(1) /bin/sh -c " \
+		docker run --rm --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-${GIT_COMMIT_SHA} ${INSTILL_CORE_IMAGE_NAME}:${GIT_COMMIT_SHA} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT} DB_HOST=host.docker.internal' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=host.docker.internal:${API_GATEWAY_PORT}' \
 		"; \
 	else \
-		docker run --rm --network host --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-$(1) ${INSTILL_CORE_IMAGE_NAME}:$(1) /bin/sh -c " \
+		docker run --rm --network host --name ${CONTAINER_COMPOSE_INTEGRATION_TEST_NAME}-helm-${GIT_COMMIT_SHA} ${INSTILL_CORE_IMAGE_NAME}:${GIT_COMMIT_SHA} /bin/sh -c " \
 			/bin/sh -c 'cd mgmt-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd pipeline-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' && \
 			/bin/sh -c 'cd model-backend && make integration-test API_GATEWAY_URL=localhost:${API_GATEWAY_PORT}' \
 		"; \
 	fi
 	@$(MAKE) down
+	@echo "Cleaning up port-forwarding processes on ports ${API_GATEWAY_PORT} and ${POSTGRESQL_PORT}..."
+	@lsof -ti:${API_GATEWAY_PORT} | xargs -r kill -9 2>/dev/null || true
+	@lsof -ti:${POSTGRESQL_PORT} | xargs -r kill -9 2>/dev/null || true
 endef
 
 # Function to run model deployment integration test
 define MODEL_INTEGRATION_TEST
 	@EDITION=docker-ce:test docker compose up registry -d
 	@$(MAKE) build-and-push-models
-	@$(MAKE) $(1) EDITION=docker-ce:test INITMODEL_ENABLED=true INITMODEL_INVENTORY=${PWD}/integration-test/models/inventory.json
+	@$(MAKE) compose-run EDITION=docker-ce:test INITMODEL_ENABLED=true INITMODEL_INVENTORY=${PWD}/integration-test/models/inventory.json
 	@$(MAKE) wait-models-deploy
 	@$(MAKE) down
 endef
