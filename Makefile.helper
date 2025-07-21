@@ -114,7 +114,7 @@ endef
 
 # Function to run Helm backend integration test
 define HELM_INTEGRATION_TEST
-	@$(MAKE) helm CI=true
+	@$(MAKE) helm-run CI=true
 	@bash -c 'while [[ "$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core -o jsonpath={..status.phase})" != *"Running"* ]]; do \
 		echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"; \
 		sleep 10; \
