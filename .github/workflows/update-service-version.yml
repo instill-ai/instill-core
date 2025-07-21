@@ -96,7 +96,7 @@ jobs:
             new_full_hash=$(git rev-parse "$new_version")
 
             # Get commit messages between the two versions
-            commit_messages=$(git log --pretty=format:"- %s" "$current_full_hash..$new_full_hash")
+            commit_messages=$(git log --pretty=format:"- %s" "$current_full_hash..$new_full_hash" | sed -E 's/ \(#([0-9]+)\)$/ (instill-ai\/${{ steps.service-config.outputs.repository }}#\1)/')
 
             # Handle case where there are no new commits
             if [ -z "$commit_messages" ]; then
