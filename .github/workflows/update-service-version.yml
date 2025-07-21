@@ -1,0 +1,151 @@
+name: Update Service Version
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        type: string
+        description: The service to update the version for
+        required: true
+    secrets:
+      botGitHubToken:
+        required: true
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate service input and set variables
+        id: service-config
+        run: |
+          service="${{ inputs.service }}"
+          valid_services=("mgmt" "pipeline" "model" "artifact" "console" "ray")
+          
+          if [[ ! " ${valid_services[@]} " =~ " ${service} " ]]; then
+            echo "Error: Invalid service '${service}'. Must be one of: ${valid_services[*]}"
+            exit 1
+          fi
+          
+          echo "Valid service: ${service}"
+          
+          # Set repository and version variable based on service
+          case "${service}" in
+            "mgmt")
+              echo "repository=mgmt-backend" >> $GITHUB_OUTPUT
+              echo "version_var=MGMT_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              ;;
+            "pipeline")
+              echo "repository=pipeline-backend" >> $GITHUB_OUTPUT
+              echo "version_var=PIPELINE_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              ;;
+            "artifact")
+              echo "repository=artifact-backend" >> $GITHUB_OUTPUT
+              echo "version_var=ARTIFACT_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              ;;
+            "model")
+              echo "repository=model-backend" >> $GITHUB_OUTPUT
+              echo "version_var=MODEL_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              ;;
+            "ray")
+              echo "repository=ray" >> $GITHUB_OUTPUT
+              echo "version_var=RAY_VERSION" >> $GITHUB_OUTPUT
+              ;;
+            "console")
+              echo "repository=console" >> $GITHUB_OUTPUT
+              echo "version_var=CONSOLE_VERSION" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Checkout instill-core repository
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+          token: ${{ secrets.botGitHubToken }}
+
+      - name: Get current version from instill-core
+        id: current-version
+        run: |
+          current_version=$(grep "${{ steps.service-config.outputs.version_var }}=" .env | cut -d'=' -f2)
+          # Add 'v' prefix if current_version follows semantic versioning pattern (x.y.z)
+          if [[ $current_version =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            current_version="v$current_version"
+          fi
+          echo "current_version=$current_version" >> $GITHUB_OUTPUT
+          echo "Current ${{ steps.service-config.outputs.version_var }} in instill-core: $current_version"
+
+      - name: Checkout service repository
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/${{ steps.service-config.outputs.repository }}
+          token: ${{ secrets.botGitHubToken }}
+          fetch-depth: 0
+
+      - name: Get short commit hash
+        id: commit-hash
+        run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Get commit messages between versions
+        id: commit-messages
+        run: |
+          current_version="${{ steps.current-version.outputs.current_version }}"
+          new_version="${{ steps.commit-hash.outputs.short_hash }}"
+
+          # Get full commit hashes
+          if [ -n "$current_version" ] && git rev-parse --verify "$current_version" >/dev/null 2>&1; then
+            current_full_hash=$(git rev-parse "$current_version")
+            new_full_hash=$(git rev-parse "$new_version")
+
+            # Get commit messages between the two versions
+            commit_messages=$(git log --pretty=format:"- %s" "$current_full_hash..$new_full_hash")
+
+            # Handle case where there are no new commits
+            if [ -z "$commit_messages" ]; then
+              commit_messages="No new commits since last update"
+            fi
+          else
+            commit_messages="- Initial version update"
+          fi
+
+          # Use EOF delimiter to handle multiline output
+          {
+            echo "commit_messages<<EOF"
+            echo "$commit_messages"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Checkout instill-core repository
+        uses: actions/checkout@v4
+        with:
+          repository: instill-ai/instill-core
+          token: ${{ secrets.botGitHubToken }}
+
+
+      - name: Update service version
+        run: |
+          # Update the service version in .env file
+          sed -i "s/${{ steps.service-config.outputs.version_var }}=.*/${{ steps.service-config.outputs.version_var }}=${{ steps.commit-hash.outputs.short_hash }}/" .env
+
+          # Verify the change
+          echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.commit-hash.outputs.short_hash }}"
+          grep "${{ steps.service-config.outputs.version_var }}=" .env
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.botGitHubToken }}
+          commit-message: "chore(env): update ${{ steps.service-config.outputs.version_var }}"
+          title: "chore(env): update ${{ steps.service-config.outputs.version_var }}"
+          body: |
+            Because
+            - The version of the ${{ steps.service-config.outputs.repository }} service is not updated in the instill-core repository.
+
+            This commit
+            - updates the `${{ steps.service-config.outputs.version_var }}` in the `.env` file from `${{ steps.current-version.outputs.current_version }}` to `${{ steps.commit-hash.outputs.short_hash }}`.
+
+            ## Changes in ${{ steps.service-config.outputs.repository }}
+            ${{ steps.commit-messages.outputs.commit_messages }}
+
+          branch: chore/update-${{ inputs.service }}-version
+          base: main
+          draft: false
+          delete-branch: true
