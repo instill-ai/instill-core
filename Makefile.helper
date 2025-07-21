@@ -65,12 +65,12 @@ define BUILD
 		set -e; \
 		trap "$(MAKE) down" ERR INT TERM && \
 		$(if $(filter latest,$(1)), \
-			API_GATEWAY_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/api-gateway.git HEAD | cut -c1-7) && \
-			PIPELINE_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/pipeline-backend.git HEAD | cut -c1-7) && \
-			ARTIFACT_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/artifact-backend.git HEAD | cut -c1-7) && \
-			MODEL_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/model-backend.git HEAD | cut -c1-7) && \
-			MGMT_BACKEND_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/mgmt-backend.git HEAD | cut -c1-7) && \
-			CONSOLE_COMMIT_SHORT_HASH=$$(git ls-remote https://github.com/instill-ai/console.git HEAD | cut -c1-7) && \
+			API_GATEWAY_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/api-gateway.git HEAD | cut -c1-7) && \
+			PIPELINE_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/pipeline-backend.git HEAD | cut -c1-7) && \
+			ARTIFACT_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/artifact-backend.git HEAD | cut -c1-7) && \
+			MODEL_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/model-backend.git HEAD | cut -c1-7) && \
+			MGMT_BACKEND_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/mgmt-backend.git HEAD | cut -c1-7) && \
+			CONSOLE_COMMIT_SHORT_SHA=$$(git ls-remote https://github.com/instill-ai/console.git HEAD | cut -c1-7) && \
 		) \
 		docker build --progress plain \
 			--build-arg ALPINE_VERSION=${ALPINE_VERSION} \
@@ -80,12 +80,12 @@ define BUILD
 			--build-arg XK6_SQL_POSTGRES_VERSION=${XK6_SQL_POSTGRES_VERSION} \
 			--build-arg CACHE_DATE="$(if $(filter latest,$(1)),$(shell date +%Y%m%d%H%M%S),$(shell date))" \
 			$(if $(filter latest,$(1)), \
-			--build-arg API_GATEWAY_COMMIT_SHORT_HASH=$$API_GATEWAY_COMMIT_SHORT_HASH \
-			--build-arg PIPELINE_BACKEND_COMMIT_SHORT_HASH=$$PIPELINE_BACKEND_COMMIT_SHORT_HASH \
-			--build-arg ARTIFACT_BACKEND_COMMIT_SHORT_HASH=$$ARTIFACT_BACKEND_COMMIT_SHORT_HASH \
-			--build-arg MODEL_BACKEND_COMMIT_SHORT_HASH=$$MODEL_BACKEND_COMMIT_SHORT_HASH \
-			--build-arg MGMT_BACKEND_COMMIT_SHORT_HASH=$$MGMT_BACKEND_COMMIT_SHORT_HASH \
-			--build-arg CONSOLE_COMMIT_SHORT_HASH=$$CONSOLE_COMMIT_SHORT_HASH) \
+			--build-arg API_GATEWAY_COMMIT_SHORT_SHA=$$API_GATEWAY_COMMIT_SHORT_SHA \
+			--build-arg PIPELINE_BACKEND_COMMIT_SHORT_SHA=$$PIPELINE_BACKEND_COMMIT_SHORT_SHA \
+			--build-arg ARTIFACT_BACKEND_COMMIT_SHORT_SHA=$$ARTIFACT_BACKEND_COMMIT_SHORT_SHA \
+			--build-arg MODEL_BACKEND_COMMIT_SHORT_SHA=$$MODEL_BACKEND_COMMIT_SHORT_SHA \
+			--build-arg MGMT_BACKEND_COMMIT_SHORT_SHA=$$MGMT_BACKEND_COMMIT_SHORT_SHA \
+			--build-arg CONSOLE_COMMIT_SHORT_SHA=$$CONSOLE_COMMIT_SHORT_SHA) \
 			$(if $(filter release,$(1)), \
 			--build-arg API_GATEWAY_VERSION=${API_GATEWAY_VERSION} \
 			--build-arg PIPELINE_BACKEND_VERSION=${PIPELINE_BACKEND_VERSION} \
@@ -121,15 +121,15 @@ define BUILD
 					CONSOLE_VERSION=$(CONSOLE_VERSION)) \
 					$(if $(filter latest,$(1)), \
 					API_GATEWAY_VERSION=latest \
-					API_GATEWAY_SERVICE_VERSION=$$API_GATEWAY_COMMIT_SHORT_HASH \
+					API_GATEWAY_SERVICE_VERSION=$$API_GATEWAY_COMMIT_SHORT_SHA \
 					PIPELINE_BACKEND_VERSION=latest \
-					PIPELINE_BACKEND_SERVICE_VERSION=$$PIPELINE_BACKEND_COMMIT_SHORT_HASH \
+					PIPELINE_BACKEND_SERVICE_VERSION=$$PIPELINE_BACKEND_COMMIT_SHORT_SHA \
 					ARTIFACT_BACKEND_VERSION=latest \
-					ARTIFACT_BACKEND_SERVICE_VERSION=$$ARTIFACT_BACKEND_COMMIT_SHORT_HASH \
+					ARTIFACT_BACKEND_SERVICE_VERSION=$$ARTIFACT_BACKEND_COMMIT_SHORT_SHA \
 					MODEL_BACKEND_VERSION=latest \
-					MODEL_BACKEND_SERVICE_VERSION=$$MODEL_BACKEND_COMMIT_SHORT_HASH \
+					MODEL_BACKEND_SERVICE_VERSION=$$MODEL_BACKEND_COMMIT_SHORT_SHA \
 					MGMT_BACKEND_VERSION=latest \
-					MGMT_BACKEND_SERVICE_VERSION=$$MGMT_BACKEND_COMMIT_SHORT_HASH \
+					MGMT_BACKEND_SERVICE_VERSION=$$MGMT_BACKEND_COMMIT_SHORT_SHA \
 					CONSOLE_VERSION=latest) \
 					docker compose -f docker-compose-build.yml build --pull \
 				"; \
