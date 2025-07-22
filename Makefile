@@ -126,17 +126,17 @@ integration-test:                   ## Run all integration tests (compose, helm,
 
 .PHONY: model-integration-test
 model-integration-test:       	 	# Run integration test on the Instill Core to build, push and deploy dummy models
-	$(call BUILD_TEST)
+	$(call BUILD_DEV)
 	$(call MODEL_INTEGRATION_TEST)
 
 .PHONY: compose-integration-test
 compose-integration-test:			# Run integration test on the Instill Core Docker Compose
-	$(call BUILD_TEST)
+	$(call BUILD_DEV)
 	$(call COMPOSE_INTEGRATION_TEST)
 
 .PHONY: helm-integration-test
 helm-integration-test:              # Run integration test on the Instill Core Helm
-	$(call BUILD_TEST)
+	$(call BUILD_DEV)
 	$(call HELM_INTEGRATION_TEST)
 
 .PHONY: build-and-push-models
