@@ -126,16 +126,6 @@ Simply run:
 make down
 ```
 
-### Build the local images
-
-We use Docker multi-stage builds to create `instill/instill-core:{latest,release}` images, which utilize Docker-in-Docker (dind) to build all the images of **🔮 Instill Core** defined in the [docker-compose-build.yml](../docker-compose-build.yml) compose file.
-
-You can build all the service images by running:
-
-```shell
-make build-{latest,release} BUILD_ALL_FROM_SOURCE=true
-```
-
 ## Configurations
 
 ### Backend Services
