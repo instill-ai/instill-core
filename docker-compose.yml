@@ -109,7 +109,13 @@ services:
       retries: 60
       start_period: 15s
     depends_on:
-      pipeline_backend_worker:
+      temporal:
+        condition: service_healthy
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      openfga:
         condition: service_started
 
   pipeline_backend_worker:
@@ -146,14 +152,8 @@ services:
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./pipeline-backend-worker
     depends_on:
-      temporal:
+      pipeline_backend:
         condition: service_healthy
-      pg_sql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      openfga:
-        condition: service_started
 
   artifact_backend:
     pull_policy: missing
@@ -343,7 +343,13 @@ services:
       retries: 60
       start_period: 120s
     depends_on:
-      mgmt_backend_worker:
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+      openfga:
         condition: service_started
 
   mgmt_backend_worker:
@@ -367,14 +373,8 @@ services:
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./mgmt-backend-worker
     depends_on:
-      pg_sql:
+      mgmt_backend:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      temporal:
-        condition: service_healthy
-      openfga:
-        condition: service_started
 
   console:
     pull_policy: missing
