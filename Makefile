@@ -59,7 +59,7 @@ run: compose-run	## Alias for compose-run: Launch all services by docker compose
 
 .PHONY: compose-run
 compose-run:	## Launch all services by docker compose
-	$(call ensure_user_uid)
+	$(call ENSURE_USER_UID)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS),${COMPOSE_FILES})
 else
@@ -68,7 +68,7 @@ endif
 
 .PHONY: compose-dev
 compose-dev:	## Lunch all services with docker compose dev profile
-	$(call ensure_user_uid)
+	$(call ENSURE_USER_UID)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
 	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS) COMPOSE_PROFILES=${COMPOSE_FILES} -f docker-compose-dev.yml)
 else
@@ -161,4 +161,4 @@ wait-models-deploy:  # Helper target to wait for model deployment
 .PHONY: help
 help:       	## Show this help
 	@printf "\nMake Application with Instill Core\n"
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

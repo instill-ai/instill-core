@@ -1,7 +1,7 @@
 # Helper functions for common make targets
 
 # Function to ensure user_uid exists
-define ensure_user_uid
+define ENSURE_USER_UID
 	@if [ ! -f "$$(echo ${SYSTEM_CONFIG_PATH}/user_uid)" ]; then \
 		mkdir -p ${SYSTEM_CONFIG_PATH} && \
 		uuidgen > ${SYSTEM_CONFIG_PATH}/user_uid; \
