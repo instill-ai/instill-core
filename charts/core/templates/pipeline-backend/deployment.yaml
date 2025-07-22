@@ -110,6 +110,9 @@ spec:
             - name: config
               mountPath: {{ .Values.pipelineBackend.configPath }}
               subPath: config.yaml
+            {{- with .Values.pipelineBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           securityContext:
             runAsUser: 0
             runAsGroup: 0

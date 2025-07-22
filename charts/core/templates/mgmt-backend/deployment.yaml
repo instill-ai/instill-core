@@ -115,6 +115,9 @@ spec:
             - name: config
               mountPath: {{ .Values.mgmtBackend.configPath }}
               subPath: config.yaml
+            {{- with .Values.mgmtBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- with .Values.mgmtBackend.extraEnv }}
           env:
             {{- toYaml . | nindent 12 }}
