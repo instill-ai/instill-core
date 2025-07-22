@@ -58,8 +58,8 @@ define HELM
 		--timeout 30m0s
 endef
 
-# Function to build image
-define BUILD_TEST
+# Function to build dev image
+define BUILD_DEV
 	@bash -c ' \
 		set -e; \
 		trap "$(MAKE) down" ERR INT TERM && \

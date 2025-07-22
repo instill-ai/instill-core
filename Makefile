@@ -118,7 +118,7 @@ top:			## Display all running service processes
 
 .PHONY: integration-test
 integration-test:                   ## Run all integration tests (compose, helm, and model)
-	$(call BUILD_TEST)
+	$(call BUILD_DEV)
 	$(call MODEL_INTEGRATION_TEST)
 	$(call COMPOSE_INTEGRATION_TEST)
 	$(call HELM_INTEGRATION_TEST)
