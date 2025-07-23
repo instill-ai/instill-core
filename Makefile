@@ -19,11 +19,9 @@ ifeq ($(shell nvidia-smi 2>/dev/null 1>&2; echo $$?),0)
 	ifndef NVIDIA_VISIBLE_DEVICES
 		NVIDIA_VISIBLE_DEVICES := all
 	endif
-	RAY_LATEST_TAG := latest-gpu
 	RAY_RELEASE_TAG := ${RAY_VERSION}-gpu
 else
 	NVIDIA_GPU_AVAILABLE := false
-	RAY_LATEST_TAG := latest
 	RAY_RELEASE_TAG := ${RAY_VERSION}
 endif
 
@@ -36,7 +34,6 @@ UNAME_S := $(shell uname -s)
 
 INSTILL_CORE_IMAGE_NAME := instill/instill-core
 
-CONTAINER_BUILD_NAME := instill-core-build
 CONTAINER_COMPOSE_INTEGRATION_TEST_NAME := instill-core-compose-integration-test
 
 HELM_NAMESPACE := instill-ai
@@ -50,43 +47,37 @@ ENV_SECRETS_CONSOLE := .env.secrets.console
 # Configuration directory path
 CONFIG_DIR_PATH := ./configs
 
+GIT_COMMIT_SHA := $(shell git rev-parse --short HEAD 2>/dev/null)
+
 #============================================================================
 
 include Makefile.helper
 
-.PHONY: all
-all:			## Launch all services with their up-to-date release version
-	$(call ensure_user_uid)
+.PHONY: run
+run: compose-run	## Alias for compose-run: Launch all services by docker compose
+
+
+.PHONY: compose-run
+compose-run:	## Launch all services by docker compose
+	$(call ENSURE_USER_UID)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,release),${COMPOSE_FILES})
+	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS),${COMPOSE_FILES})
 else
-	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,release),${COMPOSE_FILES})
+	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS),${COMPOSE_FILES})
 endif
 
-.PHONY: latest
-latest:			## Lunch all dependent services with their latest codebase
-	$(call ensure_user_uid)
+.PHONY: compose-dev
+compose-dev:	## Lunch all services with docker compose dev profile
+	$(call ENSURE_USER_UID)
 ifeq (${NVIDIA_GPU_AVAILABLE}, true)
-	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS,latest),${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_GPU,$(call GET_COMPOSE_PARAMS) COMPOSE_PROFILES=${COMPOSE_FILES} -f docker-compose-dev.yml)
 else
-	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS,latest),${COMPOSE_FILES} -f docker-compose-latest.yml)
+	$(call COMPOSE_CPU,$(call GET_COMPOSE_PARAMS) COMPOSE_PROFILES=${COMPOSE_FILES} -f docker-compose-dev.yml)
 endif
 
-.PHONY: helm-latest
-helm-latest:
-	$(call HELM,latest,$(CI))
-
-.PHONY: helm-release
-helm-release:
-	$(call HELM,release,$(CI))
-
-.PHONY: build-latest
-build-latest:				## Build latest image. Set BUILD_ALL_FROM_SOURCE=true to build all service images from source.
-	$(call BUILD,latest)
-
-.PHONY: build-release
-build-release:				## Build release image. Set BUILD_ALL_FROM_SOURCE=true to build all service images from source.
-	$(call BUILD,release)
+.PHONY: helm-run
+helm-run:		## Launch all services by helm
+	$(call HELM,$(CI))
 
 .PHONY: down
 down:			## Stop all services and remove all service containers and volumes
@@ -125,29 +116,28 @@ ps:				## List all service containers
 top:			## Display all running service processes
 	@EDITION= DEFAULT_USER_UID= docker compose top
 
-.PHONY: model-integration-test-latest
-model-integration-test-latest:       	 	# Run integration test on the latest Instill Core to build, push and deploy dummy models
-	$(call MODEL_INTEGRATION_TEST,latest)
+.PHONY: integration-test
+integration-test:                   ## Run all integration tests (compose, helm, and model)
+	$(call BUILD_DEV)
+	$(call MODEL_INTEGRATION_TEST)
+	$(call COMPOSE_INTEGRATION_TEST)
+	$(call HELM_INTEGRATION_TEST)
 
-.PHONY: model-integration-test-release
-model-integration-test-release:       	 	# Run integration test on the released Instill Core to build, push and deploy dummy models
-	$(call MODEL_INTEGRATION_TEST,all)
 
-.PHONY: compose-integration-test-latest
-compose-integration-test-latest:			# Run integration test on the latest Instill Core Docker Compose
-	$(call COMPOSE_INTEGRATION_TEST,latest,latest)
+.PHONY: model-integration-test
+model-integration-test:       	 	# Run integration test on the Instill Core to build, push and deploy dummy models
+	$(call BUILD_DEV)
+	$(call MODEL_INTEGRATION_TEST)
 
-.PHONY: compose-integration-test-release
-compose-integration-test-release:			# Run integration test on the released Instill Core Docker Compose
-	$(call COMPOSE_INTEGRATION_TEST,all,release)
+.PHONY: compose-integration-test
+compose-integration-test:			# Run integration test on the Instill Core Docker Compose
+	$(call BUILD_DEV)
+	$(call COMPOSE_INTEGRATION_TEST)
 
-.PHONY: helm-integration-test-latest
-helm-integration-test-latest:                       # Run integration test on the latest Instill Core Helm
-	$(call HELM_INTEGRATION_TEST,latest)
-
-.PHONY: helm-integration-test-release
-helm-integration-test-release:                       # Run integration test on the released Instill Core Helm
-	$(call HELM_INTEGRATION_TEST,release)
+.PHONY: helm-integration-test
+helm-integration-test:              # Run integration test on the Instill Core Helm
+	$(call BUILD_DEV)
+	$(call HELM_INTEGRATION_TEST)
 
 .PHONY: build-and-push-models
 build-and-push-models:	# Helper target to build and push models
@@ -171,4 +161,4 @@ wait-models-deploy:  # Helper target to wait for model deployment
 .PHONY: help
 help:       	## Show this help
 	@printf "\nMake Application with Instill Core\n"
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m (default: help)\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

@@ -8,22 +8,7 @@ on:
       - main
 
 jobs:
-  determine-target:
-    runs-on: ubuntu-latest
-    outputs:
-      target: ${{ steps.set-target.outputs.target }}
-    steps:
-      - name: Set target based on branch
-        id: set-target
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/release-please--branches--main" ]]; then
-            echo "target=all" >> $GITHUB_OUTPUT
-          else
-            echo "target=latest" >> $GITHUB_OUTPUT
-          fi
-
   make:
-    needs: determine-target
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
@@ -50,21 +35,14 @@ jobs:
         with:
           envFile: .env
 
-      - name: Launch Instill Core (${{ needs.determine-target.outputs.target }})
+      - name: Launch Instill Core
         run: |
-          if [ "${{ needs.determine-target.outputs.target }}" == "latest" ]; then
-            make latest EDITION=docker-ce:test
-          elif [ "${{ needs.determine-target.outputs.target }}" == "all" ]; then
-            make all EDITION=docker-ce:test
-          else
-            echo "Invalid target: ${{ needs.determine-target.outputs.target }}"
-            exit 1
-          fi
+          make compose-run EDITION=docker-ce:test
 
       - name: List all docker containers
         run: |
           docker ps -a
-          sleep ${{ needs.determine-target.outputs.target == 'all' && '60' || '30' }}
+          sleep 60
 
       - name: Probe to Instill Core services healthcheck endpoint
         run: |
@@ -73,7 +51,7 @@ jobs:
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/model
           curl -s -o /dev/null -w ''%{http_code}'\n' http://localhost:8080/v1beta/health/artifact
 
-      - name: Tear down Instill Core (${{ needs.determine-target.outputs.target }})
+      - name: Tear down Instill Core
         if: always()
         run: |
           make down
