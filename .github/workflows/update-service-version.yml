@@ -86,7 +86,7 @@ jobs:
 
       - name: Get short commit hash
         id: commit-hash
-        run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "short_hash=$(git rev-parse --short --short=7 HEAD)" >> $GITHUB_OUTPUT
 
       - name: Get commit messages between versions
         id: commit-messages
