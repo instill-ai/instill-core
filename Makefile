@@ -47,7 +47,7 @@ ENV_SECRETS_CONSOLE := .env.secrets.console
 # Configuration directory path
 CONFIG_DIR_PATH := ./configs
 
-GIT_COMMIT_SHA := $(shell git rev-parse --short HEAD 2>/dev/null)
+GIT_COMMIT_SHA := $(shell git rev-parse --short --short=7 HEAD 2>/dev/null)
 
 #============================================================================
 
