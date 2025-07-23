@@ -68,7 +68,6 @@ services:
       - ${TEMPORAL_UI_HOST_PORT}:${TEMPORAL_UI_PORT}
 
   ray:
-    image: ${RAY_IMAGE}:${RAY_LATEST_TAG}
     ports:
       - ${RAY_DASHBOARD_HOST_PORT}:${RAY_PORT_DASHBOARD}
 
