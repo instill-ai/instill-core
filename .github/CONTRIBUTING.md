@@ -20,31 +20,31 @@ Please refer to [prerequisites section](../README.md#prerequisites) to make sure
 
 **Instill Core CE** is built with the [microservice architecture](/docs/faq#tech). We use Docker Compose for local development. Each service is nothing but a running container. Developing new features simply means to develop, containerize and deploy the new codebase.
 
-Clone the repo and launch the `latest` version of the codebase for all dependencies:
+Clone the repo and launch the system with development profile:
 
 ```shell
 # Clone and move to the instill-core repository
 git clone https://github.com/instill-ai/instill-core.git
 cd instill-core
 
-# Launch all services with their very latest versions
-make latest
+# Launch all services with development profile
+make compose-dev
 ```
 
 Once every containers are up and running, the developer can access all services through:
 
-* [`api-gateway`](https://github.com/instill-ai/api-gateway/blob/main/config/config.yaml) (`localhost:8080`)
-  * A service to handle API requests and responses.
-* [`pipeline-backend`](https://github.com/instill-ai/pipeline-backend/blob/main/config/config.yaml)(`localhost:8081`)
-  * A service for building and managing unstructured data pipelines.
-* [`artifact-backend`](https://github.com/instill-ai/artifact-backend/blob/main/config/config.yaml)(`localhost:8082`)
-  * A service for managing all RAG related resources.
-* [`model-backend`](https://github.com/instill-ai/model-backend/blob/main/config/config.yaml)(`localhost:8083`)
-  * A service for importing and serving AI models.
-* [`mgmt-backend`](https://github.com/instill-ai/mgmt-backend/blob/main/config/config.yaml)(`localhost:8084`)
-  * A service for user account management, including authentication, authorization, admission control and usage metrics.
-* [`console`](https://github.com/instill-ai/console/blob/main/.env) (`localhost:3000`)
-  * A service provides GUI user interface for accessing **Instill Core CE**.
+- [`api-gateway`](https://github.com/instill-ai/api-gateway/blob/main/config/config.yaml) (`localhost:8080`)
+  - A service to handle API requests and responses.
+- [`pipeline-backend`](https://github.com/instill-ai/pipeline-backend/blob/main/config/config.yaml)(`localhost:8081`)
+  - A service for building and managing unstructured data pipelines.
+- [`artifact-backend`](https://github.com/instill-ai/artifact-backend/blob/main/config/config.yaml)(`localhost:8082`)
+  - A service for managing all RAG related resources.
+- [`model-backend`](https://github.com/instill-ai/model-backend/blob/main/config/config.yaml)(`localhost:8083`)
+  - A service for importing and serving AI models.
+- [`mgmt-backend`](https://github.com/instill-ai/mgmt-backend/blob/main/config/config.yaml)(`localhost:8084`)
+  - A service for user account management, including authentication, authorization, admission control and usage metrics.
+- [`console`](https://github.com/instill-ai/console/blob/main/.env) (`localhost:3000`)
+  - A service provides GUI user interface for accessing **Instill Core CE**.
 
 ### Component environment variables
 
@@ -82,8 +82,7 @@ cd pipeline-backend
 #### Build and run the dev image
 
 ```shell
-make build-dev
-make dev
+make compose-dev
 ```
 
 Now, you have the development environment set up in the container, where you can compile and run the binaries, as well as run the integration tests in the container.
@@ -127,16 +126,6 @@ Simply run:
 make down
 ```
 
-### Build the local images
-
-We use Docker multi-stage builds to create `instill/instill-core:{latest,release}` images, which utilize Docker-in-Docker (dind) to build all the images of **🔮 Instill Core** defined in the [docker-compose-build.yml](../docker-compose-build.yml) compose file.
-
-You can build all the service images by running:
-
-```shell
-make build-{latest,release} BUILD_ALL_FROM_SOURCE=true
-```
-
 ## Configurations
 
 ### Backend Services
@@ -150,7 +139,6 @@ Besides, **Instill Core CE** uses [Koanf](https://github.com/knadh/koanf) librar
 To access Instill Core Console, set the host by overriding the environment variables:
 
 ```shellscript .env
-<code_block_to_apply_changes_from>
 INSTILL_CORE_HOST={HOSTNAME}
 ```
 
