@@ -33,30 +33,37 @@ jobs:
             "api-gateway")
               echo "repository=api-gateway" >> $GITHUB_OUTPUT
               echo "version_var=API_GATEWAY_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=apiGateway.image.tag" >> $GITHUB_OUTPUT
               ;;
             "mgmt")
               echo "repository=mgmt-backend" >> $GITHUB_OUTPUT
               echo "version_var=MGMT_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=mgmtBackend.image.tag" >> $GITHUB_OUTPUT
               ;;
             "pipeline")
               echo "repository=pipeline-backend" >> $GITHUB_OUTPUT
               echo "version_var=PIPELINE_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=pipelineBackend.image.tag" >> $GITHUB_OUTPUT
               ;;
             "artifact")
               echo "repository=artifact-backend" >> $GITHUB_OUTPUT
               echo "version_var=ARTIFACT_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=artifactBackend.image.tag" >> $GITHUB_OUTPUT
               ;;
             "model")
               echo "repository=model-backend" >> $GITHUB_OUTPUT
               echo "version_var=MODEL_BACKEND_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=modelBackend.image.tag" >> $GITHUB_OUTPUT
               ;;
             "ray")
               echo "repository=ray" >> $GITHUB_OUTPUT
               echo "version_var=RAY_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=ray.image.tag" >> $GITHUB_OUTPUT
               ;;
             "console")
               echo "repository=console" >> $GITHUB_OUTPUT
               echo "version_var=CONSOLE_VERSION" >> $GITHUB_OUTPUT
+              echo "helm_path=console.image.tag" >> $GITHUB_OUTPUT
               ;;
           esac
 
@@ -123,15 +130,24 @@ jobs:
           repository: instill-ai/instill-core
           token: ${{ secrets.botGitHubToken }}
 
+      - name: Install yq - portable yaml processor
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq --version
 
       - name: Update service version
         run: |
           # Update the service version in .env file
           sed -i "s/${{ steps.service-config.outputs.version_var }}=.*/${{ steps.service-config.outputs.version_var }}=${{ steps.commit-hash.outputs.short_hash }}/" .env
 
-          # Verify the change
+          # Update the image tag in helm chart values.yaml
+          yq eval '.${{ steps.service-config.outputs.helm_path }} = "${{ steps.commit-hash.outputs.short_hash }}"' -i charts/core/values.yaml
+
+          # Verify the changes
           echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.commit-hash.outputs.short_hash }}"
           grep "${{ steps.service-config.outputs.version_var }}=" .env
+          echo "Updated helm chart ${{ steps.service-config.outputs.helm_path }} to: ${{ steps.commit-hash.outputs.short_hash }}"
+          yq eval '.${{ steps.service-config.outputs.helm_path }}' charts/core/values.yaml
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -144,7 +160,8 @@ jobs:
             - The version of the ${{ steps.service-config.outputs.repository }} service is not updated in the instill-core repository.
 
             This commit
-            - updates the `${{ steps.service-config.outputs.version_var }}` in the `.env` file from `${{ steps.current-version.outputs.current_version }}` to `${{ steps.commit-hash.outputs.short_hash }}`.
+            - updates the `${{ steps.service-config.outputs.version_var }}` in the `.env` file to `${{ steps.commit-hash.outputs.short_hash }}`.
+            - updates the `${{ steps.service-config.outputs.helm_path }}` in the helm chart values.yaml file to `${{ steps.commit-hash.outputs.short_hash }}`.
 
             ## Changes in ${{ steps.service-config.outputs.repository }}
             ${{ steps.commit-messages.outputs.commit_messages }}
