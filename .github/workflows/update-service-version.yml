@@ -58,7 +58,7 @@ jobs:
             "ray")
               echo "repository=ray" >> $GITHUB_OUTPUT
               echo "version_var=RAY_VERSION" >> $GITHUB_OUTPUT
-              echo "helm_path=ray.image.tag" >> $GITHUB_OUTPUT
+              echo "helm_path=ray-cluster.image.tag" >> $GITHUB_OUTPUT
               ;;
             "console")
               echo "repository=console" >> $GITHUB_OUTPUT
