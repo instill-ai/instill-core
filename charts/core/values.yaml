@@ -119,7 +119,6 @@ expose:
       temporal:
     # Annotations on the LoadBalancer service
     annotations: {}
-
 # -- The external URL for Instill Core services. It is used to
 # populate the API endpoints showed on the console
 #
@@ -134,7 +133,6 @@ expose:
 # If Instill Core is deployed behind a proxy, set it as the URL of the proxy (without protocol and port)
 apiGatewayURL: http://localhost:8080
 consoleURL: http://localhost:3000
-
 # -- The internal TLS used for Core components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
 internalTLS:
@@ -195,7 +193,6 @@ internalTLS:
     crt: ""
     # Content of ray's TLS key file, only available when `certSource` is "manual"
     key: ""
-
 # -- The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.
 # Specify another StorageClass in the "storageClass" or set "existingClaim"
@@ -245,7 +242,6 @@ persistence:
       accessMode: ReadWriteOnce
       size: 100Gi
       annotations: {}
-
 # -- The usage collector configuration
 usage:
   usageidentifieruid:
@@ -253,7 +249,6 @@ usage:
   tlsenabled: true
   host: usage.instill-ai.com
   port: 443
-
 # -- The configuration of api-gateway
 apiGateway:
   # -- The image of api-gateway
@@ -320,13 +315,12 @@ apiGateway:
     spec:
       minAvailable:
       maxUnavailable:
-
 # -- The configuration of mgmt-backend
 mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: de4d6de
+    tag: 40bf86b
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -401,7 +395,6 @@ mgmtBackend:
     clientKey:
     serverName:
     insecureSkipVerify:
-
 # -- The configuration of pipeline-backend
 pipelineBackend:
   # -- The image of pipeline-backend
@@ -492,7 +485,6 @@ pipelineBackend:
     password: minioadmin
     bucketname: instill-ai-pipeline
     secure: false
-
 # -- The configuration of pipeline-backend-worker
 pipelineBackendWorker:
   # -- Annotation for deployment
@@ -543,7 +535,6 @@ pipelineBackendWorker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
 # -- The configuration of model-backend
 modelBackend:
   # -- The image of model-backend
@@ -641,7 +632,6 @@ modelBackend:
     password: minioadmin
     bucketname: instill-ai-model
     secure: false
-
 # -- The configuration of artifact-backend
 artifactBackend:
   # -- The image of artifact-backend
@@ -721,7 +711,6 @@ artifactBackend:
   numberOfWorkers: 20
   blob:
     hostport: http://localhost:8080
-
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
@@ -837,7 +826,6 @@ openfga:
     spec:
       minAvailable:
       maxUnavailable:
-
 # -- The configuration of registry
 registry:
   enabled: true
@@ -974,7 +962,6 @@ registry:
         idletimeout: 300s
       tls:
         enabled: false
-
 # -- The configuration of PostgreSQL
 database:
   # -- If external database is used, set "enabled" to false
@@ -1297,6 +1284,7 @@ ray-cluster:
 
 
 
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
 
@@ -1371,8 +1359,10 @@ ray-cluster:
 
 
 
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi; while true; do
+
 
 
 
