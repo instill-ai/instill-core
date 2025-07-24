@@ -71,6 +71,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: instill-ai/instill-core
+          branch: huitang/ins-8272-4
           token: ${{ secrets.botGitHubToken }}
 
       - name: Get current version from instill-core
