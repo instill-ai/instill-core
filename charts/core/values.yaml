@@ -320,7 +320,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: de4d6de
+    tag: 34af5c3
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1256,9 +1256,27 @@ ray-cluster:
           command:
             - "/bin/bash"
             - "-c"
-            - |
-              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
-              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+            - >
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
               fi;
       preStop:
@@ -1312,12 +1330,48 @@ ray-cluster:
           command:
             - "/bin/bash"
             - "-c"
-            - |
-              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu;
-              if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+            - >
+              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu; if [[ -n ${NVIDIA_VISIBLE_DEVICES} ]]; then
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 sudo env PATH=$PATH LD_LIBRARY_PATH=$LD_LIBRARY_PATH nvidia-ctk cdi generate --library-search-path=$LD_LIBRARY_PATH --output=/etc/cdi/nvidia.yaml;
-              fi;
-              while true; do
+              fi; while true; do
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ray health-check 2>/dev/null;
                 if [ "$?" = "0" ]; then
                     break;
