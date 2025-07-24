@@ -166,7 +166,7 @@ jobs:
             ## Changes in ${{ steps.service-config.outputs.repository }}
             ${{ steps.commit-messages.outputs.commit_messages }}
 
-          branch: chore/update-${{ inputs.service }}-version
-          base: main
+          branch: chore/update-${{ inputs.service }}-version-test
+          base: huitang/ins-8272-4
           draft: false
           delete-branch: true
