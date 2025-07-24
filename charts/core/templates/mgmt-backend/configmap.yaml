@@ -42,7 +42,6 @@ data:
         replicationtimeframe: 1
       {{- end }}
       name: mgmt
-      version: {{ .Values.mgmtBackend.dbVersion }}
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}
