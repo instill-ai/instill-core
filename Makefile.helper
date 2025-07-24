@@ -32,17 +32,10 @@ define HELM
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
-		--set apiGateway.image.tag=${API_GATEWAY_VERSION} \
-		--set mgmtBackend.image.tag=${MGMT_BACKEND_VERSION} \
 		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set artifactBackend.image.tag=${ARTIFACT_BACKEND_VERSION} \
 		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set pipelineBackend.image.tag=${PIPELINE_BACKEND_VERSION} \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set modelBackend.image.tag=${MODEL_BACKEND_VERSION} \
-		--set console.image.tag=${CONSOLE_VERSION} \
-		--set ray-cluster.image.tag=${RAY_RELEASE_TAG} \
 		$(if $(filter true,$(1)),--set ray-cluster.head.autoscaling.enableInTreeAutoscaling=false,) \
 		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.cpu=0,) \
 		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.memory=0,) \
