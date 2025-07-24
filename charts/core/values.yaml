@@ -259,7 +259,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.34.0
+    tag: 0768dba
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -326,7 +326,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.23.0
+    tag: de4d6de
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -407,7 +407,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.55.0
+    tag: 5a0c3d9
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -549,7 +549,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.36.0
+    tag: 4da11d1
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -647,7 +647,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 0.26.0
+    tag: d202eff
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -729,7 +729,7 @@ console:
   # -- The image of console
   image:
     repository: instill/console
-    tag: 0.68.1
+    tag: 0.68.3
     pullPolicy: IfNotPresent
   # -- The accessible endpoint for the api-gateway from the console server side
   serverApiGatewayURL:
