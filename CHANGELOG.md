@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.54.0](https://github.com/instill-ai/instill-core/compare/v0.53.0...v0.54.0) (2025-07-24)
+
+
+### Miscellaneous
+
+* **env:** update API_GATEWAY_VERSION ([#1302](https://github.com/instill-ai/instill-core/issues/1302)) ([f5dc057](https://github.com/instill-ai/instill-core/commit/f5dc057cd6f22c0d5e71652e043ff3e8ff3f810d))
+* **env:** update API_GATEWAY_VERSION ([#1315](https://github.com/instill-ai/instill-core/issues/1315)) ([bf1d46a](https://github.com/instill-ai/instill-core/commit/bf1d46ac76e74aa8058c991537e46848e3a7d80f))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1297](https://github.com/instill-ai/instill-core/issues/1297)) ([1e48f7b](https://github.com/instill-ai/instill-core/commit/1e48f7b0947fe1724238ffca026ea3d00bdb80b1))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1312](https://github.com/instill-ai/instill-core/issues/1312)) ([9f8c276](https://github.com/instill-ai/instill-core/commit/9f8c27624022aa8bde81f718cdbcc3dc55aafaf1))
+* **env:** update MGMT_BACKEND_VERSION ([#1300](https://github.com/instill-ai/instill-core/issues/1300)) ([15e9c80](https://github.com/instill-ai/instill-core/commit/15e9c80143b9519d3b291291f9aa0c15c1bf3866))
+* **env:** update MGMT_BACKEND_VERSION ([#1314](https://github.com/instill-ai/instill-core/issues/1314)) ([9e894d5](https://github.com/instill-ai/instill-core/commit/9e894d5e68c6cf68cac903b9f813d59a8bad2c4d))
+* **env:** update MODEL_BACKEND_VERSION ([#1296](https://github.com/instill-ai/instill-core/issues/1296)) ([06e3e8b](https://github.com/instill-ai/instill-core/commit/06e3e8b89c71811bf1c0eb0bae4ff9b8dccb7779))
+* **env:** update MODEL_BACKEND_VERSION ([#1313](https://github.com/instill-ai/instill-core/issues/1313)) ([968a35b](https://github.com/instill-ai/instill-core/commit/968a35be4e780b47a72c7db441883c0f1da506d8))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1298](https://github.com/instill-ai/instill-core/issues/1298)) ([a1cc5d4](https://github.com/instill-ai/instill-core/commit/a1cc5d4a1b8d54f754cf694a92735bd154912a58))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1311](https://github.com/instill-ai/instill-core/issues/1311)) ([c39489d](https://github.com/instill-ai/instill-core/commit/c39489d46e42f15072a521033f10ca5fb6a439ea))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1316](https://github.com/instill-ai/instill-core/issues/1316)) ([c30b8ec](https://github.com/instill-ai/instill-core/commit/c30b8ec5c0d11260b9fa2115143c10655eac4699))
+* **helm:** add Temporal TLS mount for mgmt/pipeline-backend-init ([#1308](https://github.com/instill-ai/instill-core/issues/1308)) ([e2dda76](https://github.com/instill-ai/instill-core/commit/e2dda762142f39e9086d4d5f327cbd1aeeefce0d))
+* **helm:** bump chart with RC tag ([#1326](https://github.com/instill-ai/instill-core/issues/1326)) ([5966952](https://github.com/instill-ai/instill-core/commit/596695223e6ee31d5027a6bd57d3f319cbb234a4))
+* **helm:** remove the unused DB version config ([#1319](https://github.com/instill-ai/instill-core/issues/1319)) ([8392fc2](https://github.com/instill-ai/instill-core/commit/8392fc2e6e01e189622a2a723079d5bbea62284b))
+* **main:** release RC versions ([e3d83b0](https://github.com/instill-ai/instill-core/commit/e3d83b0d75001554c97652deedc47c30f85a6316))
+* **release-plesase:** fix last-release-sha ([e339aa3](https://github.com/instill-ai/instill-core/commit/e339aa3d13fde0a87a2338249a0fade16c8d6edc))
+
 ## [0.53.0](https://github.com/instill-ai/instill-core/compare/v0.51.0...v0.53.0) (2025-07-17)
 
 
