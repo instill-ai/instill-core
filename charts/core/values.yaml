@@ -338,8 +338,6 @@ mgmtBackend:
     worker: mgmt-backend-worker
   # -- The path of configuration file for mgmt-backend
   configPath: /mgmt-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 5
   instillCoreHost:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -418,8 +416,6 @@ pipelineBackend:
     main: pipeline-backend
   # -- The path of configuration file for pipeline-backend
   configPath: /pipeline-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 40
   # -- workflow setting
   workflow:
     maxWorkflowTimeout: 3600 # in seconds
@@ -562,8 +558,6 @@ modelBackend:
     initModel: model-backend-init-model
   # -- The path of configuration file for model-backend
   configPath: /model-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 12
   instillCoreHost:
   # -- The AI Task schema version
   taskSchemaVersion: 662c3e2
@@ -658,8 +652,6 @@ artifactBackend:
     main: artifact-backend
   # -- The path of configuration file for artifact-backend
   configPath: /artifact-backend/config/config.yaml
-  # -- The database migration version
-  dbVersion: 22
   # -- The host of instill-core
   instillCoreHost:
   # -- Set the service account to be used, default if left empty

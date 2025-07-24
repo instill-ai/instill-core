@@ -72,7 +72,6 @@ data:
         replicationtimeframe: 1
       {{- end }}
       name: model
-      version: {{ .Values.modelBackend.dbVersion }}
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}

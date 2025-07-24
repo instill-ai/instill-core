@@ -35,7 +35,6 @@ data:
         replicationtimeframe: 1
       {{- end }}
       name: artifact
-      version: {{ .Values.artifactBackend.dbVersion }}
       timezone: Etc/UTC
       pool:
         idleconnections: {{ .Values.database.maxIdleConns }}
