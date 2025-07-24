@@ -252,10 +252,20 @@ services:
       interval: 5s
       timeout: 3s
       retries: 60
-      start_period: 15s
+      start_period: 120s
     depends_on:
-      model_backend_worker:
+      ray:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+      pg_sql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      openfga:
         condition: service_started
+      artifact_backend:
+        condition: service_healthy
 
   model_backend_worker:
     pull_policy: missing
@@ -276,17 +286,7 @@ services:
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./model-backend-worker
     depends_on:
-      ray:
-        condition: service_healthy
-      temporal:
-        condition: service_healthy
-      pg_sql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      openfga:
-        condition: service_started
-      artifact_backend:
+      model_backend:
         condition: service_healthy
 
   model_backend_init_model:
