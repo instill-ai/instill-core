@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.54.0](https://github.com/instill-ai/instill-core/compare/helm-chart-v0.1.64...helm-chart-v0.54.0) (2025-07-25)
+
+
+### Miscellaneous
+
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1329](https://github.com/instill-ai/instill-core/issues/1329)) ([4da4236](https://github.com/instill-ai/instill-core/commit/4da4236b2578d0355e5bf3aa394ecc999569db7e))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1330](https://github.com/instill-ai/instill-core/issues/1330)) ([02a62a8](https://github.com/instill-ai/instill-core/commit/02a62a8d2739150eba33ea2c8ecd36ba1e01104f))
+* **helm:** add Temporal TLS mount for mgmt/pipeline-backend-init ([#1308](https://github.com/instill-ai/instill-core/issues/1308)) ([e2dda76](https://github.com/instill-ai/instill-core/commit/e2dda762142f39e9086d4d5f327cbd1aeeefce0d))
+* **helm:** bump chart with RC tag ([#1326](https://github.com/instill-ai/instill-core/issues/1326)) ([886f74f](https://github.com/instill-ai/instill-core/commit/886f74fcd950663f120e87f4e3fa3dca033009f3))
+* **helm:** remove the unused DB version config ([#1319](https://github.com/instill-ai/instill-core/issues/1319)) ([8392fc2](https://github.com/instill-ai/instill-core/commit/8392fc2e6e01e189622a2a723079d5bbea62284b))
+* **main:** release v0.54.0 ([4fc9cee](https://github.com/instill-ai/instill-core/commit/4fc9ceefc246b0560f1544611e16da435b204ecf))
+
 ## [0.1.64](https://github.com/instill-ai/instill-core/compare/helm-chart-v0.1.63...helm-chart-v0.1.64) (2025-07-17)
 
 
