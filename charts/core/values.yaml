@@ -1647,36 +1647,6 @@ elasticsearch:
       xpack.security.enabled: false
   ## -- The configuration of external Elasticsearch
   external:
-# -- The configuration of Jaeger
-jaeger:
-  enabled: true
-  provisionDataStore:
-    cassandra: false
-  storage:
-    type: elasticsearch
-    elasticsearch:
-      host: core-elasticsearch-master
-      port: 9200
-      user: elastic
-      password: password
-  collector:
-    initContainers:
-      - name: wait-for-elasticsearch
-        image: curlimages/curl:8.00.1
-        command: ["sh", "-c"]
-        args:
-          - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
-  query:
-    initContainers:
-      - name: wait-for-elasticsearch
-        image: curlimages/curl:8.00.1
-        command: ["sh", "-c"]
-        args:
-          - >
-            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://core-elasticsearch-master:9200)" != "200" ]]; do echo waiting for elasticsearch; sleep 1; done
-
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   enabled: true
@@ -1686,12 +1656,6 @@ opentelemetry-collector:
   image:
     repository: "otel/opentelemetry-collector-k8s"
   ports:
-    jaeger-compact:
-      enabled: false
-    jaeger-thrift:
-      enabled: false
-    jaeger-grpc:
-      enabled: false
     zipkin:
       enabled: false
     otlp-http:
@@ -1707,7 +1671,6 @@ opentelemetry-collector:
       protocol: TCP
   config:
     receivers:
-      jaeger: {}
       prometheus: {}
       zipkin: {}
       otlp:
@@ -1724,7 +1687,7 @@ opentelemetry-collector:
     exporters:
       debug: {}
       otlp:
-        endpoint: core-jaeger-collector:14250
+        endpoint:
         tls:
           insecure: true
     service:
@@ -1754,7 +1717,6 @@ opentelemetry-collector:
             - batch
           receivers:
             - otlp
-            - jaeger
 # -- The configuration of Prometheus Stack
 kube-prometheus-stack:
   enabled: true

@@ -406,17 +406,6 @@ Influxdb2
 {{- end -}}
 
 {{/*
-Jaeger
-*/}}
-{{- define "core.jaeger" -}}
-  {{- printf "%s-jaeger-collector" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.jaeger.port" -}}
-  {{- printf "14268" -}}
-{{- end -}}
-
-{{/*
 OpenTelemetry
 */}}
 {{- define "core.otel" -}}

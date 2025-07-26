@@ -41,7 +41,6 @@ define HELM
 		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.memory=0,) \
 		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.cpu=0,) \
 		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.memory=0,) \
-		$(if $(filter true,$(1)),--set jaeger.enabled=false,) \
 		$(if $(filter true,$(1)),--set opentelemetry-collector.enabled=false,) \
 		$(if $(filter true,$(1)),--set kube-prometheus-stack.enabled=false,) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID',) \
