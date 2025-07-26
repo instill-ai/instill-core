@@ -38,10 +38,6 @@ dependencies:
     repository: https://helm.elastic.co
     version: 8.5.1
     condition: elasticsearch.enabled
-  - name: jaeger
-    repository: https://jaegertracing.github.io/helm-charts
-    version: 3.4.1
-    condition: jaeger.enabled
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     version: 0.119.0
