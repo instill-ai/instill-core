@@ -320,7 +320,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: de4d6de
+    tag: ba277a2
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
