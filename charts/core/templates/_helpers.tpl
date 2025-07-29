@@ -534,10 +534,10 @@ Allow KubeVersion to be overridden.
 {{- end -}}
 
 {{/*
-minio
+MinIO DNS
 */}}
-{{- define "core.minio" -}}
-  {{- printf "%s-minio" (include "core.fullname" .) -}}
+{{- define "core.minio.hostname" -}}
+  {{- printf "minio-tenant-hl.minio.svc.cluster.local" -}}
 {{- end -}}
 
 {{- define "core.minio.port" -}}

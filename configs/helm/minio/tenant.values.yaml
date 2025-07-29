@@ -1,0 +1,38 @@
+tenant:
+  # Tenant name
+  name: "minio-tenant"
+
+  # Tenant image configuration
+  image:
+    repository: quay.io/minio/minio
+    tag: RELEASE.2025-07-23T15-54-02Z
+    pullPolicy: IfNotPresent
+
+  # Root user credentials
+  configSecret:
+    name: "minio-config"
+    accessKey: "minioadmin"
+    secretKey: "minioadmin"
+
+  # Configures external certificate settings for the Tenant (non-TLS)
+  certificate:
+    requestAutoCert: false
+
+  # Environment variables for audit webhook
+  env:
+    - name: MINIO_AUDIT_WEBHOOK_ENABLE_ARTIFACT
+      value: "on"
+    - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_ARTIFACT
+      value: "http://core-artifact-backend.instill-ai.svc.cluster.local:3082/v1alpha/minio-audit"
+
+  pools:
+    - name: "pool-0"
+      servers: 1
+      volumesPerServer: 1
+      size: 10Gi
+
+  buckets:
+    - name: "core-pipeline"
+    - name: "core-model"
+    - name: "core-artifact"
+    - name: "core-milvus"

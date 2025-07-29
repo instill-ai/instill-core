@@ -1,0 +1,16 @@
+operator:
+  # Operator image configuration
+  image:
+    repository: quay.io/minio/operator
+    tag: v7.1.1
+    pullPolicy: IfNotPresent
+
+  # Operator deployment configuration
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi

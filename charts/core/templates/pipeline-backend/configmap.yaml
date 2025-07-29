@@ -107,8 +107,8 @@ data:
         replicationtimeframe: 1
       {{- end }}
     minio:
-      host: {{ include "core.minio" . }}
-      port: {{ .Values.pipelineBackend.minio.port }}
+      host: {{ include "core.minio.hostname" . }}
+      port: {{ include "core.minio.port" . }}
       user: {{ .Values.pipelineBackend.minio.user }}
       password: {{ .Values.pipelineBackend.minio.password }}
       bucketname: {{ .Values.pipelineBackend.minio.bucketname }}
