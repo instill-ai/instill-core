@@ -45,9 +45,12 @@ ENV_SECRETS_COMPONENT_TEST := .env.secrets.component.test
 ENV_SECRETS_CONSOLE := .env.secrets.console
 
 # Configuration directory path
-CONFIG_DIR_PATH := ./configs
+CONFIG_DIR_PATH := ./configs/compose
 
 GIT_COMMIT_SHA := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
+
+# 3rd-party Kubernetes namespaces
+MINIO_KUBERNETES_NAMESPACE := minio
 
 #============================================================================
 
