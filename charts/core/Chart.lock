@@ -1,24 +1,24 @@
 dependencies:
-- name: influxdb2
-  repository: https://helm.influxdata.com
-  version: 2.1.1
-- name: milvus
-  repository: https://zilliztech.github.io/milvus-helm
-  version: 4.1.30
-- name: kuberay-operator
-  repository: https://ray-project.github.io/kuberay-helm
-  version: 1.3.2
-- name: ray-cluster
-  repository: https://ray-project.github.io/kuberay-helm
-  version: 1.3.2
-- name: elasticsearch
-  repository: https://helm.elastic.co
-  version: 8.5.1
-- name: opentelemetry-collector
-  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.129.0
-- name: kube-prometheus-stack
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 70.3.0
+  - name: influxdb2
+    repository: https://helm.influxdata.com
+    version: 2.1.1
+  - name: milvus
+    repository: https://zilliztech.github.io/milvus-helm
+    version: 4.1.30
+  - name: kuberay-operator
+    repository: https://ray-project.github.io/kuberay-helm
+    version: 1.3.2
+  - name: ray-cluster
+    repository: https://ray-project.github.io/kuberay-helm
+    version: 1.3.2
+  - name: elasticsearch
+    repository: https://helm.elastic.co
+    version: 8.5.1
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.129.0
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 70.3.0
 digest: sha256:0a00b79854d8ea609ed566b50e1ba1ad24fa6edd4e5d5701a14133f4a9533c9f
 generated: "2025-07-30T00:52:08.163458+01:00"
