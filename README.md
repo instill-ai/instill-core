@@ -9,7 +9,7 @@ A complete unstructured data solution: ETL processing, AI-readiness, open-source
 
 ## Quick start
 
-Follow the [installation](#installation) steps below or [documentation](https://www.instill-ai.dev/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details to build versatile AI applications locally.
+Follow the [installation](#installation) steps below or [documentation](https://docs.instill-ai.com/docs/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details to build versatile AI applications locally.
 
 ## What is Instill Core?
 
@@ -25,10 +25,10 @@ Follow the [installation](#installation) steps below or [documentation](https://
 
 🔮 **Instill Core** simplifies infrastructure hassle and encompasses these core features:
 
-- 💧 [**Pipeline**](https://www.instill-ai.dev/docs/pipeline/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Quickly build versatile AI-first APIs or automated workflows.
-- ⚗️ [**Model**](https://www.instill-ai.dev/docs/model/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Deploy and monitor AI models without GPU infrastructure hassles.
-- 💾 [**Artifact**](https://www.instill-ai.dev/docs/artifact/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Transform unstructured data (e.g., documents, images, audio, video) into AI-ready formats.
-- ⚙️ [**Component**](https://www.instill-ai.dev/docs/component/introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Connect essential building blocks to construct powerful pipelines.
+- 💧 [**Pipeline**](https://docs.instill-ai.com/docs/pipeline-introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Quickly build versatile AI-first APIs or automated workflows.
+- ⚙️ [**Component**](https://docs.instill-ai.com/docs/component-introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Connect essential building blocks to construct powerful pipelines.
+- 💾 [**Artifact**](https://docs.instill-ai.com/docs/artifact-introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Transform unstructured data (e.g., documents, images, audio, video) into AI-ready formats.
+- ⚗️ [**Model**](https://docs.instill-ai.com/docs/model-introduction/?utm_source=github&utm_medium=readme&utm_campaign=org_readme): Deploy and monitor AI models without GPU infrastructure hassles.
 
 ## What can you build?
 
@@ -37,7 +37,7 @@ Follow the [installation](#installation) steps below or [documentation](https://
 - 🕸️ Web scraping & Google Search with Structured Insights
 - 🌱 Instance segmentation on microscopic plant stomata images: [Cookbook](https://github.com/instill-ai/cookbook/blob/main/examples/Instance_segmentation_stomavision.ipynb)
 
-See [Examples](https://www.instill-ai.dev/docs/examples) for more!
+See [Examples](https://docs.instill-ai.com/docs/examples) for more!
 
 ## Installation
 
@@ -54,15 +54,17 @@ See [Examples](https://www.instill-ai.dev/docs/examples) for more!
 Execute the following commands to pull pre-built images with all the dependencies to launch:
 
 <!-- x-release-please-start-version -->
+
 ```bash
 git clone -b v0.53.0 https://github.com/instill-ai/instill-core.git && cd instill-core
 
 # Launch all services
 make run
 ```
+
 <!-- x-release-please-end -->
 
-That's it! Once all the services are up with health status, the UI is ready to go at <http://localhost:3000>. Please find the default login credentials in the [documentation](https://www.instill-ai.dev/docs/latest/quickstart#self-hosted-instill-core).
+That's it! Once all the services are up with health status, the UI is ready to go at <http://localhost:3000>. Please find the default login credentials in the [documentation](https://docs.instill-ai.com/docs/quickstart#instill-core-ce-self-hosted).
 
 To shut down all running services:
 
@@ -72,7 +74,7 @@ make down
 
 ## Deployment
 
-Visit the [Deployment Overview](https://www.instill-ai.dev/docs/latest/core/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details.
+Visit the [Deployment Overview](https://docs.instill-ai.com/docs/deployment/?utm_source=github&utm_medium=readme&utm_campaign=org_readme) for more details.
 
 ## Client Access
 
@@ -85,14 +87,14 @@ Visit the [Deployment Overview](https://www.instill-ai.dev/docs/latest/core/depl
 
 ## Documentation
 
-Please visit our [official documentation](https://www.instill-ai.dev/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) for more.
+Please visit our [official documentation](https://docs.instill-ai.com/docs?utm_source=github&utm_medium=link&utm_campaign=instill-core) for more.
 
 Additional resources:
 
-- [API Reference](https://openapi.instill-ai.dev)
+- [API Reference](https://docs.instill-ai.com/reference)
 - [Cookbooks](https://github.com/instill-ai/cookbook)
-- [Tutorials](https://www.instill-ai.dev/blog)
-- [Examples](https://www.instill-ai.dev/docs/examples)
+- [Tutorials](https://www.instill-ai.com/blog)
+- [Examples](https://docs.instill-ai.com/docs/examples)
 
 ## Contributing
 
