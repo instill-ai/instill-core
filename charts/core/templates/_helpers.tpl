@@ -413,7 +413,7 @@ OpenTelemetry
 {{- end -}}
 
 {{- define "core.otel.port" -}}
-  {{- printf "8095" -}}
+  {{- printf "4317" -}}
 {{- end -}}
 
 {{/*

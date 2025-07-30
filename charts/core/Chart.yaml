@@ -40,9 +40,11 @@ dependencies:
     condition: elasticsearch.enabled
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    version: 0.119.0
-    condition: opentelemetry-collector.enabled
+    version: 0.129.0
+    tags:
+      - observability
   - name: kube-prometheus-stack
     repository: https://prometheus-community.github.io/helm-charts
     version: 70.3.0
-    condition: kube-prometheus-stack.enabled
+    tags:
+      - observability

@@ -4,7 +4,17 @@ metadata:
   name: {{ include "core.apiGateway" . }}
 data:
   .env: |-
+
     LOG_LEVEL={{ upper .Values.logLevel }}
+
+    # Enable observability stack
+    OBSERVE_ENABLED={{ .Values.tags.observability }}
+
+    # Service version
+    SERVICE_VERSION={{ .Values.apiGateway.image.tag }}
+
+    # Deploy environment
+    DEPLOY_ENV={{ .Values.edition }}
 
     # api-gateway
     API_GATEWAY_HOST={{ include "core.apiGateway" . }}
