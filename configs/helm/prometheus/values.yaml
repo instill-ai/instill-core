@@ -1,0 +1,40 @@
+nodeExporter:
+  enabled: false
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+prometheus:
+  enabled: true
+  prometheusSpec:
+    scrapeInterval: 5s
+    evaluationInterval: 10s
+    additionalScrapeConfigs:
+      - job_name: "api-gateway"
+        scrape_interval: 5s
+        static_configs:
+          - targets:
+              - "core-api-gateway.instill-ai.svc.cluster.local:8071"
+            labels:
+              app: api-gateway
+      - job_name: "temporal"
+        metrics_path: /metrics
+        scheme: http
+        static_configs:
+          - targets:
+              - core-pipeline-backend.instill-ai.svc.cluster.local:8096
+              - core-pipeline-backend-worker.instill-ai.svc.cluster.local:8096
+            labels:
+              app: temporal
+      - job_name: "kuberay"
+        static_configs:
+          - targets:
+              - "core-kuberay-head-svc.instill-ai.svc.cluster.local:8080"
+            labels:
+              app: kuberay
+      - job_name: "otel-collector"
+        static_configs:
+          - targets:
+              - "core-opentelemetry-collector.instill-ai.svc.cluster.local:9001"
+            labels:
+              app: opentelemetry-collector

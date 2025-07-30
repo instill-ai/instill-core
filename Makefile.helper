@@ -34,13 +34,25 @@ define HELM
 	@helm repo add influxdata https://helm.influxdata.com
 	@helm repo add milvus https://zilliztech.github.io/milvus-helm
 	@helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+	@helm repo add grafana https://grafana.github.io/helm-charts
+	@helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	@echo ""
 	@echo "Update Helm dependencies"
 	@cd charts/core && helm dependency update
-	@echo "Install MinIO Operator"
-	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace operator minio/operator --version ${MINIO_HELM_CHART_VERSION} --values configs/helm/minio/operator.values.yaml
-	@echo "Install MinIO Tenant"
-	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace tenant minio/tenant --version ${MINIO_HELM_CHART_VERSION} --values configs/helm/minio/tenant.values.yaml
-	@echo "Install Instill Core Helm chart"
+	@echo ""
+	@echo "Install MinIO Operator..."
+	@helm install operator --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace minio/operator --version ${MINIO_HELM_CHART_VERSION} --values configs/helm/minio/operator.values.yaml
+	@echo ""
+	@echo "Install MinIO Tenant..."
+	@helm install tenant --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace minio/tenant --version ${MINIO_HELM_CHART_VERSION} --values configs/helm/minio/tenant.values.yaml
+	@echo ""
+	@echo "Install Instill Core..."
+	@if [ "$(OBSERVE_ENABLED)" = "true" ]; then \
+		echo "" && \
+		echo "Create namespace \"${OBSERVABILITY_KUBERNETES_NAMESPACE}\"" && \
+		kubectl create namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	fi
+	@echo ""
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
@@ -61,6 +73,20 @@ define HELM
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
 		--timeout 30m0s
+	@echo ""
+	@if [ "$(OBSERVE_ENABLED)" = "true" ]; then \
+		echo "Install Grafana..." && \
+		helm install grafana --namespace $(OBSERVABILITY_KUBERNETES_NAMESPACE) --create-namespace grafana/grafana --version $(GRAFANA_HELM_CHART_VERSION) --values configs/helm/grafana/values.yaml && \
+		echo "" && \
+		echo "Install Tempo..." && \
+		helm install tempo --namespace $(OBSERVABILITY_KUBERNETES_NAMESPACE) --create-namespace grafana/tempo-distributed --version $(TEMPO_HELM_CHART_VERSION) --values configs/helm/tempo/values.yaml; \
+		echo "" && \
+		echo "Install Loki..." && \
+		helm install loki --namespace $(OBSERVABILITY_KUBERNETES_NAMESPACE) --create-namespace grafana/loki-distributed --version $(LOKI_HELM_CHART_VERSION) --values configs/helm/loki/values.yaml; \
+		echo "" && \
+		echo "Install Prometheus" && \
+		helm install prometheus --namespace $(OBSERVABILITY_KUBERNETES_NAMESPACE) --create-namespace prometheus-community/kube-prometheus-stack --version $(PROMETHEUS_HELM_CHART_VERSION) --values configs/helm/prometheus/values.yaml; \
+	fi
 endef
 
 # Function to build dev image
@@ -94,24 +120,33 @@ endef
 # Function to cleanup helm release
 define REMOVE_HELM_RESOURCES
 	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
-		echo "Removing MinIO Operator" && \
-		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
 	fi
 	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "tenant" 2>/dev/null; then \
-		echo "Removing MinIO Tenant" && \
-		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
 	fi
-	@if kubectl get namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "Active" 2>/dev/null; then \
-		echo "Removing MinIO Namespace" && \
-		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	@if kubectl get namespace ${MINIO_KUBERNETES_NAMESPACE} -o jsonpath='{.status.phase}' 2>/dev/null | grep -q "Active"; then \
+		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "grafana" 2>/dev/null; then \
+		helm uninstall grafana --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "tempo" 2>/dev/null; then \
+		helm uninstall tempo --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "loki" 2>/dev/null; then \
+		helm uninstall loki --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "prometheus" 2>/dev/null; then \
+		helm uninstall prometheus --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
+	fi
+	@if kubectl get namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} -o jsonpath='{.status.phase}' 2>/dev/null | grep -q "Active"; then \
+		kubectl delete namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
 	fi
 	@# Remove Helm release
 	@if helm list --namespace ${HELM_NAMESPACE} 2>/dev/null | grep -q "${HELM_RELEASE_NAME}" 2>/dev/null; then \
-		echo "Uninstalling Helm release ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}" && \
-		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
-		echo "Deleting namespace ${HELM_NAMESPACE}" && \
-		kubectl delete namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
-		echo "Killing port-forward processes" && \
+		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}; \
+		kubectl delete namespace ${HELM_NAMESPACE}; \
 		ps aux | grep "[k]ubectl port-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \
 	fi
 endef

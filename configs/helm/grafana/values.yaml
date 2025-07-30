@@ -1,0 +1,161 @@
+persistence:
+  enabled: true
+  type: pvc
+  size: 10Gi
+  accessMode: ReadWriteOnce
+
+admin:
+  existingSecret: "core-grafana-admin-secret"
+  userKey: username
+  passwordKey: password
+
+grafana.ini:
+  security:
+    cookie_secure: true
+    allow_embedding: true
+    cookie_samesite: none
+  auth:
+    disable_login_form: false
+  auth.basic:
+    enabled: true
+  auth.anonymous:
+    enabled: false
+  server:
+    http_port: 3000
+  database:
+    type: sqlite3
+    path: /var/lib/grafana/grafana.db
+  log:
+    mode: console
+    level: info
+
+# Dashboard providers configuration
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: API Gateway
+        orgId: 1
+        folder: API Gateway
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/api-gateway
+      - name: Temporal
+        orgId: 1
+        folder: Temporal
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/temporal
+      - name: Ray
+        orgId: 1
+        folder: Ray
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/ray
+
+dashboardsConfigMaps:
+  temporal: "core-grafana-temporal-dashboards"
+  api-gateway: "core-grafana-api-gateway-dashboards"
+  ray: "core-grafana-ray-dashboards"
+
+# Datasources configuration
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        url: http://prometheus-kube-prometheus-prometheus:9090
+        access: proxy
+        orgId: 1
+        isDefault: true
+        basicAuth: false
+        readOnly: false
+        editable: false
+        jsonData:
+          httpMethod: POST
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        url: http://tempo-query-frontend-discovery:3200
+        access: proxy
+        orgId: 1
+        isDefault: false
+        basicAuth: false
+        readOnly: false
+        editable: false
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: "loki"
+            spanStartTimeShift: "-1h"
+            spanEndTimeShift: "1h"
+            filterByTraceID: false
+            filterBySpanID: false
+            customQuery: true
+            query: '{service_name="$${__span.tags["service.name"]}"} | trace_id="$${__span.traceId}"'
+          tracesToMetrics:
+            datasourceUid: "prometheus"
+            spanStartTimeShift: "-1h"
+            spanEndTimeShift: "1h"
+          serviceMap:
+            datasourceUid: "prometheus"
+          nodeGraph:
+            enabled: true
+          search:
+            hide: false
+          traceQuery:
+            timeShiftEnabled: true
+            spanStartTimeShift: "-1h"
+            spanEndTimeShift: "1h"
+          spanBar:
+            type: "Tag"
+            tag: "http.path"
+          streamingEnabled:
+            search: true
+      - name: Loki
+        type: loki
+        uid: loki
+        url: http://loki-loki-distributed-query-frontend-headless:3100
+        access: proxy
+        orgId: 1
+        basicAuth: false
+        isDefault: false
+        readOnly: false
+        editable: false
+        jsonData:
+          httpMethod: POST
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: trace_id
+              matcherType: label
+              name: trace_id
+              url: $${__value.raw}
+              urlDisplayLabel: "View Trace"
+
+# Sidecar configuration
+sidecar:
+  datasources:
+    enabled: true
+    alertmanager:
+      enabled: false
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    folder: /tmp/dashboards
+    searchNamespace: ALL
+
+# Resources
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 500m
+    memory: 500Mi
