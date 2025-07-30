@@ -53,6 +53,7 @@ GIT_COMMIT_SHA := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
 TEMPORAL_KUBERNETES_NAMESPACE := temporal
 MINIO_KUBERNETES_NAMESPACE := minio
 MILVUS_KUBERNETES_NAMESPACE := milvus
+OBSERVABILITY_KUBERNETES_NAMESPACE := observability
 
 #============================================================================
 
@@ -60,7 +61,6 @@ include Makefile.helper
 
 .PHONY: run
 run: compose-run	## Alias for compose-run: Launch all services by docker compose
-
 
 .PHONY: compose-run
 compose-run:	## Launch all services by docker compose
