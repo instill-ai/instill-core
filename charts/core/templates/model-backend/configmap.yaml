@@ -81,7 +81,7 @@ data:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
+      hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
       namespace: {{ default "model-backend" .Values.modelBackend.temporal.namespace }}
       retention: {{ default "1d" .Values.modelBackend.temporal.retention }}
       serverrootca: {{ default "" .Values.modelBackend.temporal.serverRootCA }}
@@ -89,6 +89,7 @@ data:
       clientkey: {{ default "" .Values.modelBackend.temporal.clientKey }}
       serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
       insecureskipverify: {{ default "true" .Values.modelBackend.temporal.insecureSkipVerify }}
+      metricsport: {{ include "temporal.frontend.metricsPort" . }}
     initmodel:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
     openfga:

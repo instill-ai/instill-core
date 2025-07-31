@@ -85,14 +85,14 @@ data:
         redisoptions:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
+      hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
       namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
       servername: {{ default "" .Values.pipelineBackend.temporal.serverName }}
       serverrootca: {{ default "" .Values.pipelineBackend.temporal.serverRootCA }}
       clientcert: {{ default "" .Values.pipelineBackend.temporal.clientCert }}
       clientkey: {{ default "" .Values.pipelineBackend.temporal.clientKey }}
       insecureskipverify: {{ default "true" .Values.pipelineBackend.temporal.insecureSkipVerify }}
-      metricsport: {{ include "core.temporal.metrics.port" . }}
+      metricsport: 9090
     otelcollector:
       enable: {{ .Values.tags.observability }}
       host: {{ include "core.otel" . }}

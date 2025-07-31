@@ -36,8 +36,8 @@ INSTILL_CORE_IMAGE_NAME := instill/instill-core
 
 CONTAINER_COMPOSE_INTEGRATION_TEST_NAME := instill-core-compose-integration-test
 
-HELM_NAMESPACE := instill-ai
-HELM_RELEASE_NAME := core
+INSTILL_CORE_KUBERNETES_NAMESPACE := instill-ai
+INSTILL_CORE_HELM_RELEASE_NAME := core
 
 # By default, these files are used to load the secrets (OAuth, API keys, etc.)
 ENV_SECRETS_COMPONENT := .env.secrets.component
@@ -50,6 +50,7 @@ CONFIG_DIR_PATH := ./configs/compose
 GIT_COMMIT_SHA := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
 
 # 3rd-party Kubernetes namespaces
+TEMPORAL_KUBERNETES_NAMESPACE := temporal
 MINIO_KUBERNETES_NAMESPACE := minio
 MILVUS_KUBERNETES_NAMESPACE := milvus
 

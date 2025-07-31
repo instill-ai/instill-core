@@ -80,7 +80,7 @@ spec:
               if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "temporal.host" . }}:{{ include "temporal.frontend.grpcPort" . }}"
         {{- end }}
         - name: pipeline-backend-migration
           image: {{ .Values.pipelineBackend.image.repository }}:{{ .Values.pipelineBackend.image.tag }}

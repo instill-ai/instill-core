@@ -79,7 +79,7 @@ spec:
               if [[ ! $(tctl --namespace model-backend namespace list | grep model-backend) ]]; then tctl --namespace model-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "temporal.host" . }}:{{ include "temporal.frontend.grpcPort" . }}"
         {{- end }}
         - name: model-backend-migration
           image: {{ .Values.modelBackend.image.repository }}:{{ .Values.modelBackend.image.tag }}
