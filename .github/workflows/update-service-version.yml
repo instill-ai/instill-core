@@ -95,16 +95,36 @@ jobs:
         id: commit-hash
         run: echo "short_hash=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Check for semantic version tag and determine new version
+        id: new-version
+        run: |
+          commit_hash="${{ steps.commit-hash.outputs.short_hash }}"
+          # Check if the current commit has a semantic version tag
+          git_tag=$(git tag --points-at HEAD | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          
+          if [ -n "$git_tag" ]; then
+            # Remove 'v' prefix if present for semantic version tags
+            new_version=${git_tag#v}
+            echo "Found semantic version tag: $git_tag, using version: $new_version"
+          else
+            # Use commit hash if no semantic version tag found
+            new_version=$commit_hash
+            echo "No semantic version tag found, using commit hash: $new_version"
+          fi
+          
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
       - name: Get commit messages between versions
         id: commit-messages
         run: |
           current_version="${{ steps.current-version.outputs.current_version }}"
-          new_version="${{ steps.commit-hash.outputs.short_hash }}"
+          new_version="${{ steps.new-version.outputs.new_version }}"
+          commit_hash="${{ steps.commit-hash.outputs.short_hash }}"
 
           # Get full commit hashes
           if [ -n "$current_version" ] && git rev-parse --verify "$current_version" >/dev/null 2>&1; then
             current_full_hash=$(git rev-parse "$current_version")
-            new_full_hash=$(git rev-parse "$new_version")
+            new_full_hash=$(git rev-parse "$commit_hash")
 
             # Get commit messages between the two versions
             commit_messages=$(git log --pretty=format:"- %s" "$current_full_hash..$new_full_hash" | sed -E 's/ \(#([0-9]+)\)$/ (instill-ai\/${{ steps.service-config.outputs.repository }}#\1)/')
@@ -138,15 +158,15 @@ jobs:
       - name: Update service version
         run: |
           # Update the service version in .env file
-          sed -i "s/${{ steps.service-config.outputs.version_var }}=.*/${{ steps.service-config.outputs.version_var }}=${{ steps.commit-hash.outputs.short_hash }}/" .env
+          sed -i "s/${{ steps.service-config.outputs.version_var }}=.*/${{ steps.service-config.outputs.version_var }}=${{ steps.new-version.outputs.new_version }}/" .env
 
           # Update the image tag in helm chart values.yaml
-          yq eval '.${{ steps.service-config.outputs.helm_path }} = "${{ steps.commit-hash.outputs.short_hash }}"' -i charts/core/values.yaml
+          yq eval '.${{ steps.service-config.outputs.helm_path }} = "${{ steps.new-version.outputs.new_version }}"' -i charts/core/values.yaml
 
           # Verify the changes
-          echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.commit-hash.outputs.short_hash }}"
+          echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.new-version.outputs.new_version }}"
           grep "${{ steps.service-config.outputs.version_var }}=" .env
-          echo "Updated helm chart ${{ steps.service-config.outputs.helm_path }} to: ${{ steps.commit-hash.outputs.short_hash }}"
+          echo "Updated helm chart ${{ steps.service-config.outputs.helm_path }} to: ${{ steps.new-version.outputs.new_version }}"
           yq eval '.${{ steps.service-config.outputs.helm_path }}' charts/core/values.yaml
 
       - name: Create Pull Request
@@ -160,8 +180,8 @@ jobs:
             - The version of the ${{ steps.service-config.outputs.repository }} service is not updated in the instill-core repository.
 
             This commit
-            - updates the `${{ steps.service-config.outputs.version_var }}` in the `.env` file to `${{ steps.commit-hash.outputs.short_hash }}`.
-            - updates the `${{ steps.service-config.outputs.helm_path }}` in the helm chart values.yaml file to `${{ steps.commit-hash.outputs.short_hash }}`.
+            - updates the `${{ steps.service-config.outputs.version_var }}` in the `.env` file to `${{ steps.new-version.outputs.new_version }}`.
+            - updates the `${{ steps.service-config.outputs.helm_path }}` in the helm chart values.yaml file to `${{ steps.new-version.outputs.new_version }}`.
 
             ## Changes in ${{ steps.service-config.outputs.repository }}
             ${{ steps.commit-messages.outputs.commit_messages }}
