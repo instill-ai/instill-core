@@ -16,9 +16,6 @@ dependencies:
   version: 8.5.1
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.119.0
-- name: kube-prometheus-stack
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 70.3.0
-digest: sha256:d5ac0a0622d650e502e16aa7945f82ded2cfe62669792cb4dd9ccc8b900d87a9
-generated: "2025-07-27T00:27:03.685644+01:00"
+  version: 0.129.0
+digest: sha256:8eb8a5dce878430d3f85ded6db03909820f5a64638a708b5ef13c1512108a076
+generated: "2025-07-30T03:01:21.590481+01:00"

@@ -1,0 +1,133 @@
+tempo:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+
+  # Distributor configuration
+  distributor:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  # Ingester configuration
+  ingester:
+    # The official Helm chart has a bug that always sets replicas to 3
+    replicas: 3
+    autoscaling:
+      enabled: false
+
+  # Compactor configuration
+  compactor:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  # Query frontend configuration
+  queryFrontend:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  # Query scheduler configuration
+  queryScheduler:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  # Metrics generator configuration
+  metricsGenerator:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  # Memcached configuration (if used)
+  memcached:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  config:
+    server:
+      log_level: info
+
+    cache:
+      background:
+        writeback_goroutines: 5
+      caches:
+        - roles:
+            - frontend-search
+            - parquet-footer
+            - bloom
+          redis:
+            endpoint: core-redis:6379
+
+    query_frontend:
+      search:
+        duration_slo: 5s
+        throughput_bytes_slo: 1.073741824e+09
+        metadata_slo:
+          duration_slo: 5s
+          throughput_bytes_slo: 1.073741824e+09
+      trace_by_id:
+        duration_slo: 100ms
+      metrics:
+        max_duration: 200h
+        query_backend_after: 5m
+        duration_slo: 5s
+        throughput_bytes_slo: 1.073741824e+09
+
+    ingester:
+      max_block_duration: 5m
+
+    compactor:
+      compaction:
+        block_retention: 720h
+
+    metrics_generator:
+      registry:
+        external_labels:
+          source: tempo
+          cluster: kubernetes
+      storage:
+        path: /var/tempo/generator/wal
+        remote_write:
+          - url: http://core-kube-prometheus-stack-prometheus:9090/api/v1/write
+            send_exemplars: true
+      traces_storage:
+        path: /var/tempo/generator/traces
+      processor:
+        local_blocks:
+          filter_server_spans: false
+          flush_to_storage: true
+
+    storage:
+      trace:
+        backend: s3
+        wal:
+          path: /var/tempo/wal
+        s3:
+          bucket: core-artifact
+          endpoint: minio-tenant-hl.minio.svc.cluster.local
+          access_key: minioadmin
+          secret_key: minioadmin
+          insecure: true
+
+    overrides:
+      defaults:
+        metrics_generator:
+          processors: [service-graphs, span-metrics, local-blocks]
+          generate_native_histograms: both
+
+  serviceMonitor:
+    enabled: true
+    interval: 30s

@@ -60,11 +60,10 @@ data:
       https:
         cert:
         key:
-    log:
-      external: false
-      otelcollector:
-        host: {{ include "core.otel" . }}
-        port: {{ include "core.otel.port" . }}
+    otelcollector:
+      enable: {{ .Values.tags.observability }}
+      host: {{ include "core.otel" . }}
+      port: {{ include "core.otel.port" . }}
     openfga:
       host: {{ include "core.openfga" . }}
       port: 8080

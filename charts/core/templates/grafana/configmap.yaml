@@ -1,8 +1,9 @@
-{{- if and (index .Values "kube-prometheus-stack" "enabled") (index .Values "kube-prometheus-stack" "grafana" "enabled") }}
+{{- if eq .Values.tags.observability true }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ include "core.grafana" . }}-temporal-dashboards
+  namespace: observability
 data:
   for-prometheus.json: |
 {{ .Files.Get "grafana-dashboards/temporal/temporal-go-java-sdks-tally.json" | indent 4 }}
@@ -11,6 +12,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ include "core.grafana" . }}-ray-dashboards
+  namespace: observability
 data:
   data_grafana_dashboard.json: |
 {{ .Files.Get "grafana-dashboards/ray/data_grafana_dashboard.json" | indent 4 }}
@@ -25,6 +27,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ include "core.grafana" . }}-api-gateway-dashboards
+  namespace: observability
 data:
   for-prometheus.json: |
 {{ .Files.Get "grafana-dashboards/api-gateway/for-prometheus.json" | indent 4 }}

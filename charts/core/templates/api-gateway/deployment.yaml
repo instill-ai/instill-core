@@ -96,15 +96,16 @@ spec:
               path: /__health
               scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
               port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
-            periodSeconds: 10
-            initialDelaySeconds: 60
+            periodSeconds: 5
+            initialDelaySeconds: 10
           livenessProbe:
             httpGet:
               path: /__health
               scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
               port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
-            periodSeconds: 10
-            initialDelaySeconds: 60
+            periodSeconds: 5
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
           {{- if .Values.apiGateway.resources }}
           resources:
             {{- toYaml .Values.apiGateway.resources | nindent 12 }}
