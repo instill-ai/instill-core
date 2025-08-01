@@ -32,14 +32,17 @@ define HELM
 	@helm repo add minio https://operator.min.io
 	@helm repo add kuberay https://ray-project.github.io/kuberay-helm
 	@helm repo add influxdata https://helm.influxdata.com
-	@helm repo add milvus https://zilliztech.github.io/milvus-helm
+	@helm repo add milvus-operator https://zilliztech.github.io/milvus-operator
 	@helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 	@echo "Update Helm dependencies"
 	@cd charts/core && helm dependency update
-	@echo "Install MinIO Operator"
+	@echo "Install MinIO in single-tenant mode"
 	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace operator minio/operator --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/operator.values.yaml
-	@echo "Install MinIO Tenant"
 	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace tenant minio/tenant --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/tenant.values.yaml
+	@echo "Install Milvus in standalone mode"
+	@helm install --namespace ${MILVUS_KUBERNETES_NAMESPACE} --create-namespace milvus-operator milvus-operator/milvus-operator --version ${MILVUS_OPERATOR_HELM_CHART_VERSION} --values configs/helm/milvus/values.yaml
+	@kubectl apply --namespace ${MILVUS_KUBERNETES_NAMESPACE} -f configs/helm/milvus/secret.yaml
+	@kubectl apply --namespace ${MILVUS_KUBERNETES_NAMESPACE} -f configs/helm/milvus/standalone.yaml
 	@echo "Install Instill Core Helm chart"
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
@@ -94,24 +97,19 @@ endef
 # Function to cleanup helm release
 define REMOVE_HELM_RESOURCES
 	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
-		echo "Removing MinIO Operator" && \
-		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE}; \
 	fi
-	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "tenant" 2>/dev/null; then \
-		echo "Removing MinIO Tenant" && \
-		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
-	fi
-	@if kubectl get namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "Active" 2>/dev/null; then \
-		echo "Removing MinIO Namespace" && \
-		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	@if helm list --namespace ${MILVUS_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "milvus-operator" 2>/dev/null; then \
+		kubectl delete milvus milvus -n milvus >/dev/null 2>&1; \
+		helm uninstall milvus-operator --namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
+		kubectl delete namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 	fi
 	@# Remove Helm release
 	@if helm list --namespace ${HELM_NAMESPACE} 2>/dev/null | grep -q "${HELM_RELEASE_NAME}" 2>/dev/null; then \
-		echo "Uninstalling Helm release ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}" && \
-		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
-		echo "Deleting namespace ${HELM_NAMESPACE}" && \
-		kubectl delete namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
-		echo "Killing port-forward processes" && \
+		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}; \
+		kubectl delete namespace ${HELM_NAMESPACE}; \
 		ps aux | grep "[k]ubectl port-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \
 	fi
 endef
@@ -165,9 +163,6 @@ define HELM_INTEGRATION_TEST
 		"; \
 	fi
 	@$(MAKE) down
-	@echo "Cleaning up port-forwarding processes on ports ${API_GATEWAY_PORT} and ${POSTGRESQL_PORT}..."
-	@lsof -ti:${API_GATEWAY_PORT} | xargs -r kill -9 2>/dev/null || true
-	@lsof -ti:${POSTGRESQL_PORT} | xargs -r kill -9 2>/dev/null || true
 endef
 
 # Function to run model deployment integration test

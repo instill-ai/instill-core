@@ -439,21 +439,6 @@ registry
 {{- end -}}
 
 {{/*
-Milvus
-*/}}
-{{- define "core.milvus" -}}
-  {{- printf "%s-milvus" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.milvus.port" -}}
-  {{- printf "19530" -}}
-{{- end -}}
-
-{{- define "core.milvus.metricPort" -}}
-  {{- printf "9091" -}}
-{{- end -}}
-
-{{/*
 Grafana
 */}}
 {{- define "core.grafana" -}}
@@ -534,12 +519,27 @@ Allow KubeVersion to be overridden.
 {{- end -}}
 
 {{/*
-MinIO DNS
+MinIO
 */}}
-{{- define "core.minio.hostname" -}}
+{{- define "minio.host" -}}
   {{- printf "minio-tenant-hl.minio.svc.cluster.local" -}}
 {{- end -}}
 
-{{- define "core.minio.port" -}}
+{{- define "minio.port" -}}
   {{- printf "9000" -}}
+{{- end -}}
+
+{{/*
+Milvus
+*/}}
+{{- define "milvus.host" -}}
+  {{- printf "milvus-milvus.milvus.svc.cluster.local" -}}
+{{- end -}}
+
+{{- define "milvus.port" -}}
+  {{- printf "19530" -}}
+{{- end -}}
+
+{{- define "milvus.metricsPort" -}}
+  {{- printf "9091" -}}
 {{- end -}}

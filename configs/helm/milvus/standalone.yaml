@@ -1,0 +1,37 @@
+apiVersion: milvus.io/v1beta1
+kind: Milvus
+metadata:
+  name: milvus
+  namespace: milvus
+spec:
+  mode: standalone
+
+  config:
+    minio:
+      bucketName: milvus
+      useSSL: false
+
+  dependencies:
+    storage:
+      external: true
+      type: S3
+      endpoint: minio-tenant-hl.minio.svc.cluster.local:9000
+      secretRef: milvus-minio-secret
+    etcd:
+      external: false
+      inCluster:
+        deletionPolicy: Delete
+        pvcDeletion: true
+        values:
+          replicaCount: 1
+    kafka:
+      external: false
+      inCluster:
+        deletionPolicy: Delete
+        pvcDeletion: true
+        values:
+          replicaCount: 1
+          defaultReplicationFactor: 1
+          offsetsTopicReplicationFactor: 1
+          zookeeper:
+            replicaCount: 1

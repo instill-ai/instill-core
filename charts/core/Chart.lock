@@ -2,9 +2,6 @@ dependencies:
 - name: influxdb2
   repository: https://helm.influxdata.com
   version: 2.1.1
-- name: milvus
-  repository: https://zilliztech.github.io/milvus-helm
-  version: 4.1.30
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm
   version: 1.3.2
@@ -20,5 +17,5 @@ dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 70.3.0
-digest: sha256:0a00b79854d8ea609ed566b50e1ba1ad24fa6edd4e5d5701a14133f4a9533c9f
-generated: "2025-07-30T00:52:08.163458+01:00"
+digest: sha256:2ebc6024831a9f7066305f92fc6fda9f9f6de6dc9b13302f2b36030804ae8675
+generated: "2025-08-01T02:23:16.271247+01:00"

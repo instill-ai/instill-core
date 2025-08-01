@@ -117,8 +117,8 @@ data:
         cert:
         key:
     minio:
-      host: {{ include "core.minio.hostname" . }}
-      port: {{ include "core.minio.port" . }}
+      host: {{ include "minio.host" . }}
+      port: {{ include "minio.port" . }}
       user: {{ .Values.modelBackend.minio.user }}
       password: {{ .Values.modelBackend.minio.password }}
       bucketname: {{ .Values.modelBackend.minio.bucketname }}

@@ -22,10 +22,6 @@ dependencies:
     repository: https://helm.influxdata.com
     version: 2.1.1
     condition: influxdb2.enabled
-  - name: milvus
-    repository: https://zilliztech.github.io/milvus-helm
-    version: 4.1.30
-    condition: milvus.enabled
   - name: kuberay-operator
     repository: https://ray-project.github.io/kuberay-helm
     version: 1.3.2

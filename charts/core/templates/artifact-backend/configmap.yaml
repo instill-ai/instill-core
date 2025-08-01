@@ -70,8 +70,8 @@ data:
       host: {{ include "core.registry" . }}
       port: {{ include "core.registry.port" . }}
     minio:
-      host: {{ include "core.minio.hostname" . }}
-      port: {{ include "core.minio.port" . }}
+      host: {{ include "minio.host" . }}
+      port: {{ include "minio.port" . }}
       user: {{ .Values.artifactBackend.minio.user }}
       password: {{ .Values.artifactBackend.minio.password }}
       bucketname: {{ .Values.artifactBackend.minio.bucketname }}
@@ -88,8 +88,8 @@ data:
       publicport: {{ include "core.modelBackend.publicPort" . }}
       privateport: {{ include "core.modelBackend.privatePort" . }}
     milvus:
-      host: {{ include "core.milvus" . }}
-      port: {{ include "core.milvus.port" . }}
+      host: {{ include "milvus.host" . }}
+      port: {{ include "milvus.port" . }}
     filetoembeddingworker:
       numberofworkers: {{ .Values.artifactBackend.numberOfWorkers }}
     blob:

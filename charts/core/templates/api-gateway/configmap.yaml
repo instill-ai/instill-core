@@ -50,8 +50,8 @@ data:
     REGISTRY_PORT={{ include "core.registry.port" . }}
 
     # minio
-    MINIO_HOST={{ include "core.minio.hostname" . }}
-    MINIO_PORT={{ include "core.minio.port" . }}
+    MINIO_HOST={{ include "minio.host" . }}
+    MINIO_PORT={{ include "minio.port" . }}
 
     # otel-collector
     OTEL_COLLECTOR_HOST={{ include "core.otel" . }}

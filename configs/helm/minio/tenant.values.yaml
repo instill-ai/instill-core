@@ -35,4 +35,4 @@ tenant:
     - name: "core-pipeline"
     - name: "core-model"
     - name: "core-artifact"
-    - name: "core-milvus"
+    - name: "milvus"
