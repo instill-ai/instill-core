@@ -1651,10 +1651,8 @@ elasticsearch:
 opentelemetry-collector:
   enabled: true
   mode: deployment
-  # This is required and recommanded for the upgrade from 0.88.0 to 0.89.0
-  # https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-collector/UPGRADING.md#0880-to-0890
   image:
-    repository: "otel/opentelemetry-collector-k8s"
+    repository: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
   ports:
     zipkin:
       enabled: false
@@ -1662,8 +1660,8 @@ opentelemetry-collector:
       enabled: false
     otlp:
       enabled: true
-      containerPort: 8095
-      servicePort: 8095
+      containerPort: 4317
+      servicePort: 4317
     metrics:
       enabled: true
       containerPort: 9001
@@ -1676,7 +1674,7 @@ opentelemetry-collector:
       otlp:
         protocols:
           grpc:
-            endpoint: ${env:MY_POD_IP}:8095
+            endpoint: ${env:MY_POD_IP}:4317
     processors:
       memory_limiter:
         limit_percentage: 50
@@ -1687,36 +1685,32 @@ opentelemetry-collector:
     exporters:
       debug: {}
       otlp:
-        endpoint:
+        endpoint: tempo:4317
         tls:
           insecure: true
+      otlphttp/logs:
+        endpoint: "http://loki:3100/otlp"
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: ${env:MY_POD_IP}:9001
+        namespace: instill-core
+        send_timestamps: true
+        enable_open_metrics: true
     service:
       pipelines:
-        logs:
-          exporters:
-            - debug
-          processors:
-            - memory_limiter
-            - batch
-          receivers:
-            - otlp
-        metrics:
-          exporters:
-            - debug
-          processors:
-            - memory_limiter
-            - batch
-          receivers:
-            - otlp
-            - prometheus
         traces:
-          exporters:
-            - debug
-          processors:
-            - memory_limiter
-            - batch
-          receivers:
-            - otlp
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlp]
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, prometheus]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug, otlphttp/logs]
 # -- The configuration of Prometheus Stack
 kube-prometheus-stack:
   enabled: true
@@ -1818,3 +1812,5 @@ kube-prometheus-stack:
           enabled: false
       dashboards:
         enabled: true
+tags:
+  observability: false

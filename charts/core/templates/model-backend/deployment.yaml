@@ -158,15 +158,17 @@ spec:
               path: /v1alpha/__readiness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-            periodSeconds: 10
-            initialDelaySeconds: 60
+            periodSeconds: 5
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /v1alpha/__liveness
               scheme: {{ ternary "https" "http" .Values.internalTLS.enabled | upper }}
               port: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-            periodSeconds: 10
-            initialDelaySeconds: 60
+            periodSeconds: 5
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
           {{- if .Values.modelBackend.resources }}
           resources:
             {{- toYaml .Values.modelBackend.resources | nindent 12 }}

@@ -26,11 +26,10 @@ data:
       {{- end }}
       instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
       taskschemaversion: {{ .Values.modelBackend.taskSchemaVersion }}
-    log:
-      external: false
-      otelcollector:
-        host: {{ include "core.otel" . }}
-        port: {{ include "core.otel.port" . }}
+    otelcollector:
+      enable: {{ .Values.tags.observability }}
+      host: {{ include "core.otel" . }}
+      port: {{ include "core.otel.port" . }}
     mgmtbackend:
       host: {{ include "core.mgmtBackend" . }}
       publicport: {{ include "core.mgmtBackend.publicPort" . }}

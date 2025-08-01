@@ -32,10 +32,11 @@ define HELM
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
-		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
-		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set tags.observability=$(OBSERVE_ENABLED) \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
+		--set mgmtBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		$(if $(filter true,$(1)),--set ray-cluster.head.autoscaling.enableInTreeAutoscaling=false,) \
 		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.cpu=0,) \
 		$(if $(filter true,$(1)),--set ray-cluster.head.resources.requests.memory=0,) \
