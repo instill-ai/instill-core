@@ -28,7 +28,19 @@ endef
 
 # Function to launch Helm chart
 define HELM
+	@echo "Add Helm repositories"
+	@helm repo add minio https://operator.min.io
+	@helm repo add kuberay https://ray-project.github.io/kuberay-helm
+	@helm repo add influxdata https://helm.influxdata.com
+	@helm repo add milvus https://zilliztech.github.io/milvus-helm
+	@helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+	@echo "Update Helm dependencies"
 	@cd charts/core && helm dependency update
+	@echo "Install MinIO Operator"
+	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace operator minio/operator --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/operator.values.yaml
+	@echo "Install MinIO Tenant"
+	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace tenant minio/tenant --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/tenant.values.yaml
+	@echo "Install Instill Core Helm chart"
 	@helm install ${HELM_RELEASE_NAME} charts/core \
 		--namespace ${HELM_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
@@ -81,6 +93,19 @@ endef
 
 # Function to cleanup helm release
 define REMOVE_HELM_RESOURCES
+	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
+		echo "Removing MinIO Operator" && \
+		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	fi
+	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "tenant" 2>/dev/null; then \
+		echo "Removing MinIO Tenant" && \
+		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	fi
+	@if kubectl get namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "Active" 2>/dev/null; then \
+		echo "Removing MinIO Namespace" && \
+		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; \
+	fi
+	@# Remove Helm release
 	@if helm list --namespace ${HELM_NAMESPACE} 2>/dev/null | grep -q "${HELM_RELEASE_NAME}" 2>/dev/null; then \
 		echo "Uninstalling Helm release ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}" && \
 		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE} >/dev/null 2>&1; \
