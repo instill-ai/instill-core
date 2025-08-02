@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.54.1](https://github.com/instill-ai/instill-core/compare/v0.54.0...v0.54.1) (2025-08-02)
+
+
+### Miscellaneous
+
+* **helm,otel:** update OTEL deployment ([#1338](https://github.com/instill-ai/instill-core/issues/1338)) ([ba2c81c](https://github.com/instill-ai/instill-core/commit/ba2c81cd841bcb07587c8604190dc0634481ab00))
+* **helm:** decouple milvus ([#1347](https://github.com/instill-ai/instill-core/issues/1347)) ([c868787](https://github.com/instill-ai/instill-core/commit/c86878763070e7453bcb3d5234506c669cefae32))
+* **helm:** decouple minio from milvus ([#1337](https://github.com/instill-ai/instill-core/issues/1337)) ([46fa883](https://github.com/instill-ai/instill-core/commit/46fa883fcc7a53fafdd788a7972131ac2f734f1e))
+* **helm:** decouple temporal namespace ([#1344](https://github.com/instill-ai/instill-core/issues/1344)) ([e772037](https://github.com/instill-ai/instill-core/commit/e7720371dcd9890c469cec65b9a2b18f389f6f9c))
+
 ## [0.54.0](https://github.com/instill-ai/instill-core/compare/v0.53.0...v0.54.0) (2025-07-31)
 
 
