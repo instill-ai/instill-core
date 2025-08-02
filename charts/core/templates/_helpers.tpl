@@ -171,71 +171,6 @@ console
 {{- end -}}
 
 {{/*
-Temporal
-*/}}
-{{- define "core.temporal" -}}
-  {{- printf "%s-temporal" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.temporal.admintools" -}}
-  {{- printf "%s-temporal-admintools" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.temporal.ui" -}}
-  {{- printf "%s-temporal-ui" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{/* Temporal container frontend gRPC port */}}
-{{- define "core.temporal.frontend.grpcPort" -}}
-  {{- printf "7233" -}}
-{{- end -}}
-
-{{/* Temporal container frontend membership port */}}
-{{- define "core.temporal.frontend.membershipPort" -}}
-  {{- printf "6933" -}}
-{{- end -}}
-
-{{/* Temporal container history gRPC port */}}
-{{- define "core.temporal.history.grpcPort" -}}
-  {{- printf "7234" -}}
-{{- end -}}
-
-{{/* Temporal container history membership port */}}
-{{- define "core.temporal.history.membershipPort" -}}
-  {{- printf "6934" -}}
-{{- end -}}
-
-{{/* Temporal container matching gRPC port */}}
-{{- define "core.temporal.matching.grpcPort" -}}
-  {{- printf "7235" -}}
-{{- end -}}
-
-{{/* Temporal container matching membership port */}}
-{{- define "core.temporal.matching.membershipPort" -}}
-  {{- printf "6935" -}}
-{{- end -}}
-
-{{/* Temporal container worker gRPC port */}}
-{{- define "core.temporal.worker.grpcPort" -}}
-  {{- printf "7239" -}}
-{{- end -}}
-
-{{/* Temporal container worker membership port */}}
-{{- define "core.temporal.worker.membershipPort" -}}
-  {{- printf "6939" -}}
-{{- end -}}
-
-{{/* Temporal web container port */}}
-{{- define "core.temporal.ui.port" -}}
-  {{- printf "8088" -}}
-{{- end -}}
-
-{{/* temporal metrics core at the service using the SDK */}}
-{{- define "core.temporal.metrics.port" -}}
-  {{- printf "8096" -}}
-{{- end -}}
-
-{{/*
 KubeRay
 */}}
 {{- define "core.kuberay" -}}
@@ -516,6 +451,21 @@ Allow KubeVersion to be overridden.
 */}}
 {{- define "core.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version .Values.expose.ingress.kubeVersionOverride -}}
+{{- end -}}
+
+{{/*
+Temporal
+*/}}
+{{- define "temporal.host" -}}
+  {{- printf "temporal-frontend-headless.temporal.svc.cluster.local" -}}
+{{- end -}}
+
+{{- define "temporal.frontend.grpcPort" -}}
+  {{- printf "7233" -}}
+{{- end -}}
+
+{{- define "temporal.frontend.metricsPort" -}}
+  {{- printf "9090" -}}
 {{- end -}}
 
 {{/*

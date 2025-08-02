@@ -80,7 +80,7 @@ spec:
               if [[ ! $(tctl --namespace mgmt-backend namespace list | grep mgmt-backend) ]]; then tctl --namespace mgmt-backend namespace register; fi
           env:
             - name: TEMPORAL_CLI_ADDRESS
-              value: "{{ include "core.temporal" . }}-frontend:{{ include "core.temporal.frontend.grpcPort" . }}"
+              value: "{{ include "temporal.host" . }}:{{ include "temporal.frontend.grpcPort" . }}"
         {{- end }}
         {{- if .Values.isPrimaryCluster }}
         - name: mgmt-backend-migration

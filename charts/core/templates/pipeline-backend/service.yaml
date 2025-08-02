@@ -19,8 +19,8 @@ spec:
       port: {{ include "core.pipelineBackend.publicPort" . }}
       targetPort: {{ include "core.pipelineBackend.publicPort" . }}
     - name: temporal-metrics
-      port: {{ include "core.temporal.metrics.port" . }}
-      targetPort: {{ include "core.temporal.metrics.port" . }}
+      port: 9090
+      targetPort: 9090
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
@@ -45,8 +45,8 @@ spec:
       port: {{ include "core.pipelineBackend.publicPort" . }}
       targetPort: {{ include "core.pipelineBackend.publicPort" . }}
     - name: temporal-metrics
-      port: {{ include "core.temporal.metrics.port" . }}
-      targetPort: {{ include "core.temporal.metrics.port" . }}
+      port: {{ include "temporal.frontend.metricsPort" . }}
+      targetPort: {{ include "temporal.frontend.metricsPort" . }}
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend-worker

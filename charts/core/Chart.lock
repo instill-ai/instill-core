@@ -8,14 +8,11 @@ dependencies:
 - name: ray-cluster
   repository: https://ray-project.github.io/kuberay-helm
   version: 1.3.2
-- name: elasticsearch
-  repository: https://helm.elastic.co
-  version: 8.5.1
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.129.0
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 70.3.0
-digest: sha256:2ebc6024831a9f7066305f92fc6fda9f9f6de6dc9b13302f2b36030804ae8675
-generated: "2025-08-01T02:23:16.271247+01:00"
+digest: sha256:558768b45afe203a97d32d5c894b6b62afe81abfb5c0c32b333d9b9b7578f262
+generated: "2025-08-02T02:09:25.778758+01:00"

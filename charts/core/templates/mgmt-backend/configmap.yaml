@@ -74,10 +74,11 @@ data:
         replicationtimeframe: 1
       {{- end }}
     temporal:
-      hostport: {{ default (printf "%s-frontend-headless:%s" (include "core.temporal" .) (include "core.temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
+      hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
       namespace: {{ default "mgmt-backend" .Values.mgmtBackend.temporal.namespace }}
       serverrootca: {{ default "" .Values.mgmtBackend.temporal.serverRootCA }}
       clientcert: {{ default "" .Values.mgmtBackend.temporal.clientCert }}
       clientkey: {{ default "" .Values.mgmtBackend.temporal.clientKey }}
       serverName: {{ default "" .Values.mgmtBackend.temporal.serverName }}
       insecureskipverify: {{ default "true" .Values.mgmtBackend.temporal.insecureSkipVerify }}
+      metricsport: {{ include "temporal.frontend.metricsPort" . }}

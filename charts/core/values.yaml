@@ -115,8 +115,6 @@ expose:
       apiGatewayMetrics:
       # The service port console web listens on
       console:
-      # The service port temporal web listens on
-      temporal:
     # Annotations on the LoadBalancer service
     annotations: {}
 # -- The external URL for Instill Core services. It is used to
@@ -384,7 +382,7 @@ mgmtBackend:
     spec:
       minAvailable:
       maxUnavailable:
-  # -- The configuration of Temporal Cloud
+  # -- The configuration of Temporal
   temporal:
     hostPort:
     namespace:
@@ -416,7 +414,7 @@ pipelineBackend:
     maxActivityRetry: 1
   useStaticModelList: false
   instillCoreHost:
-  # -- The configuration of Temporal Cloud
+  # -- The configuration of Temporal
   temporal:
     hostPort:
     namespace:
@@ -552,7 +550,7 @@ modelBackend:
   instillCoreHost:
   # -- The AI Task schema version
   taskSchemaVersion: 662c3e2
-  # -- The configuration of Temporal Cloud
+  # -- The configuration of Temporal
   temporal:
     hostPort:
     namespace:
@@ -1059,15 +1057,6 @@ influxdb2:
     organization:
     # -- The bucket of the external InfluxDB
     bucket:
-    user.yaml: |
-      etcd:
-        rootPath: core-milvus
-        log:
-          level: info
-      minio:
-        bucketName: core-milvus
-      pulsar:
-        namespace: instill-ai
 # -- The configuration of RayCluster CRD
 ray-cluster:
   enabled: true
@@ -1234,307 +1223,12 @@ kuberay-operator:
   env:
     - name: ENABLE_GCS_FT_REDIS_CLEANUP
       value: "false"
-# -- The configuration of Temporal
 temporal:
-  # -- Enable Temporal deployment or not
-  # If true, Temporal will be deployed as a part of the core deployment.
-  # If false, Temporal will be deployed as a separate deployment.
-  enabled: true
-  server:
-    # -- Enable Temporal server
-    enabled: true
-    # -- The image of Temporal server
-    image:
-      repository: temporalio/server
-      tag: "1.27"
-      pullPolicy: IfNotPresent
-    dynamicConfig: {}
-    config:
-      logLevel: "debug,info"
-      # IMPORTANT: This value cannot be changed, once it's set.
-      numHistoryShards: 512
-      persistence:
-        defaultStore: default
-        additionalStores: {}
-        default:
-          driver: "sql"
-          sql:
-            driver: "postgres12_pgx"
-            database: "temporal"
-            maxConns: 20
-            maxConnLifetime: "1h"
-        visibility:
-          driver: "sql"
-          sql:
-            driver: "postgres12_pgx"
-            database: "temporal_visibility"
-            maxConns: 20
-            maxConnLifetime: "1h"
-            # connectAttributes:
-            #   tx_isolation: 'READ-COMMITTED'
-    metrics:
-      # Annotate pods directly with Prometheus annotations.
-      # Use this if you installed Prometheus from a Helm chart.
-      annotations:
-        enabled: true
-      # Enable Prometheus ServiceMonitor
-      # Use this if you installed the Prometheus Operator (https://github.com/coreos/prometheus-operator).
-      serviceMonitor:
-        enabled: false
-        interval: 30s
-        # Set additional labels to all the ServiceMonitor resources
-        additionalLabels: {}
-        #  label1: value1
-        #  label2: value2
-        # Set Prometheus metric_relabel_configs via ServiceMonitor
-        # Use metricRelabelings to adjust metric and label names as needed
-        metricRelabelings: []
-        # - action: replace
-        #   sourceLabels:
-        #   - exported_namespace
-        #   targetLabel: temporal_namespace
-        # - action: replace
-        #   regex: service_errors_(.+)
-        #   replacement: ${1}
-        #   sourceLabels:
-        #   - __name__
-        #   targetLabel: temporal_error_kind
-        # - action: replace
-        #   regex: service_errors_.+
-        #   replacement: temporal_service_errors
-        #   sourceLabels:
-        #   - __name__
-        #   targetLabel: __name__
-      prometheus:
-        timerType: histogram
-    frontend:
-      replicaCount: 1
-      service:
-        annotations: {}
-        type: ClusterIP
-        port: 7233
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    history:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7234
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    matching:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7235
-      metrics:
-        annotations:
-          enabled: false
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    worker:
-      replicaCount: 1
-      service:
-        # type: ClusterIP
-        port: 7239
-      metrics:
-        annotations:
-          enabled: true
-        serviceMonitor: {}
-        # enabled: false
-        prometheus: {}
-        # timerType: histogram
-      podAnnotations: {}
-      resources: {}
-      nodeSelector: {}
-      tolerations: []
-      affinity: {}
-      autoscaling:
-        enabled: false
-        minReplicas:
-        maxReplicas:
-        targetCPUUtilizationPercentage:
-        targetMemoryUtilizationPercentage:
-      podDisruptionBudget:
-        enabled: false
-        spec:
-          minAvailable:
-          maxUnavailable:
-    # -- Set the service account to be used, default if left empty
-    serviceAccountName: ""
-    # -- Mount the service account token
-    automountServiceAccountToken: false
-    # -- Add extra env variables
-    extraEnv: []
-    # -- Mount external volumes
-    # For example, mount a secret containing Certificate root CA to verify database
-    # TLS connection.
-    extraVolumes: []
-    # - name: my-volume
-    #   secret:
-    #     secretName: my-secret
-    extraVolumeMounts: []
-    # - name: my-volume
-    #   mountPath: /etc/secrets/my-secret
-    #   readOnly: true
-    # -- Add extra init containers
-    extraInitContainers: []
-    # extraInitContainers:
-    #  - name: ...
-    #    image: ...
-    # -- Add extra sidecar containers
-    sidecarContainers: []
-    # -- Additional pod annotations
-    podAnnotations: {}
-    # -- Additional service annotations
-    serviceAnnotations: {}
-    # -- The pod resource
-    resources: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
   admintools:
-    # -- Enable Temporal admin-tools
-    enabled: true
-    # -- The image of Temporal admin-tools
     image:
       repository: temporalio/admin-tools
-      tag: "1.27"
+      tag: "1.28"
       pullPolicy: IfNotPresent
-    # -- Set the service account to be used, default if left empty
-    serviceAccountName: ""
-    # -- Mount the service account token
-    automountServiceAccountToken: false
-    # -- The number of replica for temporal admin-tools
-    replicaCount: 1
-    # -- The pod resource
-    resources: {}
-    ## -- The priority class to run the pod as
-    priorityClassName:
-    # -- Additional pod annotations
-    podAnnotations: {}
-    # -- Additional service annotations
-    serviceAnnotations: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-  ui:
-    # -- Enable Temporal UI
-    enabled: true
-    # -- The image of Temporal UI
-    image:
-      repository: temporalio/ui
-      tag: 2.37.0
-      pullPolicy: IfNotPresent
-    # -- Set the service account to be used, default if left empty
-    serviceAccountName: ""
-    # -- Mount the service account token
-    automountServiceAccountToken: false
-    # -- The number of replica for temporal ui
-    replicaCount: 1
-    # -- The pod resource
-    resources: {}
-    ## -- The priority class to run the pod as
-    priorityClassName:
-    # -- Additional pod annotations
-    podAnnotations: {}
-    # -- Additional service annotations
-    serviceAnnotations: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    config:
-      # server/config.yml file content
-      auth:
-        enabled: false
-      routing:
-        default_to_namespace: default
-        issue_report_link: https://github.com/temporalio/web/issues/new/choose # set this field if you need to direct people to internal support forums
-  external:
-    hostPort:
-      host:
-      port:
-# -- The configuration of Elasticsearch
-elasticsearch:
-  # -- If external Elasticsearch is used, set "enabled" to false
-  # and fill the connection information in "external" section
-  enabled: true
-  clusterName: core-elasticsearch
-  replicas: 1
-  version: v7
-  protocol: http
-  httpPort: 9200
-  createCert: false
-  visibilityIndex: "temporal_visibility_v1_dev"
-  secret:
-    password: password
-  persistence:
-    enabled: false
-  esConfig:
-    elasticsearch.yml: |
-      xpack.security.enabled: false
-  ## -- The configuration of external Elasticsearch
-  external:
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   enabled: true

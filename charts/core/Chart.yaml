@@ -30,10 +30,6 @@ dependencies:
     repository: https://ray-project.github.io/kuberay-helm
     version: 1.3.2
     condition: ray-cluster.enabled
-  - name: elasticsearch
-    repository: https://helm.elastic.co
-    version: 8.5.1
-    condition: elasticsearch.enabled
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     version: 0.129.0

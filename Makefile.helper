@@ -34,18 +34,26 @@ define HELM
 	@helm repo add influxdata https://helm.influxdata.com
 	@helm repo add milvus-operator https://zilliztech.github.io/milvus-operator
 	@helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+	@helm repo add temporal https://go.temporal.io/helm-charts
+	@echo ""
 	@echo "Update Helm dependencies"
 	@cd charts/core && helm dependency update
+	@echo ""
+	@echo "Install Temporal"
+	@helm install --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} --create-namespace temporal temporal/temporal --version ${TEMPORAL_HELM_CHART_VERSION} --values configs/helm/temporal/values.yaml
+	@echo ""
 	@echo "Install MinIO in single-tenant mode"
 	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace operator minio/operator --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/operator.values.yaml
 	@helm install --namespace ${MINIO_KUBERNETES_NAMESPACE} --create-namespace tenant minio/tenant --version ${MINIO_OPERATOR_HELM_CHART_VERSION} --values configs/helm/minio/tenant.values.yaml
+	@echo ""
 	@echo "Install Milvus in standalone mode"
 	@helm install --namespace ${MILVUS_KUBERNETES_NAMESPACE} --create-namespace milvus-operator milvus-operator/milvus-operator --version ${MILVUS_OPERATOR_HELM_CHART_VERSION} --values configs/helm/milvus/values.yaml
 	@kubectl apply --namespace ${MILVUS_KUBERNETES_NAMESPACE} -f configs/helm/milvus/secret.yaml
 	@kubectl apply --namespace ${MILVUS_KUBERNETES_NAMESPACE} -f configs/helm/milvus/standalone.yaml
+	@echo ""
 	@echo "Install Instill Core Helm chart"
-	@helm install ${HELM_RELEASE_NAME} charts/core \
-		--namespace ${HELM_NAMESPACE} --create-namespace \
+	@helm install ${INSTILL_CORE_HELM_RELEASE_NAME} charts/core \
+		--namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
 		--set tags.observability=$(OBSERVE_ENABLED) \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -96,20 +104,24 @@ endef
 
 # Function to cleanup helm release
 define REMOVE_HELM_RESOURCES
-	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
-		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
-		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
-		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE}; \
-	fi
 	@if helm list --namespace ${MILVUS_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "milvus-operator" 2>/dev/null; then \
 		kubectl delete milvus milvus -n milvus >/dev/null 2>&1; \
 		helm uninstall milvus-operator --namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 	fi
+	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
+		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "temporal" 2>/dev/null; then \
+		helm uninstall temporal --namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
+		kubectl delete namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
+	fi
 	@# Remove Helm release
-	@if helm list --namespace ${HELM_NAMESPACE} 2>/dev/null | grep -q "${HELM_RELEASE_NAME}" 2>/dev/null; then \
-		helm uninstall ${HELM_RELEASE_NAME} --namespace ${HELM_NAMESPACE}; \
-		kubectl delete namespace ${HELM_NAMESPACE}; \
+	@if helm list --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "${INSTILL_CORE_HELM_RELEASE_NAME}" 2>/dev/null; then \
+		helm uninstall ${INSTILL_CORE_HELM_RELEASE_NAME} --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE}; \
+		kubectl delete namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE}; \
 		ps aux | grep "[k]ubectl port-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \
 	fi
 endef
@@ -131,13 +143,13 @@ endef
 # Function to run Helm backend integration test
 define HELM_INTEGRATION_TEST
 	@$(MAKE) helm-run CI=true
-	@bash -c 'while [[ "$$(kubectl get pods --namespace ${HELM_NAMESPACE} -l app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core -o jsonpath={..status.phase})" != *"Running"* ]]; do \
-		echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"; \
+	@bash -c 'while [[ "$$(kubectl get pods --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} -l app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core -o jsonpath={..status.phase})" != *"Running"* ]]; do \
+		echo "$$(kubectl get pods --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE})"; \
 		sleep 10; \
 	done; \
-	echo "$$(kubectl get pods --namespace ${HELM_NAMESPACE})"'
-	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
-	@kubectl --namespace ${HELM_NAMESPACE} port-forward $$(kubectl get pods --namespace ${HELM_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
+	echo "$$(kubectl get pods --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE})"'
+	@kubectl --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} port-forward $$(kubectl get pods --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} -l "app.kubernetes.io/component=api-gateway,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${API_GATEWAY_PORT}:${API_GATEWAY_PORT} > /dev/null 2>&1 &
+	@kubectl --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} port-forward $$(kubectl get pods --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} -l "app.kubernetes.io/component=database,app.kubernetes.io/instance=core" -o jsonpath="{.items[0].metadata.name}") ${POSTGRESQL_PORT}:${POSTGRESQL_PORT} > /dev/null 2>&1 &
 	@echo "Waiting for port-forwarding to be ready..."
 	@timeout=120; \
 		while ! nc -z localhost ${API_GATEWAY_PORT} >/dev/null 2>&1 || ! nc -z localhost ${POSTGRESQL_PORT} >/dev/null 2>&1; do \
