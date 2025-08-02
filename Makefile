@@ -51,6 +51,7 @@ GIT_COMMIT_SHA := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
 
 # 3rd-party Kubernetes namespaces
 MINIO_KUBERNETES_NAMESPACE := minio
+MILVUS_KUBERNETES_NAMESPACE := milvus
 
 #============================================================================
 

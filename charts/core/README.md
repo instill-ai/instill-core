@@ -1,6 +1,6 @@
 # core
 
-![Version: 0.1.65-rc](https://img.shields.io/badge/Version-0.1.65--rc-informational?style=flat-square) ![AppVersion: 0.54.0-rc](https://img.shields.io/badge/AppVersion-0.54.0--rc-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.65](https://img.shields.io/badge/Version-0.1.65-informational?style=flat-square) ![AppVersion: 0.54.0](https://img.shields.io/badge/AppVersion-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 The Helm chart of Instill Core
 
@@ -14,7 +14,6 @@ The Helm chart of Instill Core
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 70.3.0 |
 | https://ray-project.github.io/kuberay-helm | kuberay-operator | 1.3.2 |
 | https://ray-project.github.io/kuberay-helm | ray-cluster | 1.3.2 |
-| https://zilliztech.github.io/milvus-helm | milvus | 4.1.30 |
 
 ## Install
 
