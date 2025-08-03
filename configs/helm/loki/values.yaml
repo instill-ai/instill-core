@@ -1,0 +1,93 @@
+loki:
+  schemaConfig:
+    configs:
+      - from: "2020-05-15"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+  storageConfig:
+    tsdb_shipper:
+      active_index_directory: /var/loki/tsdb-index
+      cache_location: /var/loki/tsdb-cache
+      shared_store: s3
+    aws:
+      bucketnames: loki
+      endpoint: minio-tenant-hl.minio.svc.cluster.local:9000
+      access_key_id: minioadmin
+      secret_access_key: minioadmin
+      s3forcepathstyle: true
+
+  distributor:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  ingester:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  querier:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  queryFrontend:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  compactor:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  tableManager:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  gateway:
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  memcached:
+    enabled: true
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  memcachedChunkCache:
+    enabled: true
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  memcachedIndexCache:
+    enabled: true
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  memcachedQueryResultsCache:
+    enabled: true
+    replicas: 1
+    autoscaling:
+      enabled: false
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+
+  serviceMonitor:
+    enabled: true
+    interval: 30s
