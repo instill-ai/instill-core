@@ -1,0 +1,3 @@
+env:
+  - name: ENABLE_GCS_FT_REDIS_CLEANUP
+    value: "false"

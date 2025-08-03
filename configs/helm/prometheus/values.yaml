@@ -22,16 +22,16 @@ prometheus:
         scheme: http
         static_configs:
           - targets:
-              - core-pipeline-backend.instill-ai.svc.cluster.local:8096
-              - core-pipeline-backend-worker.instill-ai.svc.cluster.local:8096
+              - core-pipeline-backend.instill-ai.svc.cluster.local:9090
+              - core-pipeline-backend-worker.instill-ai.svc.cluster.local:9090
             labels:
               app: temporal
-      - job_name: "kuberay"
+      - job_name: "ray"
         static_configs:
           - targets:
-              - "core-kuberay-head-svc.instill-ai.svc.cluster.local:8080"
+              - "raycluster-head-svc.ray.svc.cluster.local:8080"
             labels:
-              app: kuberay
+              app: ray
       - job_name: "otel-collector"
         static_configs:
           - targets:

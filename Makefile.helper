@@ -41,6 +41,13 @@ define HELM
 	@echo "Update Helm dependencies"
 	@cd charts/core && helm dependency update
 	@echo ""
+	@echo "Install Ray"
+	@helm install --namespace ${RAY_KUBERNETES_NAMESPACE} --create-namespace ray-operator kuberay/kuberay-operator --version ${RAY_OPERATOR_HELM_CHART_VERSION} --values configs/helm/ray/operator.values.yaml
+	@kubectl apply --namespace ${RAY_KUBERNETES_NAMESPACE} -f configs/helm/ray/clusterrole.yaml
+	@kubectl apply --namespace ${RAY_KUBERNETES_NAMESPACE} -f configs/helm/ray/configmap.yaml
+	@kubectl apply --namespace ${RAY_KUBERNETES_NAMESPACE} -f configs/helm/ray/persistentvolumeclaim.yaml
+	@kubectl apply --namespace ${RAY_KUBERNETES_NAMESPACE} -f configs/helm/ray/raycluster.yaml
+	@echo ""
 	@echo "Install Temporal"
 	@helm install --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} --create-namespace temporal temporal/temporal --version ${TEMPORAL_HELM_CHART_VERSION} --values configs/helm/temporal/values.yaml
 	@echo ""
@@ -74,7 +81,6 @@ define HELM
 		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.cpu=0,) \
 		$(if $(filter true,$(1)),--set ray-cluster.worker.resources.requests.memory=0,) \
 		$(if $(filter true,$(1)),--set opentelemetry-collector.enabled=false,) \
-		$(if $(filter true,$(1)),--set kube-prometheus-stack.enabled=false,) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTID',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
@@ -132,9 +138,11 @@ define REMOVE_HELM_RESOURCES
 		helm uninstall loki --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
 		helm uninstall prometheus --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
+		kubectl get crds --no-headers | grep monitoring.coreos.com | awk '{print $1}' | xargs -r kubectl delete crd --ignore-not-found=true; \
 	fi
 	@if helm list --namespace ${MILVUS_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "milvus-operator" 2>/dev/null; then \
-		kubectl delete milvus milvus -n milvus >/dev/null 2>&1; \
+		kubectl delete -f configs/helm/milvus/standalone.yaml; \
+		kubectl delete -f configs/helm/milvus/secret.yaml; \
 		helm uninstall milvus-operator --namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 	fi
@@ -146,6 +154,15 @@ define REMOVE_HELM_RESOURCES
 	@if helm list --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "temporal" 2>/dev/null; then \
 		helm uninstall temporal --namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
+	fi
+	@if helm list --namespace ${RAY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "ray" 2>/dev/null; then \
+		helm uninstall ray-operator --namespace ${RAY_KUBERNETES_NAMESPACE}; \
+		kubectl delete -f configs/helm/ray/configmap.yaml; \
+		kubectl delete -f configs/helm/ray/raycluster.yaml; \
+		kubectl delete -f configs/helm/ray/clusterrole.yaml; \
+		kubectl delete -f configs/helm/ray/persistentvolumeclaim.yaml; \
+		kubectl delete namespace ${RAY_KUBERNETES_NAMESPACE}; \
+		kubectl get crds --no-headers | grep ray.io | awk '{print $1}' | xargs -r kubectl delete crd --ignore-not-found=true; \
 	fi
 	@if helm list --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "${INSTILL_CORE_HELM_RELEASE_NAME}" 2>/dev/null; then \
 		helm uninstall ${INSTILL_CORE_HELM_RELEASE_NAME} --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE}; \
