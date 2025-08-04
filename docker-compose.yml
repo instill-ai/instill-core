@@ -89,6 +89,7 @@ services:
       CFG_OPENFGA_HOST: ${OPENFGA_HOST}
       CFG_OPENFGA_PORT: ${OPENFGA_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
@@ -148,6 +149,7 @@ services:
       CFG_OPENFGA_HOST: ${OPENFGA_HOST}
       CFG_OPENFGA_PORT: ${OPENFGA_PORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_MINIO_HOST: ${MINIO_HOST}
       CFG_MINIO_PORT: ${MINIO_PORT}
@@ -236,6 +238,7 @@ services:
       CFG_MGMTBACKEND_HOST: ${MGMT_BACKEND_HOST}
       CFG_MGMTBACKEND_PRIVATEPORT: ${MGMT_BACKEND_PRIVATEPORT}
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     command:
@@ -284,6 +287,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_CACHE_REDIS_REDISOPTIONS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./model-backend-worker
@@ -326,6 +330,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     command:
       - /bin/sh
@@ -372,6 +377,7 @@ services:
       CFG_DATABASE_USERNAME: postgres
       CFG_DATABASE_PASSWORD: password
       CFG_TEMPORAL_HOSTPORT: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
+      CFG_TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE}
       CFG_INFLUXDB_URL: http://${INFLUXDB_HOST}:${INFLUXDB_PORT}
     entrypoint: ./mgmt-backend-worker
     depends_on:
@@ -415,6 +421,7 @@ services:
       ENABLE_ES: "true"
       ES_SEEDS: ${ELASTICSEARCH_HOST}
       ES_VERSION: v7
+      DEFAULT_NAMESPACE: ${TEMPORAL_NAMESPACE}
     volumes:
       - ${CONFIG_DIR_PATH}/temporal/development-sql.yml:/etc/temporal/config/dynamicconfig/development-sql.yml
     healthcheck:
@@ -427,16 +434,6 @@ services:
       pg_sql:
         condition: service_healthy
       elasticsearch:
-        condition: service_healthy
-
-  temporal_ui:
-    container_name: ${TEMPORAL_UI_HOST}
-    image: ${TEMPORAL_UI_IMAGE}:${TEMPORAL_UI_VERSION}
-    restart: unless-stopped
-    environment:
-      TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
-    depends_on:
-      temporal:
         condition: service_healthy
 
   ray:

@@ -75,7 +75,7 @@ data:
       {{- end }}
     temporal:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
-      namespace: {{ default "mgmt-backend" .Values.mgmtBackend.temporal.namespace }}
+      namespace: {{ default "instill-core" .Values.mgmtBackend.temporal.namespace }}
       serverrootca: {{ default "" .Values.mgmtBackend.temporal.serverRootCA }}
       clientcert: {{ default "" .Values.mgmtBackend.temporal.clientCert }}
       clientkey: {{ default "" .Values.mgmtBackend.temporal.clientKey }}

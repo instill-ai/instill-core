@@ -76,8 +76,7 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - >
-              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done &&
-              if [[ ! $(tctl --namespace pipeline-backend namespace list | grep pipeline-backend) ]]; then tctl --namespace pipeline-backend namespace register; fi
+              until tctl cluster health 2>&1 > /dev/null; do echo waiting for Temporal; sleep 2; done
           env:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ include "temporal.host" . }}:{{ include "temporal.frontend.grpcPort" . }}"
