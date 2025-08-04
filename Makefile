@@ -58,6 +58,7 @@ OBSERVABILITY_KUBERNETES_NAMESPACE := observability
 
 #============================================================================
 
+include Makefile.helm
 include Makefile.helper
 
 .PHONY: run
