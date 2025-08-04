@@ -238,7 +238,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: beb9add
+    tag: 0.36.1
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
