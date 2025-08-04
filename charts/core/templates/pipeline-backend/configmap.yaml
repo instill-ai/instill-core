@@ -86,7 +86,7 @@ data:
           addr: {{ default (include "core.redis.addr" .) .Values.redis.external.addr }}
     temporal:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.pipelineBackend.temporal.hostPort }}
-      namespace: {{ default "pipeline-backend" .Values.pipelineBackend.temporal.namespace }}
+      namespace: {{ default "instill-core" .Values.pipelineBackend.temporal.namespace }}
       servername: {{ default "" .Values.pipelineBackend.temporal.serverName }}
       serverrootca: {{ default "" .Values.pipelineBackend.temporal.serverRootCA }}
       clientcert: {{ default "" .Values.pipelineBackend.temporal.clientCert }}

@@ -1,5 +1,11 @@
 server:
   replicaCount: 1
+  config:
+    namespaces:
+      create: true
+      namespace:
+        - name: instill-core
+          retention: 30d
 
 cassandra:
   config:

@@ -64,8 +64,16 @@ services:
       - ${TEMPORAL_HOST_PORT}:${TEMPORAL_PORT}
 
   temporal_ui:
+    container_name: ${TEMPORAL_UI_HOST}
+    image: ${TEMPORAL_UI_IMAGE}:${TEMPORAL_UI_VERSION}
+    restart: unless-stopped
+    environment:
+      TEMPORAL_ADDRESS: ${TEMPORAL_HOST}:${TEMPORAL_PORT}
     ports:
       - ${TEMPORAL_UI_HOST_PORT}:${TEMPORAL_UI_PORT}
+    depends_on:
+      temporal:
+        condition: service_healthy
 
   ray:
     ports:
