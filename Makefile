@@ -50,6 +50,7 @@ CONFIG_DIR_PATH := ./configs/compose
 GIT_COMMIT_SHA := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
 
 # 3rd-party Kubernetes namespaces
+RAY_KUBERNETES_NAMESPACE := ray
 TEMPORAL_KUBERNETES_NAMESPACE := temporal
 MINIO_KUBERNETES_NAMESPACE := minio
 MILVUS_KUBERNETES_NAMESPACE := milvus

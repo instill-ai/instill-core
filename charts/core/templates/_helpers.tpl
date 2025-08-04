@@ -171,83 +171,6 @@ console
 {{- end -}}
 
 {{/*
-KubeRay
-*/}}
-{{- define "core.kuberay" -}}
-    {{- printf "%s-kuberay" (include "core.fullname" .) -}}
-{{- end -}}
-
-{{- define "core.kuberay.host" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "%s-head-svc" (include "core.kuberay" .) -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%s" .external.host -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.grpcPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "9000" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.grpc) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.servePort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "8000" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.serve) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.dashboardPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "8265" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.dashboard) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.clientPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "10001" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.client) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.gcsPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "6379" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.gcs) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "core.kuberay.metricsPort" -}}
-  {{- if (index .Values "ray-cluster").enabled -}}
-    {{- printf "8080" -}}
-  {{- else -}}
-    {{- with index .Values "ray-cluster" }}
-      {{- printf "%d" (int .external.port.metrics) -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Database
 */}}
 {{- define "core.database" -}}
@@ -451,6 +374,37 @@ Allow KubeVersion to be overridden.
 */}}
 {{- define "core.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version .Values.expose.ingress.kubeVersionOverride -}}
+{{- end -}}
+
+{{/*
+Ray
+*/}}
+{{- define "ray.host" -}}
+  {{- printf "raycluster-head-svc.ray.svc.cluster.local" -}}
+{{- end -}}
+
+{{- define "ray.grpcPort" -}}
+  {{- printf "9000" -}}
+{{- end -}}
+
+{{- define "ray.servePort" -}}
+  {{- printf "8000" -}}
+{{- end -}}
+
+{{- define "ray.dashboardPort" -}}
+  {{- printf "8265" -}}
+{{- end -}}
+
+{{- define "ray.clientPort" -}}
+  {{- printf "10001" -}}
+{{- end -}}
+
+{{- define "ray.gcsPort" -}}
+  {{- printf "6379" -}}
+{{- end -}}
+
+{{- define "ray.metricsPort" -}}
+  {{- printf "8080" -}}
 {{- end -}}
 
 {{/*

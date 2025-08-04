@@ -25,13 +25,7 @@ echo http://$SERVICE_IP:{{ .Values.service.port }}
   export API_GATEWAY_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${API_GATEWAY_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   export CONSOLE_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/component=console,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   export CONSOLE_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${CONSOLE_POD_NAME} -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  export RAY_HEAD_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "ray.io/identifier=core-ray-head" -o jsonpath="{.items[0].metadata.name}")
-  export RAY_HEAD_CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} ${RAY_HEAD_POD_NAME} -o jsonpath="{.spec.containers[0].ports[?(@.name=='dashboard')].containerPort}")
 {{- end }}
   echo "Access to the api-gateway http://localhost:8080 and console http://localhost:3000 by:"
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${API_GATEWAY_POD_NAME} 8080:${API_GATEWAY_CONTAINER_PORT}"
   echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${CONSOLE_POD_NAME} 3000:${CONSOLE_CONTAINER_PORT}"
-{{- if (index .Values "ray-cluster" "enabled") }}
-  echo "Ray Dashboard at http://localhost:8265 by:"
-  echo "kubectl --namespace {{ .Release.Namespace }} port-forward ${RAY_HEAD_POD_NAME} 8265:${RAY_HEAD_CONTAINER_PORT}"
-{{- end }}

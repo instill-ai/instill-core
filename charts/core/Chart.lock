@@ -2,14 +2,8 @@ dependencies:
 - name: influxdb2
   repository: https://helm.influxdata.com
   version: 2.1.1
-- name: kuberay-operator
-  repository: https://ray-project.github.io/kuberay-helm
-  version: 1.3.2
-- name: ray-cluster
-  repository: https://ray-project.github.io/kuberay-helm
-  version: 1.3.2
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.129.0
-digest: sha256:939bd515c768aacd46aa7d5207c3f9bde3bc867ae1b06b56b3389437d9d3804a
-generated: "2025-08-03T13:21:49.85844+01:00"
+digest: sha256:2f6613db8d26587e59afaf8fe383662f75c79a09a17a2dcb36595e01704bca34
+generated: "2025-08-03T16:31:33.676006+01:00"

@@ -49,14 +49,14 @@ data:
         key: /etc/instill-ai/core/ssl/artifact/tls.key
       {{- end }}
     ray:
-      host: {{ include "core.kuberay.host" . }}
+      host: {{ include "ray.host" . }}
       port:
-        grpc: {{ include "core.kuberay.grpcPort" . }}
-        client: {{ include "core.kuberay.clientPort" . }}
-        dashboard: {{ include "core.kuberay.dashboardPort" . }}
-        gcs: {{ include "core.kuberay.gcsPort" . }}
-        serve: {{ include "core.kuberay.servePort" . }}
-        metrics: {{ include "core.kuberay.metricsPort" . }}
+        grpc: {{ include "ray.grpcPort" . }}
+        client: {{ include "ray.clientPort" . }}
+        dashboard: {{ include "ray.dashboardPort" . }}
+        gcs: {{ include "ray.gcsPort" . }}
+        serve: {{ include "ray.servePort" . }}
+        metrics: {{ include "ray.metricsPort" . }}
     database:
       username: {{ include "core.database.username" . }}
       password: {{ include "core.database.password" . }}
@@ -102,11 +102,7 @@ data:
         replicationtimeframe: 1
       {{- end }}
     registry:
-      {{- if .Values.namespaceOverride }}
       host: {{ include "core.registry" . }}.{{ include "core.namespace" . }}.svc.cluster.local
-      {{- else }}
-      host: {{ include "core.registry" . }}
-      {{- end }}
       port: {{ include "core.registry.port" . }}
     influxdb:
       url: {{ include "core.influxdb2.url" . }}

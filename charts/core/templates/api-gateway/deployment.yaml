@@ -70,12 +70,11 @@ spec:
               value: "{{ include "core.pipelineBackend" . }}"
             - name: PIPELINE_BACKEND_PORT
               value: "{{ include "core.pipelineBackend.publicPort" . }}"
-        {{- if .Values.temporal.enabled }}
         - name: temporal-admin-tools
           securityContext:
             runAsUser: 0
-          image: {{ .Values.temporal.admintools.image.repository }}:{{ .Values.temporal.admintools.image.tag }}
-          imagePullPolicy: {{ .Values.temporal.admintools.image.pullPolicy }}
+          image: temporalio/admin-tools:1.28
+          imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c"]
           args:
             - >
@@ -83,7 +82,6 @@ spec:
           env:
             - name: TEMPORAL_CLI_ADDRESS
               value: "{{ include "temporal.host" . }}:{{ include "temporal.frontend.grpcPort" . }}"
-        {{- end }}
         {{- with .Values.apiGateway.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

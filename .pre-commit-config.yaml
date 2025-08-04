@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: check-yaml
         exclude: ^charts
+        args: [--allow-multiple-documents]
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/pinglin/conventional-pre-commit
