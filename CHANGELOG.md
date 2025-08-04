@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.54.1](https://github.com/instill-ai/instill-core/compare/v0.54.0...v0.54.1) (2025-08-04)
+
+
+### Miscellaneous
+
+* **env:** update API_GATEWAY_VERSION ([#1349](https://github.com/instill-ai/instill-core/issues/1349)) ([72e0453](https://github.com/instill-ai/instill-core/commit/72e04530199da0b393a8ccc37ab4eed905e5ded4))
+* **env:** update API_GATEWAY_VERSION ([#1351](https://github.com/instill-ai/instill-core/issues/1351)) ([952a51f](https://github.com/instill-ai/instill-core/commit/952a51f9d7a5b0132d7a0c8eb4c077940525fc14))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1353](https://github.com/instill-ai/instill-core/issues/1353)) ([f41746c](https://github.com/instill-ai/instill-core/commit/f41746c41ba3143a74357f8973bc028a5356396a))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1354](https://github.com/instill-ai/instill-core/issues/1354)) ([b332eb1](https://github.com/instill-ai/instill-core/commit/b332eb1418c65bb8423478e37b9400be9354e12c))
+* **helm,otel:** update OTEL deployment ([#1338](https://github.com/instill-ai/instill-core/issues/1338)) ([ba2c81c](https://github.com/instill-ai/instill-core/commit/ba2c81cd841bcb07587c8604190dc0634481ab00))
+* **helm:** decouple milvus ([#1347](https://github.com/instill-ai/instill-core/issues/1347)) ([c868787](https://github.com/instill-ai/instill-core/commit/c86878763070e7453bcb3d5234506c669cefae32))
+* **helm:** decouple minio from milvus ([#1337](https://github.com/instill-ai/instill-core/issues/1337)) ([46fa883](https://github.com/instill-ai/instill-core/commit/46fa883fcc7a53fafdd788a7972131ac2f734f1e))
+* **helm:** decouple observability namespace ([#1342](https://github.com/instill-ai/instill-core/issues/1342)) ([5f1a224](https://github.com/instill-ai/instill-core/commit/5f1a224dd17278f049bdc94a32fba67fee4888a3))
+* **helm:** decouple ray ([#1350](https://github.com/instill-ai/instill-core/issues/1350)) ([f5cdd33](https://github.com/instill-ai/instill-core/commit/f5cdd3343a443e428c8d2ae5602bcb6a65b29bc6))
+* **helm:** decouple temporal namespace ([#1344](https://github.com/instill-ai/instill-core/issues/1344)) ([e772037](https://github.com/instill-ai/instill-core/commit/e7720371dcd9890c469cec65b9a2b18f389f6f9c))
+* **temporal:** use shared Temporal namespace for all services ([#1352](https://github.com/instill-ai/instill-core/issues/1352)) ([85a2cc0](https://github.com/instill-ai/instill-core/commit/85a2cc01a4fcaa41a3b3340f70ab8aeb700b56a4))
+
 ## [0.54.0](https://github.com/instill-ai/instill-core/compare/v0.53.0...v0.54.0) (2025-07-31)
 
 
