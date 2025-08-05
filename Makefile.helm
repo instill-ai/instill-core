@@ -57,7 +57,7 @@ define HELM_INSTALL_INSTILL_CORE
 	@helm install ${INSTILL_CORE_HELM_RELEASE_NAME} charts/core \
 		--namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} --create-namespace \
 		--set edition=$(if $(filter true,$(1)),k8s-ce:test,k8s-ce) \
-		--set tags.observability=$(OBSERVE_ENABLED) \
+		--set opentelemetry-collector.enabled=$(OBSERVE_ENABLED) \
 		--set pipelineBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set artifactBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
 		--set modelBackend.instillCoreHost=http://${INSTILL_CORE_HOST}:${API_GATEWAY_PORT} \
@@ -72,7 +72,7 @@ define HELM_INSTALL_INSTILL_CORE
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
-		--timeout 60s
+		--timeout 300s
 endef
 
 # Function to install observability stack
@@ -94,7 +94,7 @@ endef
 
 # Function to remove observability stack
 define REMOVE_OBSERVABILITY
-	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "grafana" 2>/dev/null; then \
+	@if helm list --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "grafana\|tempo\|loki\|prometheus" || kubectl get namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		helm uninstall grafana --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
 		helm uninstall tempo --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
 		helm uninstall loki --namespace ${OBSERVABILITY_KUBERNETES_NAMESPACE}; \
@@ -106,7 +106,7 @@ endef
 
 # Function to remove Milvus
 define REMOVE_MILVUS
-	@if helm list --namespace ${MILVUS_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "milvus-operator" 2>/dev/null; then \
+	@if helm list --namespace ${MILVUS_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "milvus-operator" || kubectl get namespace ${MILVUS_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		kubectl delete -f configs/helm/milvus/manifests; \
 		helm uninstall milvus-operator --namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${MILVUS_KUBERNETES_NAMESPACE}; \
@@ -115,7 +115,7 @@ endef
 
 # Function to remove MinIO
 define REMOVE_MINIO
-	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator" 2>/dev/null; then \
+	@if helm list --namespace ${MINIO_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "operator\|tenant" || kubectl get namespace ${MINIO_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		helm uninstall operator --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
 		helm uninstall tenant --namespace ${MINIO_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${MINIO_KUBERNETES_NAMESPACE}; \
@@ -124,7 +124,7 @@ endef
 
 # Function to remove Temporal
 define REMOVE_TEMPORAL
-	@if helm list --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "temporal" 2>/dev/null; then \
+	@if helm list --namespace ${TEMPORAL_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "temporal" || kubectl get namespace ${TEMPORAL_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		helm uninstall temporal --namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${TEMPORAL_KUBERNETES_NAMESPACE}; \
 	fi
@@ -132,7 +132,7 @@ endef
 
 # Function to remove Ray
 define REMOVE_RAY
-	@if helm list --namespace ${RAY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "ray" 2>/dev/null; then \
+	@if helm list --namespace ${RAY_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "ray-operator" || kubectl get namespace ${RAY_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		helm uninstall ray-operator --namespace ${RAY_KUBERNETES_NAMESPACE}; \
 		kubectl delete -f configs/helm/ray/manifests; \
 		kubectl delete namespace ${RAY_KUBERNETES_NAMESPACE}; \
@@ -142,7 +142,7 @@ endef
 
 # Function to remove Instill Core
 define REMOVE_INSTILL_CORE
-	@if helm list --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "${INSTILL_CORE_HELM_RELEASE_NAME}" 2>/dev/null; then \
+	@if helm list --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} 2>/dev/null | grep -q "${INSTILL_CORE_HELM_RELEASE_NAME}" || kubectl get namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE} >/dev/null 2>&1; then \
 		helm uninstall ${INSTILL_CORE_HELM_RELEASE_NAME} --namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE}; \
 		kubectl delete namespace ${INSTILL_CORE_KUBERNETES_NAMESPACE}; \
 		ps aux | grep "[k]ubectl port-forward" | awk '{print $$2}' | xargs -r kill -9 2>/dev/null || true; \

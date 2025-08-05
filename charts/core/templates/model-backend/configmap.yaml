@@ -27,7 +27,7 @@ data:
       instillcorehost: {{ .Values.modelBackend.instillCoreHost }}
       taskschemaversion: {{ .Values.modelBackend.taskSchemaVersion }}
     otelcollector:
-      enable: {{ .Values.tags.observability }}
+      enable: {{ index .Values "opentelemetry-collector" "enabled" }}
       host: {{ include "core.otel" . }}
       port: {{ include "core.otel.port" . }}
     mgmtbackend:

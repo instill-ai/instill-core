@@ -1,4 +1,4 @@
-{{- if eq .Values.tags.observability true }}
+{{- if eq (index .Values "opentelemetry-collector" "enabled") true }}
 kind: ConfigMap
 apiVersion: v1
 metadata:

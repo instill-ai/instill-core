@@ -21,6 +21,7 @@ dependencies:
   - name: openfga
     repository: https://openfga.github.io/helm-charts
     version: 0.2.39
+    condition: openfga.enabled
   - name: influxdb2
     repository: https://helm.influxdata.com
     version: 2.1.1
@@ -28,5 +29,4 @@ dependencies:
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     version: 0.129.0
-    tags:
-      - observability
+    condition: opentelemetry-collector.enabled
