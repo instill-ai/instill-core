@@ -989,6 +989,7 @@ influxdb2:
 # ------------------------------------------------------------
 # -- The configuration of OpenFGA
 openfga:
+  enabled: true
   # -- The image of OpenFGA
   image:
     pullPolicy: IfNotPresent
@@ -1035,7 +1036,8 @@ openfga:
       enabled: true
   # -- OpenFGA migrations configuration
   migrate:
-    annotations: null
+    annotations:
+      helm.sh/hook: "post-install, post-upgrade, post-rollback"
     extraInitContainers:
       - name: wait-for-db
         image: postgres:15-alpine
@@ -1137,5 +1139,3 @@ opentelemetry-collector:
           receivers: [otlp]
           processors: [memory_limiter, batch]
           exporters: [debug, otlphttp/logs]
-tags:
-  observability: false

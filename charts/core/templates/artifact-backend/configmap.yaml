@@ -54,7 +54,7 @@ data:
         cert:
         key:
     otelcollector:
-      enable: {{ .Values.tags.observability }}
+      enable: {{ index .Values "opentelemetry-collector" "enabled" }}
       host: {{ include "core.otel" . }}
       port: {{ include "core.otel.port" . }}
     openfga:

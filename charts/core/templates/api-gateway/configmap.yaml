@@ -8,7 +8,7 @@ data:
     LOG_LEVEL={{ upper .Values.logLevel }}
 
     # Enable observability stack
-    OBSERVE_ENABLED={{ .Values.tags.observability }}
+    OBSERVE_ENABLED={{ index .Values "opentelemetry-collector" "enabled" }}
 
     # Service version
     SERVICE_VERSION={{ .Values.apiGateway.image.tag }}
