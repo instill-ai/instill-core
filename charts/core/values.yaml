@@ -304,7 +304,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: 0.25.0
+    tag: c1b8757
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1040,12 +1040,7 @@ openfga:
       - name: wait-for-db
         image: postgres:15-alpine
         imagePullPolicy: IfNotPresent
-        command:
-          [
-            "sh",
-            "-c",
-            "until pg_isready; do echo waiting for db; sleep 2; done",
-          ]
+        command: ["sh", "-c", "until pg_isready; do echo waiting for db; sleep 2; done"]
         env:
           - name: PGHOST
             value: "core-database"
@@ -1058,10 +1053,11 @@ openfga:
         args:
           - >
             until pg_isready; do
+
               echo "Waiting for database to be ready...";
               sleep 2;
-            done;
-            createdb || true
+            done; createdb || true
+
         env:
           - name: PGDATABASE
             value: "openfga"
