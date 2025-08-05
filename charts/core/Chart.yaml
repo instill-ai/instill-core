@@ -18,6 +18,9 @@ maintainers:
   - name: Instill AI LTD
     url: https://github.com/instill-ai
 dependencies:
+  - name: openfga
+    repository: https://openfga.github.io/helm-charts
+    version: 0.2.39
   - name: influxdb2
     repository: https://helm.influxdata.com
     version: 2.1.1

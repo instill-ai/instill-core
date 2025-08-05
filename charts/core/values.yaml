@@ -743,65 +743,6 @@ console:
     spec:
       minAvailable:
       maxUnavailable:
-# -- The configuration of OpenFGA
-openfga:
-  image:
-    repository: openfga/openfga
-    tag: v1.9.0
-    pullPolicy: IfNotPresent
-  # -- Annotation for deployment
-  annotations: {}
-  # -- Set the service account to be used, default if left empty
-  serviceAccountName: ""
-  # -- Mount the service account token
-  automountServiceAccountToken: false
-  # -- The number of replica for mgmt-backend
-  replicaCount: 1
-  # -- Add extra env variables
-  extraEnv: []
-  # -- Mount external volumes
-  # For example, mount a secret containing Certificate root CA to verify database
-  # TLS connection.
-  extraVolumes: []
-  # - name: my-volume
-  #   secret:
-  #     secretName: my-secret
-  extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /etc/secrets/my-secret
-  #   readOnly: true
-  # -- Add extra init first containers
-  extraInitFirstContainers: []
-  # extraInitFirstContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra init containers
-  extraInitContainers: []
-  # extraInitContainers:
-  #  - name: ...
-  #    image: ...
-  # -- Add extra sidecar containers
-  sidecarContainers: []
-  # -- Additional pod annotations
-  podAnnotations: {}
-  # -- Additional service annotations
-  serviceAnnotations: {}
-  # -- The pod resource
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  autoscaling:
-    enabled: false
-    minReplicas:
-    maxReplicas:
-    targetCPUUtilizationPercentage:
-    targetMemoryUtilizationPercentage:
-  podDisruptionBudget:
-    enabled: false
-    spec:
-      minAvailable:
-      maxUnavailable:
 # -- The configuration of registry
 registry:
   enabled: true
@@ -1043,6 +984,95 @@ influxdb2:
     organization:
     # -- The bucket of the external InfluxDB
     bucket:
+# ------------------------------------------------------------
+# The configuration of dependent Helm charts
+# ------------------------------------------------------------
+# -- The configuration of OpenFGA
+openfga:
+  # -- The image of OpenFGA
+  image:
+    pullPolicy: IfNotPresent
+  # -- The number of replica for OpenFGA
+  replicaCount: 1
+  # -- OpenFGA datastore configuration
+  datastore:
+    engine: postgres
+    uri: postgres://postgres:password@core-database:5432/openfga?sslmode=disable
+  # -- OpenFGA HTTP configuration
+  http:
+    enabled: true
+    addr: 0.0.0.0:8080
+    tls:
+      enabled: false
+  # -- OpenFGA gRPC configuration
+  grpc:
+    addr: 0.0.0.0:8081
+    tls:
+      enabled: false
+  # -- OpenFGA playground configuration
+  playground:
+    enabled: false
+  # -- OpenFGA profiler configuration
+  profiler:
+    enabled: false
+  # -- OpenFGA logging configuration
+  log:
+    level: info
+    format: json
+    timestampFormat: Unix
+  # -- OpenFGA check query cache configuration
+  checkQueryCache:
+    enabled: true
+  # -- OpenFGA telemetry configuration
+  telemetry:
+    trace:
+      enabled: false
+      otlp:
+        endpoint: core-opentelemetry-collector:4317
+        tls:
+          enabled: false
+    metrics:
+      enabled: true
+  # -- OpenFGA migrations configuration
+  migrate:
+    annotations: null
+    extraInitContainers:
+      - name: wait-for-db
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        command:
+          [
+            "sh",
+            "-c",
+            "until pg_isready; do echo waiting for db; sleep 2; done",
+          ]
+        env:
+          - name: PGHOST
+            value: "core-database"
+          - name: PGUSER
+            value: "postgres"
+      - name: openfga-createdb
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c"]
+        args:
+          - >
+            until pg_isready; do
+              echo "Waiting for database to be ready...";
+              sleep 2;
+            done;
+            createdb || true
+        env:
+          - name: PGDATABASE
+            value: "openfga"
+          - name: PGHOST
+            value: "core-database"
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: "postgres"
+          - name: PGPASSWORD
+            value: "password"
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
   enabled: true

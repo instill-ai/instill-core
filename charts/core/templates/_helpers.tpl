@@ -195,7 +195,7 @@ Database
 
 {{- define "core.database.username" -}}
   {{- if .Values.database.enabled -}}
-    {{- printf "%s" "postgres" -}}
+    {{- printf "postgres" -}}
   {{- else -}}
     {{- .Values.database.external.username -}}
   {{- end -}}

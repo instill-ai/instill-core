@@ -67,12 +67,6 @@ data:
     openfga:
       host: {{ include "core.openfga" . }}
       port: 8080
-      {{- if .Values.database.externalReplica }}
-      replica:
-        host: {{ include "core.openfga" . }}
-        port: 8082
-        replicationtimeframe: 1
-      {{- end }}
     temporal:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
       namespace: {{ default "instill-core" .Values.mgmtBackend.temporal.namespace }}

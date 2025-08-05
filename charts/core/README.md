@@ -10,6 +10,7 @@ The Helm chart of Instill Core
 |------------|------|---------|
 | https://helm.influxdata.com | influxdb2 | 2.1.1 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.129.0 |
+| https://openfga.github.io/helm-charts | openfga | 0.2.39 |
 
 ## Install
 

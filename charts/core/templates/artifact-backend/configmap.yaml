@@ -60,12 +60,6 @@ data:
     openfga:
       host: {{ include "core.openfga" . }}
       port: 8081
-      {{- if .Values.database.externalReplica }}
-      replica:
-        host: {{ include "core.openfga" . }}
-        port: 8083
-        replicationtimeframe: 1
-      {{- end }}
     registry:
       host: {{ include "core.registry" . }}
       port: {{ include "core.registry.port" . }}
