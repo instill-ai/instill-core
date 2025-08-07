@@ -31,10 +31,10 @@ spec:
         runAsGroup: 1000
       {{- if .Values.redis.serviceAccountName }}
       serviceAccountName: {{ .Values.redis.serviceAccountName }}
-      {{- end -}}
-      {{- with .Values.imagePullSecrets }}
+      {{- end }}
       automountServiceAccountToken: {{ .Values.redis.automountServiceAccountToken | default false }}
       terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -316,6 +316,7 @@ mgmtBackend:
     worker: mgmt-backend-worker
   # -- The path of configuration file for mgmt-backend
   configPath: /mgmt-backend/config/config.yaml
+  defaultUserUID:
   instillCoreHost:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -1073,7 +1074,7 @@ openfga:
             value: "password"
 # -- The configuration of OpenTelemetry Collector
 opentelemetry-collector:
-  enabled: true
+  enabled: false
   mode: deployment
   image:
     repository: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
