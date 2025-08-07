@@ -19,6 +19,7 @@ data:
         cert: /etc/instill-ai/core/ssl/mgmt/tls.crt
         key: /etc/instill-ai/core/ssl/mgmt/tls.key
       {{- end }}
+      defaultuseruid: {{ .Values.mgmtBackend.defaultUserUID }}
       instillcorehost: {{ .Values.mgmtBackend.instillCoreHost }}
     pipelinebackend:
       host: {{ include "core.pipelineBackend" . }}
