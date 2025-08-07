@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.54.2](https://github.com/instill-ai/instill-core/compare/v0.54.1...v0.54.2) (2025-08-07)
+
+
+### Bug Fixes
+
+* **helm:** fix templates ([#1363](https://github.com/instill-ai/instill-core/issues/1363)) ([1864e2f](https://github.com/instill-ai/instill-core/commit/1864e2fbff350d3b808db1c9b1ebc7e0d1a596f6))
+
+
+### Miscellaneous
+
+* **env:** update MGMT_BACKEND_VERSION ([#1359](https://github.com/instill-ai/instill-core/issues/1359)) ([6e0c429](https://github.com/instill-ai/instill-core/commit/6e0c429619995e6cc3617ea20f3f3c3ec2584fe7))
+* **env:** update MODEL_BACKEND_VERSION ([#1360](https://github.com/instill-ai/instill-core/issues/1360)) ([c73c204](https://github.com/instill-ai/instill-core/commit/c73c204a22ab480d1f50cf5651f5de4bf47ed674))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1358](https://github.com/instill-ai/instill-core/issues/1358)) ([914d991](https://github.com/instill-ai/instill-core/commit/914d991ce3a3a21b0db49db95685cf19cbd4e690))
+* **helm:** unify dependency enabler flag ([#1361](https://github.com/instill-ai/instill-core/issues/1361)) ([f389937](https://github.com/instill-ai/instill-core/commit/f3899375a92d949c04a191c0e0e1b4373536b919))
+
+
+### Refactor
+
+* **helm,openfga:** adopt the official helm chart ([#1357](https://github.com/instill-ai/instill-core/issues/1357)) ([53f555f](https://github.com/instill-ai/instill-core/commit/53f555fc1d4f9798b60747e8aa1a33b88b8cba24))
+
+
+### Style
+
+* **Makefile:** improve make helm-run ([#1355](https://github.com/instill-ai/instill-core/issues/1355)) ([2024773](https://github.com/instill-ai/instill-core/commit/202477334947116daab496a87a98d0dd1fc714b5))
+
 ## [0.54.1](https://github.com/instill-ai/instill-core/compare/v0.54.0...v0.54.1) (2025-08-04)
 
 
