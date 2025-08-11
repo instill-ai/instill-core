@@ -373,10 +373,7 @@ mgmtBackend:
   temporal:
     hostPort:
     namespace:
-    serverRootCA:
-    clientCert:
-    clientKey:
-    serverName:
+    apiKey:
     insecureSkipVerify:
 # -- The configuration of pipeline-backend
 pipelineBackend:
@@ -405,10 +402,7 @@ pipelineBackend:
   temporal:
     hostPort:
     namespace:
-    serverName:
-    serverRootCA:
-    clientCert:
-    clientKey:
+    apiKey:
     insecureSkipVerify:
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -542,10 +536,7 @@ modelBackend:
     hostPort:
     namespace:
     retention:
-    serverRootCA:
-    clientCert:
-    clientKey:
-    serverName:
+    apiKey:
     insecureSkipVerify:
     workflow:
       maxWorkflowTimeout: 3600 # in seconds
