@@ -383,7 +383,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: d2f0f87
+    tag: 0.58.4
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1056,6 +1056,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
               echo "Waiting for database to be ready...";
