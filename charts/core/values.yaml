@@ -616,7 +616,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 3b02e30
+    tag: 3dd4d9f
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
