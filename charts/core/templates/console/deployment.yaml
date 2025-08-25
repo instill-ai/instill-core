@@ -109,7 +109,7 @@ spec:
             - name: NODE_ENV
               {{- if eq .Values.edition "k8s-ce" }}
               value: "production"
-              {{- else if eq .Values.edition "k8s-ce:dev" }}
+              {{- else }}
               value: "development"
               {{- end }}
             {{- if .Values.console.extraEnv }}
