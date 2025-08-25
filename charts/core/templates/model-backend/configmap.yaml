@@ -84,10 +84,7 @@ data:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.modelBackend.temporal.hostPort }}
       namespace: {{ default "instill-core" .Values.modelBackend.temporal.namespace }}
       retention: {{ default "1d" .Values.modelBackend.temporal.retention }}
-      serverrootca: {{ default "" .Values.modelBackend.temporal.serverRootCA }}
-      clientcert: {{ default "" .Values.modelBackend.temporal.clientCert }}
-      clientkey: {{ default "" .Values.modelBackend.temporal.clientKey }}
-      serverName: {{ default "" .Values.modelBackend.temporal.serverName }}
+      apikey: {{ default "" .Values.modelBackend.temporal.apiKey }}
       insecureskipverify: {{ default "true" .Values.modelBackend.temporal.insecureSkipVerify }}
       metricsport: {{ include "temporal.frontend.metricsPort" . }}
     initmodel:
