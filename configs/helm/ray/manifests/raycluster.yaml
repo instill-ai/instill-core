@@ -41,11 +41,6 @@ spec:
                 value: "2"
               - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
                 value: "3600"
-            volumeMounts:
-              - mountPath: /home/ray/.local/share/containers
-                name: raycluster-head
-              - mountPath: /home/ray/.config/containers/
-                name: podman-config
             securityContext:
               privileged: true
             lifecycle:
@@ -62,19 +57,6 @@ spec:
               preStop:
                 exec:
                   command: ["/bin/sh", "-c", "ray stop"]
-        volumes:
-          - name: raycluster-head
-            persistentVolumeClaim:
-              claimName: raycluster-head
-          - name: podman-config
-            configMap:
-              name: podman-config
-              defaultMode: 0666
-              items:
-                - key: registries.conf
-                  path: registries.conf
-                - key: policy.json
-                  path: policy.json
   workerGroupSpecs:
     - groupName: cpu-group
       rayStartParams:
@@ -100,11 +82,6 @@ spec:
                   value: "2"
                 - name: RAY_WORKER_REGISTER_TIMEOUT_SECONDS
                   value: "3600"
-              volumeMounts:
-                - mountPath: /home/ray/.local/share/containers
-                  name: raycluster-worker
-                - mountPath: /home/ray/.config/containers/
-                  name: podman-config
               securityContext:
                 privileged: true
               lifecycle:
@@ -128,16 +105,3 @@ spec:
                 preStop:
                   exec:
                     command: ["/bin/sh", "-c", "ray stop"]
-          volumes:
-            - name: raycluster-worker
-              persistentVolumeClaim:
-                claimName: raycluster-worker
-            - name: podman-config
-              configMap:
-                name: podman-config
-                defaultMode: 0666
-                items:
-                  - key: registries.conf
-                    path: registries.conf
-                  - key: policy.json
-                    path: policy.json
