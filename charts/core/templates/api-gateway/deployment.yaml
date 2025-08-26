@@ -83,14 +83,14 @@ spec:
               scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
               port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
             periodSeconds: 5
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
           livenessProbe:
             httpGet:
               path: /__health
               scheme: {{ upper (ternary "https" "http" .Values.apiGateway.tls.enabled) }}
               port: {{ ternary "https" "http" .Values.apiGateway.tls.enabled }}
             periodSeconds: 5
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             timeoutSeconds: 5
           {{- if .Values.apiGateway.resources }}
           resources:
