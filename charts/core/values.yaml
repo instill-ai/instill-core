@@ -616,7 +616,7 @@ artifactBackend:
   # -- The image of artifact-backend
   image:
     repository: instill/artifact-backend
-    tag: 3dd4d9f
+    tag: 7133d10
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1056,6 +1056,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
 
