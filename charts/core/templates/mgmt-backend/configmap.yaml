@@ -71,9 +71,6 @@ data:
     temporal:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.mgmtBackend.temporal.hostPort }}
       namespace: {{ default "instill-core" .Values.mgmtBackend.temporal.namespace }}
-      serverrootca: {{ default "" .Values.mgmtBackend.temporal.serverRootCA }}
-      clientcert: {{ default "" .Values.mgmtBackend.temporal.clientCert }}
-      clientkey: {{ default "" .Values.mgmtBackend.temporal.clientKey }}
-      serverName: {{ default "" .Values.mgmtBackend.temporal.serverName }}
+      apikey: {{ default "" .Values.mgmtBackend.temporal.apiKey }}
       insecureskipverify: {{ default "true" .Values.mgmtBackend.temporal.insecureSkipVerify }}
       metricsport: {{ include "temporal.frontend.metricsPort" . }}
