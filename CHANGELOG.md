@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.55.1](https://github.com/instill-ai/instill-core/compare/v0.55.0...v0.55.1) (2025-09-04)
+
+
+### Miscellaneous
+
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1384](https://github.com/instill-ai/instill-core/issues/1384)) ([262da7f](https://github.com/instill-ai/instill-core/commit/262da7f3bc3b454f95d95ebee0e163f91ea04ce5))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1387](https://github.com/instill-ai/instill-core/issues/1387)) ([a4bc89c](https://github.com/instill-ai/instill-core/commit/a4bc89cd2b20e4089f521a5436ecbdd2d4e76646))
+* **helm:** bump chart RC version ([#1389](https://github.com/instill-ai/instill-core/issues/1389)) ([4a8e2c1](https://github.com/instill-ai/instill-core/commit/4a8e2c12a3a4037db2c72f8dd29ea385e84c6d3f))
+* **helm:** use api-key for Temporal auth ([#1364](https://github.com/instill-ai/instill-core/issues/1364)) ([8cbc317](https://github.com/instill-ai/instill-core/commit/8cbc3176ffe15875aaca35e00f45b701889a7dbf))
+
 ## [0.55.0](https://github.com/instill-ai/instill-core/compare/v0.54.1...v0.55.0) (2025-08-26)
 
 
