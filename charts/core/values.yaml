@@ -238,7 +238,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: 0.36.1
+    tag: 0.36.2
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1047,6 +1047,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
 
