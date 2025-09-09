@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.55.1](https://github.com/instill-ai/instill-core/compare/v0.55.0...v0.55.1) (2025-09-09)
+
+
+### Miscellaneous
+
+* **env:** update API_GATEWAY_VERSION ([#1386](https://github.com/instill-ai/instill-core/issues/1386)) ([0b0304e](https://github.com/instill-ai/instill-core/commit/0b0304e2f58005c723c3c795724e34944fa7da2a))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1384](https://github.com/instill-ai/instill-core/issues/1384)) ([262da7f](https://github.com/instill-ai/instill-core/commit/262da7f3bc3b454f95d95ebee0e163f91ea04ce5))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1387](https://github.com/instill-ai/instill-core/issues/1387)) ([a4bc89c](https://github.com/instill-ai/instill-core/commit/a4bc89cd2b20e4089f521a5436ecbdd2d4e76646))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1388](https://github.com/instill-ai/instill-core/issues/1388)) ([e6fb1a4](https://github.com/instill-ai/instill-core/commit/e6fb1a4c9f57a9c5887a1b45f2aaca859e4a065c))
+* **env:** update CONSOLE_VERSION  ([#1391](https://github.com/instill-ai/instill-core/issues/1391)) ([1dcecbb](https://github.com/instill-ai/instill-core/commit/1dcecbb1924461a3ff1ef288482a1e31476c6ad5))
+* **env:** update MGMT_BACKEND_VERSION ([#1382](https://github.com/instill-ai/instill-core/issues/1382)) ([6e3ba3d](https://github.com/instill-ai/instill-core/commit/6e3ba3dd89d6d07f884ad22eb968af5390e85cd7))
+* **env:** update MODEL_BACKEND_VERSION ([#1390](https://github.com/instill-ai/instill-core/issues/1390)) ([86d4bdd](https://github.com/instill-ai/instill-core/commit/86d4bdda4e075e35ec11903a91d6f5c98fb3943c))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1383](https://github.com/instill-ai/instill-core/issues/1383)) ([e5c97d0](https://github.com/instill-ai/instill-core/commit/e5c97d0e9e029dc694fda816f3347ac529a4c681))
+* **helm:** bump chart RC version ([#1389](https://github.com/instill-ai/instill-core/issues/1389)) ([4a8e2c1](https://github.com/instill-ai/instill-core/commit/4a8e2c12a3a4037db2c72f8dd29ea385e84c6d3f))
+* **helm:** use api-key for Temporal auth ([#1364](https://github.com/instill-ai/instill-core/issues/1364)) ([8cbc317](https://github.com/instill-ai/instill-core/commit/8cbc3176ffe15875aaca35e00f45b701889a7dbf))
+
 ## [0.55.0](https://github.com/instill-ai/instill-core/compare/v0.54.1...v0.55.0) (2025-08-26)
 
 
