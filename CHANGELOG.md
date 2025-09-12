@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.56.1](https://github.com/instill-ai/instill-core/compare/v0.56.0...v0.56.1) (2025-09-12)
+
+
+### Miscellaneous
+
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1393](https://github.com/instill-ai/instill-core/issues/1393)) ([922e47d](https://github.com/instill-ai/instill-core/commit/922e47df6060c8ce6b7b8063cb4d55ca6c637f1e))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1397](https://github.com/instill-ai/instill-core/issues/1397)) ([7ddee0a](https://github.com/instill-ai/instill-core/commit/7ddee0a546496d15bf8e6d24fc54e1addfaa26ba))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1394](https://github.com/instill-ai/instill-core/issues/1394)) ([347a211](https://github.com/instill-ai/instill-core/commit/347a211bcbc6fcd99741e0f06c84ca99796d12eb))
+
 ## [0.56.0](https://github.com/instill-ai/instill-core/compare/v0.55.0...v0.56.0) (2025-09-09)
 
 
