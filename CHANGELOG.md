@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.57.1](https://github.com/instill-ai/instill-core/compare/v0.57.0...v0.57.1) (2025-09-19)
+
+
+### Miscellaneous
+
+* **deps:** upgrade milvus to v2.6.2 ([#1409](https://github.com/instill-ai/instill-core/issues/1409)) ([600b565](https://github.com/instill-ai/instill-core/commit/600b5654d834f11fa28e1d9066f443f8f9bfb9bf))
+
 ## [0.57.0](https://github.com/instill-ai/instill-core/compare/v0.56.0...v0.57.0) (2025-09-19)
 
 
