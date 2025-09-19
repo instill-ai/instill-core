@@ -72,7 +72,7 @@ define HELM_INSTALL_INSTILL_CORE
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[0].value=foo',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].name=CFG_COMPONENT_SECRETS_GITHUB_OAUTHCLIENTSECRET',) \
 		$(if $(filter true,$(1)),--set 'pipelineBackend.extraEnv[1].value=foo',) \
-		--timeout 300s
+		--timeout 3600s
 endef
 
 # Function to install observability stack
