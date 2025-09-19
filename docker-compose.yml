@@ -418,7 +418,7 @@ services:
       POSTGRES_PWD: password
       POSTGRES_SEEDS: ${POSTGRESQL_HOST}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
-      ENABLE_ES: "true"
+      ENABLE_ES: true
       ES_SEEDS: ${ELASTICSEARCH_HOST}
       ES_VERSION: v7
       DEFAULT_NAMESPACE: ${TEMPORAL_NAMESPACE}
@@ -486,7 +486,7 @@ services:
     image: ${REDIS_IMAGE}:${REDIS_VERSION}-alpine${ALPINE_VERSION}
     restart: unless-stopped
     environment:
-      ALLOW_EMPTY_PASSWORD: "true"
+      ALLOW_EMPTY_PASSWORD: true
     healthcheck:
       test: ["CMD-SHELL", "redis-cli --raw incr ping"]
       interval: 5s
@@ -576,14 +576,18 @@ services:
     image: ${MILVUS_IMAGE}:${MILVUS_VERSION}
     restart: unless-stopped
     environment:
-      ETCD_USE_EMBED: "true"
+      ETCD_USE_EMBED: true
       COMMON_STORAGETYPE: local
+      DEPLOY_MODE: STANDALONE
+    volumes:
+      - ${CONFIG_DIR_PATH}/milvus/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml
+      - ${CONFIG_DIR_PATH}/milvus/user.yaml:/milvus/configs/user.yaml
     command: milvus run standalone 1> /dev/null
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://${MILVUS_HOST}:${MILVUS_METRIC_PORT}/healthz",
+          "curl -f http://${MILVUS_HOST}:${MILVUS_WEBUI_PORT}/healthz",
         ]
       interval: 5s
       timeout: 3s
