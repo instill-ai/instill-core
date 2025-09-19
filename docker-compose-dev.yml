@@ -90,6 +90,7 @@ services:
   milvus:
     ports:
       - ${MILVUS_HOST_PORT}:${MILVUS_PORT}
+      - ${MILVUS_WEBUI_HOST_PORT}:${MILVUS_WEBUI_PORT}
     command: milvus run standalone
 
   influxdb:
