@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.57.1](https://github.com/instill-ai/instill-core/compare/v0.57.0...v0.57.1) (2025-09-24)
+
+
+### Miscellaneous
+
+* **deps:** upgrade milvus to v2.6.2 ([#1409](https://github.com/instill-ai/instill-core/issues/1409)) ([600b565](https://github.com/instill-ai/instill-core/commit/600b5654d834f11fa28e1d9066f443f8f9bfb9bf))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1412](https://github.com/instill-ai/instill-core/issues/1412)) ([85054f9](https://github.com/instill-ai/instill-core/commit/85054f94d2dacd34e78082f576d887b9f41eb967))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1405](https://github.com/instill-ai/instill-core/issues/1405)) ([04cf805](https://github.com/instill-ai/instill-core/commit/04cf80510cf53c1b464e3f7f909b37e57ae2f4b0))
+
 ## [0.57.0](https://github.com/instill-ai/instill-core/compare/v0.56.0...v0.57.0) (2025-09-19)
 
 
