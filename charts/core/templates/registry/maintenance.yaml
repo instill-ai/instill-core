@@ -54,7 +54,7 @@ spec:
           serviceAccountName: {{ include "core.registry" . }}-maintenance
           containers:
             - name: kubectl
-              image: bitnami/kubectl
+              image: bitnamisecure/kubectl:latest
               command: ["/bin/bash", "-c"]
               args:
                 - |
