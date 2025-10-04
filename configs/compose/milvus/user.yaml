@@ -1,1 +1,159 @@
 # Extra config to override default milvus.yaml
+# https://github.com/milvus-io/milvus/blob/master/configs/milvus.yaml
+
+# Completely disable all rate limiting mechanisms
+proxy:
+  grpc:
+    serverMaxRecvSize: 268435456 # 256MB
+    serverMaxSendSize: 268435456 # 256MB
+    clientMaxRecvSize: 268435456 # 256MB
+    clientMaxSendSize: 268435456 # 256MB
+
+# Completely disable quotas and limits
+quotaAndLimits:
+  enabled: false # Disable the entire quota system
+
+  # Even if enabled is false, explicitly set all limits to unlimited
+  dql:
+    enabled: false
+    searchRate:
+      max: -1
+    queryRate:
+      max: -1
+
+  ddl:
+    enabled: false
+    collectionRate:
+      max: -1
+    partitionRate:
+      max: -1
+
+  dml:
+    enabled: false
+    insertRate:
+      max: -1
+    deleteRate:
+      max: -1
+
+# Optimize Milvus performance settings based on official milvus.yaml
+dataCoord:
+  # Segment management optimizations
+  segment:
+    maxSize: 512 # MB - smaller segments for faster processing
+    sealProportion: 0.12 # Seal segment when 12% full
+    assignmentExpiration: 2000 # ms
+    maxLife: 86400 # 24 hours in seconds
+    maxIdleTime: 300 # 5 minutes - reduced from default 600s for faster sealing
+    minSizeFromIdleToSealed: 16 # MB - minimum size to seal idle segments
+  # Enable compaction for better storage efficiency
+  enableCompaction: true
+  enableGarbageCollection: true
+  # Channel management
+  channel:
+    watchTimeoutInterval: 300 # seconds
+  # Segment flush optimization
+  segmentFlushInterval: 2 # seconds - minimum interval between flush operations on same segment
+  # Compaction optimizations
+  compaction:
+    enableAutoCompaction: true
+    scheduleInterval: 500 # ms - compaction scheduling interval
+    levelzero:
+      triggerInterval: 10 # seconds - L0 compaction trigger interval
+    mix:
+      triggerInterval: 60 # seconds - mix compaction trigger interval
+    clustering:
+      enable: true
+      autoEnable: false
+      triggerInterval: 600 # seconds - clustering compaction trigger interval
+      minInterval: 3600 # seconds - minimum interval between clustering compactions
+      maxInterval: 259200 # seconds - maximum interval for clustering compactions
+
+dataNode:
+  # Memory and buffer optimizations
+  segment:
+    insertBufSize: 16777216 # 16MB buffer
+    deleteBufBytes: 67108864 # 64MB delete buffer
+    syncPeriod: 600 # 10 minutes
+
+# Query performance optimizations
+queryCoord:
+  autoHandoff: true
+  autoBalance: true
+  # Balance optimization
+  balanceIntervalSeconds: 60
+  overloadedMemoryThresholdPercentage: 90
+  memoryUsageMaxDifferencePercentage: 30
+  # Task scheduling
+  taskMergeInterval: 1 # second
+  taskExecutionCap: 256
+
+queryNode:
+  # Cache and memory optimizations
+  cache:
+    memoryLimit: 2147483648 # 2GB cache
+  # Enable disk usage
+  enableDisk: false
+  maxDiskUsagePercentage: 95
+  # Memory management
+  loadMemoryUsageFactor: 1
+  # Scheduler optimization
+  scheduler:
+    maxReadConcurrentRatio: 2
+    cpuRatio: 10
+    scheduleReadPolicy:
+      name: fifo
+  # Grouping optimization for batch processing
+  grouping:
+    maxNQ: 1000
+    topKMergeRatio: 10
+
+# Index coordination optimization
+indexCoord:
+  bindIndexNodeMode:
+    enable: false
+    address: localhost:22930
+    withCred: false
+    nodeID: 0
+  segment:
+    minSegmentNumRowsToEnableIndex: 1024
+
+indexNode:
+  # Build optimization
+  scheduler:
+    buildParallel: 1
+
+# Root coordinator optimizations
+rootCoord:
+  minSegmentSizeToEnableIndex: 1024
+
+# Common optimizations
+common:
+  gracefulTime: 5000
+  gracefulStopTimeout: 1800
+  # Security
+  security:
+    authorizationEnabled: false
+  # Session optimization
+  session:
+    ttl: 10 # seconds
+    retryTimes: 30
+
+# Additional gRPC optimizations
+grpc:
+  serverMaxRecvSize: 268435456 # 256MB
+  serverMaxSendSize: 268435456 # 256MB
+  clientMaxRecvSize: 268435456 # 256MB
+  clientMaxSendSize: 268435456 # 256MB
+
+# Knowhere optimization for vector search performance
+knowhere:
+  enable: true
+  # DISKANN optimizations for high-performance search
+  DISKANN:
+    build:
+      max_degree: 56
+      pq_code_budget_gb_ratio: 0.125
+      search_cache_budget_gb_ratio: 0.1
+      search_list_size: 100
+    search:
+      beam_width_ratio: 4
