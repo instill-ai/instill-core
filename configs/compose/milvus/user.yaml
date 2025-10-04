@@ -1,1 +1,12 @@
 # Extra config to override default milvus.yaml
+
+# Disable gRPC proxy rate limiting middleware
+proxy:
+  grpc:
+    serverMaxRecvSize: 268435456 # 256MB
+    serverMaxSendSize: 268435456 # 256MB
+    clientMaxRecvSize: 268435456 # 256MB
+    clientMaxSendSize: 268435456 # 256MB
+  # Disable rate limiting at proxy level
+  rateLimiter:
+    enabled: false
