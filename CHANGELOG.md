@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.58.0](https://github.com/instill-ai/instill-core/compare/v0.57.0...v0.58.0) (2025-10-08)
+
+
+### Miscellaneous
+
+* **deps:** upgrade milvus to v2.6.2 ([#1409](https://github.com/instill-ai/instill-core/issues/1409)) ([600b565](https://github.com/instill-ai/instill-core/commit/600b5654d834f11fa28e1d9066f443f8f9bfb9bf))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1412](https://github.com/instill-ai/instill-core/issues/1412)) ([85054f9](https://github.com/instill-ai/instill-core/commit/85054f94d2dacd34e78082f576d887b9f41eb967))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1415](https://github.com/instill-ai/instill-core/issues/1415)) ([589211a](https://github.com/instill-ai/instill-core/commit/589211aeabdc040c551003513a4592e3a2c42160))
+* **env:** update MGMT_BACKEND_VERSION ([#1411](https://github.com/instill-ai/instill-core/issues/1411)) ([20a09dd](https://github.com/instill-ai/instill-core/commit/20a09dd054c58f89b99cadeaf71002493762a045))
+* **env:** update MODEL_BACKEND_VERSION ([#1413](https://github.com/instill-ai/instill-core/issues/1413)) ([b622854](https://github.com/instill-ai/instill-core/commit/b622854936ddfae6b55609c3d1130848088f8e1f))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1405](https://github.com/instill-ai/instill-core/issues/1405)) ([04cf805](https://github.com/instill-ai/instill-core/commit/04cf80510cf53c1b464e3f7f909b37e57ae2f4b0))
+* **env:** update PIPELINE_BACKEND_VERSION ([#1418](https://github.com/instill-ai/instill-core/issues/1418)) ([f558b41](https://github.com/instill-ai/instill-core/commit/f558b41ffc3111a81aa052a56409f388ce41827d))
+* **helm:** bump chart version ([68f55de](https://github.com/instill-ai/instill-core/commit/68f55de3b0900538a40317d67d9af551c17628ad))
+* **registry:** replace the docker image for kubectl use ([#1416](https://github.com/instill-ai/instill-core/issues/1416)) ([e8ece65](https://github.com/instill-ai/instill-core/commit/e8ece65e7b484e44b14d3801a13c1ee7f1c5d887))
+* release v0.58.0 ([27eb01c](https://github.com/instill-ai/instill-core/commit/27eb01ca9b9c3a0ab7e0a2d42204a54a139bd4ed))
+
 ## [0.57.0](https://github.com/instill-ai/instill-core/compare/v0.56.0...v0.57.0) (2025-09-19)
 
 
