@@ -182,3 +182,128 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "core.artifactBackendWorker" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend-worker
+  annotations:
+    rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.artifactBackendWorker.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  strategy:
+    type: {{ .Values.updateStrategy.type }}
+    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.updateStrategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
+    {{- else}}
+    rollingUpdate: null
+    {{- end }}
+  {{- if not .Values.artifactBackendWorker.autoscaling.enabled }}
+  replicas: {{ .Values.artifactBackendWorker.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "core.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: artifact-backend-worker
+  template:
+    metadata:
+      labels:
+        {{- include "core.matchLabels" . | nindent 8 }}
+        app.kubernetes.io/component: artifact-backend-worker
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/artifact-backend/configmap.yaml") . | sha256sum }}
+        {{- with .Values.artifactBackendWorker.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # Distroless nonroot:nonroot is 65532:65532
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+      {{- if .Values.artifactBackend.serviceAccountName }}
+      serviceAccountName: {{ .Values.artifactBackend.serviceAccountName }}
+      {{- end }}
+      automountServiceAccountToken: {{ .Values.artifactBackend.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- with .Values.artifactBackendWorker.extraInitFirstContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.database.enabled }}
+        - name: wait-for-db
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ $.Values.database.image.pullPolicy }}
+          command: ['sh', '-c', "until pg_isready; do echo waiting for db; sleep 2; done"]
+          env:
+            - name: PGHOST
+              value: {{ include "core.database" . }}
+            - name: PGUSER
+              value: {{ include "core.database.username" . }}
+        {{- end }}
+        - name: wait-for-dependencies
+          image: curlimages/curl:8.00.1
+          command: ['sh', '-c']
+          args:
+          - >
+            while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ARTIFACT_BACKEND_HOST}:${ARTIFACT_BACKEND_PORT}/v1alpha/health/artifact)" != "200" ]]; do echo waiting for artifact-backend; sleep 1; done
+          env:
+            - name: ARTIFACT_BACKEND_HOST
+              value: "{{ include "core.artifactBackend" . }}"
+            - name: ARTIFACT_BACKEND_PORT
+              value: "{{ include "core.artifactBackend.publicPort" . }}"
+        {{- with .Values.artifactBackend.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: artifact-backend-worker
+          image: {{ .Values.artifactBackend.image.repository }}:{{ .Values.artifactBackend.image.tag }}
+          imagePullPolicy: {{ .Values.artifactBackend.image.pullPolicy }}
+          livenessProbe:
+            tcpSocket:
+              port: rpc
+          {{- if .Values.artifactBackendWorker.resources }}
+          resources:
+            {{- toYaml .Values.artifactBackendWorker.resources | nindent 12 }}
+          {{- end }}
+          command: ["./{{ .Values.artifactBackendWorker.commandName.worker }}"]
+          env:
+          {{- if .Values.artifactBackendWorker.extraEnv }}
+            {{- toYaml .Values.artifactBackendWorker.extraEnv | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.artifactBackend.configPath }}
+              subPath: config.yaml
+            {{- with .Values.artifactBackend.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "core.artifactBackend" . }}
+        {{- with .Values.artifactBackend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.artifactBackendWorker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.artifactBackendWorker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.artifactBackendWorker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -148,6 +148,13 @@ artifact-backend
 {{- printf "%s-artifact-backend" (include "core.fullname" .) -}}
 {{- end -}}
 
+{{/*
+artifact-backend-worker
+*/}}
+{{- define "core.artifactBackendWorker" -}}
+  {{- printf "%s-artifact-backend-worker" (include "core.fullname" .) -}}
+{{- end -}}
+
 {{/* artifact-backend service and container public port */}}
 {{- define "core.artifactBackend.publicPort" -}}
 {{- printf "8082" -}}
