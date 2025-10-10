@@ -679,6 +679,57 @@ artifactBackend:
   numberOfWorkers: 20
   blob:
     hostport: http://localhost:8080
+artifactBackendWorker:
+  # -- Annotation for deployment
+  annotations: {}
+  # -- The command names to be executed
+  commandName:
+    worker: artifact-backend-worker
+  # -- The path of configuration file for artifact-backend-worker
+  configPath: /artifact-backend/config/config.yaml
+  # -- The number of replica for artifact-backend-worker
+  replicaCount: 1
+  # -- Add extra env variables
+  extraEnv: []
+  # -- Mount external volumes
+  # For example, mount a secret containing Certificate root CA to verify database
+  # TLS connection.
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+  # -- Add extra init first containers
+  extraInitFirstContainers: []
+  # extraInitFirstContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Add extra init containers
+  extraInitContainers: []
+  # extraInitContainers:
+  #  - name: ...
+  #    image: ...
+  # -- Additional pod annotations
+  podAnnotations: {}
+  # -- The pod resource
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  autoscaling:
+    enabled: false
+    minReplicas:
+    maxReplicas:
+    targetCPUUtilizationPercentage:
+    targetMemoryUtilizationPercentage:
+  podDisruptionBudget:
+    enabled: false
+    spec:
+      minAvailable:
+      maxUnavailable:
 # -- The configuration of console
 console:
   # -- Enable console deployment or not
@@ -1034,7 +1085,12 @@ openfga:
       - name: wait-for-db
         image: postgres:15-alpine
         imagePullPolicy: IfNotPresent
-        command: ["sh", "-c", "until pg_isready; do echo waiting for db; sleep 2; done"]
+        command:
+          [
+            "sh",
+            "-c",
+            "until pg_isready; do echo waiting for db; sleep 2; done",
+          ]
         env:
           - name: PGHOST
             value: "core-database"
