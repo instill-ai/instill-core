@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.58.1](https://github.com/instill-ai/instill-core/compare/v0.58.0...v0.58.1) (2025-10-10)
+
+
+### Miscellaneous
+
+* **env:** update API_GATEWAY_VERSION ([#1422](https://github.com/instill-ai/instill-core/issues/1422)) ([5bdbc97](https://github.com/instill-ai/instill-core/commit/5bdbc9712e6e469b1dadf983eb5e88299c6392a7))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1420](https://github.com/instill-ai/instill-core/issues/1420)) ([ecace4c](https://github.com/instill-ai/instill-core/commit/ecace4cc47a755f4b51fa28a35b6655374fa8a6d))
+* **env:** update ARTIFACT_BACKEND_VERSION ([#1423](https://github.com/instill-ai/instill-core/issues/1423)) ([4be08e5](https://github.com/instill-ai/instill-core/commit/4be08e5240fbb32b8c374e5a211906101162f33b))
+
 ## [0.58.0](https://github.com/instill-ai/instill-core/compare/v0.57.0...v0.58.0) (2025-10-08)
 
 
