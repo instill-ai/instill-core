@@ -28,6 +28,11 @@ services:
       - ${ARTIFACT_BACKEND_HOST_PRIVATEPORT}:${ARTIFACT_BACKEND_PRIVATEPORT}
       - ${ARTIFACT_BACKEND_HOST_PUBLICPORT}:${ARTIFACT_BACKEND_PUBLICPORT}
 
+  artifact_backend_worker:
+    environment:
+      CFG_SERVER_DEBUG: "true"
+      CFG_SERVER_EDITION: ${EDITION}
+
   model_backend:
     environment:
       CFG_SERVER_DEBUG: "true"

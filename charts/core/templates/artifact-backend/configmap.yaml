@@ -60,6 +60,12 @@ data:
     openfga:
       host: {{ include "core.openfga" . }}
       port: 8081
+    temporal:
+      hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.artifactBackend.temporal.hostPort }}
+      namespace: {{ default "instill-core" .Values.artifactBackend.temporal.namespace }}
+      apikey: {{ default "" .Values.artifactBackend.temporal.apiKey }}
+      insecureskipverify: {{ default "true" .Values.artifactBackend.temporal.insecureSkipVerify }}
+      metricsport: {{ include "temporal.frontend.metricsPort" . }}
     registry:
       host: {{ include "core.registry" . }}
       port: {{ include "core.registry.port" . }}

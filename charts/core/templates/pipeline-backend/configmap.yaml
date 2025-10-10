@@ -89,7 +89,7 @@ data:
       namespace: {{ default "instill-core" .Values.pipelineBackend.temporal.namespace }}
       apikey: {{ default "" .Values.pipelineBackend.temporal.apiKey }}
       insecureskipverify: {{ default "true" .Values.pipelineBackend.temporal.insecureSkipVerify }}
-      metricsport: 9090
+      metricsport: {{ include "temporal.frontend.metricsPort" . }}
     otelcollector:
       enable: {{ index .Values "opentelemetry-collector" "enabled" }}
       host: {{ include "core.otel" . }}

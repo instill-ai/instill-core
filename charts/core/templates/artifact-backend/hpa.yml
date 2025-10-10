@@ -3,14 +3,14 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "core.artifactBackend" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ include "core.artifactBackend" . }}
-    labels:
-    {{- include "core.labels" . | nindent 4 }}
-    app.kubernetes.io/component: artifact-backend
   minReplicas: {{ .Values.artifactBackend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.artifactBackend.autoscaling.maxReplicas }}
   metrics:
@@ -23,6 +23,40 @@ spec:
           averageUtilization: {{ . }}
 {{- end }}
 {{- with .Values.artifactBackend.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- end }}
+---
+{{- if .Values.artifactBackendWorker.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "core.artifactBackendWorker" . }}
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend-worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "core.artifactBackendWorker" . }}
+  minReplicas: {{ .Values.artifactBackendWorker.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.artifactBackendWorker.autoscaling.maxReplicas }}
+  metrics:
+{{- with .Values.artifactBackendWorker.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.artifactBackendWorker.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
