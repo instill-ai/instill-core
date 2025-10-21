@@ -509,6 +509,7 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - ${CONFIG_DIR_PATH}/postgresql:/docker-entrypoint-initdb.d
+    command: ["postgres", "-c", "max_connections=1000"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
