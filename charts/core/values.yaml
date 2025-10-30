@@ -515,7 +515,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: 0.38.5
+    tag: "4858889"
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1104,6 +1104,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
 
