@@ -136,7 +136,7 @@ endef
 define MODEL_INTEGRATION_TEST
 	@EDITION=docker-ce:test docker compose up registry -d
 	@$(MAKE) build-and-push-models
-	@$(MAKE) compose-run EDITION=docker-ce:test INITMODEL_ENABLED=true INITMODEL_INVENTORY=${PWD}/integration-test/models/inventory.json
+	@$(MAKE) compose-dev EDITION=docker-ce:test INITMODEL_ENABLED=true INITMODEL_INVENTORY=${PWD}/integration-test/models/inventory.json
 	@$(MAKE) wait-models-deploy
 	@$(MAKE) down
 endef
