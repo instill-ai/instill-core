@@ -153,13 +153,33 @@ build-and-push-models:	# Helper target to build and push models
 .PHONY: wait-models-deploy
 wait-models-deploy:  # Helper target to wait for model deployment
 	@model_count=$$(jq length integration-test/models/inventory.json); \
-	timeout=1800; elapsed=0; spinner='|/-\\'; i=0; \
+	echo "Waiting for $$model_count model(s) to deploy..."; \
+	echo "Expected models:"; \
+	jq -r '.[].id' integration-test/models/inventory.json; \
+	echo ""; \
+	timeout=1800; elapsed=0; spinner='|/-\\'; i=0; debug_interval=10; \
+	ray_response=$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://${RAY_HOST}:${RAY_PORT_DASHBOARD}/api/serve/applications/); \
+	echo "=== Initial Ray state ==="; \
+	echo "$$ray_response" | jq '.applications | to_entries | map({key: .key, status: .value.status, message: .value.message})' || echo "$$ray_response"; \
+	echo ""; \
 	while [ "$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://${RAY_HOST}:${RAY_PORT_DASHBOARD}/api/serve/applications/ | jq ".applications | to_entries | map(select(.key | contains(\"dummy-\")) | .value.status) | length == $$model_count and all(. == \"RUNNING\")")" != "true" ]; do \
-		running_count=$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://${RAY_HOST}:${RAY_PORT_DASHBOARD}/api/serve/applications/ | jq '.applications | to_entries | map(select(.key | contains("dummy-")) | .value.status) | map(select(. == "RUNNING")) | length'); \
+		ray_response=$$(docker run --rm --network instill-network curlimages/curl:latest curl -s http://${RAY_HOST}:${RAY_PORT_DASHBOARD}/api/serve/applications/); \
+		running_count=$$(echo "$$ray_response" | jq '.applications | to_entries | map(select(.key | contains("dummy-")) | .value.status) | map(select(. == "RUNNING")) | length'); \
 		printf "\r[Waiting %3ds/%ds] %s models still deploying... (%d/%d RUNNING)" "$$elapsed" "$$timeout" "$${spinner:$$((i % 4)):1}" "$$running_count" "$$model_count"; \
+		if [ $$((elapsed % debug_interval)) -eq 0 ] && [ "$$elapsed" -gt 0 ]; then \
+			echo ""; \
+			echo "=== Debug at $${elapsed}s ==="; \
+			echo "$$ray_response" | jq '.applications | to_entries | map({key: .key, status: .value.status, message: .value.message})' || echo "$$ray_response"; \
+		fi; \
 		sleep 1; elapsed=$$((elapsed+1)); \
 		if [ "$$elapsed" -ge "$$timeout" ]; then \
-			echo "\nTimeout waiting for models to deploy!"; exit 1; \
+			echo ""; \
+			echo "=== TIMEOUT - Final Ray state ==="; \
+			docker run --rm --network instill-network curlimages/curl:latest curl -s http://${RAY_HOST}:${RAY_PORT_DASHBOARD}/api/serve/applications/ | jq '.'; \
+			echo ""; \
+			echo "=== Model Backend Init Model Logs ==="; \
+			docker logs model-backend-init-model --tail 100 || echo "Container not found"; \
+			echo "Timeout waiting for models to deploy!"; exit 1; \
 		fi; \
 		i=$$((i + 1)); \
 	done; \

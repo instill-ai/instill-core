@@ -493,7 +493,7 @@ services:
       tail -f /dev/null'
     volumes:
       - /var/lib/containers:/var/lib/containers
-    shm_size: 8gb
+    shm_size: 4gb
     healthcheck:
       test: ["CMD", "ray", "status"]
       interval: 5s
