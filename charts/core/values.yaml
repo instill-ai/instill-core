@@ -380,7 +380,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: 0.61.0
+    tag: 683de3a
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1104,6 +1104,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
 
