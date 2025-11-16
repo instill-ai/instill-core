@@ -24,29 +24,3 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "core.pipelineBackendWorker" . }}
-  labels:
-    {{- include "core.labels" . | nindent 4 }}
-    app.kubernetes.io/component: pipeline-backend-worker
-  {{- with .Values.pipelineBackendWorker.serviceAnnotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  ports:
-    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-private
-      port: {{ include "core.pipelineBackend.privatePort" . }}
-      targetPort: {{ include "core.pipelineBackend.privatePort" . }}
-    - name: {{ ternary "https" "http" .Values.internalTLS.enabled }}-public
-      port: {{ include "core.pipelineBackend.publicPort" . }}
-      targetPort: {{ include "core.pipelineBackend.publicPort" . }}
-    - name: temporal-metrics
-      port: {{ include "temporal.frontend.metricsPort" . }}
-      targetPort: {{ include "temporal.frontend.metricsPort" . }}
-  selector:
-    {{- include "core.matchLabels" . | nindent 4 }}
-    app.kubernetes.io/component: pipeline-backend-worker
