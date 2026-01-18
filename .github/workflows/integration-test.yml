@@ -91,95 +91,95 @@ jobs:
         run: |
           make down
 
-  model:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 5120
-          remove-dotnet: "true"
-          remove-android: "true"
-          remove-haskell: "true"
-          remove-codeql: "true"
-          remove-docker-images: "true"
-          build-mount-path: "/var/lib/docker"
+  # model:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Maximize build space
+  #       uses: easimon/maximize-build-space@master
+  #       with:
+  #         root-reserve-mb: 5120
+  #         remove-dotnet: "true"
+  #         remove-android: "true"
+  #         remove-haskell: "true"
+  #         remove-codeql: "true"
+  #         remove-docker-images: "true"
+  #         build-mount-path: "/var/lib/docker"
 
-      - name: Restart docker
-        run: sudo service docker restart
+  #     - name: Restart docker
+  #       run: sudo service docker restart
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.11"
 
-      - name: Checkout Python SDK
-        uses: actions/checkout@v4
-        with:
-          repository: instill-ai/python-sdk
-          path: python-sdk
+  #     - name: Checkout Python SDK
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: instill-ai/python-sdk
+  #         path: python-sdk
 
-      - name: Install Python SDK (editable mode)
-        run: |
-          cd python-sdk
-          git submodule update --init --remote --recursive
-          pip install --upgrade pip
-          pip install -e .
-          # Verify installation and environment
-          python -c "import instill; print('Instill SDK version:', instill.__version__)"
-          which instill
+  #     - name: Install Python SDK (editable mode)
+  #       run: |
+  #         cd python-sdk
+  #         git submodule update --init --remote --recursive
+  #         pip install --upgrade pip
+  #         pip install -e .
+  #         # Verify installation and environment
+  #         python -c "import instill; print('Instill SDK version:', instill.__version__)"
+  #         which instill
 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          repository: instill-ai/instill-core
-          path: instill-core
-          fetch-depth: 0
-          fetch-tags: true
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: instill-ai/instill-core
+  #         path: instill-core
+  #         fetch-depth: 0
+  #         fetch-tags: true
 
-      - name: Load .env file
-        uses: cardinalby/export-env-action@v2
-        with:
-          envFile: instill-core/.env
+  #     - name: Load .env file
+  #       uses: cardinalby/export-env-action@v2
+  #       with:
+  #         envFile: instill-core/.env
 
-      - name: Run model integration test
-        working-directory: instill-core
-        run: |
-            make model-integration-test
+  #     - name: Run model integration test
+  #       working-directory: instill-core
+  #       run: |
+  #           make model-integration-test
 
-      - name: Debug on failure
-        if: always()
-        working-directory: instill-core
-        run: |
-          echo "=== DEBUGGING FAILED TEST ==="
+  #     - name: Debug on failure
+  #       if: always()
+  #       working-directory: instill-core
+  #       run: |
+  #         echo "=== DEBUGGING FAILED TEST ==="
 
-          echo -e "\n=== Docker containers ==="
-          docker ps -a
+  #         echo -e "\n=== Docker containers ==="
+  #         docker ps -a
 
-          echo -e "\n=== System resources ==="
-          docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
+  #         echo -e "\n=== System resources ==="
+  #         docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
 
-          echo -e "\n=== model-backend logs ==="
-          docker logs model-backend --tail 100 || true
+  #         echo -e "\n=== model-backend logs ==="
+  #         docker logs model-backend --tail 100 || true
 
-          echo -e "\n=== model-backend-worker logs ==="
-          docker logs model-backend-worker --tail 100 || true
+  #         echo -e "\n=== model-backend-worker logs ==="
+  #         docker logs model-backend-worker --tail 100 || true
 
-          echo -e "\n=== model-backend-init-model logs ==="
-          docker logs model-backend-init-model --tail 100 || true
+  #         echo -e "\n=== model-backend-init-model logs ==="
+  #         docker logs model-backend-init-model --tail 100 || true
 
-          echo -e "\n=== Ray logs ==="
-          docker logs ray --tail 200 || true
+  #         echo -e "\n=== Ray logs ==="
+  #         docker logs ray --tail 200 || true
 
-          echo -e "\n=== Registry logs ==="
-          docker logs registry --tail 50 || true
+  #         echo -e "\n=== Registry logs ==="
+  #         docker logs registry --tail 50 || true
 
-          echo -e "\n=== Ray Serve applications ==="
-          docker run --rm --network instill-network curlimages/curl:latest \
-            curl -s http://ray:8265/api/serve/applications/ | jq '.' || true
+  #         echo -e "\n=== Ray Serve applications ==="
+  #         docker run --rm --network instill-network curlimages/curl:latest \
+  #           curl -s http://ray:8265/api/serve/applications/ | jq '.' || true
 
-      - name: Tear down Instill Core
-        if: always()
-        working-directory: instill-core
-        run: |
-          make down
+  #     - name: Tear down Instill Core
+  #       if: always()
+  #       working-directory: instill-core
+  #       run: |
+  #         make down

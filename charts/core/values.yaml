@@ -992,7 +992,7 @@ redis:
   # -- The image of redis
   image:
     repository: redis
-    tag: 8.0-M04-alpine3.21
+    tag: 8.4-alpine3.22
     pullPolicy: IfNotPresent
   # -- Set the service account to be used, default if left empty
   serviceAccountName: ""
@@ -1091,7 +1091,12 @@ openfga:
       - name: wait-for-db
         image: postgres:15-alpine
         imagePullPolicy: IfNotPresent
-        command: ["sh", "-c", "until pg_isready; do echo waiting for db; sleep 2; done"]
+        command:
+          [
+            "sh",
+            "-c",
+            "until pg_isready; do echo waiting for db; sleep 2; done",
+          ]
         env:
           - name: PGHOST
             value: "core-database"

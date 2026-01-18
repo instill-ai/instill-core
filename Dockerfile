@@ -1,5 +1,5 @@
-ARG GOLANG_VERSION=1.24.4
-ARG ALPINE_VERSION=3.21
+ARG GOLANG_VERSION=1.25.6
+ARG ALPINE_VERSION=3.22
 FROM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS base
 
 RUN apk add --update git bash make wget vim curl
