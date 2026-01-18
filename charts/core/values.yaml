@@ -304,7 +304,7 @@ mgmtBackend:
   # -- The image of mgmt-backend
   image:
     repository: instill/mgmt-backend
-    tag: e213190
+    tag: bb38f20
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1104,6 +1104,7 @@ openfga:
         args:
           - >
             until pg_isready; do
+
 
 
 
