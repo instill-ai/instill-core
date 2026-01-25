@@ -2,9 +2,6 @@ name: Integration Test
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "**"
 
 jobs:
   compose:
