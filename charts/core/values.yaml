@@ -238,7 +238,7 @@ apiGateway:
   # -- The image of api-gateway
   image:
     repository: instill/api-gateway
-    tag: e0e0e9a
+    tag: 46e1e20
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1105,9 +1105,11 @@ openfga:
           - >
             until pg_isready; do
 
+
               echo "Waiting for database to be ready...";
               sleep 2;
             done; createdb || true
+
         env:
           - name: PGDATABASE
             value: "openfga"
