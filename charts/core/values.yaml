@@ -515,7 +515,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: "6006495"
+    tag: "ee05fdd"
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
@@ -1112,7 +1112,6 @@ openfga:
               echo "Waiting for database to be ready...";
               sleep 2;
             done; createdb || true
-
         env:
           - name: PGDATABASE
             value: "openfga"
