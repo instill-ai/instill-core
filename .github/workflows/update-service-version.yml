@@ -20,14 +20,14 @@ jobs:
         run: |
           service="${{ inputs.service }}"
           valid_services=("api-gateway" "mgmt" "pipeline" "model" "artifact" "console" "ray")
-          
+
           if [[ ! " ${valid_services[@]} " =~ " ${service} " ]]; then
             echo "Error: Invalid service '${service}'. Must be one of: ${valid_services[*]}"
             exit 1
           fi
-          
+
           echo "Valid service: ${service}"
-          
+
           # Set repository and version variable based on service
           case "${service}" in
             "api-gateway")
@@ -101,7 +101,7 @@ jobs:
           commit_hash="${{ steps.commit-hash.outputs.short_hash }}"
           # Check if the current commit has a semantic version tag
           git_tag=$(git tag --points-at HEAD | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          
+
           if [ -n "$git_tag" ]; then
             # Remove 'v' prefix if present for semantic version tags
             new_version=${git_tag#v}
@@ -111,7 +111,7 @@ jobs:
             new_version=$commit_hash
             echo "No semantic version tag found, using commit hash: $new_version"
           fi
-          
+
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Get commit messages between versions
@@ -161,7 +161,9 @@ jobs:
           sed -i "s/${{ steps.service-config.outputs.version_var }}=.*/${{ steps.service-config.outputs.version_var }}=${{ steps.new-version.outputs.new_version }}/" .env
 
           # Update the image tag in helm chart values.yaml
-          yq eval '.${{ steps.service-config.outputs.helm_path }} = "${{ steps.new-version.outputs.new_version }}"' -i charts/core/values.yaml
+          # Use sed to preserve exact file formatting (yq reformats YAML and adds blank lines)
+          # Find the repository line and update the tag on the next line
+          sed -i "/repository: instill\/${{ steps.service-config.outputs.repository }}/{n;s/tag: .*/tag: ${{ steps.new-version.outputs.new_version }}/}" charts/core/values.yaml
 
           # Verify the changes
           echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.new-version.outputs.new_version }}"
