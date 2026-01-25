@@ -590,6 +590,11 @@ services:
       - OPENFGA_DATASTORE_ENGINE=postgres
       - OPENFGA_DATASTORE_URI=postgres://postgres:password@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/openfga?sslmode=disable
       - OPENFGA_CHECK_QUERY_CACHE_ENABLED=true
+      - OPENFGA_DATASTORE_MAX_OPEN_CONNS=100
+      - OPENFGA_DATASTORE_MAX_IDLE_CONNS=100
+      - OPENFGA_DATASTORE_CONN_MAX_IDLE_TIME=5m
+      - OPENFGA_CHECK_QUERY_CACHE_TTL=30s
+      - OPENFGA_LISTOBJECTS_DEADLINE=30s
     command: run
     depends_on:
       openfga_migrate:
