@@ -515,7 +515,7 @@ modelBackend:
   # -- The image of model-backend
   image:
     repository: instill/model-backend
-    tag: "ee05fdd"
+    tag: aa64bd3
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
