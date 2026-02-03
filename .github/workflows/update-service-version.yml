@@ -163,7 +163,7 @@ jobs:
           # Update the image tag in helm chart values.yaml
           # Use sed to preserve exact file formatting (yq reformats YAML and adds blank lines)
           # Find the repository line and update the tag on the next line
-          sed -i "/repository: instill\/${{ steps.service-config.outputs.repository }}/{n;s/tag: .*/tag: ${{ steps.new-version.outputs.new_version }}/}" charts/core/values.yaml
+          sed -i "/repository: instill\/${{ steps.service-config.outputs.repository }}/{n;s/tag: .*/tag: \"${{ steps.new-version.outputs.new_version }}\"/}" charts/core/values.yaml
 
           # Verify the changes
           echo "Updated ${{ steps.service-config.outputs.version_var }} to: ${{ steps.new-version.outputs.new_version }}"
