@@ -380,7 +380,7 @@ pipelineBackend:
   # -- The image of pipeline-backend
   image:
     repository: instill/pipeline-backend
-    tag: af347e7
+    tag: "1008a09"
     pullPolicy: IfNotPresent
   # -- Annotation for deployment
   annotations: {}
