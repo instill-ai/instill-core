@@ -112,18 +112,26 @@ docker exec -it pipeline-backend bash
 make integration-test API_GATEWAY_URL=api-gateway:8080 DB_HOST=pg-sql
 ```
 
-#### Remove the dev container
-
-```shell
-make rm
-```
-
 ### Tear down the local dev system
 
 Simply run:
 
 ```shell
 make down
+```
+
+### Useful development commands
+
+Here are some handy commands available in the Makefile:
+
+```shell
+make ps          # List all service containers
+make logs        # Tail all logs with -n 10
+make stop        # Stop all components
+make start       # Start all stopped components
+make pull        # Pull all service images
+make images      # List all container images
+make top         # Display all running service processes
 ```
 
 ## Configurations
