@@ -1039,6 +1039,10 @@ influxdb2:
 # -- The configuration of OpenFGA
 openfga:
   enabled: true
+  # -- Permission cache configuration (Redis-backed, covers CheckPermission and ListPermissions)
+  cache:
+    enabled: true
+    ttl: 60
   # -- The image of OpenFGA
   image:
     pullPolicy: IfNotPresent
