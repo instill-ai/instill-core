@@ -61,8 +61,8 @@ data:
       host: {{ include "core.openfga" . }}
       port: 8081
       cache:
-        enabled: {{ default true .Values.openfga.cache.enabled }}
-        ttl: {{ default 60 .Values.openfga.cache.ttl }}
+        enabled: {{ if .Values.artifactBackendOpenfgaCache }}{{ default true .Values.artifactBackendOpenfgaCache.enabled }}{{ else }}true{{ end }}
+        ttl: {{ if .Values.artifactBackendOpenfgaCache }}{{ default 60 .Values.artifactBackendOpenfgaCache.ttl }}{{ else }}60{{ end }}
     temporal:
       hostport: {{ default (printf "%s:%s" (include "temporal.host" .) (include "temporal.frontend.grpcPort" .)) .Values.artifactBackend.temporal.hostPort }}
       namespace: {{ default "instill-core" .Values.artifactBackend.temporal.namespace }}

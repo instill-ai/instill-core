@@ -1036,13 +1036,14 @@ influxdb2:
 # ------------------------------------------------------------
 # The configuration of dependent Helm charts
 # ------------------------------------------------------------
+# -- OpenFGA permission cache for artifact-backend (Redis-backed).
+# Placed at top level to avoid OpenFGA subchart schema conflicts.
+artifactBackendOpenfgaCache:
+  enabled: true
+  ttl: 60
 # -- The configuration of OpenFGA
 openfga:
   enabled: true
-  # -- Permission cache configuration (Redis-backed, covers CheckPermission and ListPermissions)
-  cache:
-    enabled: true
-    ttl: 60
   # -- The image of OpenFGA
   image:
     pullPolicy: IfNotPresent
