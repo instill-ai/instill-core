@@ -49,6 +49,28 @@ See [Examples](https://docs.instill-ai.com/docs/examples) for more!
 | Windows          | • Use Windows Subsystem for Linux (WSL2)<br>• Install latest `yq` from [GitHub Repository](https://github.com/mikefarah/yq)<br>• Install latest Docker Desktop and enable WSL2 integration ([tutorial](https://docs.docker.com/desktop/wsl))<br>• (Optional) Install `cuda-toolkit` on WSL2 ([NVIDIA tutorial](https://docs.nvidia.com/cuda/wsl-user-guide/index.html#getting-started-with-cuda-on-wsl-2)) |
 | All Systems      | • Docker Engine v25 or later<br>• Docker Compose v2 or later<br>• Install latest stable [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)                                                                                                                                                                                                       |
 
+### Linux Deployment
+
+Instill Core is natively supported on Linux. For Linux systems:
+
+1. **Install Docker and Docker Compose**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get update && sudo apt-get install -y docker.io docker-compose-plugin
+
+   # Or follow the official Docker installation guide for your distribution
+   # https://docs.docker.com/engine/install/
+   ```
+
+2. **Optional: GPU Support** (for model inference with NVIDIA GPUs):
+   - Install [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+   - Use `docker-compose-nvidia.yml` instead of the default compose file when launching with GPU:
+     ```bash
+     docker compose -f docker-compose-nvidia.yml up -d
+     ```
+
+3. **Launch Instill Core** using the same commands as in [Spin up Instill Core](#spin-up-instill-core) below.
+
 ### Spin up Instill Core
 
 Execute the following commands to pull pre-built images with all the dependencies to launch:
