@@ -27,21 +27,21 @@ data:
     {{- end }}
 
     # mgmt-backend
-    MGMT_BACKEND_HOST={{ include "core.mgmtBackend" . }}
+    MGMT_BACKEND_HOST={{ include "core.mgmtBackend" . }}-headless
     MGMT_BACKEND_PUBLICPORT={{ include "core.mgmtBackend.publicPort" . }}
     MGMT_BACKEND_PRIVATEPORT={{ include "core.mgmtBackend.privatePort" . }}
 
     # pipeline-backend
-    PIPELINE_BACKEND_HOST={{ include "core.pipelineBackend" . }}
+    PIPELINE_BACKEND_HOST={{ include "core.pipelineBackend" . }}-headless
     PIPELINE_BACKEND_PUBLICPORT={{ include "core.pipelineBackend.publicPort" . }}
 
     # model-backend
-    MODEL_BACKEND_HOST={{ include "core.modelBackend" . }}
+    MODEL_BACKEND_HOST={{ include "core.modelBackend" . }}-headless
     MODEL_BACKEND_PUBLICPORT={{ include "core.modelBackend.publicPort" . }}
     MODEL_BACKEND_PRIVATEPORT={{ include "core.modelBackend.privatePort" . }}
 
     # artifact-backend
-    ARTIFACT_BACKEND_HOST={{ include "core.artifactBackend" . }}
+    ARTIFACT_BACKEND_HOST={{ include "core.artifactBackend" . }}-headless
     ARTIFACT_BACKEND_PUBLICPORT={{ include "core.artifactBackend.publicPort" . }}
     ARTIFACT_BACKEND_PRIVATEPORT={{ include "core.artifactBackend.privatePort" . }}
 

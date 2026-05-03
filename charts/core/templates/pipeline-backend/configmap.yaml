@@ -27,7 +27,7 @@ data:
       {{- end }}
       instanceid: {{ include "core.pipelineBackend" . }}
     mgmtbackend:
-      host: {{ include "core.mgmtBackend" . }}
+      host: {{ include "core.mgmtBackend" . }}-headless
       publicport: {{ include "core.mgmtBackend.publicPort" . }}
       privateport: {{ include "core.mgmtBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
@@ -36,7 +36,7 @@ data:
         key: /etc/instill-ai/pipeline/ssl/mgmt/tls.key
       {{- end }}
     artifactbackend:
-      host: {{ include "core.artifactBackend" . }}
+      host: {{ include "core.artifactBackend" . }}-headless
       publicport: {{ include "core.artifactBackend.publicPort" . }}
       privateport: {{ include "core.artifactBackend.privatePort" . }}
       {{- if .Values.internalTLS.enabled }}
@@ -45,7 +45,7 @@ data:
         key: /etc/instill-ai/pipeline/ssl/artifact/tls.key
       {{- end }}
     modelbackend:
-      host: {{ include "core.modelBackend" . }}
+      host: {{ include "core.modelBackend" . }}-headless
       publicport: {{ include "core.modelBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:

@@ -20,3 +20,25 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: mgmt-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core.mgmtBackend" . }}-headless
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend
+spec:
+  clusterIP: None
+  ports:
+    - name: grpc-private
+      port: {{ include "core.mgmtBackend.privatePort" . }}
+      targetPort: {{ include "core.mgmtBackend.privatePort" . }}
+      appProtocol: kubernetes.io/h2c
+    - name: grpc-public
+      port: {{ include "core.mgmtBackend.publicPort" . }}
+      targetPort: {{ include "core.mgmtBackend.publicPort" . }}
+      appProtocol: kubernetes.io/h2c
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mgmt-backend

@@ -24,3 +24,25 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core.pipelineBackend" . }}-headless
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend
+spec:
+  clusterIP: None
+  ports:
+    - name: grpc-private
+      port: {{ include "core.pipelineBackend.privatePort" . }}
+      targetPort: {{ include "core.pipelineBackend.privatePort" . }}
+      appProtocol: kubernetes.io/h2c
+    - name: grpc-public
+      port: {{ include "core.pipelineBackend.publicPort" . }}
+      targetPort: {{ include "core.pipelineBackend.publicPort" . }}
+      appProtocol: kubernetes.io/h2c
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline-backend

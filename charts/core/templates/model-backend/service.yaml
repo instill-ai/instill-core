@@ -20,3 +20,25 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: model-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core.modelBackend" . }}-headless
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend
+spec:
+  clusterIP: None
+  ports:
+    - name: grpc-private
+      port: {{ include "core.modelBackend.privatePort" . }}
+      targetPort: {{ include "core.modelBackend.privatePort" . }}
+      appProtocol: kubernetes.io/h2c
+    - name: grpc-public
+      port: {{ include "core.modelBackend.publicPort" . }}
+      targetPort: {{ include "core.modelBackend.publicPort" . }}
+      appProtocol: kubernetes.io/h2c
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: model-backend

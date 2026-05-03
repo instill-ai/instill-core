@@ -20,3 +20,25 @@ spec:
   selector:
     {{- include "core.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: artifact-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core.artifactBackend" . }}-headless
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend
+spec:
+  clusterIP: None
+  ports:
+    - name: grpc-private
+      port: {{ include "core.artifactBackend.privatePort" . }}
+      targetPort: {{ include "core.artifactBackend.privatePort" . }}
+      appProtocol: kubernetes.io/h2c
+    - name: grpc-public
+      port: {{ include "core.artifactBackend.publicPort" . }}
+      targetPort: {{ include "core.artifactBackend.publicPort" . }}
+      appProtocol: kubernetes.io/h2c
+  selector:
+    {{- include "core.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: artifact-backend

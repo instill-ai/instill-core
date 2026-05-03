@@ -22,7 +22,7 @@ data:
       defaultuseruid: {{ .Values.mgmtBackend.defaultUserUID }}
       instillcorehost: {{ .Values.mgmtBackend.instillCoreHost }}
     pipelinebackend:
-      host: {{ include "core.pipelineBackend" . }}
+      host: {{ include "core.pipelineBackend" . }}-headless
       publicport: {{ include "core.pipelineBackend.publicPort" . }}
       {{- if .Values.internalTLS.enabled }}
       https:
