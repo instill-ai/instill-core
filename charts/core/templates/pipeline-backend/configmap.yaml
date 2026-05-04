@@ -95,7 +95,7 @@ data:
       host: {{ include "core.otel" . }}
       port: {{ include "core.otel.port" . }}
     openfga:
-      host: {{ include "core.openfga" . }}
+      host: {{ include "core.openfga" . }}-headless
       port: 8081
     minio:
       host: {{ include "minio.host" . }}

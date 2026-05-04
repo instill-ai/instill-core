@@ -1,0 +1,19 @@
+{{- if .Values.openfga.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core.openfga" . }}-headless
+  labels:
+    {{- include "core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openfga
+spec:
+  clusterIP: None
+  ports:
+    - name: grpc
+      port: 8081
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: openfga
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

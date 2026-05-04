@@ -90,7 +90,7 @@ data:
     initmodel:
       {{- toYaml .Values.modelBackend.initModel | nindent 6 }}
     openfga:
-      host: {{ include "core.openfga" . }}
+      host: {{ include "core.openfga" . }}-headless
       port: 8081
     registry:
       host: {{ include "core.registry" . }}.{{ include "core.namespace" . }}.svc.cluster.local
