@@ -7,6 +7,8 @@ volumes:
     name: ${COMPOSE_VOLUME_ELASTICSEARCH_DATA}
   minio_data:
     name: ${COMPOSE_VOLUME_MINIO_DATA}
+  milvus_data:
+    name: milvus-data
 
 services:
   api_gateway:
@@ -616,6 +618,7 @@ services:
     container_name: ${MILVUS_HOST}
     image: ${MILVUS_IMAGE}:${MILVUS_VERSION}
     restart: unless-stopped
+    stop_grace_period: 30s
     environment:
       ETCD_USE_EMBED: true
       COMMON_STORAGETYPE: local
@@ -623,6 +626,7 @@ services:
     volumes:
       - ${CONFIG_DIR_PATH}/milvus/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml
       - ${CONFIG_DIR_PATH}/milvus/user.yaml:/milvus/configs/user.yaml
+      - milvus_data:/var/lib/milvus
     command: milvus run standalone 1> /dev/null
     healthcheck:
       test:

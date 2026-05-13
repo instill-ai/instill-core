@@ -1,5 +1,19 @@
+# Embedded etcd configuration for Milvus standalone mode.
+# Reference: https://github.com/milvus-io/milvus/blob/master/configs/advanced/etcd.yaml
+#
+# Heartbeat / election tuning (2026-05-06):
+# Defaults are 100ms heartbeat, 1000ms election -- too tight for Docker
+# Desktop on macOS where the Linux VM can stall >100ms under CPU pressure.
+# A missed self-heartbeat in standalone mode triggers a "leader changed"
+# panic (exit 134) and a crash loop. 500ms / 5000ms keeps the 1:10 ratio
+# etcd recommends while tolerating Docker Desktop scheduling jitter.
+# See also: stop_grace_period on the milvus service in docker-compose.yml,
+# which prevents WAL corruption from ungraceful SIGKILL during shutdown.
+
 listen-client-urls: http://0.0.0.0:2379
 advertise-client-urls: http://0.0.0.0:2379
 quota-backend-bytes: 4294967296
 auto-compaction-mode: revision
 auto-compaction-retention: "1000"
+heartbeat-interval: 500
+election-timeout: 5000
