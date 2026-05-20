@@ -5,8 +5,16 @@
 # Defaults are 100ms heartbeat, 1000ms election -- too tight for Docker
 # Desktop on macOS where the Linux VM can stall >100ms under CPU pressure.
 # A missed self-heartbeat in standalone mode triggers a "leader changed"
-# panic (exit 134) and a crash loop. 500ms / 5000ms keeps the 1:10 ratio
+# panic (exit 134) and a crash loop. 500ms / 5000ms kept the 1:10 ratio
 # etcd recommends while tolerating Docker Desktop scheduling jitter.
+#
+# Update (2026-05-20): hit the same crash loop again when host load spiked
+# to ~9-12, stalling the VM past the 5000ms election timeout (181 restarts;
+# the data was NOT corrupted -- it self-healed once load eased). Bumped the
+# election timeout to 10000ms (now 500ms / 10000ms, a 1:20 ratio --
+# intentionally wider than etcd's 1:10 recommendation, since election-timeout
+# only needs to exceed the heartbeat by >=10x and a longer value tolerates
+# deeper VM stalls).
 # See also: stop_grace_period on the milvus service in docker-compose.yml,
 # which prevents WAL corruption from ungraceful SIGKILL during shutdown.
 
@@ -16,4 +24,4 @@ quota-backend-bytes: 4294967296
 auto-compaction-mode: revision
 auto-compaction-retention: "1000"
 heartbeat-interval: 500
-election-timeout: 5000
+election-timeout: 10000
