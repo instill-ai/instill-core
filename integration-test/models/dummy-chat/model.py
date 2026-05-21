@@ -6,6 +6,9 @@ from instill.helpers import (
 )
 
 
+MAX_BATCH_SIZE = 128
+
+
 @instill_deployment
 class Chat:
     def __init__(self):
@@ -15,6 +18,8 @@ class Chat:
         inputs = await parse_task_chat_to_chat_input(request=request)
 
         input_len = len(inputs)
+        if input_len > MAX_BATCH_SIZE:
+            raise ValueError(f"batch size exceeds maximum allowed: {MAX_BATCH_SIZE}")
 
         finish_reasons = [["length"] for _ in range(input_len)]
         indexes = [list(range(input_len))]
